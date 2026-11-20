@@ -525,6 +525,18 @@ pub(crate) struct ForkRun<'a> {
 // `Copy`), shared or derived from another. There is no seeded arm: the dead
 // `FixtureSeed(ZkRng::new)` the review found is gone, and s25's W-8 census
 // scans this file and counts the two construction sites.
+//
+// **[A35] the commit phase's two placements in a stream (2026-11-20; NOT RULED,
+// default off).** The commit phase is the same code in both, inside
+// `prove_forks_inner`, on the thread that calls it, with its ONE generator under
+// `commit_seed_domain` dropped before this run's first fork starts. What moves is
+// the stream's prover turn: by default (`HL_A35_BOUNDS_AHEAD` unset or 0) a
+// served request enters its prover turn BEFORE the prove call, so the commit
+// phase runs while the request holds the prover; with the switch on, the request
+// leaves its sealing turn, makes the prove call, and enters its prover turn only
+// after the commit phase (the hook `at_prover`, before the forks), so the commit
+// phase runs beside the previous request's forks. No word committed, absorbed or
+// written changes (`run_fork_tests.rs`, `a35_*`).
 
 pub(crate) fn commit_seed_domain(profile: &str) -> Vec<u8> {
     let mut d = SEED_USE_FORK_COMMIT.to_vec();
@@ -603,6 +615,10 @@ pub(crate) struct ForkStats {
     /// [A13] each fork's before-challenge seconds, in block order, and
     /// whether that part ran during the sealing pass
     pub fork_before_s: Vec<(f64, bool)>,
+    /// [A35] the seconds this call waited for its stream's prover turn between
+    /// the commit phase and the forks (0 unless `HL_A35_BOUNDS_AHEAD`); not in
+    /// `total_s`
+    pub turn_wait_s: f64,
 }
 
 /// **The malicious-receipt controls the D55 ruling names** (TEST BUILDS
@@ -1596,14 +1612,14 @@ impl ForkCtx<'_> {
 /// `stack-prove` reaches the same prover through [`Planned::prove`].)
 #[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn prove_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize) -> Result<(ForkReceipt, ForkStats), String> {
-    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), None)
+    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), None, None)
 }
 
 /// **A CHEATING FORK-RUN PROVER** for the D55 controls (`tamper`, and whether
 /// it forges the honest position tags where it can). Test builds only.
 #[cfg(test)]
 pub(crate) fn prove_run_with_forks_tampered(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, tamper: ForkTamper, forge_tags: bool) -> Result<(ForkReceipt, ForkStats), String> {
-    prove_forks_inner(fr, blocks, src, externals, workers, Cheat { t: Some((tamper, forge_tags)) }, None)
+    prove_forks_inner(fr, blocks, src, externals, workers, Cheat { t: Some((tamper, forge_tags)) }, None, None)
 }
 
 /// [A13] the work one fork worker is handed: a witness (the whole fork), a
@@ -1614,7 +1630,8 @@ enum Job {
     Failed(String),
 }
 
-fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, cheat: Cheat, ahead: Option<&Slots>) -> Result<(ForkReceipt, ForkStats), String> {
+#[allow(clippy::too_many_arguments)]
+fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, cheat: Cheat, ahead: Option<&Slots>, at_prover: Option<&dyn Fn()>) -> Result<(ForkReceipt, ForkStats), String> {
     let t_all = Instant::now();
     let st = fr.st;
     let (sh, l) = (&st.rs.sh, st.rs.l);
@@ -1666,6 +1683,14 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     let s0_tag = if forge && skip.is_some() { position_tag(&fr.s0(&roots, None)?) } else { position_tag(&tr) };
     let head = fw::encode_head(&binding, l, &roots, &s0_tag)?;
     stats.commit_s = t1.elapsed().as_secs_f64();
+    // [A35] a stream's prover turn, entered here when the switch is on (the commit
+    // phase above then ran beside the previous request's forks); with no hook (the
+    // default) nothing waits
+    if let Some(enter) = at_prover {
+        let tw = Instant::now();
+        enter();
+        stats.turn_wait_s = tw.elapsed().as_secs_f64();
+    }
 
     // ---------------- PHASE 2: the forks, concurrently
     let t2 = Instant::now();
@@ -1854,7 +1879,8 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     let boundary_rows = if l > 1 { st.boundary_spec(0)?.commitment_rows() } else { 0 };
     let tail = fw::encode_tail(&TailFrame { boundary_opens, in_open, out_open }, sh, &binding, l, boundary_rows, BOUNDARY_SITES, &s1_tag, &end_tag)?;
     stats.join_s = t3.elapsed().as_secs_f64();
-    stats.total_s = t_all.elapsed().as_secs_f64();
+    // [A35] the prove call's own seconds: the prover turn's wait is not in it (0.0 by default)
+    stats.total_s = t_all.elapsed().as_secs_f64() - stats.turn_wait_s;
     let forks = outs.into_iter().map(|o| o.bytes).collect();
     Ok((ForkReceipt { head, forks, tail }, stats))
 }
@@ -2271,7 +2297,7 @@ pub(crate) fn prove_run_with_forks_ahead(fr: &ForkRun, blocks: &dyn ForkBlocks, 
     if ahead.binding != fr.transcript()?.state() || ahead.blocks_at != blocks_addr(blocks) {
         return Err("D55: the before-challenge parts were made for another fork run or another blocks object".into());
     }
-    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), Some(&ahead.slots))
+    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), Some(&ahead.slots), None)
 }
 
 /// **[A13] ONE REQUEST: the sealing pass, each fork's before-challenge part
@@ -2305,7 +2331,7 @@ pub(crate) fn prove_run_with_forks_sealing<S: RunWitnessSource>(fr: &ForkRun, bl
             g.sealed = true;
             g.stop = failed;
         });
-        let r = sealed.and_then(|mut src| prove_forks_inner(fr, blocks, &mut src, externals, workers, Cheat::default(), Some(&slots)));
+        let r = sealed.and_then(|mut src| prove_forks_inner(fr, blocks, &mut src, externals, workers, Cheat::default(), Some(&slots), None));
         slots.set(|g| g.stop = true);
         r
     })
@@ -2637,11 +2663,18 @@ impl Planned<'_> {
     /// unless its block is the very object, `prove_core_after_with`). A block
     /// with no part takes its witness from `src`, as [`prove_run_with_forks`].
     pub(crate) fn prove(&self, fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize) -> Result<(ForkReceipt, ForkStats), String> {
+        self.prove_at_turn(fr, blocks, src, externals, workers, None)
+    }
+
+    /// [A35] as [`Planned::prove`], with `at_prover` (when given) called once on this
+    /// thread after the commit phase and before the forks: a stream's prover turn
+    /// (`HL_A35_BOUNDS_AHEAD`, default off; see the F4 note above `commit_seed_domain`)
+    pub(crate) fn prove_at_turn(&self, fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, at_prover: Option<&dyn Fn()>) -> Result<(ForkReceipt, ForkStats), String> {
         self.check(fr)?;
         if self.handed() > 0 && blocks_addr(blocks) != blocks_addr(self.blocks) {
             return Err("D55: the before-challenge parts were made against another blocks object".into());
         }
-        prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), self.plan.map(|_| self.slots))
+        prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), self.plan.map(|_| self.slots), at_prover)
     }
 }
 

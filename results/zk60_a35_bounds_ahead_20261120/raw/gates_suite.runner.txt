@@ -1,0 +1,10 @@
+[20:29:57] launching g2_full_suite
+[zk60-guard 20:29:57] START a35-g2_full_suite class=cpu need=24G cap=60G enforce=watchdog-only waited=0s run=4bcc8b82eaf8
+[zk60-guard 20:40:35] END a35-g2_full_suite exit=101 child_wall=638s peak_rss=9.42G min_avail=200.30G
+[20:40:35] g2_full_suite guard exit 101
+STEP g2_full_suite rc=101
+[20:40:36] launching g2_three_known
+[zk60-guard 20:40:36] START a35-g2_three_known class=cpu need=16G cap=40G enforce=watchdog-only waited=0s run=fd19c297b750
+[zk60-guard 20:40:37] END a35-g2_three_known exit=101 child_wall=1s peak_rss=0.22G min_avail=210.20G
+[20:40:37] g2_three_known guard exit 101
+STEP g2_three_known rc=101

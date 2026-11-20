@@ -3521,9 +3521,16 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
             let mut src = StackSource::new(sh, if shared { StackBlocks::Sealed(&blocks) } else { StackBlocks::Model(m, &digests) }, l, chain, None)?;
             // [A22] a stream: this request's sealing side is done (the next request's
             // sealing pass may start); wait for its turn at the prover, before anything
-            // of the run exists
+            // of the run exists. [A35] (`HL_A35_BOUNDS_AHEAD`, default off, not ruled):
+            // leave the sealing turn only; the prove call enters the prover turn after its
+            // commit phase, before its forks (the run directory then exists while it waits)
+            let bounds_ahead = run.turn.is_some() && a35_bounds_ahead();
             if let Some(turn) = run.turn {
-                turn.sealed();
+                if bounds_ahead {
+                    turn.seal_done();
+                } else {
+                    turn.sealed();
+                }
             }
             // ---- (3) the proving pass
             std::fs::create_dir(run.out).map_err(|e| format!("{}: {e}", run.out.display()))?;
@@ -3539,7 +3546,10 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
                     reloaded = v;
                     (&reloaded as &dyn run::fork::ForkBlocks, s)
                 };
-                let proof = planned.prove(&fr, b, &mut src, owners, run.workers);
+                let proof = match run.turn {
+                    Some(turn) if bounds_ahead => planned.prove_at_turn(&fr, b, &mut src, owners, run.workers, Some(&|| turn.at_prover())),
+                    _ => planned.prove(&fr, b, &mut src, owners, run.workers),
+                };
                 // [A22] a stream: the prover is free for the next request, whatever the
                 // prove call returned (this run's receipt is written outside the turn)
                 if let Some(turn) = run.turn {
@@ -3791,6 +3801,12 @@ pub(crate) fn write_unverified_statement_files(unverified: &Path, expected: &[u8
 pub(crate) trait D55Turn: Sync {
     fn sealed(&self);
     fn proved(&self);
+    /// [A35] `sealed`'s first half (the sealing side done, the next request may seal)
+    /// and its second (wait for this request's prover turn), called apart when
+    /// `HL_A35_BOUNDS_AHEAD` is on: the second from inside the prove call, after its
+    /// commit phase
+    fn seal_done(&self);
+    fn at_prover(&self);
 }
 
 /// **[A22] a model a stack server holds**: its public part, loaded and checked once at
@@ -3882,6 +3898,23 @@ pub(crate) fn set_a22_lanes_for_test(n: Option<usize>) {
 #[cfg(test)]
 pub(crate) fn set_a22_digest_ahead_for_test(on: Option<bool>) {
     A22_DIGEST_AHEAD_TEST.store(on.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
+}
+
+static A35_BOUNDS_AHEAD_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
+
+/// [A35] `HL_A35_BOUNDS_AHEAD` (default off; NOT RULED): a served request makes its prove
+/// call's commit phase (the boundary commitments) before it enters its prover turn, beside
+/// the previous request's forks (`run_fork.rs`, the F4 note). Only a stream (a request with
+/// turns) reads it.
+pub(crate) fn a35_bounds_ahead() -> bool {
+    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+    super::trained_statement::a20_switch(&A35_BOUNDS_AHEAD_TEST, &ENV, "HL_A35_BOUNDS_AHEAD", 0) != 0
+}
+
+/// tests: the A35 placement on or off (`None`: as the environment says)
+#[cfg(test)]
+pub(crate) fn set_a35_bounds_ahead_for_test(on: Option<bool>) {
+    A35_BOUNDS_AHEAD_TEST.store(on.map(usize::from).unwrap_or(usize::MAX), std::sync::atomic::Ordering::Relaxed);
 }
 
 static A23_SHARE_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
@@ -4290,6 +4323,14 @@ impl D55Turn for RequestTurns<'_> {
     fn proved(&self) {
         self.mark(2);
         self.leave_prove();
+    }
+    fn seal_done(&self) {
+        self.mark(0);
+        self.leave_seal();
+    }
+    fn at_prover(&self) {
+        self.prove.enter(self.q);
+        self.mark(1);
     }
 }
 

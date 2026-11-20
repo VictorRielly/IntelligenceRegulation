@@ -6658,6 +6658,122 @@ mod a22 {
         assert!(ran > 0.0, "no sumcheck round ran on the device");
     }
 
+    // ------------------------------------------------------------------ [A35] the commit phase ahead
+
+    /// **[A35] the commit phase made before the prover turn gives the same words**: the
+    /// resident synthetic stack served, seeded, at each `(window, lanes)`, with
+    /// `HL_A35_BOUNDS_AHEAD` off and then on (honest, lie at layer 1, honest, honest). In both:
+    /// every receipt verifies from its run directory, its head is the replayed commit phase
+    /// (byte for byte), its interior forks equal those forks proved whole (byte for byte), the
+    /// refused request leaves nothing, the turns keep their order. Across the two: every
+    /// request's boundary roots (the commit phase's committed words) are byte-identical and
+    /// every receipt has the same size. The placement is checked from the clocks: off, the
+    /// commit phase is inside the prover turn and nothing waits inside the call; on, it is
+    /// between the sealing side and the prover turn. A request's endpoint commitments are the
+    /// operating system's and have no seeded form, so two requests' whole receipts differ;
+    /// every word the seeded generators fix is compared.
+    fn a35_check_synth(fixa: &Arc<A18Fix>, workers: usize, arms: &[(usize, usize)]) -> Vec<String> {
+        use crate::private_block::trained_block::set_a35_bounds_ahead_for_test;
+        let _k = a22_knobs();
+        let fix: &A18Fix = fixa;
+        let l = fix.l;
+        let ctx: Digest = [135; 32];
+        let model = A22Synth::new(fix, ctx);
+        let res = Resident::start(&model).unwrap();
+        let root = scratch("a35-synth");
+        let heads: Arc<Mutex<Vec<Vec<Digest>>>> = Default::default();
+        let check: A22Check = {
+            let (f, heads) = (fixa.clone(), heads.clone());
+            Arc::new(move |fr: &ForkRun<'_>, blocks: &dyn ForkBlocks, rc: &ForkReceipt| {
+                let binding = fr.transcript().unwrap().state();
+                let (roots, _) = fw::decode_head(&rc.head, &binding, fr.st.rs.l).unwrap();
+                heads.lock().unwrap().push(roots);
+                a19_interior_forks_whole(fr, blocks, &f.planes, &|k| f.witness(k), rc)
+            })
+        };
+        let mut lines = Vec::new();
+        for (i, &(window, lanes)) in arms.iter().enumerate() {
+            let mut bytes: Vec<Vec<u64>> = Vec::new();
+            for ba in [false, true] {
+                set_ahead_for_test(Some(window), Some(2), Some(2));
+                set_a22_lanes_for_test(Some(lanes));
+                set_a35_bounds_ahead_for_test(Some(ba));
+                let seen: Arc<Mutex<Vec<A22Seen>>> = Default::default();
+                let dir = root.join(format!("arm-{i}-ba{}", u8::from(ba)));
+                std::fs::create_dir(&dir).unwrap();
+                let chains = ["honest", "lie1", "honest", "honest"];
+                let reqs: Vec<String> = chains.iter().enumerate().map(|(q, c)| format!("{{\"out\":{},\"chain\":\"{c}\"}}", js(&dir.join(format!("run-{q}")).display().to_string()))).collect();
+                let cfg = a22_cfg(workers, u64::MAX, Some(a22_setup(true, Some(check.clone()), Vec::new(), seen.clone())));
+                let outs = serve_stream(&res, &cfg, reqs.into_iter(), &mut |_| {});
+                set_ahead_for_test(None, None, None);
+                set_a22_lanes_for_test(None);
+                set_a35_bounds_ahead_for_test(None);
+                let what = format!("window {window} lanes {lanes} bounds ahead {ba}");
+                assert_eq!(outs.iter().map(|o| o.status).collect::<Vec<_>>(), ["proved", "refused", "proved", "proved"], "{what}: {:?}", outs.iter().map(|o| o.detail.clone()).collect::<Vec<_>>());
+                assert!(outs[1].detail.as_deref().unwrap_or("").contains("before the run header; ruling H-1"), "{what}: the lie's refusal: {:?}", outs[1].detail);
+                assert!(!dir.join("run-1").exists() && !a22_unverified(&dir.join("run-1")).exists(), "{what}: the refused request left a run directory or a statement");
+                let mut seen = seen.lock().unwrap().clone();
+                seen.sort_by_key(|s| s.q);
+                for s in seen.iter().filter(|s| s.q != 1) {
+                    assert_eq!(s.live, 0, "{what}: request {} left a part alive", s.q);
+                    assert_eq!(s.compared, Some(l.saturating_sub(2)), "{what}: request {}'s interior forks", s.q);
+                    assert!(s.seeded && s.generators == l + 1, "{what}: request {}: seeded {} generators {}", s.q, s.seeded, s.generators);
+                }
+                let mut sizes = Vec::new();
+                for q in [0usize, 2, 3] {
+                    let frames = a22_verify_synth(fix, ctx, outs[q].out.as_ref().unwrap(), 2);
+                    let p = outs[q].proved.as_ref().unwrap();
+                    assert_eq!(frames.iter().map(|(n, _)| *n).sum::<u64>(), p.receipt_bytes, "{what}: request {q}: the receipt's size");
+                    sizes.push(p.receipt_bytes);
+                    let (fs, at) = (&p.times.fork, &outs[q].at);
+                    assert!(fs.commit_s > 0.0 && fs.total_s.is_finite() && fs.total_s > 0.0, "{what}: request {q}: the call's clocks {fs:?}");
+                    if ba {
+                        assert!(at[3] - at[2] >= fs.commit_s, "{what}: request {q} entered the prover before its commit phase ended: {at:?}, commit {}", fs.commit_s);
+                    } else {
+                        assert_eq!(fs.turn_wait_s, 0.0, "{what}: request {q} waited inside the call");
+                        assert!(at[4] - at[3] >= fs.commit_s, "{what}: request {q}'s commit phase was not inside its prover turn: {at:?}, commit {}", fs.commit_s);
+                    }
+                }
+                bytes.push(sizes);
+                lines.push(format!("{what}: honest, lie1 (refused before the run header), honest, honest: each receipt verified from its run directory ({} B); head = the replayed commit phase; {} interior forks = those forks proved whole; {}", outs[0].proved.as_ref().unwrap().receipt_bytes, l.saturating_sub(2), a22_turns_hold(&outs, lanes)));
+                std::fs::remove_dir_all(&dir).unwrap();
+            }
+            assert_eq!(bytes[0], bytes[1], "window {window} lanes {lanes}: the receipts' sizes moved with the switch");
+        }
+        let heads = heads.lock().unwrap();
+        assert_eq!(heads.len(), 6 * arms.len(), "a proved request was not checked");
+        assert!(heads.iter().all(|r| r.len() == l - 1 && *r == heads[0]), "the boundary roots moved with the switch (or between requests)");
+        lines.push(format!("the boundary roots of all {} proved requests, switch off and on, are byte-identical ({} roots each)", heads.len(), l - 1));
+        std::fs::remove_dir_all(&root).unwrap();
+        lines
+    }
+
+    /// **[A35] the commit phase ahead of the prover turn, on the CPU** (in the suite)
+    #[test]
+    fn a35_the_commit_phase_before_the_prover_turn_gives_the_same_words() {
+        let fix = Arc::new(A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 4));
+        for line in a35_check_synth(&fix, 2, &[(0, 2), (2, 2), (0, 1)]) {
+            eprintln!("A35-SYNTH {line}");
+        }
+    }
+
+    /// **[A35] the same on the Metal device** (ignored; run alone by name)
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[test]
+    #[ignore = "A35: toggles HL_GPU in-process; run alone by name on a Mac"]
+    fn a35_the_commit_phase_before_the_prover_turn_gives_the_same_words_on_the_device() {
+        let fix = Arc::new(A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, 4));
+        std::env::set_var("HL_GPU", "1");
+        let before = crate::gpu::metal_sumcheck_stats().1;
+        let lines = a35_check_synth(&fix, 3, &[(0, 2), (2, 2)]);
+        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+        std::env::remove_var("HL_GPU");
+        for line in lines {
+            eprintln!("A35-SYNTH (Metal) {line}");
+        }
+        assert!(ran > 0.0, "no sumcheck round ran on the device");
+    }
+
     /// **[A22] the 8B synthetic block served on the device** (ignored: a few GB): the resident
     /// 8B stack (`L` = `HL_A22_8B_L`, default 4) at window 0 and the digests ahead off and on
     #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
@@ -6729,6 +6845,8 @@ mod a22 {
         /// startup checks), `seal<t>` (the sealing pool's threads; `seal0` the global pool)
         a23: A23Set,
         seal: Option<usize>,
+        /// [A35] `ba0` / `ba1`: the commit phase before the prover turn (`HL_A35_BOUNDS_AHEAD`)
+        ba: Option<bool>,
     }
 
     #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
@@ -6742,9 +6860,11 @@ mod a22 {
         } else {
             panic!("HL_A22_AB: an arm starts with serve<R> or harness<R>, not {first:?}")
         };
-        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None, a23: A23Set::default(), seal: None };
+        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None, a23: A23Set::default(), seal: None, ba: None };
         for w in words {
             match w {
+                "ba0" => a.ba = Some(false),
+                "ba1" => a.ba = Some(true),
                 "dig0" => a.dig = Some(false),
                 "dig1" => a.dig = Some(true),
                 "share0" => a.a23.share = Some(false),
@@ -6828,7 +6948,7 @@ mod a22 {
                 let pr = o.proved.as_ref().unwrap();
                 let (tm, fs) = (&pr.times, &pr.times.fork);
                 eprintln!(
-                    "A22-AB REQ {name} L{l} N{n} [{label}] {tag} request {}: arrived {:.3}, sealing turn {:.3}, sealing side done {:.3} (sealing pass {:.3} s), prover {:.3}-{:.3} (waited {:.3} s; prove call {:.3} s: preflight {:.3}, commit {:.3}, forks {:.3}, join {:.3}), receipt write {:.3} s ({} writers), result {:.3}; {} B; {} witnesses kept; loads waited {:.3} s ({} ahead); {} startup passes; load {:.3} s",
+                    "A22-AB REQ {name} L{l} N{n} [{label}] {tag} request {}: arrived {:.3}, sealing turn {:.3}, sealing side done {:.3} (sealing pass {:.3} s), prover {:.3}-{:.3} (waited {:.3} s; prove call {:.3} s: preflight {:.3}, commit {:.3}, forks {:.3}, join {:.3}), receipt write {:.3} s ({} writers), result {:.3}; {} B; {} witnesses kept; loads waited {:.3} s ({} ahead); {} startup passes; load {:.3} s; prover turn waited inside the call {:.3} s",
                     o.q,
                     o.at[0],
                     o.at[1],
@@ -6850,7 +6970,8 @@ mod a22 {
                     tm.seal_load_wait_s,
                     tm.seal_loads_ahead,
                     tm.startup_checked,
-                    tm.seal_load_s
+                    tm.seal_load_s,
+                    fs.turn_wait_s
                 );
             }
             if verify {
@@ -6928,6 +7049,7 @@ mod a22 {
             set_a22_lanes_for_test(a.lanes);
             a.a23.apply();
             crate::private_block::trained_block::set_seal_pool_for_test(a.seal);
+            crate::private_block::trained_block::set_a35_bounds_ahead_for_test(a.ba);
         };
         let reset = || {
             a18_apply(&A18Arm::default());
@@ -6935,6 +7057,7 @@ mod a22 {
             set_a22_lanes_for_test(None);
             A23Set::default().apply();
             crate::private_block::trained_block::set_seal_pool_for_test(None);
+            crate::private_block::trained_block::set_a35_bounds_ahead_for_test(None);
         };
         // one cold request through the server (kernel compiles), verified
         let cold = serve("serve1 (cold)", 1, None, true);
@@ -6946,13 +7069,14 @@ mod a22 {
                 let (a, label) = (&arms[ai], &labels[ai]);
                 apply(a);
                 let settings = format!(
-                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}",
+                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}, bounds ahead {}",
                     run::fork::ahead_window(),
                     a22_digest_ahead(),
                     a22_lanes(),
                     crate::private_block::trained_block::a23_share(),
                     crate::private_block::trained_block::a23_checked(),
-                    crate::private_block::trained_block::seal_pool_threads()
+                    crate::private_block::trained_block::seal_pool_threads(),
+                    crate::private_block::trained_block::a35_bounds_ahead()
                 );
                 let s = if a.harness { harness(label, a.r, p == 0) } else { serve(label, a.r, Some(p), p == 0) };
                 reset();

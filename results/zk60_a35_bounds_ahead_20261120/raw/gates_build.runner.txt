@@ -1,0 +1,5 @@
+[20:23:00] launching g1_build
+[zk60-guard 20:23:00] START a35-g1_build class=build need=8G cap=16G enforce=watchdog-only waited=0s run=3a1fdd63c743
+[zk60-guard 20:25:49] END a35-g1_build exit=0 child_wall=169s peak_rss=4.48G min_avail=205.91G
+[20:25:49] g1_build guard exit 0
+STEP g1_build rc=0

@@ -1,0 +1,4 @@
+[20:41:02] launching t1: serve8+lanes2,serve8+lanes2+ba1
+[zk60-guard 20:41:02] START a35-t1 class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=5dee3dc2932b
+[zk60-guard 20:48:02] END a35-t1 exit=0 child_wall=421s peak_rss=33.38G min_avail=162.73G peak_vram=22504MiB
+[20:48:02] t1 guard exit 0

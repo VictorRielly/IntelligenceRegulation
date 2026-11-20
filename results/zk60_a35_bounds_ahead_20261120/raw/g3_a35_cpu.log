@@ -1,0 +1,14 @@
+
+running 2 tests
+test private_block::run::fork::tests::a22::a35_the_commit_phase_before_the_prover_turn_gives_the_same_words ... A35-SYNTH window 0 lanes 2 bounds ahead false: honest, lie1 (refused before the run header), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 2 held at once
+A35-SYNTH window 0 lanes 2 bounds ahead true: honest, lie1 (refused before the run header), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 2 held at once
+A35-SYNTH window 2 lanes 2 bounds ahead false: honest, lie1 (refused before the run header), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 2 held at once
+A35-SYNTH window 2 lanes 2 bounds ahead true: honest, lie1 (refused before the run header), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 2 held at once
+A35-SYNTH window 0 lanes 1 bounds ahead false: honest, lie1 (refused before the run header), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 1 held at once
+A35-SYNTH window 0 lanes 1 bounds ahead true: honest, lie1 (refused before the run header), honest, honest: each receipt verified from its run directory (61301184 B); head = the replayed commit phase; 2 interior forks = those forks proved whole; 4 requests entered the sealing turn and 3 the prover, each in request order; at most 1 held at once
+A35-SYNTH the boundary roots of all 18 proved requests, switch off and on, are byte-identical (3 roots each)
+ok
+test private_block::run::fork::tests::a22::a35_the_commit_phase_before_the_prover_turn_gives_the_same_words_on_the_device ... ignored, A35: toggles HL_GPU in-process; run alone by name on a Mac
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 1140 filtered out; finished in 40.31s
+

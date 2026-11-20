@@ -1,0 +1,13 @@
+
+running 8 tests
+test private_block::s26_tests::every_seed_derivation_input_length_is_printed_and_clear_of_the_node_refill_and_squeeze ... ok
+test private_block::s26_tests::the_four_honest_generic_proofs_this_stage_must_not_break_are_where_the_ledger_says ... ok
+test private_block::s26_tests::the_legacy_length_guards_refused_row_counts_are_unmoved ... ok
+test private_block::s26_tests::the_two_endpoint_generators_of_one_statement_derive_their_keys_from_different_inputs ... ok
+test private_block::s26_tests::the_two_frozen_profiles_keep_the_domains_they_have ... ok
+test private_block::s26_tests::every_production_generator_is_seeded_from_a_domain_builder ... ok
+test private_block::s26_tests::the_domains_are_built_from_public_fields_and_nothing_else ... ok
+test private_block::s26_tests::no_two_generators_of_one_proof_share_a_derivation_input ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 1134 filtered out; finished in 0.15s
+

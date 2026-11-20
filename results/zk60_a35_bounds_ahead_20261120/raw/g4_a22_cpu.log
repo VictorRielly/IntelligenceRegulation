@@ -1,0 +1,16 @@
+
+running 9 tests
+test private_block::run::fork::tests::a22::a22_stream_ab ... ignored, A22: the stream A/B at W16R2 8B T128, 32 blocks; heavy, guarded, alone, HL_GPU=1 HL_PB_ORACLE=0
+test private_block::run::fork::tests::a22::a22_the_resident_8b_stream_replays ... ignored, A22: the 8B synthetic block; heavy, guarded, alone, HL_PB_ORACLE=0
+test private_block::run::fork::tests::a22::a22_cs6_takes_the_digest_kept_with_its_block_and_refuses_a_wrong_one ... ok
+test private_block::run::fork::tests::a22::a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on_on_the_device ... ignored, A22: toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::run::fork::tests::a22::a22_the_resident_synthetic_rung_stream_replays_with_the_window_off_and_on ... ok
+test private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal_on_the_device ... ignored, A22: toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal has been running for over 60 seconds
+test private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal ... ok
+test private_block::run::fork::tests::a22::a35_the_commit_phase_before_the_prover_turn_gives_the_same_words_on_the_device ... ignored, A35: toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::run::fork::tests::a22::a35_the_commit_phase_before_the_prover_turn_gives_the_same_words has been running for over 60 seconds
+test private_block::run::fork::tests::a22::a35_the_commit_phase_before_the_prover_turn_gives_the_same_words ... ok
+
+test result: ok. 4 passed; 0 failed; 5 ignored; 0 measured; 1133 filtered out; finished in 103.94s
+
