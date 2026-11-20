@@ -92,5 +92,31 @@ read from the slot labels in the GPU trace instead, which the block test writes.
 
 - A Shieldstral stream on the current binary (the 4.381 s is from 2026-11-13).
 - Trained weights: this is the block test's own fixture at the profile's shape.
-- Why commit A has a slow mode today [not investigated]; it is in the controls as well.
+- Why commit A has a slow mode; it is in the controls as well. See the addendum below: located, not explained.
 - The unbatched arms B and C of the breakdown at this profile.
+
+## Addendum, 2026-11-20 17:36 UTC: where commit A's slow mode sits [RECOMPUTED from the traces, no new run]
+
+From the trace's five timestamps per record (begin, committed, GPU start, GPU end, done), over the eight batched
+traces at hand (today's four and four of 2026-11-17: the two arm A traces and the knob traces tail250 and
+tg256_th18), five warm passes each:
+
+- **It is GPU execution time of commit A, and only of commit A.** Encode, queue wait and tail are the same in slow
+  and fast passes (0.03, 0.1 to 0.9 and 0.15 ms). Script: `commit_a_mode.py` (reads the traces, runs nothing). Commit A's GPU interval is at least 15% above the fastest pass of
+  its trace in 11 of 40 warm passes (17 to 67% above; at W16R2 about 13.2 ms fast and 15.5 to 21.8 ms slow). Commit H,
+  the same kernel on about the same number of rows, is never slow: 0 of 40, largest ratio 1.08.
+- **It is not new today.** The 2026-11-17 knob traces have it (13.1 to 21.8 ms); the 2026-11-17 arm A trace that
+  gave the reference total happened to have five fast passes (13.1 to 14.7 ms), which is why today's controls read
+  2 to 3% above it.
+- **The GPU idle gap before the record does not decide it.** Commit A follows the longest gap of a pass (57 to
+  88 ms at W16R2, the host building the witness). Over the 30 W16R2 passes the slow ones have somewhat longer gaps
+  at the median (78 against 68 ms), but the ranges overlap completely: there are slow passes after 57 and 58 ms and
+  fast ones after 85 and 87 ms. Commit H stays fast after gaps of 75 and 76 ms at R13. At most a weak factor.
+- **Cause not determined.** What differs for commit A is that it is the first GPU work of a pass, on buffers the
+  host has just written. Candidates, none tested: first use of freshly written or freshly allocated buffers, or
+  host threads still running beside it.
+- **Size [DERIVED]:** the mean excess of commit A over the fastest pass of its trace is 2.2 ms per block over the
+  30 W16R2 passes, 2.3% of a 94 ms block. Whether the stream has it at all is not shown (there commit A overlaps
+  other buffers and its span is dominated by sharing). Under the 5% line; not scheduled.
+- **For measurement:** a block GPU total moves by up to 6 ms with the share of slow commit A passes. Compare the
+  slot sums and commit H across sessions (they agree to 0.3 ms); read commit A as a range.
