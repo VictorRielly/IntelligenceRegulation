@@ -172,3 +172,43 @@ would gain little unless the sealing side gets shorter. The ceiling stated in th
 `gates.py` (the gate sequence; groups build / check / focus / device / suite), `guarded.py` (A33's), `run_a35.py` (the timing
 job, from `run_l2.py`), `a35_terms.py` (the steady gap, the rule and the per-index terms, from `l2_steady.py` / `l2_terms.py`),
 `A35_TERMS_t1.md` (its output), `raw/` (every leaf's log, guard record, status before and after, `.done` markers).
+
+## 8. Default ON, 2026-11-20
+
+Written 2026-11-20 22:58Z. The header and section 6 above describe the switch as default off and not ruled; that was true when they
+were written. **Since 2026-11-20 `HL_A35_BOUNDS_AHEAD` defaults to ON** (`trained_block.rs`, `a35_bounds_ahead()`: the default argument of
+`a20_switch` is 1). The behaviour of the code path is unchanged; only the default moved.
+
+- **Accepted by:** Sol on second read (18:32Z) and Antigravity on second read (22:16Z), both recorded in
+  `ops/zkp-mvp/RECOVERY_COORDINATION.md`.
+- **Evidence for the speed effect (steady gap, 8B, harness stream, switch on against off):** -4.98 % (the A35 run, section 4),
+  -6.27 % (the coordinator's replication, `results/zk60_a35_replication_20261120/`), -5.83 % (the third sample, the 8B control in
+  `results/zk60_shield_stream_20261120/`; 3.774 s off, 3.552 s on, 3 of 3 passes).
+- **To turn it off:** set `HL_A35_BOUNDS_AHEAD=0` in the server's environment; in the A/B harness give an arm the word `ba0`
+  (an arm with no `ba` word now runs with the switch on; `ba1` is still accepted).
+- **Sol's note on the order:** under the switch the run directory is created before the wait for the prover turn, so its creation
+  time is visible to a filesystem observer (section 6, item 2).
+- **Other edits in this change:** comments that said "default off / not ruled" now say default ON (`trained_block.rs`, `run_fork.rs`,
+  `run_fork_tests.rs`); the macOS liveness patch (`pid_is_alive_or_unknown`, commit `cd1de293`) is merged here, with the reviewer's
+  correction that "dead" needs raw stdout exactly empty (`out.stdout.is_empty()`, not `stdout.trim().is_empty()`), so whitespace-only
+  output counts as alive as the doc comment says. No digest or expected value in any test was changed.
+
+**Tests run on the rebuilt binary** (`hashline-ee9e07880f531987`, the same file name as before, rebuilt 14:26 local), each through
+the resource guard; run ids from `raw/d*.guard.json`, all exit 0:
+
+| leaf | class | guard run id | result |
+|---|---|---|---|
+| `cargo test --release --offline --locked -j 2 --features gpu-metal --lib --no-run` | build | `62b443a9232b` | exit 0, 171 s |
+| `cargo check --tests --offline --locked -j 2` (no gpu-metal) | build | `7f99bdf1bf31` | exit 0, 3 s |
+| `a35_the_commit_phase_before_the_prover_turn_gives_the_same_words` (the off/on test, CPU) | cpu | `8c3ff68d69e2` | 1 passed, 40 s |
+| the same on the Metal device (ignored, by name) | gpu | `227911b668d0` | 1 passed, 9 s |
+| `private_block::s25_tests::` (generator census) | cpu | `3d37945bf57d` | 20 passed |
+| `private_block::s26_tests::` | cpu | `4b7b04e9c04a` | 8 passed |
+| `run::fork::tests::a22::` (CPU; these now run with the switch on by default) | cpu | `ce302df2714e` | 4 passed, 5 ignored, 104 s |
+| liveness: `pid_liveness_helper_answers_alive_for_self_and_dead_for_a_reaped_child`, `clear_stale_writing_dirs_refuses_this_pid_and_removes_a_reaped_childs`, and the older `review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name` | cpu | `08dde4d45591` | 3 passed (the last was one of the three known failures in section 3; it passes with this patch) |
+| `a22_stream_ab`, `HL_A22_AB=serve8+lanes2+ba0,serve8+lanes2`, 1 pass, `HL_D55_AB_ALTERNATE=1` | gpu | `c6906bd6ca4b` | exit 0, 105 s |
+
+**Confirmation that the default took effect (not a timing claim: one pass, box not quiesced).** The harness prints the switch state per
+arm: `[serve8+lanes2+ba0]` shows `bounds ahead false`; `[serve8+lanes2]` (no `ba` word) shows `bounds ahead true`. Steady gap
+(completion[6] - completion[1]) / 5: 3.706 s for `ba0`, 3.580 s for the default arm. Logs: `raw/d4_default.log`. The full suite was
+not re-run.

@@ -1,0 +1,20 @@
+2026-11-20T22:26:19Z
+--- guard status ---
+RAM   208.12 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 0 of 252.5 GiB committed by guarded jobs
+LOCKS heavy free, build free
+GPU   1574 of 196608 MiB used
+DISK  /System/Volumes/VM 194.6 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16553 MiB  pid 48978   agy
+  rss   3726 MiB  pid 1578    claude
+  rss   1837 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1379 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1309 MiB  pid 17265   claude
+  rss    963 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/
+--- pgrep -fl ds4-bench ---
+10530 zsh -c test ! -e /tmp/HOLD && echo "PRE_HOLD_OK" && (pgrep -fl ds4-bench || echo "ds4-bench-pre: none") && python3 scripts/zk60_resource_guard.py run --class build --label agy-lean-l68b-build2 -- bash -lc 'cd formal && LEAN_NUM_THREADS=2 lake build ZK60Formal.RunShieldOpenShell' && (pgrep -fl ds4-bench || echo "ds4-bench-post: none")
+
+--- 2026-11-20T22:26:22Z pgrep -fl ds4-bench after the run ---
+10530 zsh -c test ! -e /tmp/HOLD && echo "PRE_HOLD_OK" && (pgrep -fl ds4-bench || echo "ds4-bench-pre: none") && python3 scripts/zk60_resource_guard.py run --class build --label agy-lean-l68b-build2 -- bash -lc 'cd formal && LEAN_NUM_THREADS=2 lake build ZK60Formal.RunShieldOpenShell' && (pgrep -fl ds4-bench || echo "ds4-bench-post: none")
+

@@ -1,0 +1,20 @@
+2026-11-20T22:21:22Z
+--- guard status ---
+RAM   208.08 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 12.0 of 252.5 GiB committed by guarded jobs
+  job  astra-a2-real-parity_3734    cpu   need 12G since 2026-11-20T22:21:04Z
+LOCKS heavy HELD, build free
+GPU   1578 of 196608 MiB used
+DISK  /System/Volumes/VM 194.5 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16550 MiB  pid 48978   agy
+  rss   3725 MiB  pid 1578    claude
+  rss   1837 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1379 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1309 MiB  pid 17265   claude
+  rss    969 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/
+--- pgrep -fl ds4-bench ---
+(none)
+--- 2026-11-20T22:26:19Z pgrep -fl ds4-bench after the run ---
+10530 zsh -c test ! -e /tmp/HOLD && echo "PRE_HOLD_OK" && (pgrep -fl ds4-bench || echo "ds4-bench-pre: none") && python3 scripts/zk60_resource_guard.py run --class build --label agy-lean-l68b-build2 -- bash -lc 'cd formal && LEAN_NUM_THREADS=2 lake build ZK60Formal.RunShieldOpenShell' && (pgrep -fl ds4-bench || echo "ds4-bench-post: none")
+

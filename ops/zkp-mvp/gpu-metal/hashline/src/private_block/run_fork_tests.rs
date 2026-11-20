@@ -6845,7 +6845,9 @@ mod a22 {
         /// startup checks), `seal<t>` (the sealing pool's threads; `seal0` the global pool)
         a23: A23Set,
         seal: Option<usize>,
-        /// [A35] `ba0` / `ba1`: the commit phase before the prover turn (`HL_A35_BOUNDS_AHEAD`)
+        /// [A35] `ba0` / `ba1`: the commit phase before the prover turn (`HL_A35_BOUNDS_AHEAD`);
+        /// default ON since 2026-11-20, accepted on second reads by Sol (18:32Z) and Antigravity
+        /// (22:16Z): an arm with no `ba` word runs with it on, `ba0` (or `HL_A35_BOUNDS_AHEAD=0`) turns it off
         ba: Option<bool>,
     }
 

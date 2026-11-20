@@ -3521,7 +3521,7 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
             let mut src = StackSource::new(sh, if shared { StackBlocks::Sealed(&blocks) } else { StackBlocks::Model(m, &digests) }, l, chain, None)?;
             // [A22] a stream: this request's sealing side is done (the next request's
             // sealing pass may start); wait for its turn at the prover, before anything
-            // of the run exists. [A35] (`HL_A35_BOUNDS_AHEAD`, default off, not ruled):
+            // of the run exists. [A35] (`HL_A35_BOUNDS_AHEAD`, default ON since 2026-11-20, accepted on second reads by Sol (18:32Z) and Antigravity (22:16Z); `HL_A35_BOUNDS_AHEAD=0` turns it off):
             // leave the sealing turn only; the prove call enters the prover turn after its
             // commit phase, before its forks (the run directory then exists while it waits)
             let bounds_ahead = run.turn.is_some() && a35_bounds_ahead();
@@ -3902,13 +3902,15 @@ pub(crate) fn set_a22_digest_ahead_for_test(on: Option<bool>) {
 
 static A35_BOUNDS_AHEAD_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
 
-/// [A35] `HL_A35_BOUNDS_AHEAD` (default off; NOT RULED): a served request makes its prove
+/// [A35] `HL_A35_BOUNDS_AHEAD` (default ON since 2026-11-20, accepted on second reads by Sol
+/// (18:32Z) and Antigravity (22:16Z); `HL_A35_BOUNDS_AHEAD=0` or the test arm word `ba0`
+/// turns it off): a served request makes its prove
 /// call's commit phase (the boundary commitments) before it enters its prover turn, beside
 /// the previous request's forks (`run_fork.rs`, the F4 note). Only a stream (a request with
 /// turns) reads it.
 pub(crate) fn a35_bounds_ahead() -> bool {
     static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
-    super::trained_statement::a20_switch(&A35_BOUNDS_AHEAD_TEST, &ENV, "HL_A35_BOUNDS_AHEAD", 0) != 0
+    super::trained_statement::a20_switch(&A35_BOUNDS_AHEAD_TEST, &ENV, "HL_A35_BOUNDS_AHEAD", 1) != 0
 }
 
 /// tests: the A35 placement on or off (`None`: as the environment says)
@@ -4810,13 +4812,13 @@ pub(crate) fn pid_is_alive_or_unknown(pid: u32) -> bool {
         Ok(o) => o,
         Err(_) => return true,
     };
-    let stdout = String::from_utf8_lossy(&out.stdout);
     if out.status.success() {
         // alive when ps names this pid; success with anything else is not understood
         return true;
     }
-    // the one conclusive "dead" answer: exit 1, nothing printed anywhere
-    let conclusive_dead = out.status.code() == Some(1) && stdout.trim().is_empty() && out.stderr.is_empty();
+    // the one conclusive "dead" answer: exit 1, nothing printed anywhere (raw stdout bytes
+    // exactly empty: whitespace-only output is not "nothing" and counts as alive)
+    let conclusive_dead = out.status.code() == Some(1) && out.stdout.is_empty() && out.stderr.is_empty();
     !conclusive_dead
 }
 

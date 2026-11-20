@@ -526,13 +526,15 @@ pub(crate) struct ForkRun<'a> {
 // `FixtureSeed(ZkRng::new)` the review found is gone, and s25's W-8 census
 // scans this file and counts the two construction sites.
 //
-// **[A35] the commit phase's two placements in a stream (2026-11-20; NOT RULED,
-// default off).** The commit phase is the same code in both, inside
+// **[A35] the commit phase's two placements in a stream (2026-11-20; default ON
+// since 2026-11-20, accepted on second reads by Sol (18:32Z) and Antigravity
+// (22:16Z); `HL_A35_BOUNDS_AHEAD=0` or the arm word `ba0` turns it off).** The
+// commit phase is the same code in both, inside
 // `prove_forks_inner`, on the thread that calls it, with its ONE generator under
 // `commit_seed_domain` dropped before this run's first fork starts. What moves is
-// the stream's prover turn: by default (`HL_A35_BOUNDS_AHEAD` unset or 0) a
+// the stream's prover turn: with the switch off (`HL_A35_BOUNDS_AHEAD=0`) a
 // served request enters its prover turn BEFORE the prove call, so the commit
-// phase runs while the request holds the prover; with the switch on, the request
+// phase runs while the request holds the prover; with the switch on (the default), the request
 // leaves its sealing turn, makes the prove call, and enters its prover turn only
 // after the commit phase (the hook `at_prover`, before the forks), so the commit
 // phase runs beside the previous request's forks. No word committed, absorbed or
@@ -616,7 +618,8 @@ pub(crate) struct ForkStats {
     /// whether that part ran during the sealing pass
     pub fork_before_s: Vec<(f64, bool)>,
     /// [A35] the seconds this call waited for its stream's prover turn between
-    /// the commit phase and the forks (0 unless `HL_A35_BOUNDS_AHEAD`); not in
+    /// the commit phase and the forks (0 when `HL_A35_BOUNDS_AHEAD=0`, and in a call with no
+    /// stream turn; the switch is default ON since 2026-11-20); not in
     /// `total_s`
     pub turn_wait_s: f64,
 }
@@ -2668,7 +2671,9 @@ impl Planned<'_> {
 
     /// [A35] as [`Planned::prove`], with `at_prover` (when given) called once on this
     /// thread after the commit phase and before the forks: a stream's prover turn
-    /// (`HL_A35_BOUNDS_AHEAD`, default off; see the F4 note above `commit_seed_domain`)
+    /// (`HL_A35_BOUNDS_AHEAD`, default ON since 2026-11-20, accepted on second reads by Sol
+    /// (18:32Z) and Antigravity (22:16Z), `=0` or the arm word `ba0` turns it off; see the F4
+    /// note above `commit_seed_domain`)
     pub(crate) fn prove_at_turn(&self, fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, at_prover: Option<&dyn Fn()>) -> Result<(ForkReceipt, ForkStats), String> {
         self.check(fr)?;
         if self.handed() > 0 && blocks_addr(blocks) != blocks_addr(self.blocks) {
