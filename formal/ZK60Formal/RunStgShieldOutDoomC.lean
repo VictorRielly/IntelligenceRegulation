@@ -76,6 +76,42 @@ theorem shd_outc_doomAt (hU : U ^ 2 = algebraMap GF K 7) (key : Option Dig) (dom
 
 end Doom
 
+section Tie
+
+variable {K : Type} [Field K] [Algebra GF K] {Hdr Salt : Type} {Lq : ℕ}
+
+/-- **The tie to `xC`** (item 7 of HANDOFF_20261119_3.md section 6, finding L63-11's argument): the wrapped
+extractor's `xC` is `B_out`'s verdict row read by `bxUxV`'s R13 plane reader at the run's transcript view, at an
+OUT-C-like reading whose head lies past `off Lb + 2` (`epxIO_xC`, `bndPlanes_tau`). -/
+theorem epxIO_xC_tau (C : PlaneCommit (RunShape.Shield.shieldS0.Tok → ℕ) (ClsStmt Hdr) Salt) (mk : C.SaltMk)
+    (pos : RunShape.Shield.shieldS0.Tok → Fin C.dR × Fin C.n)
+    (ops : List (QB Lq × Dig) → ClsStmt Hdr → Fin C.N → Option (MerkleOpening Dig Dig (ColR C.R)))
+    (U : K) (tag : MTag) (h64 : 64 ≤ Lq)
+    (key : Option Dig) (domain : List UInt8) (hs : decodeLink (startMsg domain) = none)
+    (hL : (startMsg domain).length ≤ Lq) (pf : RtProf)
+    (rd : ClsStmt Hdr × ClsReceipt → List Op × List RtData)
+    (D : RtKData K Lq) (Lb : ℕ) (prow : RunShape.Shield.shieldS0.Tok)
+    (E0 : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt RunShape.Shield.shieldS0 Salt)
+    (lg : List (QB Lq × Dig)) (s : ClsStmt Hdr) (rc : ClsReceipt) (R : ℕ)
+    (hg : (D.opX (Lb + 1)).h = 16 ∧ (D.opX (Lb + 1)).lc = 14 ∧ (D.opX (Lb + 1)).Q = 256
+      ∧ (D.opX (Lb + 1)).e = 24448 ∧ (D.opX (Lb + 1)).rows = R)
+    (G : QB Lq → Dig) (Pof : List Fp2 → Block.BlockParams) (m hdrLen : ℕ) (bgaOf : List Fp2 → Fp2 × Fp2 × Fp2)
+    (hdr : List Op) (core : Block.Core) (ch : List Fp2) (rs : List Block.SlotRec)
+    (hrd : StgRd key domain Lq Pof m hdrLen bgaOf G (rtTr key domain Lq pf rd G (s, rc)) hdr core ch rs)
+    (hj : pf.off Lb + 2 < hdrLen + 4) :
+    (epxE C mk pos ops (epxBndE U tag Lq h64 key domain hs hL pf rd D shieldDPos0
+        (epxIOE C pos ops U tag h64 key domain hs hL pf rd D shieldDPos0 Lb prow E0)) lg s rc).xC
+      = fun i => Exec.Block.Join.W16.piB K (Exec.Block.Join.planeZ U 14 R 256
+          (bxUxV tag Lq h64 R (pf.off Lb + 2) (stgVw (Exec.Block.absOfC (chainEncB key domain hs Lq hL)) lg
+            (rtTr key domain Lq pf rd G (s, rc))))
+          ⟨.a, [(0, Fp2.one)], 19, [], 0, 0⟩ (Fin.append (msbBits 7 prow.val) (msbBits 12 i.val))) := by
+  rw [epxIO_xC]
+  funext i
+  exact bndPlanes_tau U tag h64 key domain hs hL pf rd D shieldDPos0 lg (s, rc) Lb (prow, i) R hg G Pof m hdrLen bgaOf
+    hdr core ch rs hrd hj
+
+end Tie
+
 section Nums
 
 variable (tag : MTag) (Rp : ZK60.RunShape.ClassifyRunPublicP RunShape.Shield.shieldS0) (wDigest : Dig) (bOutRow : ℕ)
