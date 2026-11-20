@@ -2,6 +2,15 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-20: Claude researcher tick 29, which lane settings were measured at the app's W16R2 classifier, and the lane-count test (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git; the owner-private event logs were not read. Triage material (no ruling).
+[Handoff](handoffs/20261120-claude-tick29-app-lanes.md) and its script `20261120-claude-tick29-app-lanes.py` (reads the retained `served` lines).
+- **Only 6 x 5 (stream) and 3 x 10 (one post) were ever run at W16R2**, both on the shared Metal queue (coordinator's reading of `run_batch2.py`, not the app's `thread`). Every 8-lane, 6 x 8, 6 x 10, 8 x 6 and two-process figure is R13. The app's 6 x 5 was inherited from A24's R13 stream (shared queue, n = 1 each) and kept by A26 to A28.
+- **MEASURED request medians (retained `served` lines):** W16R2 13.10 s at 3 x 10 and 20.47 s at 6 x 5 (x1.56); R13 24.13 s and 41.57 s (x1.72). DERIVED two-point model: 8 lanes x1.075 over 6 at W16R2, x1.042 predicted against x1.001 measured at R13, so about x1.035 bias-corrected: at the 3% pass line. Lane count is a small lever.
+- **One request on its lane (CODE-READ):** seal chain of 26 serial blocks, then IN-C, 26 serial blocks on one transcript, OUT-C; one thread of control per request (rayon sections use the lane's 5 threads, the device waits spin 200 microseconds). Candidate causes of lockstep: equal requests with a start-only stagger (five steps of 300 ms = 1.50 s equals Astra's 1.37 to 1.60 s group width, DERIVED), the shared queue (Antigravity's measurement, not re-derived), process-global pool and cache mutexes (not measured); no lock held across a device wait found.
+- **Test S-L (8 x 4 beside 6 x 5, 48 requests, queue A/B first) and a driver-only first-wave spacing of 3.2 s stated, NOT scheduled;** a constant stagger of 3.2 s through the environment caps the rate at 40.0 tok/s. Effect on committed words: 0; on proved tokens/s: 8 lanes 0 to +7.5% (central +3.5%), spacing up to about +10% (ceiling), unvalidated. Proofs / passes / positions: 0 / 0 / 0.
+
 ## 2026-11-20: Claude researcher tick 28, the Shieldstral shares re-paired to the app's profile W16R2_SHIELD (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web: a re-pairing item); no run, no build, no Git. Triage material (no ruling).

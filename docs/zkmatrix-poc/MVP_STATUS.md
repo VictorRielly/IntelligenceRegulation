@@ -667,6 +667,13 @@ item was re-checked against the source by the coordinator.
     72.7% GPU busy share and the in-step reading all describe the shared queue. Whether the installed
     setting is faster or slower at this profile is not known. Asked of Astra: the two queue modes side by
     side at six lanes first, then eight lanes (the server's maximum; nine is refused).
+    **Tick 29, 2026-11-20 23:52 UTC [records and source read, no run]:** at the app's W16R2 profile only
+    6 lanes x 5 threads (the stream) and 3 x 10 (one post) were ever measured, both on the shared queue;
+    6 x 5 was inherited from R13 and never re-tested. Lane count looks like a small lever (eight lanes about
+    +3.5% by a two-point fit). The lanes sit together because the 300 ms start stagger is carried through
+    every wave (completion groups are 1.5 s wide, five steps of 300 ms) and is half a block period at this
+    profile. Proposed to Astra, settings only, not run: the two queue modes first, then a 100 ms stagger
+    (one sixth of a block period), then eight lanes.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the
@@ -678,6 +685,15 @@ item was re-checked against the source by the coordinator.
     that leg): the approved texts fix only the target `εzkTarget`, the top's conclusion stays letter for
     letter the same, and the change is in the hypothesis field `O.zk`; no soundness or extraction theorem
     is affected.
+    **Update 23:47 UTC: Sol confirmed the five findings independently** (23:35Z and 23:41Z, against the
+    R13 native source): the two constants are wrong (ruling L63-9: `mRows` 50, six hosted slots; the change
+    is made by Claude's 00:12 UTC leg with the lane's full check), the completeness quantifier is
+    contradictory, the real run has 112 trees and 283,822 transcript operations against the 57,344 assumed,
+    and the 300-bit bound on boundary column digests fails. **Consequence: the zero-knowledge premise of the
+    newest top cannot be met as stated, and the completeness helper results of L25, L29 and L32 are empty.**
+    Soundness and extraction are not affected by either reading. `O.zk` stays open; the repair (column
+    digests as dependent queries, an error term counted for the real schedule) is accepted in principle
+    and lands only with the proofs that discharge it.
     **Scope fact, stated by Antigravity 2026-11-20 22:57 UTC:** the whole Lean chain up to the newest top
     models Shieldstral T128 at the **R13** profile (rows 4577 and 4390). The installed app has run the
     **W16R2** Shieldstral profile (rows 2504 and 2606, statement identity named dev-only) since 2026-11-13.
