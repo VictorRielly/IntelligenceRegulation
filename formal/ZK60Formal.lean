@@ -593,3 +593,4 @@ import ZK60Formal.RunStgShieldOutTzc
 import ZK60Formal.RunStgShieldOutSat
 import ZK60Formal.RunStgShieldOutDoomC
 import ZK60Formal.RunStgShieldClTopOC
+import ZK60Formal.RunStgShieldEmbFold
