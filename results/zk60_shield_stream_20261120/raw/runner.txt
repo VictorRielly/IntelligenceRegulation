@@ -1,0 +1,9 @@
+[2026-11-20T19:54:29Z] launching shield26: W16R2_SHIELD_T128_H24 L26, 6 passes, arms serve8+lanes2,serve8+lanes2+ba1
+[zk60-guard 11:54:29] START shield-stream-shield26 class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=a08410be6546
+[zk60-guard 11:54:34] END shield-stream-shield26 exit=101 child_wall=5s peak_rss=1.08G min_avail=207.83G peak_vram=883MiB
+[2026-11-20T19:54:34Z] shield26: guard exit 101 after 5 s
+[2026-11-20T19:54:49Z] launching ctl8b32: W16R2_8B_T128_H24 L32, 3 passes, arms serve8+lanes2,serve8+lanes2+ba1
+[zk60-guard 11:54:49] START shield-stream-ctl8b32 class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=dc7876922dc4
+[zk60-guard 11:58:39] END shield-stream-ctl8b32 exit=0 child_wall=230s peak_rss=32.84G min_avail=162.87G peak_vram=22816MiB
+[2026-11-20T19:58:39Z] ctl8b32: guard exit 0 after 230 s
+[2026-11-20T19:58:54Z] ALL JOBS DONE; failed: shield26

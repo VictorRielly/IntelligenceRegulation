@@ -1,0 +1,5 @@
+[2026-11-20T19:54:29Z] launching shield26: W16R2_SHIELD_T128_H24 L26, 6 passes, arms serve8+lanes2,serve8+lanes2+ba1
+[2026-11-20T19:54:34Z] shield26: guard exit 101 after 5 s
+[2026-11-20T19:54:49Z] launching ctl8b32: W16R2_8B_T128_H24 L32, 3 passes, arms serve8+lanes2,serve8+lanes2+ba1
+[2026-11-20T19:58:39Z] ctl8b32: guard exit 0 after 230 s
+[2026-11-20T19:58:54Z] ALL JOBS DONE; failed: shield26

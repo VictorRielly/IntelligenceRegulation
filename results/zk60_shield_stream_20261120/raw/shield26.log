@@ -1,0 +1,15 @@
+
+running 1 test
+
+thread 'private_block::run::fork::tests::a22::a22_stream_ab' (19447240) panicked at src/private_block/run_fork_tests.rs:3664:151:
+a W16R2 test-only run identity
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::run::fork::tests::a22::a22_stream_ab ... FAILED
+
+failures:
+
+failures:
+    private_block::run::fork::tests::a22::a22_stream_ab
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 1141 filtered out; finished in 4.71s
+

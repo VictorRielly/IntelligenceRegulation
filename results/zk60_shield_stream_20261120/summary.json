@@ -1,0 +1,48 @@
+{
+ "shield26": null,
+ "ctl8b32": {
+  "profile": "W16R2_8B_T128_H24",
+  "layers": 32,
+  "workers": 6,
+  "arms": {
+   "serve8+lanes2": {
+    "gaps_s": [
+     3.764,
+     3.776,
+     3.774
+    ],
+    "median_gap_s": 3.774,
+    "ms_per_block": 117.94,
+    "tok_s_at_median_gap": 33.92,
+    "test_steady_tok_s": [
+     34.37,
+     34.08,
+     34.15
+    ]
+   },
+   "serve8+lanes2+ba1": {
+    "gaps_s": [
+     3.552,
+     3.492,
+     3.554
+    ],
+    "median_gap_s": 3.552,
+    "ms_per_block": 111.0,
+    "tok_s_at_median_gap": 36.04,
+    "test_steady_tok_s": [
+     36.18,
+     36.69,
+     36.47
+    ],
+    "pair_minus_off_s": [
+     -0.212,
+     -0.284,
+     -0.22
+    ],
+    "pair_median_s": -0.22,
+    "pair_median_pct": -5.83,
+    "lower_in": "3 of 3"
+   }
+  }
+ }
+}
