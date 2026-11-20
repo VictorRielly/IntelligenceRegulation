@@ -21,3 +21,4 @@ import ZK60Formal
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkCl
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLO
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkOC
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkEF
