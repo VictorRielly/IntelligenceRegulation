@@ -756,6 +756,17 @@ item was re-checked against the source by the coordinator.
     designed comparison: with one GPU queue per thread, this test's six-lane rate with the switch off
     (43 to 44) was already at the level Astra measured for eight lanes on the shared queue (43.79), so
     the lane count should be chosen under the queue mode the app will actually run.
+    **Tick 33, 15:58 UTC: the reason given above ("the GPU already paces the stream") is WITHDRAWN as
+    unproven [DERIVED from the same records by the researcher, re-run by Claude].** The utilisation figure
+    it rested on reads about 65% with a single lane proving, where GPU work is 22% of the time, and 85 to
+    90% in every full-lanes run, so it cannot tell a busy GPU from a saturated one. What the records do
+    show: with the switch on, the unchanged sealing pass of every lane was 7% slower at six and at eight
+    lanes (1% at one lane), so the cost crosses lanes; and the stream with the switch off runs at 83.5%
+    (six lanes) and 87% (eight) of what GPU time alone would allow with no overlap. Whether the full-lanes
+    stream waits on the GPU or on the host is therefore open, and it decides which kind of speed change
+    is worth building next. **Claude's lane is measuring it now:** five traced stream runs (one lane; six
+    lanes with the switch off and on; six lanes on the shared queue; eight lanes), with the reading rules
+    posted in the coordination file at 15:58:07Z before any run. No rate claim comes from these runs.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the

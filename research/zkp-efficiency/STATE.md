@@ -2,6 +2,15 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-21: Claude researcher tick 33, why A36 helped at one lane and slowed the lanes-full stream (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git; owner-private logs not read. Triage material (no ruling).
+[Handoff](handoffs/20261121-claude-tick33-a36-six-lane.md) and its script `20261121-claude-tick33-a36-six-lane.py` (reads A36's retained T1 and T2 json).
+- **The retained records cannot split device waits from host phases at six lanes** (no trace or `HL_PB_TIMING` on any six-lane leg). They show a **cross-lane effect:** the unchanged sealing pass is x1.069 slower with A36 on at both six and eight lanes (x1.01 at one lane), so the lane's own pool is not the whole story. The ioreg meter is pinned at 85 to 90% in all eight legs and reads about 65% at one lane (solo GPU 22%): no inference from it (an earlier reading of +0.4 s busy a request is withdrawn in the handoff).
+- **From solo block GPU (94.679 ms x 26) the off stream runs at 83% (six lanes) and 87% (eight) of a no-overlap device bound** (52.0 tok/s); A36 on is 74%. A36 moved about 60 ms a block, hid 16.7 ms at one lane (28%) and cost 79.8 ms at six: 139 ms beyond perfect overlap, 2.3 times the moved work. Closed-queue MODEL: adding 80 ms of host gap gives x0.904 against the measured x0.885.
+- **One measurement decides:** the Metal buffer trace (`HL_A27_GPU_TRACE`) on one off and one on six-lane leg under T2's `HL_METAL_QUEUES=thread` (tick 30's trace is shared-queue); readings stated; NOT scheduled. Leading suspect, untested: per-thread queues letting the first half's NTT buffers run beside the second half's zero-check buffers in every lane.
+- **For other candidates:** one-lane gains do not transfer; repeated-check removal 1.7 to 2.7% of the period (no new concurrency); a writer thread moving only the write and fsync wait 1.5% at the ceiling; seal-ahead must be tested at six lanes. Device time is the lever: 1 ms of block GPU is 0.7 to 1.1% of the six-lane period, 3 to 4.5 ms buys the 3% line. Effect on committed words: 0. Proofs / passes / positions: 0 / 0 / 0.
+
 ## 2026-11-21: Claude researcher tick 32, whether the app's CS-3 repeat sits under A33's precondition (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git; owner-private logs not read. Triage material (no ruling).
