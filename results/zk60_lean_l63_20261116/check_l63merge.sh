@@ -178,8 +178,23 @@ rootok=1
 nnew=$(echo $NEW_SINCE_BASE | wc -w | tr -d ' ')
 [ "$nadd" -eq "$nnew" ] && [ "$nimp" -eq "$nnew" ] && [ "$nrem" -eq 0 ] && [ "$nmine" -eq "$nmods" ] && [ "$nag" -eq "$nagw" ] && rootok=0
 echo "root: every lane and Antigravity module imported, diff exactly the $nnew new lane import lines, 0 removed: $([ $rootok -eq 0 ] && echo yes || echo NO)"
-nmod=$(git -C "$WT" diff --name-only --diff-filter=MDR $BASE -- formal ops src | grep -v '^formal/ZK60Formal.lean$' | wc -l | tr -d ' ')
-echo "existing files under formal/, ops/, src/ modified, deleted or renamed since $BASE (excluding the root): $nmod"
+# 2026-11-21 (leg 17): the working branch's 36306934 (PERF, fast-forwarded into the lane; no formal/ change) modified
+# ops/ files since BASE; those come from the merge, not the lane, and are listed, not counted. Ruling L63-9 permits
+# exactly one lane edit of an existing file, formal/ZK60Formal/RunShieldBlkInst.lean (ALLOWED_MOD); it is listed with
+# its numstat, not counted. Every other modified file since BASE counts, and so does every modification since PERF
+# (other than the root and ALLOWED_MOD), so a lane edit of a file PERF touched is still caught.
+PERF=36306934
+ALLOWED_MOD="formal/ZK60Formal/RunShieldBlkInst.lean"
+fromperf=$(git -C "$WT" diff --name-only --diff-filter=MDR $BASE $PERF -- formal ops src | grep -v '^formal/ZK60Formal.lean$')
+echo "existing files under formal/, ops/, src/ modified by the working branch between $BASE and $PERF (from the merge; root excluded): $(echo $fromperf | wc -w | tr -d ' ')"
+for f in $fromperf; do echo "  merged: $f"; done
+echo "ruling L63-9's permitted edit: $(git -C "$WT" diff --numstat $BASE -- $ALLOWED_MOD)"
+nmod1=$(git -C "$WT" diff --name-only --diff-filter=MDR $BASE -- formal ops src | grep -v '^formal/ZK60Formal.lean$' \
+  | grep -v -x -F "$ALLOWED_MOD" | grep -v -x -F -f <(printf '%s\n' $fromperf) | wc -l | tr -d ' ')
+nmod2=$(git -C "$WT" diff --name-only --diff-filter=MDR $PERF -- formal ops src | grep -v '^formal/ZK60Formal.lean$' \
+  | grep -v -x -F "$ALLOWED_MOD" | wc -l | tr -d ' ')
+nmod=$(( nmod1 + nmod2 ))
+echo "existing files under formal/, ops/, src/ modified, deleted or renamed since $BASE (excluding the root, the merge's and L63-9's): $nmod1; since $PERF (excluding the root and L63-9's): $nmod2"
 ulimit -s 65520
 echo "== regression: L6Check on the committed L6 corpus =="
 "$LAKE" -d "$WT/formal" env lean --run "$L/L6Check.lean" "$O6/corpus.txt" < /dev/null > "$OUT/l6check_regression.log" 2>&1

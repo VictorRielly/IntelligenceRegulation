@@ -493,15 +493,19 @@ def shdP_rowsOf : Cm → ℕ
   | .h => 4390
   | _ => 38
 
-/-- Slot kinds for the 23-slot R13 / W16R2 block schedule (standalone at `{3, 19, 20, 21, 22}`, private elsewhere). -/
+/-- Slot kinds for the 23-slot R13 / W16R2 block schedule, as `SlotW16R2.kindOf` (layout.rs `SLOT_KINDS`): hosts at
+`{2, 14, 15, 16, 17, 18}`, standalone at `{3, 19, 20, 21, 22}`, private elsewhere (ruling L63-9, finding L68b-2). -/
 def shdP_slotKind (s : ℕ) : SlotKind :=
-  if s = 3 ∨ s = 19 ∨ s = 20 ∨ s = 21 ∨ s = 22 then SlotKind.standalone else SlotKind.priv
+  if s = 2 ∨ s = 14 ∨ s = 15 ∨ s = 16 ∨ s = 17 ∨ s = 18 then SlotKind.host
+  else if s = 3 ∨ s = 19 ∨ s = 20 ∨ s = 21 ∨ s = 22 then SlotKind.standalone else SlotKind.priv
 
-/-- Concrete `BlockParams` for one Shieldstral layer `(Ly, Pb)` at R13. -/
+/-- Concrete `BlockParams` for one Shieldstral layer `(Ly, Pb)` at R13. The mask's opened columns have `mRows = 50`
+words (`2·23 + 4` for the 23 mask specs: `maskField tag 23` checks `2S + 4`, `shape_corpus.txt` has `m_rows 50`; ruling
+L63-9, finding L68b-1). -/
 def shdP_blkParams (tag : MTag) (ioIn ioOut : ℕ)
     (checkOpening : (HIn → Dig) → Cm → List Exec.Block.ZClaim → Tr → Except String Unit)
     (Ly : ShieldLayer) (Pb : BlockPublic (shieldShape Ly)) : BlockParams where
-  geom := Exec.Block.R13.geom Exec.Block.R13.shieldSlots Exec.Block.R13.shieldTerms 23 36 4577 9 4390
+  geom := Exec.Block.R13.geom Exec.Block.R13.shieldSlots Exec.Block.R13.shieldTerms 50 36 4577 9 4390
   logCols := 14
   endpointLogN := 14
   aRows := 4577
