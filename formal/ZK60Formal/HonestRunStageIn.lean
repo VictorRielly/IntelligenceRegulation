@@ -87,7 +87,8 @@ theorem incVerify_of_tables (V : IncV) (lr elr q eq : ℕ) (hVm : V.maskVerify =
     (hk : V.pub.lt + lr ≤ 31) (hq : 0 < q) (hke : V.pub.epLogN + elr ≤ 31) (heq : 0 < eq)
     (hdB : V.blk.path = V.pub.lt + lr) (hdE : V.ed.path = V.pub.epLogN + elr) (C : IncTables V) (t : Tr)
     (R : IncRun) (h : incProve H V (incDataAt H tag U hbij V lr elr q eq C t) t = .ok R)
-    (hdeg : ∀ s, 1 ≤ slotD (V.bp (incCtx V.pub R.ch)) s ∧ slotD (V.bp (incCtx V.pub R.ch)) s < gP)
+    (hdeg : ∀ s, s < (V.bp (incCtx V.pub R.ch)).geom.slots.length →
+      1 ≤ slotD (V.bp (incCtx V.pub R.ch)) s ∧ slotD (V.bp (incCtx V.pub R.ch)) s < gP)
     (hslots : StSlotsSum H (V.bp (incCtx V.pub R.ch)) (incElog V.pub V.geo.bLogN) U (C.slot R.ch) Fp2.zero Fp2.zero
       Fp2.zero V.lay.ns [] 0 {} R.t3)
     (hMh : MHonest U (algebraMap GF K (rootFp 9).toGF) C.M 4)

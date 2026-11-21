@@ -78,17 +78,19 @@ def StSlotsSum (D : SlotData P) (b g a : Fp2) : ℕ → List SlotRec → ℕ →
 variable (hU : U ^ 2 = algebraMap GF K 7)
 include hU
 
-/-- **The stage's slot loop accepts the honest slots** and lands on the prover's records, accumulator and transcript. -/
-theorem stSlotsLoop_of_prove (D : SlotData P) (b g a : Fp2) (hdeg : ∀ s, 1 ≤ slotD P s ∧ slotD P s < gP) :
+/-- **The stage's slot loop accepts the honest slots** and lands on the prover's records, accumulator and transcript.
+The degrees are required at the schedule's slots only, and the loop's slots lie in the schedule (ruling L63-10). -/
+theorem stSlotsLoop_of_prove (D : SlotData P) (b g a : Fp2)
+    (hdeg : ∀ s, s < P.geom.slots.length → 1 ≤ slotD P s ∧ slotD P s < gP) :
     ∀ (m : ℕ) (recs : List SlotRec) (s : ℕ) (acc : Acc) (t : Tr) (sps : List SlotProof) (recs' : List SlotRec)
-      (acc' : Acc) (t' : Tr), StSlotsSum H P elog U D b g a m recs s acc t →
+      (acc' : Acc) (t' : Tr), s + m ≤ P.geom.slots.length → StSlotsSum H P elog U D b g a m recs s acc t →
       stSlotsProve H P elog D b g a m recs s acc t = .ok (sps, recs', acc', t') →
       stSlotsLoop H P elog b g a recs s sps acc t = .ok (recs', acc', t')
-  | 0, recs, s, acc, t, sps, recs', acc', t', _, h => by
+  | 0, recs, s, acc, t, sps, recs', acc', t', _, _, h => by
     simp only [stSlotsProve, Except.ok.injEq, Prod.mk.injEq] at h
     obtain ⟨rfl, rfl, rfl, rfl⟩ := h
     rfl
-  | m + 1, recs, s, acc, t, sps, recs', acc', t', hS, h => by
+  | m + 1, recs, s, acc, t, sps, recs', acc', t', hm, hS, h => by
     obtain ⟨hs1, hs2⟩ := hS
     simp only [stSlotsProve] at h
     split at h
@@ -100,9 +102,9 @@ theorem stSlotsLoop_of_prove (D : SlotData P) (b g a : Fp2) (hdeg : ∀ s, 1 ≤
         simp only [Except.ok.injEq, Prod.mk.injEq] at h
         obtain ⟨rfl, rfl, rfl, rfl⟩ := h
         have hstep := slotStep_of_prove H (atLog P (elog s)) U hU (sdAt D (elog s)) s (histOf b g a recs) acc t sp r
-          acc₁ t₁ (hdeg s).1 (hdeg s).2 hs1 hsp
+          acc₁ t₁ (hdeg s (by omega)).1 (hdeg s (by omega)).2 hs1 hsp
         simp only [stSlotsLoop, hstep]
-        exact stSlotsLoop_of_prove D b g a hdeg m (recs ++ [r]) (s + 1) acc₁ t₁ sps₁ recs₁ acc₂ t₂
+        exact stSlotsLoop_of_prove D b g a hdeg m (recs ++ [r]) (s + 1) acc₁ t₁ sps₁ recs₁ acc₂ t₂ (by omega)
           (hs2 sp r acc₁ t₁ hsp) hrest
 
 omit hU in
@@ -128,6 +130,15 @@ theorem stSlotsProve_refuses (D : SlotData P) (b g a : Fp2) :
       · cases h
 
 end Loop
+
+/-- A stage's schedule as L9's parameters has the layout's slot count (the stage loops run `V.lay.ns` slots). -/
+theorem IncV.bp_slots_length (V : IncV) (cx : IncCtx) : (V.bp cx).geom.slots.length = V.lay.ns := by
+  show (V.lay.sched.slots.map _).length = V.lay.sched.slots.length
+  simp
+
+theorem OutcV.bp_slots_length (V : OutcV) : V.bp.geom.slots.length = V.lay.ns := by
+  show (V.lay.sched.slots.map _).length = V.lay.sched.slots.length
+  simp
 
 /-! ## Stage IN-C's honest prover -/
 
@@ -261,7 +272,8 @@ run (`StSlotsSum`), and the completeness of `M`'s test and of the three openings
 claims (L10's components), the verifier returns the claims left on `B_in`, `B_in`'s root and the prover's final
 transcript. -/
 theorem incVerify_of_prove (D : IncData V) (epRoot : Dig) (t : Tr) (R : IncRun) (h : incProve H V D t = .ok R)
-    (hdeg : ∀ s, 1 ≤ slotD (V.bp (incCtx V.pub R.ch)) s ∧ slotD (V.bp (incCtx V.pub R.ch)) s < gP)
+    (hdeg : ∀ s, s < (V.bp (incCtx V.pub R.ch)).geom.slots.length →
+      1 ≤ slotD (V.bp (incCtx V.pub R.ch)) s ∧ slotD (V.bp (incCtx V.pub R.ch)) s < gP)
     (hpA : pathsDepth "stage IN-C A" V.blk.path 0 R.seg.core.aOpen.columns = .ok ())
     (hpH : pathsDepth "stage IN-C H" V.blk.path 0 R.seg.core.hOpen.columns = .ok ())
     (hpM : pathsDepth "M" Block.W16R2.maskPath 0 R.seg.core.maskOpen.columns = .ok ())
@@ -274,7 +286,8 @@ theorem incVerify_of_prove (D : IncData V) (epRoot : Dig) (t : Tr) (R : IncRun) 
     (hE : V.epVerify H epRoot R.acc.claims.inp (R.seg.closes.headD IncV.ozk0) R.t7 = .ok R.t8) :
     V.verify H epRoot R.seg t = .ok ((R.acc.claims.out, D.bRoot), R.t8) := by
   obtain ⟨-, hch, ht3, hs, hfs, hcA, hcH, hcE, hbr, haR, hmR, hhR, -, -, -, hcl, -⟩ := incProve_ok H V D t R h
-  have hloop := stSlotsLoop_of_prove H _ _ U hU _ _ _ _ hdeg _ _ _ _ _ _ _ _ _ hslots hs
+  have hloop := stSlotsLoop_of_prove H _ _ U hU _ _ _ _ hdeg _ _ _ _ _ _ _ _ _
+    (by have := IncV.bp_slots_length V (incCtx V.pub R.ch); omega) hslots hs
   refine (incVerify_ok_iff H V epRoot R.seg t _ _ _).mpr ⟨by rw [hcl]; rfl, hpA, hpH, hpM, hpE, hbr, R.recs, R.acc, R.t4,
     R.t5, R.t6, R.t7, ?_, hfs, ?_, hcA, ?_, hcH, ?_, hcE, hE, rfl⟩
   · -- the slot phase on the honest roots is the prover's
@@ -432,7 +445,7 @@ verifier): from the honest run, the openings' path depths, the slots' arithmetic
 the completeness of `M` and of the openings of `A`, `H` and `B_out` (the latter on the pending claims followed by
 OUTC-00's). -/
 theorem outcVerify_of_prove (D : OutcData V) (cr : Carry) (t : Tr) (R : OutcRun) (h : outcProve H V D cr t = .ok R)
-    (hdeg : ∀ s, 1 ≤ slotD V.bp s ∧ slotD V.bp s < gP)
+    (hdeg : ∀ s, s < V.bp.geom.slots.length → 1 ≤ slotD V.bp s ∧ slotD V.bp s < gP)
     (hpA : pathsDepth "stage OUT-C A" V.blk.path 0 R.seg.core.aOpen.columns = .ok ())
     (hpH : pathsDepth "stage OUT-C H" V.blk.path 0 R.seg.core.hOpen.columns = .ok ())
     (hpM : pathsDepth "M" Block.W16R2.maskPath 0 R.seg.core.maskOpen.columns = .ok ())
@@ -445,7 +458,8 @@ theorem outcVerify_of_prove (D : OutcData V) (cr : Carry) (t : Tr) (R : OutcRun)
     (hB : V.bVerify H cr.root (cr.pending ++ R.acc.claims.inp) (R.seg.closes.headD IncV.ozk0) R.t7 = .ok R.t8) :
     V.verify H cr.root cr.pending R.seg t = .ok R.t8 := by
   obtain ⟨-, -, hch, ht3, hs, hfs, hout, hcA, hcH, hcB, hbr, haR, hmR, hhR, -, -, -, hcl, -⟩ := outcProve_ok H V D cr t R h
-  have hloop := slotsLoop_of_prove H V.bp U hU D.slot _ _ _ hdeg _ _ _ _ _ _ _ _ _ hslots hs
+  have hloop := slotsLoop_of_prove H V.bp U hU D.slot _ _ _ hdeg _ _ _ _ _ _ _ _ _
+    (by have := OutcV.bp_slots_length V; omega) hslots hs
   refine (outcVerify_ok_iff H V cr.root cr.pending R.seg t _).mpr ⟨by rw [hcl]; rfl, hbr, hpA, hpH, hpM, hpB, R.ch,
     R.recs, R.acc, R.t4, R.t5, R.t6, R.t7, ?_, hfs, ?_, hout, hcA, ?_, hcH, ?_, hcB, hB⟩
   · have e1 : ((absorbRoot H (V.frame H t) labA R.seg.core.aRoot V.bp.aRows V.bp.logCols).absorb H labM
@@ -505,7 +519,8 @@ def IncOK {Γ : Type} (adm : X → Prop) (hOf : Γ → HIn → Dig) (stOf : Γ �
         ∧ CoreCanon R.seg.core ∧ CoreShape (G (stOf g x c).hdr).g R.seg.core
         ∧ List.Forall₂ CloseOk (G (stOf g x c).hdr).closes R.seg.closes
         ∧ ∀ e, (encStage (G (stOf g x c).hdr) bnd (posTag (hOf g) t) R.seg e).length = (G (stOf g x c).hdr).len)
-      ∧ (∀ s, 1 ≤ slotD ((V (stOf g x c).hdr).bp (incCtx (V (stOf g x c).hdr).pub R.ch)) s
+      ∧ (∀ s, s < ((V (stOf g x c).hdr).bp (incCtx (V (stOf g x c).hdr).pub R.ch)).geom.slots.length →
+          1 ≤ slotD ((V (stOf g x c).hdr).bp (incCtx (V (stOf g x c).hdr).pub R.ch)) s
           ∧ slotD ((V (stOf g x c).hdr).bp (incCtx (V (stOf g x c).hdr).pub R.ch)) s < gP)
       ∧ pathsDepth "stage IN-C A" (V (stOf g x c).hdr).blk.path 0 R.seg.core.aOpen.columns = .ok ()
       ∧ pathsDepth "stage IN-C H" (V (stOf g x c).hdr).blk.path 0 R.seg.core.hOpen.columns = .ok ()
@@ -577,7 +592,8 @@ def OutcOK {Γ : Type} (adm : X → Prop) (hOf : Γ → HIn → Dig) (stOf : Γ 
         ∧ CoreCanon R.seg.core ∧ CoreShape (G (stOf g x c).hdr).g R.seg.core
         ∧ List.Forall₂ CloseOk (G (stOf g x c).hdr).closes R.seg.closes
         ∧ ∀ e, (encStage (G (stOf g x c).hdr) bnd (posTag (hOf g) t) R.seg e).length = (G (stOf g x c).hdr).len)
-      ∧ (∀ s, 1 ≤ slotD (V (stOf g x c).hdr (stOf g x c).verdict).bp s
+      ∧ (∀ s, s < (V (stOf g x c).hdr (stOf g x c).verdict).bp.geom.slots.length →
+          1 ≤ slotD (V (stOf g x c).hdr (stOf g x c).verdict).bp s
           ∧ slotD (V (stOf g x c).hdr (stOf g x c).verdict).bp s < gP)
       ∧ pathsDepth "stage OUT-C A" (V (stOf g x c).hdr (stOf g x c).verdict).blk.path 0 R.seg.core.aOpen.columns = .ok ()
       ∧ pathsDepth "stage OUT-C H" (V (stOf g x c).hdr (stOf g x c).verdict).blk.path 0 R.seg.core.hOpen.columns = .ok ()

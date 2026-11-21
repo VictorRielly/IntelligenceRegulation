@@ -189,7 +189,7 @@ def D12aBlockOK {Γ : Type} (adm : X → Prop) (hOf : Γ → HIn → Dig) (stOf 
               (p.inOpen (hOf g) (stOf g x c) x c k cr.root (cr.pending ++ R.acc.claims.inp) R.t7).1, none⟩, e))
       ∧ paths (stOf g x c) ⟨some (p.root (hOf g) (stOf g x c) x c k), R.core,
           (p.inOpen (hOf g) (stOf g x c) x c k cr.root (cr.pending ++ R.acc.claims.inp) R.t7).1, none⟩ = .ok ()
-      ∧ (∀ s, 1 ≤ slotD (Pk k) s ∧ slotD (Pk k) s < gP) ∧ (Pk k).preChecks = .ok ()
+      ∧ (∀ s, s < (Pk k).geom.slots.length → 1 ≤ slotD (Pk k) s ∧ slotD (Pk k) s < gP) ∧ (Pk k).preChecks = .ok ()
       ∧ Block.pathsDepth "A" (Pk k).aPath 0 R.core.aOpen.columns = .ok ()
       ∧ Block.pathsDepth "H" (Pk k).hPath 0 R.core.hOpen.columns = .ok ()
       ∧ Block.pathsDepth "M" (Pk k).maskPath 0 R.core.maskOpen.columns = .ok ()

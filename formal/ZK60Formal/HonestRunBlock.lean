@@ -93,7 +93,7 @@ theorem blockVerify_of_tables_r13 (P : BlockParams) (S : ℕ) (rowsOf : Block.Cm
     (hPm : P.maskVerify = maskField tag S) (hPp : P.pcsVerify = R13.pcsFieldR13 tag rowsOf) (hdA : P.aPath = 16)
     (hdH : P.hPath = 16) (hdM : P.maskPath = 12) (C : CoreTables P) (t : Tr) (R : CoreRun)
     (h : coreProve H P (coreDataAt H tag U hbij R13.r13Prm 16 S P C t) t = .ok R)
-    (hdeg : ∀ s, 1 ≤ slotD P s ∧ slotD P s < gP) (hpre : P.preChecks = .ok ())
+    (hdeg : ∀ s, s < P.geom.slots.length → 1 ≤ slotD P s ∧ slotD P s < gP) (hpre : P.preChecks = .ok ())
     (hslots : SlotsSum H P U C.slot (coreB H P (coreDataAt H tag U hbij R13.r13Prm 16 S P C t) t).1
       (coreG H P (coreDataAt H tag U hbij R13.r13Prm 16 S P C t) t).1
       (coreA H P (coreDataAt H tag U hbij R13.r13Prm 16 S P C t) t).1 P.geom.slots.length [] 0 {}

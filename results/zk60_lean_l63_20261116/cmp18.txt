@@ -1,0 +1,158 @@
+top ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_blkAlive: byte-identical (hash 1364210257 len 350789)
+top ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_pinsHd: byte-identical (hash 2763438451 len 329860)
+top ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_dz: byte-identical (hash 4113864364 len 336785)
+top ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_pdz: byte-identical (hash 2021610699 len 317929)
+top ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_io: byte-identical (hash 771020177 len 316956)
+top ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trI: byte-identical (hash 3412238607 len 279763)
+top ZK60.ProtocolClassify.RunShapeP.sshC_productionReadyL_epP_trO: byte-identical (hash 2306759762 len 241667)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldInst: byte-identical (hash 1794214658 len 753751)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldJ: byte-identical (hash 933778688 len 529380)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_shieldLu: byte-identical (hash 3389594358 len 583344)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLu: byte-identical (hash 803044047 len 3512249)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIO: byte-identical (hash 205928266 len 4130372)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOv: byte-identical (hash 1411798918 len 4129874)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOl: byte-identical (hash 1077803610 len 2788843)
+top ZK60.ProtocolClassify.shd_hdinX_blk: byte-identical (hash 4187879026 len 897257)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOd: byte-identical (hash 1112956797 len 2795478)
+top ZK60.ProtocolClassify.RunShapeP.rc_productionReadyL_runChainP_some_range_cl: byte-identical (hash 3843808989 len 74297)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOv_cl: byte-identical (hash 3769381839 len 4168261)
+top ZK60.ProtocolClassify.cl_agree: byte-identical (hash 189070032 len 7927)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkCl: byte-identical (hash 1607479332 len 2012192)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLO: byte-identical (hash 714490194 len 576993)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkOC: byte-identical (hash 201113381 len 119629)
+top ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkEF: byte-identical (hash 717689579 len 24509)
+top ZK60.ProtocolClassify.shdP_blkParams: byte-identical (hash 3274069302 len 319)
+top ZK60.ProtocolClassify.shdP_slotKind: byte-identical (hash 1592273650 len 31)
+tops byte-identical: 25 of 25
+decl ZK60.HonestClassify.slotsLoop_of_prove: before [type hash 638908416] after [type hash 3536819313] differs
+    --- before
+    +++ after
+    @@ -4,3 +4,3 @@
+         ∀ (D : ZK60.HonestClassify.SlotData P) (b g a : ZK60.Exec.Fp2),
+    -      (∀ (s : ℕ), 1 ≤ ZK60.HonestClassify.slotD P s ∧ ZK60.HonestClassify.slotD P s < ZK60.Circuit.gP) →
+    +      (∀ s < P.geom.slots.length, 1 ≤ ZK60.HonestClassify.slotD P s ∧ ZK60.HonestClassify.slotD P s < ZK60.Circuit.gP) →
+             ∀ (m : ℕ) (recs : List ZK60.Exec.Block.SlotRec) (s : ℕ) (acc : ZK60.Exec.Block.Acc) (t : ZK60.Exec.Tr)
+    @@ -8,5 +8,6 @@
+               (t' : ZK60.Exec.Tr),
+    -          ZK60.HonestClassify.SlotsSum H P U D b g a m recs s acc t →
+    -            ZK60.HonestClassify.slotsProve H P D b g a m recs s acc t = Except.ok (sps, recs', acc', t') →
+    -              ZK60.Exec.Block.slotsLoop H P b g a recs s sps acc t = Except.ok (recs', acc', t')
+    +          s + m ≤ P.geom.slots.length →
+    +            ZK60.HonestClassify.SlotsSum H P U D b g a m recs s acc t →
+    +              ZK60.HonestClassify.slotsProve H P D b g a m recs s acc t = Except.ok (sps, recs', acc', t') →
+    +                ZK60.Exec.Block.slotsLoop H P b g a recs s sps acc t = Except.ok (recs', acc', t')
+     
+decl ZK60.HonestClassify.blockVerify_of_prove: before [type hash 4294183175] after [type hash 3202534134] differs
+    --- before
+    +++ after
+    @@ -5,3 +5,4 @@
+           ZK60.HonestClassify.coreProve H P D t = Except.ok R →
+    -        (∀ (s : ℕ), 1 ≤ ZK60.HonestClassify.slotD P s ∧ ZK60.HonestClassify.slotD P s < ZK60.Circuit.gP) →
+    +        (∀ s < P.geom.slots.length,
+    +            1 ≤ ZK60.HonestClassify.slotD P s ∧ ZK60.HonestClassify.slotD P s < ZK60.Circuit.gP) →
+               P.preChecks = Except.ok () →
+decl ZK60.HonestClassify.d12a_block_complete: before [type hash 2186107143] after [type hash 2186107143] same
+decl ZK60.HonestClassify.classify_parts_d12a: before [type hash 1522925071] after [type hash 1522925071] same
+decl ZK60.Exec.StageV.stSlotsLoop_of_prove: before [type hash 3013695524] after [type hash 2952253463] differs
+    --- before
+    +++ after
+    @@ -4,3 +4,3 @@
+         ∀ (D : ZK60.HonestClassify.SlotData P) (b g a : ZK60.Exec.Fp2),
+    -      (∀ (s : ℕ), 1 ≤ ZK60.HonestClassify.slotD P s ∧ ZK60.HonestClassify.slotD P s < ZK60.Circuit.gP) →
+    +      (∀ s < P.geom.slots.length, 1 ≤ ZK60.HonestClassify.slotD P s ∧ ZK60.HonestClassify.slotD P s < ZK60.Circuit.gP) →
+             ∀ (m : ℕ) (recs : List ZK60.Exec.Block.SlotRec) (s : ℕ) (acc : ZK60.Exec.Block.Acc) (t : ZK60.Exec.Tr)
+    @@ -8,5 +8,6 @@
+               (t' : ZK60.Exec.Tr),
+    -          ZK60.Exec.StageV.StSlotsSum H P elog U D b g a m recs s acc t →
+    -            ZK60.Exec.StageV.stSlotsProve H P elog D b g a m recs s acc t = Except.ok (sps, recs', acc', t') →
+    -              ZK60.Exec.StageV.stSlotsLoop H P elog b g a recs s sps acc t = Except.ok (recs', acc', t')
+    +          s + m ≤ P.geom.slots.length →
+    +            ZK60.Exec.StageV.StSlotsSum H P elog U D b g a m recs s acc t →
+    +              ZK60.Exec.StageV.stSlotsProve H P elog D b g a m recs s acc t = Except.ok (sps, recs', acc', t') →
+    +                ZK60.Exec.StageV.stSlotsLoop H P elog b g a recs s sps acc t = Except.ok (recs', acc', t')
+     
+decl ZK60.Exec.StageV.incVerify_of_prove: before [type hash 663384308] after [type hash 2393952088] differs
+    --- before
+    +++ after
+    @@ -5,3 +5,3 @@
+           ZK60.Exec.StageV.incProve H V D t = Except.ok R →
+    -        (∀ (s : ℕ),
+    +        (∀ s < (V.bp (ZK60.Exec.StageV.incCtx V.pub R.ch)).geom.slots.length,
+                 1 ≤ ZK60.HonestClassify.slotD (V.bp (ZK60.Exec.StageV.incCtx V.pub R.ch)) s ∧
+decl ZK60.Exec.StageV.outcVerify_of_prove: before [type hash 1459078376] after [type hash 1567300441] differs
+    --- before
+    +++ after
+    @@ -6,3 +6,4 @@
+           ZK60.Exec.StageV.outcProve H V D cr t = Except.ok R →
+    -        (∀ (s : ℕ), 1 ≤ ZK60.HonestClassify.slotD V.bp s ∧ ZK60.HonestClassify.slotD V.bp s < ZK60.Circuit.gP) →
+    +        (∀ s < V.bp.geom.slots.length,
+    +            1 ≤ ZK60.HonestClassify.slotD V.bp s ∧ ZK60.HonestClassify.slotD V.bp s < ZK60.Circuit.gP) →
+               ZK60.Exec.Block.pathsDepth "stage OUT-C A" V.blk.path 0 R.seg.core.aOpen.columns = Except.ok () →
+decl ZK60.Exec.StageV.inc_stageInOK: before [type hash 3469186739] after [type hash 3469186739] same
+decl ZK60.Exec.StageV.outc_stageOutOK: before [type hash 1694997341] after [type hash 1694997341] same
+decl ZK60.Exec.StageV.classify_parts_exec: before [type hash 511222286] after [type hash 511222286] same
+decl ZK60.HonestRun.blockVerify_of_tables_r13: before [type hash 3565102896] after [type hash 896240849] differs
+    --- before
+    +++ after
+    @@ -13,3 +13,4 @@
+                           Except.ok R →
+    -                    (∀ (s : ℕ), 1 ≤ ZK60.HonestClassify.slotD P s ∧ ZK60.HonestClassify.slotD P s < ZK60.Circuit.gP) →
+    +                    (∀ s < P.geom.slots.length,
+    +                        1 ≤ ZK60.HonestClassify.slotD P s ∧ ZK60.HonestClassify.slotD P s < ZK60.Circuit.gP) →
+                           P.preChecks = Except.ok () →
+decl ZK60.HonestRun.incVerify_of_tables: before [type hash 4257016696] after [type hash 4249184187] differs
+    --- before
+    +++ after
+    @@ -25,3 +25,3 @@
+                                 Except.ok R →
+    -                          (∀ (s : ℕ),
+    +                          (∀ s < (V.bp (ZK60.Exec.StageV.incCtx V.pub R.ch)).geom.slots.length,
+                                   1 ≤ ZK60.HonestClassify.slotD (V.bp (ZK60.Exec.StageV.incCtx V.pub R.ch)) s ∧
+decl ZK60.HonestRun.outcVerify_of_tables: before [type hash 302256561] after [type hash 852136386] differs
+    --- before
+    +++ after
+    @@ -25,3 +25,3 @@
+                                 Except.ok R →
+    -                          (∀ (s : ℕ),
+    +                          (∀ s < V.bp.geom.slots.length,
+                                   1 ≤ ZK60.HonestClassify.slotD V.bp s ∧
+decl ZK60.ProtocolClassify.rcInc_honest_tables: before [type hash 1206460029] after [type hash 2954391598] differs
+    --- before
+    +++ after
+    @@ -24,3 +24,3 @@
+           ZK60.Exec.StageV.incProve H V (ZK60.HonestRun.incDataAt H tag U hbij V lr elr q eq C t) t = Except.ok R →
+    -        (∀ (s : ℕ),
+    +        (∀ s < (V.bp (ZK60.Exec.StageV.incCtx V.pub R.ch)).geom.slots.length,
+                 1 ≤ ZK60.HonestClassify.slotD (V.bp (ZK60.Exec.StageV.incCtx V.pub R.ch)) s ∧
+decl ZK60.ProtocolClassify.rcOutc_honest_tables: before [type hash 1488547915] after [type hash 250382177] differs
+    --- before
+    +++ after
+    @@ -25,3 +25,3 @@
+                                 Except.ok R →
+    -                          (∀ (s : ℕ),
+    +                          (∀ s < V.bp.geom.slots.length,
+                                   1 ≤ ZK60.HonestClassify.slotD V.bp s ∧
+decl ZK60.HonestClassify.D12aBlockOK: before [type hash 3619120406 value hash 3147005783] after [type hash 3619120406 value hash 3358471741] differs
+    --- before
+    +++ after
+    @@ -31,3 +31,3 @@
+                         Except.ok () ∧
+    -                  (∀ (s : ℕ),
+    +                  (∀ s < (Pk k).geom.slots.length,
+                           1 ≤ ZK60.HonestClassify.slotD (Pk k) s ∧ ZK60.HonestClassify.slotD (Pk k) s < ZK60.Circuit.gP) ∧
+decl ZK60.Exec.StageV.IncOK: before [type hash 1402376388 value hash 2445559200] after [type hash 1402376388 value hash 730830430] differs
+    --- before
+    +++ after
+    @@ -16,3 +16,3 @@
+                                   (G (stOf g x c).hdr).len) ∧
+    -          (∀ (s : ℕ),
+    +          (∀ s < ((V (stOf g x c).hdr).bp (ZK60.Exec.StageV.incCtx (V (stOf g x c).hdr).pub R.ch)).geom.slots.length,
+                   1 ≤
+decl ZK60.Exec.StageV.OutcOK: before [type hash 3404948374 value hash 3584590388] after [type hash 3404948374 value hash 2611904780] differs
+    --- before
+    +++ after
+    @@ -18,3 +18,3 @@
+                                   (G (stOf g x c).hdr).len) ∧
+    -          (∀ (s : ℕ),
+    +          (∀ s < (V (stOf g x c).hdr (stOf g x c).verdict).bp.geom.slots.length,
+                   1 ≤ ZK60.HonestClassify.slotD (V (stOf g x c).hdr (stOf g x c).verdict).bp s ∧

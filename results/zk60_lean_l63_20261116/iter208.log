@@ -1,0 +1,24 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan208.txt ==
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeTY18b.lean
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeTY18b.lean ==
+ZK60.HonestClassify.slotsLoop_of_prove: type hash 638908416
+ZK60.HonestClassify.blockVerify_of_prove: type hash 4294183175
+ZK60.HonestClassify.d12a_block_complete: type hash 2186107143
+ZK60.HonestClassify.classify_parts_d12a: type hash 1522925071
+ZK60.Exec.StageV.stSlotsLoop_of_prove: type hash 3013695524
+ZK60.Exec.StageV.incVerify_of_prove: type hash 663384308
+ZK60.Exec.StageV.outcVerify_of_prove: type hash 1459078376
+ZK60.Exec.StageV.inc_stageInOK: type hash 3469186739
+ZK60.Exec.StageV.outc_stageOutOK: type hash 1694997341
+ZK60.Exec.StageV.classify_parts_exec: type hash 511222286
+ZK60.HonestRun.blockVerify_of_tables_r13: type hash 3565102896
+ZK60.HonestRun.incVerify_of_tables: type hash 4257016696
+ZK60.HonestRun.outcVerify_of_tables: type hash 302256561
+ZK60.ProtocolClassify.rcInc_honest_tables: type hash 1206460029
+ZK60.ProtocolClassify.rcOutc_honest_tables: type hash 1488547915
+ZK60.HonestClassify.D12aBlockOK: type hash 3619120406 value hash 3147005783
+ZK60.Exec.StageV.IncOK: type hash 1402376388 value hash 2445559200
+ZK60.Exec.StageV.OutcOK: type hash 3404948374 value hash 3584590388
+written before18
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeTY18b.lean (17 s)
+rc 0, 17 s

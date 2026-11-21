@@ -1,0 +1,5 @@
+build ZK60Formal.HonestClassifyBlock ZK60Formal.HonestClassifyRun ZK60Formal.HonestRunBlock ZK60Formal.HonestRunStageIn ZK60Formal.HonestRunStageOut ZK60Formal.StageVerifyExecComplete ZK60Formal.StageVerifyExecAssemble ZK60Formal.RunCoverStage ZK60Formal.RunStgShieldSlotDeg
+build ZK60Formal
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeTY18a.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeAx18.lean
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/check_l63merge.sh

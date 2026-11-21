@@ -286,17 +286,19 @@ variable (hU : U ^ 2 = algebraMap GF K 7)
 include hU
 
 /-- **The verifier's slot loop accepts the honest slots** and lands on the prover's records, accumulator and
-transcript. -/
-theorem slotsLoop_of_prove (D : SlotData P) (b g a : Fp2) (hdeg : ∀ s, 1 ≤ slotD P s ∧ slotD P s < gP) :
+transcript. The degrees are required at the schedule's slots only, and the loop's slots `s, …, s + m - 1` lie in the
+schedule (ruling L63-10, finding L68b-3: `slotD` is `0` past the schedule). -/
+theorem slotsLoop_of_prove (D : SlotData P) (b g a : Fp2)
+    (hdeg : ∀ s, s < P.geom.slots.length → 1 ≤ slotD P s ∧ slotD P s < gP) :
     ∀ (m : ℕ) (recs : List SlotRec) (s : ℕ) (acc : Acc) (t : Tr) (sps : List SlotProof) (recs' : List SlotRec)
-      (acc' : Acc) (t' : Tr), SlotsSum H P U D b g a m recs s acc t →
+      (acc' : Acc) (t' : Tr), s + m ≤ P.geom.slots.length → SlotsSum H P U D b g a m recs s acc t →
       slotsProve H P D b g a m recs s acc t = .ok (sps, recs', acc', t') →
       slotsLoop H P b g a recs s sps acc t = .ok (recs', acc', t')
-  | 0, recs, s, acc, t, sps, recs', acc', t', _, h => by
+  | 0, recs, s, acc, t, sps, recs', acc', t', _, _, h => by
     simp only [slotsProve, Except.ok.injEq, Prod.mk.injEq] at h
     obtain ⟨rfl, rfl, rfl, rfl⟩ := h
     rfl
-  | m + 1, recs, s, acc, t, sps, recs', acc', t', hS, h => by
+  | m + 1, recs, s, acc, t, sps, recs', acc', t', hm, hS, h => by
     obtain ⟨hs1, hs2⟩ := hS
     simp only [slotsProve] at h
     split at h
@@ -307,10 +309,10 @@ theorem slotsLoop_of_prove (D : SlotData P) (b g a : Fp2) (hdeg : ∀ s, 1 ≤ s
       · rename_i sps₁ recs₁ acc₂ t₂ hrest
         simp only [Except.ok.injEq, Prod.mk.injEq] at h
         obtain ⟨rfl, rfl, rfl, rfl⟩ := h
-        have hstep := slotStep_of_prove H P U hU D s (histOf b g a recs) acc t sp r acc₁ t₁ (hdeg s).1 (hdeg s).2
-          hs1 hsp
+        have hstep := slotStep_of_prove H P U hU D s (histOf b g a recs) acc t sp r acc₁ t₁
+          (hdeg s (by omega)).1 (hdeg s (by omega)).2 hs1 hsp
         simp only [slotsLoop, hstep]
-        exact slotsLoop_of_prove D b g a hdeg m (recs ++ [r]) (s + 1) acc₁ t₁ sps₁ recs₁ acc₂ t₂
+        exact slotsLoop_of_prove D b g a hdeg m (recs ++ [r]) (s + 1) acc₁ t₁ sps₁ recs₁ acc₂ t₂ (by omega)
           (hs2 sp r acc₁ t₁ hsp) hrest
 
 end Loop
@@ -425,7 +427,7 @@ the honest core prover's run `R` (it did not refuse), the profile's pre-checks, 
 run's own functionals and claims (`M`, `A`, `H`: L10's components), the verifier returns the core's IO claims and the
 prover's final transcript. -/
 theorem blockVerify_of_prove (D : CoreData P) (t : Tr) (R : CoreRun) (h : coreProve H P D t = .ok R)
-    (hdeg : ∀ s, 1 ≤ slotD P s ∧ slotD P s < gP) (hpre : P.preChecks = .ok ())
+    (hdeg : ∀ s, s < P.geom.slots.length → 1 ≤ slotD P s ∧ slotD P s < gP) (hpre : P.preChecks = .ok ())
     (hpA : pathsDepth "A" P.aPath 0 R.core.aOpen.columns = .ok ())
     (hpH : pathsDepth "H" P.hPath 0 R.core.hOpen.columns = .ok ())
     (hpM : pathsDepth "M" P.maskPath 0 R.core.maskOpen.columns = .ok ())
@@ -436,7 +438,7 @@ theorem blockVerify_of_prove (D : CoreData P) (t : Tr) (R : CoreRun) (h : corePr
     (hH : P.pcsVerify H .h R.core.hRoot (R.acc.claims.h ++ [P.logupSumClaim]) R.core.hOpen R.t6 = .ok R.t7) :
     blockVerify H P R.core t = .ok ((R.acc.claims.inp, R.acc.claims.out), R.t7) := by
   obtain ⟨hs, hfs, hcA, hcH, haR, hmR, hhR, -, -, -, -⟩ := coreProve_ok H P D t R h
-  have hloop := slotsLoop_of_prove H P U hU D.slot _ _ _ hdeg _ _ _ _ _ _ _ _ _ hslots hs
+  have hloop := slotsLoop_of_prove H P U hU D.slot _ _ _ hdeg _ _ _ _ _ _ _ _ _ (by omega) hslots hs
   rcases R with ⟨⟨aR, hR, mR, sl, mo, ao, ho⟩, bga, recs, acc, t3, t4, t5, t6, t7⟩
   have haR' : aR = D.aRoot := haR
   have hmR' : mR = D.maskRoot := hmR

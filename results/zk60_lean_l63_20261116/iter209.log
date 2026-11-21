@@ -1,0 +1,127 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan209.txt ==
+build ZK60Formal.HonestClassifyBlock ZK60Formal.HonestClassifyRun ZK60Formal.HonestRunBlock ZK60Formal.HonestRunStageIn ZK60Formal.HonestRunStageOut ZK60Formal.StageVerifyExecComplete ZK60Formal.StageVerifyExecAssemble ZK60Formal.RunCoverStage ZK60Formal.RunStgShieldSlotDeg
+build ZK60Formal
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeTY18a.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeAx18.lean
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/check_l63merge.sh
+== lake build ZK60Formal.HonestClassifyBlock ZK60Formal.HonestClassifyRun ZK60Formal.HonestRunBlock ZK60Formal.HonestRunStageIn ZK60Formal.HonestRunStageOut ZK60Formal.StageVerifyExecComplete ZK60Formal.StageVerifyExecAssemble ZK60Formal.RunCoverStage ZK60Formal.RunStgShieldSlotDeg ==
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+Build completed successfully (3860 jobs).
+build rc 0 (224 s)
+== lake build ZK60Formal ==
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+Build completed successfully (3987 jobs).
+build rc 0 (408 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeTY18a.lean ==
+ZK60.HonestClassify.slotsLoop_of_prove: type hash 3536819313
+ZK60.HonestClassify.blockVerify_of_prove: type hash 3202534134
+ZK60.HonestClassify.d12a_block_complete: type hash 2186107143
+ZK60.HonestClassify.classify_parts_d12a: type hash 1522925071
+ZK60.Exec.StageV.stSlotsLoop_of_prove: type hash 2952253463
+ZK60.Exec.StageV.incVerify_of_prove: type hash 2393952088
+ZK60.Exec.StageV.outcVerify_of_prove: type hash 1567300441
+ZK60.Exec.StageV.inc_stageInOK: type hash 3469186739
+ZK60.Exec.StageV.outc_stageOutOK: type hash 1694997341
+ZK60.Exec.StageV.classify_parts_exec: type hash 511222286
+ZK60.HonestRun.blockVerify_of_tables_r13: type hash 896240849
+ZK60.HonestRun.incVerify_of_tables: type hash 4249184187
+ZK60.HonestRun.outcVerify_of_tables: type hash 852136386
+ZK60.ProtocolClassify.rcInc_honest_tables: type hash 2954391598
+ZK60.ProtocolClassify.rcOutc_honest_tables: type hash 250382177
+ZK60.HonestClassify.D12aBlockOK: type hash 3619120406 value hash 3358471741
+ZK60.Exec.StageV.IncOK: type hash 1402376388 value hash 730830430
+ZK60.Exec.StageV.OutcOK: type hash 3404948374 value hash 2611904780
+written after18
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeTY18a.lean (412 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeAx18.lean ==
+'ZK60.HonestClassify.slotsLoop_of_prove' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestClassify.blockVerify_of_prove' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestClassify.d12a_block_complete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestClassify.classify_parts_d12a' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.StageV.stSlotsLoop_of_prove' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.StageV.incVerify_of_prove' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.StageV.outcVerify_of_prove' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.StageV.inc_stageInOK' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.StageV.outc_stageOutOK' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.StageV.classify_parts_exec' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestRun.blockVerify_of_tables_r13' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestRun.incVerify_of_tables' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestRun.outcVerify_of_tables' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcInc_honest_tables' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.rcOutc_honest_tables' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.Exec.StageV.IncV.bp_slots_length' depends on axioms: [propext, Quot.sound]
+'ZK60.Exec.StageV.OutcV.bp_slots_length' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdSD_blkParams' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdSD_Pk0' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.shdSD_incV' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdSD_outcV' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdSD_shdIncV' depends on axioms: [propext, Quot.sound]
+'ZK60.ProtocolClassify.shdSD_shdOutcV' depends on axioms: [propext, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeAx18.lean (414 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/check_l63merge.sh ==
+check rc 0 (625 s); its log is check.log
+l63_mk_ef.py --check rc 0
+== name clashes (RunStgShield*, every worktree) ==
+declarations in RunStgShield*.lean: 783
+declared twice inside the lane: none
+worktrees read: 12
+other Lean files read (with repeats across worktrees): 4604
+clashes: 0
+== against perf 25e70c25: Statements.lean, the root's diff, every existing file ==
+Statements.lean unchanged
+root imports: the lane's modules 117 of 117; Antigravity's 6 of 6
+root numstat (added removed file): 67	0	formal/ZK60Formal.lean
+root diff: added lines 67, of which RunStgShield imports 67; removed lines 0
+root: every lane and Antigravity module imported, diff exactly the 67 new lane import lines, 0 removed: yes
+existing files under formal/, ops/, src/ modified by the working branch between 25e70c25 and 0cbb1356 (from the merge; root excluded): 6
+  merged: formal/ZK60Formal/RunShieldBlkInst.lean
+  merged: ops/zkp-mvp/RECOVERY_COORDINATION.md
+  merged: ops/zkp-mvp/gpu-metal/hashline/src/private_block/run_fork.rs
+  merged: ops/zkp-mvp/gpu-metal/hashline/src/private_block/run_fork_tests.rs
+  merged: ops/zkp-mvp/gpu-metal/hashline/src/private_block/trained_block.rs
+  merged: ops/zkp-mvp/gpu-metal/hashline/src/private_block/trained_stack_tests.rs
+permitted edit (ruling L63-9 / L63-10): 8	4	formal/ZK60Formal/RunShieldBlkInst.lean
+permitted edit (ruling L63-9 / L63-10): 12	10	formal/ZK60Formal/HonestClassifyBlock.lean
+permitted edit (ruling L63-9 / L63-10): 1	1	formal/ZK60Formal/HonestClassifyRun.lean
+permitted edit (ruling L63-9 / L63-10): 1	1	formal/ZK60Formal/HonestRunBlock.lean
+permitted edit (ruling L63-9 / L63-10): 2	1	formal/ZK60Formal/HonestRunStageIn.lean
+permitted edit (ruling L63-9 / L63-10): 1	1	formal/ZK60Formal/HonestRunStageOut.lean
+permitted edit (ruling L63-9 / L63-10): 29	13	formal/ZK60Formal/StageVerifyExecComplete.lean
+permitted edit (ruling L63-9 / L63-10): 3	2	formal/ZK60Formal/RunCoverStage.lean
+existing files under formal/, ops/, src/ modified, deleted or renamed since 25e70c25 (excluding the root, the merge's and the rulings' permitted edits): 0; since 0cbb1356 (excluding the root and the permitted edits): 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+regression verdicts: L6 0, L5 0, L11 0, L1 0 (0 = the committed count with 0 failed)
+total 211 s
+VERDICT inputs: rootbuild rc 0, root warnings 0, root error lines 0, module builds rc 0, module warnings 0, axioms rc 0, audited 586 of 586, sorryAx 0, ofReduceBool 0, other axioms 0, non-report lines 0, blkAlive rc 0 reports 23 of 23 non-report 0 other axioms 0, L62 top rc 0 reports 1 non-report 0 other axioms 0, source scan 0, generators 0, name clashes 0, Statements/unchanged 0, root diff ok 0, modified existing files 0, regressions rc 0/0/0/0 verdicts 0/0/0/0
+rc 0, 625 s

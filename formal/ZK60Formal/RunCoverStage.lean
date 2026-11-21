@@ -526,7 +526,8 @@ theorem rcInc_honest_tables {Hdr : Type} (Lq : ℕ) (hL20 : 2 ^ 20 ≤ Lq) (tota
     (h15 : 2 ^ V.pub.lt + q ≤ 2 ^ 15) (he15 : 2 ^ V.pub.epLogN + eq ≤ 2 ^ 15)
     (hdB : V.blk.path = V.pub.lt + lr) (hdE : V.ed.path = V.pub.epLogN + elr) (C : IncTables V) (t : Tr)
     (R : IncRun) (h : incProve H V (incDataAt H tag U hbij V lr elr q eq C t) t = .ok R)
-    (hdeg : ∀ s, 1 ≤ slotD (V.bp (incCtx V.pub R.ch)) s ∧ slotD (V.bp (incCtx V.pub R.ch)) s < gP)
+    (hdeg : ∀ s, s < (V.bp (incCtx V.pub R.ch)).geom.slots.length →
+      1 ≤ slotD (V.bp (incCtx V.pub R.ch)) s ∧ slotD (V.bp (incCtx V.pub R.ch)) s < gP)
     (hslots : StSlotsSum H (V.bp (incCtx V.pub R.ch)) (incElog V.pub V.geo.bLogN) U (C.slot R.ch) Fp2.zero Fp2.zero
       Fp2.zero V.lay.ns [] 0 {} R.t3)
     (hMh : MHonest U (algebraMap GF K (rootFp 9).toGF) C.M 4)
@@ -598,7 +599,7 @@ theorem rcOutc_honest_tables (V : OutcV) (lr blr q bq rowsA rowsH : ℕ) (hVm : 
     (hk : V.pub.lt + lr ≤ 31) (hq : 0 < q) (hkb : V.geo.bLogN + blr ≤ 31) (hbq : 0 < bq)
     (hdB : V.blk.path = V.pub.lt + lr) (hdD : V.bd.path = V.geo.bLogN + blr) (C : OutcTables V) (cr : Carry)
     (t : Tr) (R : OutcRun) (h : outcProve H V (outcDataAt H tag U hbij V lr blr q bq C t) cr t = .ok R)
-    (hdeg : ∀ s, 1 ≤ slotD V.bp s ∧ slotD V.bp s < gP)
+    (hdeg : ∀ s, s < V.bp.geom.slots.length → 1 ≤ slotD V.bp s ∧ slotD V.bp s < gP)
     (hslots : SlotsSum H V.bp U C.slot (OutcV.bga R.ch).1 (OutcV.bga R.ch).2.1 (OutcV.bga R.ch).2.2 V.lay.ns [] 0 {}
       R.t3)
     (hMh : MHonest U (algebraMap GF K (rootFp 9).toGF) C.M 8)
