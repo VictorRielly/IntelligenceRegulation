@@ -56,6 +56,9 @@ pub use metal::{extrapolate_for_test as metal_extrapolate_for_test, fold_for_tes
 // [A27] the GPU trace's buffered lines, written out (a server may call it after a request)
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
 pub use metal::trace_flush as metal_trace_flush;
+// [OPT-NEXT-1] fused DIF-INTT -> DIT-FWD coset RS encoder test switch (`HL_METAL_FUSED_RS=1`, default off)
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub use metal::{fused_rs_calls_for_test, fused_rs_for_test, set_fused_rs_for_test};
 
 /// [A4] Without the Metal backend no witness product runs on a device: `Ok(None)`
 /// sends every caller to its CPU path.
@@ -63,6 +66,24 @@ pub use metal::trace_flush as metal_trace_flush;
 #[allow(clippy::too_many_arguments)]
 pub fn witness_product(_t_rows: usize, _x: &[i64], _xs: usize, _w: &[i8], _inner: usize, _outer: usize, _os: usize, _out_len: usize, _in_out: bool) -> Result<Option<Vec<i64>>, String> {
     Ok(None)
+}
+
+/// [OPT-NEXT-1] Without the Metal backend the fused RS encoder switch is a constant-false stub.
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+pub fn set_fused_rs_for_test(_on: Option<bool>) -> Option<bool> {
+    None
+}
+
+/// [OPT-NEXT-1] Without the Metal backend the fused RS encoder is never active.
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+pub fn fused_rs_for_test() -> bool {
+    false
+}
+
+/// [OPT-NEXT-1] Without the Metal backend zero fused RS calls occur.
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+pub fn fused_rs_calls_for_test() -> u64 {
+    0
 }
 
 /// **ROUND 2 (R2-5): GPU MODE FAILS CLOSED.** Every place a device entry
