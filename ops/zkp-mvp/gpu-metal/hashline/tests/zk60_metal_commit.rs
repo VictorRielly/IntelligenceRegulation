@@ -392,6 +392,123 @@ mod device {
         );
     }
 
+    /// [OPT-NEXT-1] Exact installed W16R2 Shieldstral classifier commitment
+    /// geometries: A (2,504 rows, log_n=14, inv_rate=2, q=280, keyed),
+    /// H (2,606 rows, log_n=14, inv_rate=2, q=280, keyed), and the 38-row
+    /// internal boundary commitment (38 rows, log_n=14, inv_rate=4, q=256,
+    /// keyed). Checks frs1 against BOTH CPU oracle and Metal frs0 on roots,
+    /// leaves, sampled encoded columns, row folds, complete `OpeningZk` bytes,
+    /// and post-opening transcript challenge, with `FUSED_RS_CALLS` anti-vacuity.
+    #[test]
+    fn m1_fused_rs_classifier_exact_shapes() {
+        static FRS_CLS_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+        struct FusedRsGuard(Option<bool>);
+        impl Drop for FusedRsGuard {
+            fn drop(&mut self) {
+                hashline::gpu::set_fused_rs_for_test(self.0);
+            }
+        }
+
+        let _lock = FRS_CLS_LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        require_device();
+        let _guard = FusedRsGuard(hashline::gpu::set_fused_rs_for_test(Some(false)));
+
+        let ntt18 = NttTables::new(18);
+        let backend = hashline::gpu::backend();
+        let tag = HashTag::for_profile("hashline-zk-mr1/metal-test/1");
+        let raw_key = tag.node_key().expect("keyed tag");
+
+        // (label, log_cols, inv_rate, q, rows)
+        let cls_shapes: [(&str, u32, usize, usize, usize); 3] = [
+            ("w16r2_block_a", 14, 2, 280, 2504),
+            ("w16r2_block_h", 14, 2, 280, 2606),
+            ("w16r2_boundary", 14, 4, 256, 38),
+        ];
+
+        for (si, &(label, log_cols, ir, q, rows)) in cls_shapes.iter().enumerate() {
+            let p = params(log_cols, ir);
+            let (n, nn) = (p.cols(), p.enc_cols());
+            let zk = ZkOpts { q_pad: q, coset: Fp::new(7) };
+            let data = rnd(21000 + si as u64, rows * n);
+            let pads = rnd(22000 + si as u64, rows * q);
+            let pows = pcs::coset_powers(zk.coset, nn);
+            let idx: Vec<usize> = [0, 1, 2, 2047, 2048, nn / 2, nn - 1, (nn / 3) | 1]
+                .into_iter()
+                .map(|j| j % nn)
+                .collect();
+            let rhos = vec![rnd2(23000 + si as u64, rows), rnd2(23100 + si as u64, rows)];
+
+            // 1. Direct keyed metal_commit_zk: frs0 vs frs1 (leaves, columns, row folds) + anti-vacuity.
+            hashline::gpu::set_fused_rs_for_test(Some(false));
+            let c0_before = hashline::gpu::fused_rs_calls_for_test();
+            let (mc0, leaves0) = hashline::gpu::metal_commit_zk(&p, &data, &pads, &pows, &ntt18, Some(&raw_key))
+                .expect("metal_commit_zk frs0");
+            assert_eq!(hashline::gpu::fused_rs_calls_for_test(), c0_before, "{label}: frs0 dispatched fused RS");
+
+            hashline::gpu::set_fused_rs_for_test(Some(true));
+            let c1_before = hashline::gpu::fused_rs_calls_for_test();
+            let (mc1, leaves1) = hashline::gpu::metal_commit_zk(&p, &data, &pads, &pows, &ntt18, Some(&raw_key))
+                .expect("metal_commit_zk frs1");
+            assert!(
+                hashline::gpu::fused_rs_calls_for_test() > c1_before,
+                "{label}: expected fused RS dispatch"
+            );
+            assert_eq!(leaves1, leaves0, "{label}: frs1 vs frs0 leaves");
+            assert_eq!(mc1.columns(&idx).expect("cols1"), mc0.columns(&idx).expect("cols0"), "{label}: columns");
+            assert_eq!(mc1.fold_rows(&rhos).expect("fold1"), mc0.fold_rows(&rhos).expect("fold0"), "{label}: folds");
+            drop((mc0, mc1, leaves0, leaves1));
+
+            // 2. Full tagged commit_zk + open_zk: CPU oracle vs Metal frs0 vs Metal frs1.
+            let mut r_cpu = ZkRng::new(24000 + si as u64, b"metal-frs-cls");
+            let mut cpu = pcs::commit_zk_owned_with_tag(&Cpu, &p, data.clone(), &ntt18, &zk, &mut r_cpu, &tag);
+
+            hashline::gpu::set_fused_rs_for_test(Some(false));
+            let mut r_dev0 = ZkRng::new(24000 + si as u64, b"metal-frs-cls");
+            let mut dev0 = pcs::commit_zk_owned_with_tag(&backend, &p, data.clone(), &ntt18, &zk, &mut r_dev0, &tag);
+
+            hashline::gpu::set_fused_rs_for_test(Some(true));
+            let c1_open = hashline::gpu::fused_rs_calls_for_test();
+            let mut r_dev1 = ZkRng::new(24000 + si as u64, b"metal-frs-cls");
+            let mut dev1 = pcs::commit_zk_owned_with_tag(&backend, &p, data, &ntt18, &zk, &mut r_dev1, &tag);
+            assert!(
+                hashline::gpu::fused_rs_calls_for_test() > c1_open,
+                "{label}: commit_zk_owned_with_tag did not dispatch fused RS"
+            );
+            assert!(matches!(dev0.cm.store, Store::Device(_)), "{label}: frs0 declined");
+            assert!(matches!(dev1.cm.store, Store::Device(_)), "{label}: frs1 declined");
+            assert_eq!(dev1.commitment().root, cpu.commitment().root, "{label}: frs1 vs CPU salted root");
+            assert_eq!(dev1.commitment().root, dev0.commitment().root, "{label}: frs1 vs frs0 salted root");
+
+            for mr in [&mut cpu.mask_rows, &mut dev0.mask_rows, &mut dev1.mask_rows] {
+                *mr = vec![rows - 3, rows - 2];
+            }
+            cpu.prox_mask_row = Some(rows - 1);
+            dev0.prox_mask_row = Some(rows - 1);
+            dev1.prox_mask_row = Some(rows - 1);
+            let cl = claims(rows, log_cols, 25000 + si as u64);
+            let (mut tc, mut t0, mut t1) = (
+                Transcript::new(b"metal-frs-cls-open"),
+                Transcript::new(b"metal-frs-cls-open"),
+                Transcript::new(b"metal-frs-cls-open"),
+            );
+            let oc = pcs::open_zk(&cpu, &cl, &mut tc);
+            let o0 = pcs::open_zk(&dev0, &cl, &mut t0);
+            let o1 = pcs::open_zk(&dev1, &cl, &mut t1);
+            let (mut bc, mut b0, mut b1) = (Vec::new(), Vec::new(), Vec::new());
+            oc.write_bytes(&mut bc);
+            o0.write_bytes(&mut b0);
+            o1.write_bytes(&mut b1);
+            assert_eq!(b1, bc, "{label}: frs1 vs CPU OpeningZk bytes");
+            assert_eq!(b1, b0, "{label}: frs1 vs frs0 OpeningZk bytes");
+            assert_eq!(t1.challenge_fp2(), tc.challenge_fp2(), "{label}: transcript after opening");
+        }
+
+        println!(
+            "ZK60_METAL_SUMMARY {{\"case\":\"m1-fused-rs-classifier\",\"shapes\":{}}}",
+            cls_shapes.len()
+        );
+    }
+
     /// [ZK60-METAL M2] The keyed hiding commitment at model-block sizes, CPU
     /// against Metal, roots compared, wall clocks printed. A diagnostic, not a
     /// receipt: one run each on a shared box. Shapes: Shieldstral-3B T128's A
