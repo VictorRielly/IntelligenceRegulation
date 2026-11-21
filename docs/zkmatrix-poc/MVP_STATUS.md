@@ -767,6 +767,23 @@ item was re-checked against the source by the coordinator.
     is worth building next. **Claude's lane is measuring it now:** five traced stream runs (one lane; six
     lanes with the switch off and on; six lanes on the shared queue; eight lanes), with the reading rules
     posted in the coordination file at 15:58:07Z before any run. No rate claim comes from these runs.
+    **16:25 UTC: that measurement is done [MEASURED once per run by Claude's lane; every figure
+    recomputed by Claude with separate code; record in `results/zk60_lanes_trace_20261121/`].** By the
+    rules posted beforehand, the time a block gains from one lane to six is mostly time its GPU jobs
+    spend waiting for or running on the GPU (72% of the growth). But the GPU is not saturated: with six
+    lanes busy it has no job running for 22.7% of the time. The lanes move in step: they compute on the
+    host together and then ask for the GPU together (three or more jobs at once 40% of the time). While
+    anything is running the GPU does about 1.3 times the work of one job at a time, in every full-lanes
+    run. A36 was slower because it made the lanes bunch more (GPU empty 30.7%), not because it added GPU
+    work; eight lanes bunch more than six. **What this means for speed [ARGUED, not measured]:** the rate
+    is the share of time the GPU has work, times about 1.3, over the GPU work per request (2.97 s). So
+    two things can raise it: less GPU work per request (one for one), and less empty GPU time (a ceiling
+    of +29%, about 57 padded tokens per second on this machine, if all of it could be filled; nothing yet
+    shows how). The researcher's next two ticks examine what the lanes are doing while the GPU is empty.
+    Two leads for Astra from single runs: per-thread GPU queues gave 44.05 against 40.98 on the shared
+    queue at six lanes (+7.5%), and Astra's own app traces all show the shared queue although the app's
+    settings ask for per-thread queues (question posted); and eight lanes were no better than six on
+    per-thread queues (42.90 against 44.05).
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the

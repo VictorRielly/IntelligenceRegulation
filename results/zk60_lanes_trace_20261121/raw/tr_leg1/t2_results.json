@@ -1,0 +1,159 @@
+{
+ "binary": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+ "spec": "1:5:0:thread:6",
+ "content_ids": [
+  14,
+  18,
+  18,
+  20,
+  18,
+  17,
+  15,
+  17
+ ],
+ "legs": [
+  {
+   "leg": 1,
+   "A36": 0,
+   "lanes": 1,
+   "threads": 5,
+   "queues": "thread",
+   "N": 1,
+   "timed": 6,
+   "trace_prefix": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/results/zk60_lanes_trace_20261121/raw/traces/tr_leg1_leg1",
+   "argv": [
+    "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+    "serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--lanes",
+    "1",
+    "--lane-threads",
+    "5",
+    "--witness-cache-gib",
+    "16",
+    "--dev-w16r2-public-content-only"
+   ],
+   "free_gb_before": 151.7,
+   "ds4_bench_before": "(none)",
+   "startup_s": 29.68753409385681,
+   "serve_start": {
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "lanes": 1,
+    "lane_threads": 5,
+    "trained_statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "startup_seconds": 29.647
+   },
+   "t_send_abs": 1016690.275445583,
+   "server_pid": 37969,
+   "server_exit": 0,
+   "completions": [
+    {
+     "n": 1,
+     "q": 0,
+     "post": 0,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 11.47763020801358,
+     "t_abs": 1016701.753075791,
+     "queued_s": 0.0,
+     "served_s": 11.477,
+     "prove_s": 9.147,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 2,
+     "q": 1,
+     "post": 1,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 22.80162099993322,
+     "t_abs": 1016713.077066583,
+     "queued_s": 11.476,
+     "served_s": 11.324,
+     "prove_s": 8.989,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 3,
+     "q": 2,
+     "post": 2,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 34.08793195791077,
+     "t_abs": 1016724.363377541,
+     "queued_s": 22.8,
+     "served_s": 11.286,
+     "prove_s": 8.99,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 4,
+     "q": 3,
+     "post": 3,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 45.28909237496555,
+     "t_abs": 1016735.564537958,
+     "queued_s": 22.61,
+     "served_s": 11.201,
+     "prove_s": 8.907,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 5,
+     "q": 4,
+     "post": 4,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 56.514161375002004,
+     "t_abs": 1016746.789606958,
+     "queued_s": 22.487,
+     "served_s": 11.225,
+     "prove_s": 8.878,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 6,
+     "q": 5,
+     "post": 5,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 67.72139462491032,
+     "t_abs": 1016757.996840208,
+     "queued_s": 22.426,
+     "served_s": 11.207,
+     "prove_s": 8.884,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 7,
+     "q": 6,
+     "post": 6,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 78.94737462489866,
+     "t_abs": 1016769.222820208,
+     "queued_s": 22.432,
+     "served_s": 11.226,
+     "prove_s": 8.926,
+     "receipt_bytes": 669561472
+    }
+   ],
+   "gpu_util_mean": 53.0,
+   "ds4_bench_after": "(none)",
+   "rate": 11.38287993585165,
+   "all_proved": true,
+   "verify_summary": {
+    "receipts": 0,
+    "note": "off leg: receipts deleted unverified"
+   }
+  }
+ ]
+}

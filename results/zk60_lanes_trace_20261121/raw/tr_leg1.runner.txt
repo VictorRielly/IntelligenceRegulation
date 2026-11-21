@@ -1,0 +1,4 @@
+[07:59:23] launching tr_leg1
+[zk60-guard 07:59:23] START lanes-tr_leg1 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=9a07eaa4e924
+[zk60-guard 08:01:37] END lanes-tr_leg1 exit=0 child_wall=134s peak_rss=27.51G min_avail=180.50G peak_vram=5379MiB
+[08:01:37] tr_leg1 guard exit 0

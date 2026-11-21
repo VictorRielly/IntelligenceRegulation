@@ -1,0 +1,10 @@
+leg 1 1x5 A36=0 thread rate 11.38 wall 343.4 | prover e 96.9 q 12.2 w 3.0 u 22.4% | sealing e 17.3 | union ALL 25.1%
+      executing at once: none 74.9%, one 23.9%, two 1.0%, three or more 0.1% | device work 0.264 solo-seconds per second (unit: leg 1, 2.968 s a request) | while busy 1.05
+leg 2 6x5 A36=0 thread rate 44.05 wall 546.9 | prover e 204.1 q 51.9 w 2.4 u 72.9% | sealing e 13.5 | union ALL 77.3%
+      executing at once: none 22.7%, one 16.4%, two 20.7%, three or more 40.2% | device work 1.021 solo-seconds per second (unit: leg 1, 2.968 s a request) | while busy 1.32
+leg 3 6x5 A36=1 thread rate 39.26 wall 619.7 | prover e 245.6 q 150.5 w 2.4 u 65.9% | sealing e 13.2 | union ALL 69.3%
+      executing at once: none 30.7%, one 8.9%, two 13.7%, three or more 46.7% | device work 0.910 solo-seconds per second (unit: leg 1, 2.968 s a request) | while busy 1.31
+leg 4 6x5 A36=0 shared rate 40.98 wall 597.0 | prover e 183.8 q 79.6 w 33.1 u 69.6% | sealing e 13.6 | union ALL 73.6%
+      executing at once: none 26.4%, one 16.4%, two 24.3%, three or more 33.0% | device work 0.950 solo-seconds per second (unit: leg 1, 2.968 s a request) | while busy 1.29
+leg 5 8x4 A36=0 thread rate 42.90 wall 768.8 | prover e 270.9 q 130.8 w 2.4 u 69.0% | sealing e 13.0 | union ALL 74.0%
+      executing at once: none 26.0%, one 8.9%, two 13.2%, three or more 52.0% | device work 0.995 solo-seconds per second (unit: leg 1, 2.968 s a request) | while busy 1.34

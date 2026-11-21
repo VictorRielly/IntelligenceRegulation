@@ -1,0 +1,49 @@
+== leg 1: 1 lanes x 5 threads, A36 0, queues thread, N 1, timed 6; all proved True, server exit 0
+   rate 11.383 tok/s | mean prove call 8.929 s | wall 343.4 ms | B 156 | trace records 4845 (last record 0.025 s before the last completion)
+   prover  : e 96.9 ms  q 12.2 ms  w 3.0 ms  u 22.4 %  | buffers/block 18.49, queues 1, threads 1
+   sealing : e 17.3 ms  q 7.8 ms  w 1.1 ms  u 2.7 %  | buffers/block 8.00, queues 1, threads 5
+   perturbation: no T2 reference at this setting
+== leg 2: 6 lanes x 5 threads, A36 0, queues thread, N 6, timed 48; all proved True, server exit 0
+   rate 44.047 tok/s | mean prove call 14.219 s | wall 546.9 ms | B 1248 | trace records 37408 (last record 0.026 s before the last completion)
+   prover  : e 204.1 ms  q 51.9 ms  w 2.4 ms  u 72.9 %  | buffers/block 18.62, queues 6, threads 6
+   sealing : e 13.5 ms  q 19.1 ms  w 1.1 ms  u 9.5 %  | buffers/block 7.85, queues 1, threads 30
+   perturbation: T2 range 43.0..43.9 tok/s: within or above the T2 range less 5%
+== leg 3: 6 lanes x 5 threads, A36 1, queues thread, N 6, timed 48; all proved True, server exit 0
+   rate 39.262 tok/s | mean prove call 16.111 s | wall 619.7 ms | B 1248 | trace records 37304 (last record 0.032 s before the last completion)
+   prover  : e 245.6 ms  q 150.5 ms  w 2.4 ms  u 65.9 %  | buffers/block 18.55, queues 12, threads 12
+   sealing : e 13.2 ms  q 34.3 ms  w 1.1 ms  u 8.6 %  | buffers/block 7.77, queues 1, threads 30
+   perturbation: T2 range 38.0..38.9 tok/s: within or above the T2 range less 5%
+== leg 4: 6 lanes x 5 threads, A36 0, queues shared, N 6, timed 48; all proved True, server exit 0
+   rate 40.982 tok/s | mean prove call 15.522 s | wall 597.0 ms | B 1248 | trace records 37380 (last record 0.039 s before the last completion)
+   prover  : e 183.8 ms  q 79.6 ms  w 33.1 ms  u 69.6 %  | buffers/block 18.61, queues 1, threads 6
+   sealing : e 13.6 ms  q 19.4 ms  w 1.1 ms  u 8.9 %  | buffers/block 7.82, queues 1, threads 30
+   perturbation: no T2 reference at this setting
+== leg 5: 8 lanes x 4 threads, A36 0, queues thread, N 8, timed 48; all proved True, server exit 0
+   rate 42.896 tok/s | mean prove call 19.990 s | wall 768.8 ms | B 1248 | trace records 38763 (last record 0.026 s before the last completion)
+   prover  : e 270.9 ms  q 130.8 ms  w 2.4 ms  u 69.0 %  | buffers/block 18.60, queues 8, threads 8
+   sealing : e 13.0 ms  q 28.3 ms  w 1.2 ms  u 8.5 %  | buffers/block 7.57, queues 1, threads 32
+   perturbation: T2 range 44.1..46.4 tok/s: within or above the T2 range less 5%
+
+RULE (a), what paces the off stream at six lanes (leg 1 to leg 2): a: wall 343.4 -> 546.9 ms (+203.5); e+q 109.1 -> 256.0 ms (+146.9); ratio 0.72 -> DEVICE-SIDE
+RULE (b), why A36 lost (leg 2 to leg 3): b: wall 546.9 -> 619.7 ms (+72.8); e+q 256.0 -> 396.0 ms (+140.0); ratio 1.92 -> DEVICE-SIDE
+(leg 1 has no T2 reference at one lane: its perturbation status is not defined by the pre-registration)
+
+legs 4 and 5 beside leg 2 (no verdict; single legs):
+  leg 2: rate 44.05  e 204.1  q 51.9  w 2.4  u 72.9 %  queues 6
+  leg 4: rate 40.98  e 183.8  q 79.6  w 33.1  u 69.6 %  queues 1
+  leg 5: rate 42.90  e 270.9  q 130.8  w 2.4  u 69.0 %  queues 8
+
+e per block by tag (ms per block; the twelve largest by the largest leg value), legs 1, 2, 3:
+tag | detail                                                              leg 1    leg 2    leg 3
+batch | slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/    21.33    35.00    51.01
+batch | slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/p    13.16    30.53    36.87
+commit | rows=2606 log_n=14 log_nn=15 zk=280 keyed=1                      14.84    21.41    34.25
+commit | rows=2504 log_n=14 log_nn=15 zk=280 keyed=1                      14.30    23.59    33.10
+batch | slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-     0.30    11.85    15.04
+batch | slot 15 (04 Q zero-check (hosts 09Q, 11)) at hashline-zk-mr1/p     5.66     9.30    13.40
+batch | slot 18 (14 F zero-check (hosts 13G, 13U)) at hashline-zk-mr1/     0.14    12.10    10.78
+batch | slot 19 (TAB table helper zero-check) at hashline-zk-mr1/priva     0.03     7.19    10.18
+batch | slot 17 (06 softmax zero-check (hosts 07, 10)) at hashline-zk-     7.33     4.83     4.86
+batch | slot 16 (05 KV zero-check (hosts 09K, 09V)) at hashline-zk-mr1     1.93     5.42     7.10
+batch | slot 19 (TAB table helper zero-check) at hashline-zk-mr1/priva     3.97     4.33     3.33
+batch | slot 14 (03 D zero-check (hosts 12, 13D)) at hashline-zk-mr1/p     3.19     0.49     1.03
