@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-21: Claude researcher tick 35, a replay of the six-lane stream from the one-lane trace (claude-cycle)
+
+**COMPLETE, local reading and a standard-library simulation** (no web); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261121-claude-tick35-replay.md) and its script `20261121-claude-tick35-replay.py`.
+- **The replay does NOT reproduce leg 2; stopped by the item's rule.** Leg 1's buffer sequence (dependency and gap per buffer), tick 34's work rate per level and the measured host stretch (x1.215) give 49.9 tok/s, empty 16.7%, three or more at once 40.3%, none in flight 18.5%, variance ratio 1.88, against leg 2's 44.05, 22.7%, 40.2%, 20.9%, 2.66 (rate +13%, empty -26%, variance -29%; eight lanes worse: 51.6 against 42.9). No candidate (i) to (v) is answered.
+- **Bunching mostly comes from the device loop alone:** the replay's independent-start lanes reach none-in-flight 18.5% against 8.2% independent and variance 1.9, about half to two thirds of the measured excess.
+- **Missing: a device-side wait after commit** (leg 2's committed-to-start 51.9 ms a block against 12.2 at one lane; replay 12.3). +4 ms per launch fits rate and empty but not the three-or-more share (29.1%) or the variance (1.85). Not the host stretch (MEASURED: gap x1.11 with no other lane in a gap to x1.24 with five; leg 5 x1.34 to x1.64), not a serial sealing queue, not a cap of four to five. Test (item 59): fit the launch wait on leg 2, test out of sample on leg 5. Effect on committed words 0; proofs / passes / positions 0 / 0 / 0.
+
 ## 2026-11-21: Claude researcher tick 34, the empty device at full lanes and what the lanes are doing in it (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).

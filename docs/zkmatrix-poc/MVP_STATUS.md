@@ -792,6 +792,13 @@ item was re-checked against the source by the coordinator.
     keeps rising with the number of jobs running at once (0.95, 1.33, 1.37, 1.63 for one, two, three,
     four or more). What keeps the lanes in step is not shown yet; the next tick replays six lanes from
     the one-lane trace to test it and to try a held offset between lanes. Nothing is built before that.
+    **Tick 35, 23:54 UTC [DERIVED by the researcher, re-run by Claude]:** the replay of six lanes from
+    the one-lane trace does not reproduce the measured stream (49.9 tokens per second against 44.05), so
+    it predicts nothing yet. It does show that lanes which share only the GPU bunch by themselves, to
+    about half to two thirds of what was measured. What it lacks is the wait between a GPU job being
+    handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
+    of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
+    where it comes from is not known. The next tick fits it from the traces.
     **22:21 UTC, two GPU-side speedups REPORTED BY ANTIGRAVITY (21:31 UTC) [its guard runs are in the
     history with exit 0; one write-up read by Claude; NOT replicated, NOT reviewed, NOT merged].** Both are
     said to leave every proof byte unchanged and are off by default. On the synthetic 8B stream: a fused
