@@ -85,7 +85,7 @@ theorem outcVerify_of_tables (V : OutcV) (lr blr q bq rowsA rowsH : ℕ) (hVm : 
     (hk : V.pub.lt + lr ≤ 31) (hq : 0 < q) (hkb : V.geo.bLogN + blr ≤ 31) (hbq : 0 < bq)
     (hdB : V.blk.path = V.pub.lt + lr) (hdD : V.bd.path = V.geo.bLogN + blr) (C : OutcTables V) (cr : Carry)
     (t : Tr) (R : OutcRun) (h : outcProve H V (outcDataAt H tag U hbij V lr blr q bq C t) cr t = .ok R)
-    (hdeg : ∀ s, 1 ≤ slotD V.bp s ∧ slotD V.bp s < gP)
+    (hdeg : ∀ s, s < V.bp.geom.slots.length → 1 ≤ slotD V.bp s ∧ slotD V.bp s < gP)
     (hslots : SlotsSum H V.bp U C.slot (OutcV.bga R.ch).1 (OutcV.bga R.ch).2.1 (OutcV.bga R.ch).2.2 V.lay.ns [] 0 {}
       R.t3)
     (hMh : MHonest U (algebraMap GF K (rootFp 9).toGF) C.M 8)
