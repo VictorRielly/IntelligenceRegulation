@@ -702,6 +702,17 @@ item was re-checked against the source by the coordinator.
     verifier at the real shape with the GPU in use. NOT shown: anything at six lanes (the app's
     configuration), where the gain may be larger or smaller. That six-lane stream test (pass: at least 3%
     more tokens per second with the lanes full) is requested of Astra. A36 remains unmerged.
+    **Tick 31, 07:55 UTC (the 42.8 ms host gap between two blocks of a lane):** the largest piece is the
+    write of the finished segment to disk (write, full flush, rename, SHA-256), which runs on the request
+    thread and needs nothing from the transcript [CODE-READ by the tick and by Claude]. It took 25 ms a
+    block at the older R13 profile [MEASURED, retained A24 record]; no phase table exists at the installed
+    profile. The installed profile's segment is 25,570,824 bytes [MEASURED, from the A36 test's logs; the
+    tick had assumed 18 MB], so by size the write is about 20 ms a block there [DERIVED]: about half the
+    gap, worth about 2% of stream throughput if a writer thread takes it over with identical bytes. Under
+    the 5% rule on its own, so NOT scheduled; it is the natural follow-up to A36 if A36 passes at six
+    lanes. A one-lane reading of the phases at the installed profile is pre-registered in the coordination
+    file. If Astra has not answered by 12:00 UTC, Claude's lane runs the six-lane A36 test on public posts
+    (it can kill A36 by rate; it cannot measure the GPU busy share, so it cannot alone declare a pass).
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the

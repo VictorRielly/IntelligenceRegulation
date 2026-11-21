@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-21: Claude researcher tick 31, what is in the 42.8 ms host gap between the boundary opening and the next boundary commit (claude-cycle)
+
+**COMPLETE, local reading, arithmetic and one small timing check** (no web); no prover run, no build, no Git; owner-private logs not read. Triage material (no ruling).
+[Handoff](handoffs/20261121-claude-tick31-boundary-gap-split.md), scripts `20261121-claude-tick31-boundary-gap-split.py` (reads A24's retained phase records) and `20261121-claude-tick31-sinkbench.py` (a 32 MB write, flush, rename and SHA-256 timing).
+- **No W16R2 record of `sink`, `encode segment` or `B_(k-1) opening` is retained**; the phases exist only at R13 (A24: baseline 26 blocks, stream 78 blocks). R13 solo per block: sink 25 ms, encode 3, opening 2, boundary B_k phase 9 (includes its commit wait), block load and check 15 to 61 (skipped at the app by `HL_A26_KEPT=1`, `deploy.json`).
+- **The disk sink is host-only on final bytes (create, write, F_FULLFSYNC, rename, SHA-256, `run_sink.rs:385-392`) and so independent of the transcript;** tick 30 had filed it as not independent. Check on this Mac: 32 MB alone 21.4 ms (digest 11.1, flush 7.3), six writers at once 59.6 ms; reproduces A24's 25 ms. At W16R2 (ASSUMED 1.8x smaller segments) 12 to 33 ms of the 42.8 ms gap.
+- **A writer-thread hand-off, same bytes out, is worth x1.013 to x1.035 on the lane period at the ceiling** (tick 30's closed-queue model, about 0.1% per ms); under the 5% rule, not scheduled; overlaps tick 30's before-part-ahead set and A36. Tests S1 (`HL_PB_TIMING` phases from one app stream: pass sink at least 12 ms, kill under 6) and S2 stated, NOT scheduled. Effect on committed words: 0. Proofs / passes / positions: 0 / 0 / 0.
+
 ## 2026-11-21: Claude researcher tick 30, what a lane does on the host at the W16R2 classifier and what seal-ahead would buy (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git; owner-private logs not read. Triage material (no ruling).
