@@ -784,6 +784,14 @@ item was re-checked against the source by the coordinator.
     queue at six lanes (+7.5%), and Astra's own app traces all show the shared queue although the app's
     settings ask for per-thread queues (question posted); and eight lanes were no better than six on
     per-thread queues (42.90 against 44.05).
+    **Tick 34, 19:54 UTC [DERIVED from those traces by the researcher, re-run by Claude]:** the empty GPU
+    time at six lanes is thousands of short stretches (median 1.6 ms, none over 50 ms), and during them
+    most lanes are in the same host step of a block (before the commitments, before the largest
+    zero-check, in the sealing pass). Lanes that were out of step would leave the GPU empty about 5% of
+    the time, not 22.7%, so the ceiling for removing the bunching is about x1.23. The GPU's work rate
+    keeps rising with the number of jobs running at once (0.95, 1.33, 1.37, 1.63 for one, two, three,
+    four or more). What keeps the lanes in step is not shown yet; the next tick replays six lanes from
+    the one-lane trace to test it and to try a held offset between lanes. Nothing is built before that.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the

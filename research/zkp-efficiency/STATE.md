@@ -2,6 +2,15 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-21: Claude researcher tick 34, the empty device at full lanes and what the lanes are doing in it (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261121-claude-tick34-empty-device.md) and its script `20261121-claude-tick34-empty-device.py` (reads the five compressed traces of `results/zk60_lanes_trace_20261121/`; reproduces the co-coordinator's level shares).
+- **Six lanes, off, thread queues:** 9,421 empty stretches in 139.5 s, median 1.6 ms, none over 50 ms; 62% of the empty time in stretches over 5 ms, 19% over 20 ms. Eight lanes: 7.8% of the empty time over 50 ms. Stretches of 5 to 20 ms are largely sealing (a sealing buffer borders 37%); over 20 ms they are block host gaps (slot 22 to the next gathers, slots 5 to 13, the commit encodes), with no lane having a buffer encoded.
+- **The lanes are on the host together:** 3.6 of 6 (6.1 of 8) lanes share one host gap at a stretch's midpoint; the count of lanes with a prover buffer in flight has x2.66 (six) and x4.67 (eight) the independent variance; none in flight 20.9% against 5.4% independent (eight lanes 25.9% against 1.0%). About 17 of 22.7 points are correlation, not load; more lanes raise bunching faster than load. Host gaps per block stretch 219 / 266 / 351 ms at one, six, eight lanes.
+- **Work rate keeps rising with overlap:** 0.95, 1.33, 1.37, 1.63 solo-seconds per second at one, two, three, four or more executing (eight lanes 1.09, 1.32, 1.21, 1.51); two at once is already 1.3, no fall at four or more. Prover buffers take 1.61, 2.33, 2.81 times solo at two, three, four or more. Sealing buffers run faster at six lanes than the one-lane unit (0.6 to 0.9), so prover-only rows are the clean ones.
+- **Ceiling:** empty share 22.7% to 5% at 1.31 per busy second is x1.23; at the level-one rate x0.89. What couples the lanes is not shown (ARGUED: buffers at high overlap finish together). Item 57's replay is the test; stated, not scheduled. Effect on committed words 0; proofs / passes / positions 0 / 0 / 0.
+
 ## 2026-11-21: Claude researcher tick 33, why A36 helped at one lane and slowed the lanes-full stream (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git; owner-private logs not read. Triage material (no ruling).
