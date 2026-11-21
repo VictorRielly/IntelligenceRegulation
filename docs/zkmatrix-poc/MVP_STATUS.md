@@ -720,6 +720,15 @@ item was re-checked against the source by the coordinator.
     one lane, the 23 sumcheck slots take 145 ms, the openings 49 ms, the commitments 54 ms, host
     preparation of the committed rows 59 ms, and the segment write with its encoding 23 ms. The table is
     on the unmerged A36 branch (`results/zk60_a36_core_ahead_20261121/README.md`, section 11).
+    **08:27 UTC: Sol reviewed A36's randomness (review 492).** Sol accepts the edit of the pinned
+    generator test on the opt-in branch and finds the two streams independent and never shared between
+    threads. A classifier request has 2 randomness streams with the switch off and 3 with it on (Claude's
+    earlier "fourth stream" was wrong). One change is requested: the second stream is seeded after the
+    first frame has been handed to the writer, so a failure of the operating system's randomness could
+    follow a written frame; the seeding moves before the header (being done on the branch, gates re-run).
+    Sol's read does NOT approve switching A36 on: that needs a stream-length census at the installed
+    profile, the three-stream form of the generator assumption, and the fixed-witness argument with A36
+    on. A36 is merged only if the six-lane test passes, and then default off.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the
