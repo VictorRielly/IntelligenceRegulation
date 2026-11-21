@@ -1,0 +1,215 @@
+{
+ "binary": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+ "lanes": 6,
+ "lane_threads": 5,
+ "N": 6,
+ "timed": 6,
+ "content_ids": [
+  14,
+  18,
+  18,
+  20,
+  18,
+  17,
+  15,
+  17
+ ],
+ "legs": [
+  {
+   "leg": 1,
+   "A36": 0,
+   "argv": [
+    "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+    "serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--lanes",
+    "6",
+    "--lane-threads",
+    "5",
+    "--witness-cache-gib",
+    "16",
+    "--dev-w16r2-public-content-only"
+   ],
+   "free_gb_before": 166.5,
+   "ds4_bench_before": "(none)",
+   "startup_s": 29.88180899620056,
+   "serve_start": {
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "lanes": 6,
+    "lane_threads": 5,
+    "trained_statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "startup_seconds": 29.652
+   },
+   "completions": [
+    {
+     "n": 1,
+     "q": 0,
+     "post": 0,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 17.459135542041622,
+     "queued_s": 0.0,
+     "served_s": 17.458,
+     "prove_s": 14.493,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 2,
+     "q": 1,
+     "post": 1,
+     "lane": 2,
+     "status": "proved",
+     "t_s": 17.483142042066902,
+     "queued_s": 0.31,
+     "served_s": 17.173,
+     "prove_s": 14.159,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 3,
+     "q": 2,
+     "post": 2,
+     "lane": 1,
+     "status": "proved",
+     "t_s": 17.770288833999075,
+     "queued_s": 0.61,
+     "served_s": 17.16,
+     "prove_s": 14.106,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 4,
+     "q": 3,
+     "post": 3,
+     "lane": 3,
+     "status": "proved",
+     "t_s": 18.04036783403717,
+     "queued_s": 0.91,
+     "served_s": 17.13,
+     "prove_s": 13.96,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 5,
+     "q": 4,
+     "post": 4,
+     "lane": 4,
+     "status": "proved",
+     "t_s": 18.58700504200533,
+     "queued_s": 1.2,
+     "served_s": 17.386,
+     "prove_s": 14.205,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 6,
+     "q": 5,
+     "post": 5,
+     "lane": 5,
+     "status": "proved",
+     "t_s": 18.590866875019856,
+     "queued_s": 1.51,
+     "served_s": 17.081,
+     "prove_s": 13.931,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 7,
+     "q": 6,
+     "post": 6,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 34.85027400008403,
+     "queued_s": 17.458,
+     "served_s": 17.391,
+     "prove_s": 14.25,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 8,
+     "q": 7,
+     "post": 7,
+     "lane": 2,
+     "status": "proved",
+     "t_s": 35.2498546250863,
+     "queued_s": 17.768,
+     "served_s": 17.481,
+     "prove_s": 14.289,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 9,
+     "q": 8,
+     "post": 0,
+     "lane": 1,
+     "status": "proved",
+     "t_s": 35.6871717920294,
+     "queued_s": 18.066,
+     "served_s": 17.621,
+     "prove_s": 14.397,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 10,
+     "q": 9,
+     "post": 1,
+     "lane": 3,
+     "status": "proved",
+     "t_s": 35.84790166700259,
+     "queued_s": 18.365,
+     "served_s": 17.483,
+     "prove_s": 14.17,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 11,
+     "q": 10,
+     "post": 2,
+     "lane": 4,
+     "status": "proved",
+     "t_s": 35.85198791709263,
+     "queued_s": 18.66,
+     "served_s": 17.191,
+     "prove_s": 13.969,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 12,
+     "q": 11,
+     "post": 3,
+     "lane": 5,
+     "status": "proved",
+     "t_s": 36.22436637501232,
+     "queued_s": 18.964,
+     "served_s": 17.259,
+     "prove_s": 13.98,
+     "receipt_bytes": 669561472
+    }
+   ],
+   "gpu_util_mean": 81.1,
+   "ds4_bench_after": "(none)",
+   "rate": 43.55346481283129,
+   "all_proved": true,
+   "verified": [
+    {
+     "n": 1,
+     "q": 0,
+     "status": "checked",
+     "verify_seconds": 6.106
+    }
+   ],
+   "verify_summary": {
+    "receipts": 1,
+    "checked": 1,
+    "other": 0
+   }
+  }
+ ]
+}

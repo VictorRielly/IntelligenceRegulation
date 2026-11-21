@@ -744,6 +744,18 @@ item was re-checked against the source by the coordinator.
     trained path (A33) would be sound there. Worth at most 1.9% of stream throughput [DERIVED by the
     tick]; under the 5% rule, NOT scheduled. It is kept with the segment writer thread as one small
     bundle of host-only changes (identical receipts, no randomness) to consider after the A36 stream test.
+    **12:52 UTC: A36 is KILLED by its pre-registered stream test [MEASURED once per setting by Claude's
+    lane; recomputed by Claude from the raw results].** With every lane busy, the switch made the stream
+    slower: at six lanes 43.87 and 43.00 padded tokens per second with it off against 37.98 and 38.88
+    with it on (-13.4% and -9.6%); at eight lanes 44.11 and 46.39 off against 43.38 and 42.82 on (-1.7%
+    and -7.7%). The rule was a kill under +3%. All 220 receipts made with the switch on verified, so A36
+    is correct and slower. It is not merged; its results and its source as a patch file are kept under
+    `results/zk60_a36_core_ahead_20261121/`. Lesson recorded: the one-lane gain (+4.8%) did not carry
+    over, because with full lanes the GPU already paces the stream; so the two small host-only items
+    above are downgraded and will not be built without a full-lanes test first. Side observation, NOT a
+    designed comparison: with one GPU queue per thread, this test's six-lane rate with the switch off
+    (43 to 44) was already at the level Astra measured for eight lanes on the shared queue (43.79), so
+    the lane count should be chosen under the queue mode the app will actually run.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the

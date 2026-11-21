@@ -1,0 +1,18 @@
+== t2_setA: 6 lanes x 5 threads, N = 6, timed = 48
+leg 1 A36 0: rate 43.871 padded tok/s | prove call mean 14.290 median 14.255 s | same-lane 44.156 tok/s (48 periods) | all proved True | span c[1..54] 17.3..158.8 s | receipts verified 0, checked 0, failed 0 (off leg: deleted unverified) | GPU util mean 87.4 %
+leg 2 A36 1: rate 37.975 padded tok/s | prove call mean 16.782 median 16.773 s | same-lane 38.232 tok/s (48 periods) | all proved True | span c[1..54] 20.6..183.8 s | receipts verified 54, checked 54, failed 0 | GPU util mean 89.9 %
+leg 3 A36 1: rate 38.884 padded tok/s | prove call mean 16.308 median 16.409 s | same-lane 39.134 tok/s (48 periods) | all proved True | span c[1..54] 19.7..179.1 s | receipts verified 54, checked 54, failed 0 | GPU util mean 88.9 %
+leg 4 A36 0: rate 42.996 padded tok/s | prove call mean 14.650 median 14.784 s | same-lane 43.193 tok/s (48 periods) | all proved True | span c[1..54] 17.2..161.1 s | receipts verified 0, checked 0, failed 0 (off leg: deleted unverified) | GPU util mean 85.4 %
+pair (leg 1, leg 2): off 43.871 on 37.975 gain -13.44%
+pair (leg 4, leg 3): off 42.996 on 38.884 gain -9.57%
+VERDICT: KILL at 6 lanes (a gain under 3% in a pair)
+
+== t2_setB: 8 lanes x 4 threads, N = 8, timed = 48
+leg 1 A36 0: rate 44.112 padded tok/s | prove call mean 19.215 median 19.472 s | same-lane 44.328 tok/s (48 periods) | all proved True | span c[1..56] 23.2..165.0 s | receipts verified 0, checked 0, failed 0 (off leg: deleted unverified) | GPU util mean 88.6 %
+leg 2 A36 1: rate 43.376 padded tok/s | prove call mean 19.481 median 18.756 s | same-lane 43.419 tok/s (48 periods) | all proved True | span c[1..56] 23.3..168.0 s | receipts verified 56, checked 56, failed 0 | GPU util mean 90.0 %
+leg 3 A36 1: rate 42.820 padded tok/s | prove call mean 19.564 median 19.745 s | same-lane 43.139 tok/s (48 periods) | all proved True | span c[1..56] 22.2..168.7 s | receipts verified 56, checked 56, failed 0 | GPU util mean 90.1 %
+leg 4 A36 0: rate 46.387 padded tok/s | prove call mean 18.098 median 18.005 s | same-lane 46.621 tok/s (48 periods) | all proved True | span c[1..56] 23.3..158.2 s | receipts verified 0, checked 0, failed 0 (off leg: deleted unverified) | GPU util mean 90.3 %
+pair (leg 1, leg 2): off 44.112 on 43.376 gain -1.67%
+pair (leg 4, leg 3): off 46.387 on 42.820 gain -7.69%
+VERDICT: KILL at 8 lanes (a gain under 3% in a pair)
+

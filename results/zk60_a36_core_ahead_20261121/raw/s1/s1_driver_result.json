@@ -1,0 +1,66 @@
+{
+ "argv": [
+  "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+  "serve",
+  "--export",
+  "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+  "--tables",
+  "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1/token_io",
+  "--policies",
+  "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+  "--label",
+  "zk60-classify-verdict",
+  "--lanes",
+  "1",
+  "--lane-threads",
+  "5",
+  "--witness-cache-gib",
+  "16",
+  "--dev-w16r2-public-content-only"
+ ],
+ "env_added": {
+  "HL_PB_TIMING": "1",
+  "HL_A36_CORE_AHEAD": "0",
+  "HL_METAL_QUEUES": "thread",
+  "HL_METAL_SPIN_US": "200",
+  "HL_A28_STAGGER_MS": "300",
+  "HL_A26_KEPT": "1",
+  "HL_A30_B3PAR": "1",
+  "HL_A26_VERIFY_ONCE": "0",
+  "HL_A28_SEAL_AHEAD": "0"
+ },
+ "requests": [
+  {
+   "id": "s1-r0",
+   "warmup": true,
+   "status": "proved",
+   "wall_s": 11.442070960998535,
+   "prove_seconds": 9.132,
+   "timing_lines": 4005
+  },
+  {
+   "id": "s1-r1",
+   "warmup": false,
+   "status": "proved",
+   "wall_s": 11.286527872085571,
+   "prove_seconds": 8.962,
+   "timing_lines": 4005
+  },
+  {
+   "id": "s1-r2",
+   "warmup": false,
+   "status": "proved",
+   "wall_s": 11.3920419216156,
+   "prove_seconds": 8.995,
+   "timing_lines": 4005
+  },
+  {
+   "id": "s1-r3",
+   "warmup": false,
+   "status": "proved",
+   "wall_s": 11.359050989151001,
+   "prove_seconds": 9.017,
+   "timing_lines": 4005
+  }
+ ]
+}

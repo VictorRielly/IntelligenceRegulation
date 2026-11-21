@@ -1,0 +1,1338 @@
+{
+ "content_tokens": 14,
+ "binary": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+ "legs": [
+  {
+   "leg": 1,
+   "A36": 0,
+   "argv": [
+    "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+    "serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--lanes",
+    "1",
+    "--lane-threads",
+    "5",
+    "--witness-cache-gib",
+    "16",
+    "--dev-w16r2-public-content-only"
+   ],
+   "requests": [
+    {
+     "id": "l1-r0",
+     "warmup": true,
+     "status": "proved",
+     "wall_s": 11.36210298538208,
+     "served_seconds": 11.362,
+     "queued_seconds": 0.0,
+     "prove_seconds": 9.081,
+     "total_seconds": 11.357,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.221,
+      0.686,
+      1.045,
+      1.372,
+      1.704,
+      2.033,
+      2.361,
+      2.689,
+      3.023,
+      3.354,
+      3.723,
+      4.05,
+      4.379,
+      4.716,
+      5.056,
+      5.387,
+      5.717,
+      6.05,
+      6.379,
+      6.712,
+      7.04,
+      7.37,
+      7.702,
+      8.034,
+      8.361,
+      8.693,
+      9.024,
+      9.081
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg1/r0"
+    },
+    {
+     "id": "l1-r1",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 11.302862882614136,
+     "served_seconds": 11.303,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.942,
+     "total_seconds": 11.297,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.222,
+      0.579,
+      0.908,
+      1.234,
+      1.565,
+      1.899,
+      2.231,
+      2.564,
+      2.893,
+      3.224,
+      3.551,
+      3.88,
+      4.207,
+      4.535,
+      4.863,
+      5.199,
+      5.539,
+      5.879,
+      6.213,
+      6.543,
+      6.878,
+      7.206,
+      7.535,
+      7.866,
+      8.2,
+      8.534,
+      8.887,
+      8.942
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg1/r1"
+    },
+    {
+     "id": "l1-r2",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 11.2392258644104,
+     "served_seconds": 11.239,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.933,
+     "total_seconds": 11.234,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.201,
+      0.556,
+      0.888,
+      1.219,
+      1.55,
+      1.884,
+      2.218,
+      2.548,
+      2.883,
+      3.216,
+      3.545,
+      3.874,
+      4.206,
+      4.533,
+      4.864,
+      5.193,
+      5.523,
+      5.852,
+      6.185,
+      6.52,
+      6.859,
+      7.2,
+      7.54,
+      7.88,
+      8.216,
+      8.545,
+      8.878,
+      8.932
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg1/r2"
+    },
+    {
+     "id": "l1-r3",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 11.244294166564941,
+     "served_seconds": 11.244,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.948,
+     "total_seconds": 11.238,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.201,
+      0.552,
+      0.879,
+      1.209,
+      1.544,
+      1.867,
+      2.197,
+      2.522,
+      2.852,
+      3.19,
+      3.521,
+      3.853,
+      4.194,
+      4.539,
+      4.881,
+      5.211,
+      5.544,
+      5.87,
+      6.21,
+      6.547,
+      6.887,
+      7.217,
+      7.55,
+      7.885,
+      8.218,
+      8.555,
+      8.895,
+      8.948
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg1/r3"
+    }
+   ],
+   "ds4_bench_before": "(none)",
+   "gpu_util_before": 0,
+   "startup_s": 29.443240880966187,
+   "serve_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-uniform-cal-a29-low-h24-t128-dev1",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2",
+    "blocks": 26,
+    "trained_statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "policies": [
+     "shieldstral-1.0-3b-moderate-sexual/1",
+     "shieldstral-1.0-3b-moderate-violence/1",
+     "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 1,
+    "lane_threads": 5,
+    "startup_seconds": 29.42,
+    "development_profile": "W16R2 (unregistered; PUBLIC development content only; not for real content: A10 awaits Victor's ruling)",
+    "witness_cache_bytes": 17179869184,
+    "seal_ahead": false,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+   },
+   "gpu_util_samples": [
+    [
+     1795238688.2,
+     0
+    ],
+    [
+     1795238690.3,
+     16
+    ],
+    [
+     1795238692.3,
+     63
+    ],
+    [
+     1795238694.3,
+     64
+    ],
+    [
+     1795238696.4,
+     59
+    ],
+    [
+     1795238698.4,
+     61
+    ],
+    [
+     1795238700.4,
+     22
+    ],
+    [
+     1795238702.5,
+     65
+    ],
+    [
+     1795238704.5,
+     82
+    ],
+    [
+     1795238706.5,
+     0
+    ],
+    [
+     1795238708.5,
+     64
+    ],
+    [
+     1795238710.6,
+     64
+    ],
+    [
+     1795238712.6,
+     21
+    ],
+    [
+     1795238714.6,
+     59
+    ],
+    [
+     1795238716.7,
+     67
+    ],
+    [
+     1795238718.7,
+     63
+    ],
+    [
+     1795238720.7,
+     68
+    ],
+    [
+     1795238722.8,
+     53
+    ],
+    [
+     1795238724.8,
+     27
+    ],
+    [
+     1795238726.8,
+     64
+    ],
+    [
+     1795238728.9,
+     66
+    ],
+    [
+     1795238730.9,
+     65
+    ],
+    [
+     1795238732.9,
+     65
+    ]
+   ],
+   "timed_prove_seconds": [
+    8.942,
+    8.933,
+    8.948
+   ],
+   "median_prove_seconds": 8.942,
+   "median_wall_s": 11.244294166564941,
+   "ds4_bench_after": "(none)"
+  },
+  {
+   "leg": 2,
+   "A36": 1,
+   "argv": [
+    "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+    "serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--lanes",
+    "1",
+    "--lane-threads",
+    "5",
+    "--witness-cache-gib",
+    "16",
+    "--dev-w16r2-public-content-only"
+   ],
+   "requests": [
+    {
+     "id": "l2-r0",
+     "warmup": true,
+     "status": "proved",
+     "wall_s": 11.01681399345398,
+     "served_seconds": 11.016,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.691,
+     "total_seconds": 11.011,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.22,
+      0.738,
+      1.066,
+      1.377,
+      1.7,
+      2.013,
+      2.319,
+      2.646,
+      2.955,
+      3.268,
+      3.596,
+      3.928,
+      4.234,
+      4.546,
+      4.855,
+      5.168,
+      5.495,
+      5.807,
+      6.119,
+      6.428,
+      6.755,
+      7.08,
+      7.408,
+      7.714,
+      8.039,
+      8.367,
+      8.636,
+      8.691
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg2/r0"
+    },
+    {
+     "id": "l2-r1",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 10.825496912002563,
+     "served_seconds": 10.825,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.51,
+     "total_seconds": 10.82,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.202,
+      0.59,
+      0.905,
+      1.213,
+      1.527,
+      1.838,
+      2.145,
+      2.469,
+      2.777,
+      3.089,
+      3.411,
+      3.72,
+      4.034,
+      4.347,
+      4.674,
+      5.002,
+      5.322,
+      5.636,
+      5.946,
+      6.259,
+      6.589,
+      6.899,
+      7.227,
+      7.546,
+      7.861,
+      8.18,
+      8.455,
+      8.51
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg2/r1"
+    },
+    {
+     "id": "l2-r2",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 10.88242506980896,
+     "served_seconds": 10.882,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.548,
+     "total_seconds": 10.877,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.199,
+      0.593,
+      0.908,
+      1.234,
+      1.561,
+      1.87,
+      2.178,
+      2.492,
+      2.804,
+      3.114,
+      3.42,
+      3.752,
+      4.077,
+      4.386,
+      4.706,
+      5.011,
+      5.335,
+      5.658,
+      5.982,
+      6.297,
+      6.613,
+      6.937,
+      7.247,
+      7.562,
+      7.893,
+      8.219,
+      8.494,
+      8.548
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg2/r2"
+    },
+    {
+     "id": "l2-r3",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 10.780070066452026,
+     "served_seconds": 10.78,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.461,
+     "total_seconds": 10.774,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.202,
+      0.596,
+      0.941,
+      1.253,
+      1.565,
+      1.872,
+      2.198,
+      2.505,
+      2.816,
+      3.129,
+      3.439,
+      3.755,
+      4.066,
+      4.379,
+      4.705,
+      5.013,
+      5.339,
+      5.652,
+      5.961,
+      6.267,
+      6.583,
+      6.892,
+      7.197,
+      7.506,
+      7.821,
+      8.137,
+      8.408,
+      8.461
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg2/r3"
+    }
+   ],
+   "ds4_bench_before": "(none)",
+   "gpu_util_before": 61,
+   "startup_s": 29.448572158813477,
+   "serve_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-uniform-cal-a29-low-h24-t128-dev1",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2",
+    "blocks": 26,
+    "trained_statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "policies": [
+     "shieldstral-1.0-3b-moderate-sexual/1",
+     "shieldstral-1.0-3b-moderate-violence/1",
+     "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 1,
+    "lane_threads": 5,
+    "startup_seconds": 29.426,
+    "development_profile": "W16R2 (unregistered; PUBLIC development content only; not for real content: A10 awaits Victor's ruling)",
+    "witness_cache_bytes": 17179869184,
+    "seal_ahead": false,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+   },
+   "gpu_util_samples": [
+    [
+     1795238763.0,
+     0
+    ],
+    [
+     1795238765.0,
+     20
+    ],
+    [
+     1795238767.0,
+     68
+    ],
+    [
+     1795238769.1,
+     71
+    ],
+    [
+     1795238771.1,
+     71
+    ],
+    [
+     1795238773.1,
+     76
+    ],
+    [
+     1795238775.2,
+     17
+    ],
+    [
+     1795238777.2,
+     67
+    ],
+    [
+     1795238779.2,
+     74
+    ],
+    [
+     1795238781.3,
+     78
+    ],
+    [
+     1795238783.3,
+     76
+    ],
+    [
+     1795238785.3,
+     20
+    ],
+    [
+     1795238787.4,
+     23
+    ],
+    [
+     1795238789.4,
+     75
+    ],
+    [
+     1795238791.4,
+     70
+    ],
+    [
+     1795238793.5,
+     72
+    ],
+    [
+     1795238795.5,
+     50
+    ],
+    [
+     1795238797.5,
+     30
+    ],
+    [
+     1795238799.6,
+     0
+    ],
+    [
+     1795238801.6,
+     73
+    ],
+    [
+     1795238803.6,
+     74
+    ],
+    [
+     1795238805.7,
+     73
+    ]
+   ],
+   "timed_prove_seconds": [
+    8.51,
+    8.548,
+    8.461
+   ],
+   "median_prove_seconds": 8.51,
+   "median_wall_s": 10.825496912002563,
+   "ds4_bench_after": "(none)",
+   "verified": [
+    {
+     "id": "l2-r0",
+     "status": "checked",
+     "verify_seconds": 6.109,
+     "wall_s": 6.291656970977783
+    },
+    {
+     "id": "l2-r1",
+     "status": "checked",
+     "verify_seconds": 6.11,
+     "wall_s": 6.3198418617248535
+    },
+    {
+     "id": "l2-r2",
+     "status": "checked",
+     "verify_seconds": 6.091,
+     "wall_s": 6.300258159637451
+    },
+    {
+     "id": "l2-r3",
+     "status": "checked",
+     "verify_seconds": 6.101,
+     "wall_s": 6.309962034225464
+    }
+   ]
+  },
+  {
+   "leg": 3,
+   "A36": 1,
+   "argv": [
+    "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+    "serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--lanes",
+    "1",
+    "--lane-threads",
+    "5",
+    "--witness-cache-gib",
+    "16",
+    "--dev-w16r2-public-content-only"
+   ],
+   "requests": [
+    {
+     "id": "l3-r0",
+     "warmup": true,
+     "status": "proved",
+     "wall_s": 10.929274082183838,
+     "served_seconds": 10.929,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.642,
+     "total_seconds": 10.924,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.222,
+      0.737,
+      1.066,
+      1.394,
+      1.707,
+      2.021,
+      2.33,
+      2.638,
+      2.946,
+      3.265,
+      3.576,
+      3.888,
+      4.201,
+      4.518,
+      4.822,
+      5.136,
+      5.465,
+      5.794,
+      6.121,
+      6.431,
+      6.741,
+      7.052,
+      7.362,
+      7.677,
+      7.991,
+      8.317,
+      8.587,
+      8.642
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg3/r0"
+    },
+    {
+     "id": "l3-r1",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 10.876430988311768,
+     "served_seconds": 10.876,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.524,
+     "total_seconds": 10.871,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.201,
+      0.59,
+      0.905,
+      1.211,
+      1.522,
+      1.84,
+      2.169,
+      2.495,
+      2.808,
+      3.117,
+      3.443,
+      3.763,
+      4.099,
+      4.409,
+      4.734,
+      5.048,
+      5.364,
+      5.673,
+      5.997,
+      6.309,
+      6.623,
+      6.935,
+      7.25,
+      7.578,
+      7.905,
+      8.199,
+      8.471,
+      8.524
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg3/r1"
+    },
+    {
+     "id": "l3-r2",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 10.855356931686401,
+     "served_seconds": 10.855,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.464,
+     "total_seconds": 10.85,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.202,
+      0.589,
+      0.9,
+      1.219,
+      1.531,
+      1.841,
+      2.153,
+      2.468,
+      2.775,
+      3.09,
+      3.413,
+      3.723,
+      4.049,
+      4.376,
+      4.689,
+      4.999,
+      5.311,
+      5.63,
+      5.956,
+      6.274,
+      6.581,
+      6.889,
+      7.196,
+      7.509,
+      7.819,
+      8.138,
+      8.41,
+      8.464
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg3/r2"
+    },
+    {
+     "id": "l3-r3",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 10.751742124557495,
+     "served_seconds": 10.751,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.448,
+     "total_seconds": 10.746,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.201,
+      0.59,
+      0.903,
+      1.215,
+      1.526,
+      1.836,
+      2.142,
+      2.46,
+      2.786,
+      3.099,
+      3.409,
+      3.735,
+      4.041,
+      4.347,
+      4.657,
+      4.982,
+      5.289,
+      5.602,
+      5.928,
+      6.244,
+      6.551,
+      6.864,
+      7.175,
+      7.502,
+      7.813,
+      8.123,
+      8.394,
+      8.448
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg3/r3"
+    }
+   ],
+   "ds4_bench_before": "(none)",
+   "gpu_util_before": 0,
+   "startup_s": 29.38510012626648,
+   "serve_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-uniform-cal-a29-low-h24-t128-dev1",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2",
+    "blocks": 26,
+    "trained_statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "policies": [
+     "shieldstral-1.0-3b-moderate-sexual/1",
+     "shieldstral-1.0-3b-moderate-violence/1",
+     "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 1,
+    "lane_threads": 5,
+    "startup_seconds": 29.362,
+    "development_profile": "W16R2 (unregistered; PUBLIC development content only; not for real content: A10 awaits Victor's ruling)",
+    "witness_cache_bytes": 17179869184,
+    "seal_ahead": false,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+   },
+   "gpu_util_samples": [
+    [
+     1795238890.6,
+     0
+    ],
+    [
+     1795238892.7,
+     12
+    ],
+    [
+     1795238894.7,
+     76
+    ],
+    [
+     1795238896.7,
+     73
+    ],
+    [
+     1795238898.8,
+     0
+    ],
+    [
+     1795238900.8,
+     72
+    ],
+    [
+     1795238902.8,
+     50
+    ],
+    [
+     1795238904.9,
+     56
+    ],
+    [
+     1795238906.9,
+     74
+    ],
+    [
+     1795238908.9,
+     73
+    ],
+    [
+     1795238911.0,
+     74
+    ],
+    [
+     1795238913.0,
+     61
+    ],
+    [
+     1795238915.0,
+     23
+    ],
+    [
+     1795238917.1,
+     74
+    ],
+    [
+     1795238919.1,
+     73
+    ],
+    [
+     1795238921.1,
+     74
+    ],
+    [
+     1795238923.2,
+     71
+    ],
+    [
+     1795238925.2,
+     18
+    ],
+    [
+     1795238927.2,
+     73
+    ],
+    [
+     1795238929.3,
+     71
+    ],
+    [
+     1795238931.3,
+     71
+    ],
+    [
+     1795238933.3,
+     78
+    ]
+   ],
+   "timed_prove_seconds": [
+    8.524,
+    8.464,
+    8.448
+   ],
+   "median_prove_seconds": 8.464,
+   "median_wall_s": 10.855356931686401,
+   "ds4_bench_after": "(none)",
+   "verified": [
+    {
+     "id": "l3-r0",
+     "status": "checked",
+     "verify_seconds": 6.092,
+     "wall_s": 6.275858163833618
+    },
+    {
+     "id": "l3-r1",
+     "status": "checked",
+     "verify_seconds": 6.09,
+     "wall_s": 6.299148082733154
+    },
+    {
+     "id": "l3-r2",
+     "status": "checked",
+     "verify_seconds": 6.116,
+     "wall_s": 6.323665142059326
+    },
+    {
+     "id": "l3-r3",
+     "status": "checked",
+     "verify_seconds": 6.099,
+     "wall_s": 6.308439016342163
+    }
+   ]
+  },
+  {
+   "leg": 4,
+   "A36": 0,
+   "argv": [
+    "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+    "serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--lanes",
+    "1",
+    "--lane-threads",
+    "5",
+    "--witness-cache-gib",
+    "16",
+    "--dev-w16r2-public-content-only"
+   ],
+   "requests": [
+    {
+     "id": "l4-r0",
+     "warmup": true,
+     "status": "proved",
+     "wall_s": 11.421359777450562,
+     "served_seconds": 11.421,
+     "queued_seconds": 0.0,
+     "prove_seconds": 9.103,
+     "total_seconds": 11.416,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.224,
+      0.692,
+      1.037,
+      1.363,
+      1.69,
+      2.038,
+      2.367,
+      2.704,
+      3.05,
+      3.391,
+      3.73,
+      4.065,
+      4.397,
+      4.73,
+      5.066,
+      5.399,
+      5.734,
+      6.072,
+      6.401,
+      6.733,
+      7.06,
+      7.389,
+      7.719,
+      8.051,
+      8.386,
+      8.717,
+      9.049,
+      9.103
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg4/r0"
+    },
+    {
+     "id": "l4-r1",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 11.44339108467102,
+     "served_seconds": 11.443,
+     "queued_seconds": 0.0,
+     "prove_seconds": 9.111,
+     "total_seconds": 11.438,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.201,
+      0.558,
+      0.886,
+      1.213,
+      1.545,
+      1.873,
+      2.212,
+      2.54,
+      2.872,
+      3.207,
+      3.546,
+      3.88,
+      4.213,
+      4.548,
+      4.883,
+      5.298,
+      5.643,
+      5.983,
+      6.323,
+      6.669,
+      7.016,
+      7.358,
+      7.698,
+      8.043,
+      8.384,
+      8.721,
+      9.056,
+      9.111
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg4/r1"
+    },
+    {
+     "id": "l4-r2",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 11.179957151412964,
+     "served_seconds": 11.18,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.881,
+     "total_seconds": 11.174,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.201,
+      0.549,
+      0.878,
+      1.205,
+      1.537,
+      1.866,
+      2.195,
+      2.528,
+      2.86,
+      3.191,
+      3.528,
+      3.86,
+      4.189,
+      4.515,
+      4.845,
+      5.177,
+      5.507,
+      5.837,
+      6.171,
+      6.504,
+      6.836,
+      7.166,
+      7.495,
+      7.828,
+      8.158,
+      8.494,
+      8.826,
+      8.881
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg4/r2"
+    },
+    {
+     "id": "l4-r3",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 11.172194004058838,
+     "served_seconds": 11.172,
+     "queued_seconds": 0.0,
+     "prove_seconds": 8.901,
+     "total_seconds": 11.166,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.201,
+      0.558,
+      0.883,
+      1.21,
+      1.539,
+      1.866,
+      2.196,
+      2.528,
+      2.861,
+      3.188,
+      3.519,
+      3.848,
+      4.175,
+      4.502,
+      4.826,
+      5.16,
+      5.49,
+      5.824,
+      6.158,
+      6.485,
+      6.85,
+      7.181,
+      7.51,
+      7.852,
+      8.187,
+      8.517,
+      8.848,
+      8.901
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_run/pub/leg4/r3"
+    }
+   ],
+   "ds4_bench_before": "(none)",
+   "gpu_util_before": 0,
+   "startup_s": 29.50863003730774,
+   "serve_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-uniform-cal-a29-low-h24-t128-dev1",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2",
+    "blocks": 26,
+    "trained_statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "policies": [
+     "shieldstral-1.0-3b-moderate-sexual/1",
+     "shieldstral-1.0-3b-moderate-violence/1",
+     "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 1,
+    "lane_threads": 5,
+    "startup_seconds": 29.486,
+    "development_profile": "W16R2 (unregistered; PUBLIC development content only; not for real content: A10 awaits Victor's ruling)",
+    "witness_cache_bytes": 17179869184,
+    "seal_ahead": false,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+   },
+   "gpu_util_samples": [
+    [
+     1795239018.3,
+     0
+    ],
+    [
+     1795239020.4,
+     22
+    ],
+    [
+     1795239022.4,
+     67
+    ],
+    [
+     1795239024.4,
+     70
+    ],
+    [
+     1795239026.5,
+     61
+    ],
+    [
+     1795239028.5,
+     66
+    ],
+    [
+     1795239030.5,
+     19
+    ],
+    [
+     1795239032.6,
+     60
+    ],
+    [
+     1795239034.6,
+     67
+    ],
+    [
+     1795239036.6,
+     64
+    ],
+    [
+     1795239038.7,
+     71
+    ],
+    [
+     1795239040.7,
+     66
+    ],
+    [
+     1795239042.7,
+     14
+    ],
+    [
+     1795239044.8,
+     0
+    ],
+    [
+     1795239046.8,
+     65
+    ],
+    [
+     1795239048.8,
+     64
+    ],
+    [
+     1795239050.8,
+     62
+    ],
+    [
+     1795239052.9,
+     60
+    ],
+    [
+     1795239054.9,
+     21
+    ],
+    [
+     1795239056.9,
+     65
+    ],
+    [
+     1795239059.0,
+     66
+    ],
+    [
+     1795239061.0,
+     64
+    ],
+    [
+     1795239063.0,
+     66
+    ]
+   ],
+   "timed_prove_seconds": [
+    9.111,
+    8.881,
+    8.901
+   ],
+   "median_prove_seconds": 8.901,
+   "median_wall_s": 11.179957151412964,
+   "ds4_bench_after": "(none)"
+  }
+ ],
+ "medians": [
+  8.942,
+  8.51,
+  8.464,
+  8.901
+ ],
+ "ratio_pair1_on_over_off": 0.9516886602549764,
+ "ratio_pair2_on_over_off": 0.9509043927648579
+}

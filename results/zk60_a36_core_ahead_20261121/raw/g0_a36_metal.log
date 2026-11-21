@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::token_io::classify_tests::a36_core_ahead_proves_receipts_the_unchanged_verifier_accepts ... A36 G0 | switch false source 0: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 G0 | switch false source 1: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 G0 | switch true source 0: verified; second streams 1, blocks through the A36 path 2, blocks worked beside the caller 1
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 G0 | switch true source 1: verified; second streams 1, blocks through the A36 path 2, blocks worked beside the caller 1
+A36 G0 | switch true source 2: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 G0 | switch false source 2: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 G0 | receipts of the A36 path verify under the unchanged verifier (resident and kept sources); a tampered one is refused; the loading source falls back to the loop
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1148 filtered out; finished in 8.66s
+

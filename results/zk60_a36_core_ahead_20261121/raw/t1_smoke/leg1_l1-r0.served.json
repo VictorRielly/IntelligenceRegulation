@@ -1,0 +1,11 @@
+{
+ "event": "served",
+ "command": "classify-serve",
+ "request": 0,
+ "id": "l1-r0",
+ "status": "refused",
+ "lane": 0,
+ "queued_seconds": 0.0,
+ "seconds": 0.191,
+ "log": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_smoke4/priv/leg1/r0-prove.log"
+}

@@ -1,0 +1,4 @@
+[04:05:00] launching t2_smoke
+[zk60-guard 04:05:01] START a36-t2_smoke class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=dc7929810bb1
+[zk60-guard 04:07:08] END a36-t2_smoke exit=0 child_wall=128s peak_rss=57.77G min_avail=140.19G peak_vram=18638MiB
+[04:07:08] t2_smoke guard exit 0

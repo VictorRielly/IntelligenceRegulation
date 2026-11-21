@@ -1,0 +1,685 @@
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/hash_domain.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/hash_domain.rs
+index 3d44f71c..0e9bbf47 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/hash_domain.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/hash_domain.rs
+@@ -183,6 +183,12 @@ pub(crate) const ROLE_SINGLE_BLOCK_PROVER: u8 = 0x02;
+ /// role `0x03` — the multi-block run prover's one stream (`run.rs`), which
+ /// every stage and every internal boundary of the run draws from.
+ pub(crate) const ROLE_RUN_PROVER: u8 = 0x03;
++/// role `0x04` — **[A36]** the classifier run's SECOND stream, used only under
++/// `HL_A36_CORE_AHEAD=1` (`token_io/classify_run.rs`): every internal boundary
++/// commitment and every first half of a block's core proof is drawn from it, so
++/// that the next block's first half can run beside the current block's second
++/// half without sharing a generator between two threads.
++pub(crate) const ROLE_RUN_CORE_AHEAD: u8 = 0x04;
+ 
+ /// 44 bytes. `‖ role(1) ‖ EndpointSpecG::digest()(32)` = a 77-byte domain and
+ /// a **99**-byte derivation input.
+@@ -197,6 +203,12 @@ const SEED_USE_SINGLE_BLOCK: &[u8] = b"hashline-zk-rng/private-block/single-prov
+ /// handed to every stage and every boundary. `‖ role(1) ‖ the run profile
+ /// string` — 125 / 126 / 115 bytes of derivation input.
+ const SEED_USE_RUN: &[u8] = b"hashline-zk-rng/private-block/one-stream-per-whole-run/v1/";
++/// 58 bytes, deliberately the SAME length as [`SEED_USE_RUN`], so that the A36
++/// stream's derivation input at a run profile has exactly the run stream's
++/// length and adds no row to any length table. `‖ role(1) ‖ the run profile
++/// string`. Its own literal AND its own role byte: it is never the run
++/// stream's domain, and it is not derived from it.
++const SEED_USE_RUN_CORE_AHEAD: &[u8] = b"hashline-zk-rng/private-block/run-first-half-ahead-a36/v1/";
+ 
+ /// **The generalised endpoint's generator domain** (`endpoint_g::prepare`).
+ /// `role` is [`ROLE_ENDPOINT_IN`] or [`ROLE_ENDPOINT_OUT`]; `spec_digest` is
+@@ -261,6 +273,20 @@ pub(crate) fn run_seed_domain(run_profile: &str) -> Vec<u8> {
+     d
+ }
+ 
++/// **[A36] The classifier run's second generator domain**
++/// (`classify_run::core_ahead_stream`, called by `prove_classify_run_with` before the header, only under
++/// `HL_A36_CORE_AHEAD=1`):
++/// the use literal, [`ROLE_RUN_CORE_AHEAD`] and the run profile string. A
++/// separate OS-seeded stream (`ZkRng::from_os`), never derived from the run
++/// stream and sharing no byte of its derivation input beyond the profile tail.
++pub(crate) fn run_core_ahead_seed_domain(run_profile: &str) -> Vec<u8> {
++    let mut d = Vec::with_capacity(SEED_USE_RUN_CORE_AHEAD.len() + 1 + run_profile.len());
++    d.extend_from_slice(SEED_USE_RUN_CORE_AHEAD);
++    d.push(ROLE_RUN_CORE_AHEAD);
++    d.extend_from_slice(run_profile.as_bytes());
++    d
++}
++
+ /// The generalised endpoint's seed-derivation INPUT length, taken from the
+ /// domain builder itself so that the two can never drift apart.
+ pub(crate) fn endpoint_seed_input_len() -> usize {
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/s25_tests.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/s25_tests.rs
+index 6f11d133..f99a7028 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/s25_tests.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/s25_tests.rs
+@@ -2892,7 +2892,12 @@ fn no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_
+     // D60 (2026-11-02): an EIGHTH and NINTH, `run_fork.rs` (the registered
+     // D55 fork run, production since D60): its commit phase's ONE stream and
+     // each fork's ONE stream, classified below as W-8(7) D55 always did
+-    assert_eq!(from_os_sites.len(), 9, "the scan's generator constructions moved: {from_os_sites:?}");
++    // A36 (2026-11-21, switch `HL_A36_CORE_AHEAD`, default OFF): a TENTH, `token_io/classify_run.rs`'s
++    // `core_ahead_stream` (the classifier run's SECOND stream, `run_core_ahead_seed_domain`, made only
++    // when the switch is on, never derived from the first): two generators in that file, the run's
++    // own in `prove_classify_run_with` and the A36 stream in its own function
++    assert_eq!(from_os_sites.len(), 10, "the scan's generator constructions moved: {from_os_sites:?}");
++    assert_eq!(from_os_sites.iter().filter(|s| s.starts_with("src/private_block/token_io/classify_run.rs")).count(), 2, "the classifier run's two generator sites (the run's own and the A36 stream's) moved");
+     assert_eq!(from_os_sites.iter().filter(|s| s.starts_with("src/private_block/run_fork.rs")).count(), 2, "the D55 fork run's two generator sites moved");
+     for want in ["protocol.rs", "src/private_block/run.rs", "endpoint_g.rs", "private_seam.rs", "token_io/run.rs", "token_io/classify_run.rs", "src/private_block/run_fork.rs"] {
+         assert!(from_os_sites.iter().any(|s| s.contains(want)), "{want} no longer constructs a generator; the enumeration has moved");
+@@ -2910,7 +2915,8 @@ fn no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_
+     let on_path: Vec<&String> = from_os_sites.iter().filter(|s| s.as_str() != "src/private_seam.rs:349").collect();
+     // TOKEN I/O ROUND 12: six on the path — the four, the token-I/O run's and
+     // the classifier run's; D60: eight, with the D55 fork run's two
+-    assert_eq!(on_path.len(), 8, "the path's generators are no longer eight (four, the token-I/O run's, the classifier run's and the D55 fork run's two): {on_path:?}");
++    // A36: nine, with the classifier run's second (switch-gated) stream
++    assert_eq!(on_path.len(), 9, "the path's generators are no longer nine (four, the token-I/O run's, the classifier run's two and the D55 fork run's two): {on_path:?}");
+     // `boundary::prepare` takes the caller's stream and makes none
+     let boundary = source("src/private_block/boundary.rs");
+     let btext = production_text("src/private_block/boundary.rs", &boundary);
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/s26_tests.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/s26_tests.rs
+index 8b01a9af..22860d71 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/s26_tests.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/s26_tests.rs
+@@ -535,6 +535,39 @@ fn every_production_generator_is_seeded_from_a_domain_builder() {
+     eprintln!("S26/6: the three production generators name their builders; the frozen seam's two are unchanged; a boundary still makes none");
+ }
+ 
++/// **[A36] the classifier run's second stream has its own domain**, at every run profile: not the
++/// run stream's, not any other generator's of that run, the same length as the run stream's (so it
++/// adds no length to any table), its role byte its own, its tail the printable profile string.
++#[test]
++fn a36_the_second_run_stream_has_its_own_domain_and_the_run_streams_length() {
++    let roles = [
++        hash_domain::ROLE_ENDPOINT_IN,
++        hash_domain::ROLE_ENDPOINT_OUT,
++        hash_domain::ROLE_SINGLE_BLOCK_PROVER,
++        hash_domain::ROLE_RUN_PROVER,
++        hash_domain::ROLE_RUN_CORE_AHEAD,
++    ];
++    for i in 0..roles.len() {
++        for j in i + 1..roles.len() {
++            assert_ne!(roles[i], roles[j], "two generator roles share a byte");
++        }
++    }
++    for (p, sh, l) in every_run() {
++        let a = hash_domain::run_core_ahead_seed_domain(p);
++        let run = hash_domain::run_seed_domain(p);
++        assert_ne!(a, run, "{p}: the A36 stream's domain is the run stream's");
++        assert_ne!(derivation_input(&a), derivation_input(&run), "{p}: the A36 stream derives its key from the run stream's input");
++        assert_eq!(a.len(), run.len(), "{p}: the A36 domain's length is not the run stream's");
++        assert_eq!(&a[..58], b"hashline-zk-rng/private-block/run-first-half-ahead-a36/v1/", "{p}: the A36 use literal");
++        assert_eq!(a[58], hash_domain::ROLE_RUN_CORE_AHEAD, "{p}: the A36 role byte");
++        assert_eq!(&a[59..], p.as_bytes(), "{p}: the A36 domain's tail is not the run profile string");
++        for (what, d) in run_domains(&sh, p, l) {
++            assert_ne!(derivation_input(&a), derivation_input(&d), "{p}: the A36 stream shares a derivation input with `{what}`");
++        }
++    }
++    eprintln!("S26/A36: the classifier run's second stream: its own literal and role byte at every run profile, the run stream's length, distinct from every domain of a run");
++}
++
+ // ---------------------------------------------------------------------------
+ // 7 — THE LEGACY LENGTH GUARD IS UNMOVED (ruling item (d))
+ // ---------------------------------------------------------------------------
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_run.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_run.rs
+index fad28ce8..ee0ba1af 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_run.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_run.rs
+@@ -18,7 +18,7 @@
+ //! the public verdict row `P0 + n + S - 1` (round 14, DESIGN v2.4 §15).
+ 
+ use super::super::boundary::{self, BoundarySpec, PreparedBoundary};
+-use super::super::layout::{Ids, A_X, A_X2};
++use super::super::layout::{Ids, Layout, A_X, A_X2};
+ use super::super::protocol::{self, CoreView};
+ use super::super::timing;
+ use super::super::wire::{self, Segment};
+@@ -33,6 +33,7 @@ use super::*;
+ use crate::ntt::NttTables;
+ use crate::pcs::{self, CommittedZk, ZkOpts};
+ use crate::zk::ZkRng;
++use std::time::Instant;
+ 
+ fn position_tag(tr: &Transcript) -> [u8; 32] {
+     let mut c = Transcript::clone_state(tr);
+@@ -142,6 +143,53 @@ fn a26_verify_once_on() -> bool {
+     *ON.get_or_init(|| std::env::var("HL_A26_VERIFY_ONCE").map(|v| v == "1").unwrap_or(false))
+ }
+ 
++static A36_CORE_AHEAD_TEST: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
++
++/// **[A36] `HL_A36_CORE_AHEAD`** (default OFF, NOT RULED): `1` makes a classifier run over a
++/// resident block source start block `k + 1`'s boundary commitment and first half
++/// (`protocol::prove_core_before_with`, which reads no transcript) on another worker of the
++/// current rayon pool while block `k`'s second half proceeds on the calling thread, drawing
++/// that host work from a SECOND OS-seeded stream (`prove_blocks_core_ahead`). Unset, `0` or a
++/// non-resident block source: the loop in `prove_classify_run_with`, as before. It changes the
++/// honest prover's randomness structure (two streams), so it stays off until the security
++/// owner has ruled; the receipt's bytes are those of any run (the verifier cannot tell).
++pub(crate) fn a36_core_ahead() -> bool {
++    static ENV: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
++    #[cfg(test)]
++    if let Some(on) = A36_THREAD_TEST.with(|c| c.get()) {
++        return on;
++    }
++    super::super::trained_statement::a20_switch(&A36_CORE_AHEAD_TEST, &ENV, "HL_A36_CORE_AHEAD", 0) != 0
++}
++
++#[cfg(test)]
++thread_local! {
++    /// test only: the calling thread's override of the switch (the request thread reads it)
++    static A36_THREAD_TEST: std::cell::Cell<Option<bool>> = const { std::cell::Cell::new(None) };
++}
++
++/// tests: the A36 path on or off for THIS thread's runs (`None`: as the environment says). Per
++/// thread, not process-wide like A35's: the ahead work runs on a pool worker, where the other
++/// tests' thread-local tamper hooks (`protocol::moved_multiplicity` and its kin) are not set, so a
++/// forced-on window must not leak into a concurrent test of another thread.
++#[cfg(test)]
++pub(crate) fn set_a36_core_ahead_for_test(on: Option<bool>) {
++    A36_THREAD_TEST.with(|c| c.set(on));
++}
++
++#[cfg(test)]
++thread_local! {
++    /// test only: (second streams made, blocks proved by the A36 path, of those the blocks whose
++    /// ahead work ran on a thread other than the calling one) on this thread
++    static A36_STATS: std::cell::Cell<(u64, u64, u64)> = const { std::cell::Cell::new((0, 0, 0)) };
++}
++
++/// test only: this thread's A36 counters (see [`A36_STATS`])
++#[cfg(test)]
++pub(crate) fn a36_stats() -> (u64, u64, u64) {
++    A36_STATS.with(|c| c.get())
++}
++
+ /// TEST BUILDS ONLY: `HL_A26_VERIFY_ONCE`'s override (0 the environment, 1 off, 2 on)
+ #[cfg(test)]
+ pub(crate) static A26_VERIFY_ONCE_TEST: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+@@ -234,6 +282,12 @@ pub(crate) fn prove_classify_run_with(
+         println!("PB-CLI prove | run sealing pass (every block loaded once, statement checks) | {:.3} s", t_seal.elapsed().as_secs_f64());
+     }
+     let mut rng = ZkRng::from_os(&super::super::hash_domain::run_seed_domain(st.profile())).map_err(|e| format!("classifier run randomness: {e}"))?;
++    // [A36] the switch is decided ONCE, here, and the second stream is seeded here, before the header
++    // and before anything reaches the sink (Sol's review 492: an entropy failure must not follow a frame
++    // already handed to the sink; ruling R-2's fail-closed boundary). Off, or a loading source: no second
++    // OS read, `None`, and the code below is as before.
++    let ahead = a36_core_ahead() && blocks.resident();
++    let stream_a: Option<ZkRng> = if ahead { Some(core_ahead_stream(st)?) } else { None };
+     let tag = sh.hash_tag();
+     let ntt = NttTables::new(st.ntt_log());
+     let mut tr = st.transcript()?;
+@@ -257,8 +311,17 @@ pub(crate) fn prove_classify_run_with(
+     let mut pending: Vec<ZClaim> = inp.pending_b;
+     let mut prev: (BoundarySpec, PreparedBoundary) = (b0, inp.b_owner);
+ 
++    // [A36] `HL_A36_CORE_AHEAD` (default off) over a resident block source: the blocks are proved by
++    // `prove_blocks_core_ahead` (a SECOND stream, the next block's first half beside this block's
++    // second half) and the loop below then runs for no block. Off, or a loading source: the loop
++    // below runs for all `l` blocks, its body untouched, on the one stream `rng`. (`ahead` and the
++    // second stream were decided and made before the header, above.)
++    if let Some(stream_a) = stream_a {
++        (pending, prev) = prove_blocks_core_ahead(st, &*blocks, kept, src, cheating, &ntt, &tag, &binding, &mut rng, stream_a, &mut tr, &mut stats, sink, pending, prev)?;
++    }
++
+     // ---- the blocks, unchanged
+-    for k in 0..l {
++    for k in 0..(if ahead { 0 } else { l }) {
+         let t0 = Instant::now();
+         let mut ph = timing::Phases::start();
+         let mut phases: Vec<(&'static str, f64)> = Vec::new();
+@@ -327,6 +390,229 @@ pub(crate) fn prove_classify_run_with(
+     Ok((stats, in_dec))
+ }
+ 
++/// **[A36] the classifier run's SECOND generator**: OS-seeded exactly as the run's own
++/// (`ZkRng::from_os`, in `prove_classify_run_with`) under its OWN domain
++/// (`hash_domain::run_core_ahead_seed_domain`); never derived from, cloned from or shared
++/// with the first. Made only under `HL_A36_CORE_AHEAD=1`, by `prove_classify_run_with`, right after
++/// the run's own stream and BEFORE the header and before anything reaches the sink (Sol's review
++/// 492: an entropy failure must not follow a frame already handed to the sink); the stream is then
++/// handed to [`prove_blocks_core_ahead`] by value.
++fn core_ahead_stream(st: &ClassifyRunStatement) -> Result<ZkRng, String> {
++    #[cfg(test)]
++    A36_STATS.with(|c| c.set((c.get().0 + 1, c.get().1, c.get().2)));
++    ZkRng::from_os(&super::super::hash_domain::run_core_ahead_seed_domain(st.profile())).map_err(|e| format!("classifier run randomness (A36 core-ahead stream): {e}"))
++}
++
++/// **[A36] what one block's transcript-free host work hands to its second half**: the boundary
++/// commitment `B_(j+1)`, the block's layout and stage shape, the record of its CS-1 / CS-4 check,
++/// the first half's state ([`protocol::CoreAhead`]) and the SECOND stream, handed back so that
++/// the next block's job can take it (it is owned by exactly one place at any time).
++struct CoreAheadOut<'b> {
++    spec: BoundarySpec,
++    cur: PreparedBoundary,
++    lay: Layout,
++    ssh: Shape,
++    checked: Option<protocol::CheckedPublic<'b>>,
++    ahead: protocol::CoreAhead,
++    rng: ZkRng,
++    /// the thread that ran the job (test builds count the jobs that ran beside the caller)
++    #[cfg(test)]
++    on_thread: std::thread::ThreadId,
++}
++
++/// **[A36] the inputs of block `j`'s host work that only the source can give** (`src` is not
++/// `Send`, so the calling thread reads them): the boundary plane `B_(j+1)` then the block's
++/// witness, in `j`'s order and in the order the loop reads them (plane first; no witness is
++/// asked after a plane error). Errors are returned, not raised: `core_ahead_job` raises them at
++/// the place in its sequence where the loop would have.
++fn core_ahead_inputs(st: &ClassifyRunStatement, j: usize, blk: &BlockPublic, src: &mut dyn ClassifyRunSource) -> (Result<Vec<i16>, String>, Result<Witness, String>) {
++    let plane = src.boundary_plane(j);
++    if plane.is_err() {
++        return (plane, Err("classifier run: A36: no witness is asked after a plane error".into()));
++    }
++    let wit = st.stage_shape(j).and_then(|ssh| src.witness(j, blk, &ssh));
++    (plane, wit)
++}
++
++/// **[A36] block `j`'s host work that reads no transcript**, in the loop's own order and with its
++/// refusals' strings: CS-1 / CS-4 / CS-6 (`stage_block_kept`), the boundary `B_(j+1)`'s commitment
++/// (`boundary::prepare`) and the first half of the block's core proof
++/// (`protocol::prove_core_before_with`), all drawing from `rng`, the SECOND stream. It runs on a
++/// worker of the pool (or, for block 0, on the calling thread before anything else uses `rng`).
++#[allow(clippy::too_many_arguments)]
++fn core_ahead_job<'b>(
++    st: &ClassifyRunStatement,
++    j: usize,
++    blk: &'b BlockPublic,
++    kept: Option<&'b super::super::run::fork::KeptBlock>,
++    cheating: bool,
++    plane: Result<Vec<i16>, String>,
++    wit: Result<Witness, String>,
++    ntt: &NttTables,
++    tag: &zkp_core::hashtag::HashTag,
++    mut rng: ZkRng,
++) -> Result<CoreAheadOut<'b>, String> {
++    let mut ph = timing::Phases::start();
++    let mut phases: Vec<(&'static str, f64)> = Vec::new();
++    let mut tick = Instant::now();
++    let checked = Some(stage_block_kept(st, j, blk, !cheating, kept)?);
++    ph.mark(timing::Half::Run, "run: block statement check (A36, ahead)", 1, "block");
++    let spec = st.boundary_spec(j + 1)?;
++    let plane = plane?;
++    if plane.len() != spec.len() {
++        return Err(format!("classifier run: boundary {}'s plane is {} words, the padded plane is {}", j + 1, plane.len(), spec.len()));
++    }
++    let words: Vec<Fp> = plane.iter().map(|x| Fp::from_i64(i64::from(*x))).collect();
++    let cur = boundary::prepare(&spec, &words, ntt, &mut rng, tag)?;
++    ph.mark_bytes(timing::Half::Run, "run: boundary B_k commitment (A36, ahead)", spec.len() as u64, "words", 8 * spec.len() as u64);
++    let lay = st.block_layout(j)?;
++    let ssh = st.stage_shape(j)?;
++    let wit = wit?;
++    let hints = protocol::CoreHints { checked: checked.as_ref().filter(|_| a26_run_record_on()) };
++    let ahead = protocol::prove_core_before_with(&ssh, &lay, blk, wit, ntt, &mut rng, &mut ph, &mut phases, &mut tick, hints)?;
++    ph.report("prove-ahead", st.profile());
++    Ok(CoreAheadOut {
++        spec,
++        cur,
++        lay,
++        ssh,
++        checked,
++        ahead,
++        rng,
++        #[cfg(test)]
++        on_thread: std::thread::current().id(),
++    })
++}
++
++/// **[A36] THE BLOCKS OF THE CLASSIFIER RUN, with the next block's host work made ahead.** The
++/// transcript, the order of every absorb and squeeze, the segments and the receipt are those of
++/// the loop in [`prove_classify_run_with`]; only work that reads no transcript moves earlier.
++///
++/// Per block `k`: absorb the stage and the block digest; take block `k`'s ahead state (made by
++/// the previous iteration's job, or here for block 0); absorb `B_(k+1)`'s root; read block
++/// `k + 1`'s plane and witness from `src` (this thread); start block `k + 1`'s
++/// [`core_ahead_job`] on a worker of the pool; and run block `k`'s second half
++/// ([`protocol::prove_core_after_with`]), the opening, the encode and the sink on this thread.
++///
++/// **Randomness (two streams, each owned by one place at a time):**
++/// * the run's own stream `rng` (the caller's, `ZkRng::from_os` under `run_seed_domain`): drawn by
++///   the calling thread only, in program order: stage IN-C (before this function), every
++///   block's second half (`prove_core_after_with`), stage OUT-C (after it). The openings draw
++///   none.
++/// * the A36 stream (`core_ahead_stream`, `ZkRng::from_os` under `run_core_ahead_seed_domain`;
++///   made by the caller before the header and handed in as `stream_a`, this function makes none):
++///   every `boundary::prepare` of a block's `B_(k+1)` and every `prove_core_before_with`, in
++///   block order. It is moved into block `j`'s job, back out with its result, and into block
++///   `j + 1`'s job only after that result was taken (a job's result is taken at the start of the
++///   next iteration, after `in_place_scope` has joined it): at most one thread holds it at any
++///   time. It is never cloned, split or derived from `rng`.
++///
++/// Errors keep the loop's precedence: a job's error is held until the iteration that would have
++/// reached it, after the earlier blocks' second halves.
++#[allow(clippy::too_many_arguments)]
++fn prove_blocks_core_ahead<'b>(
++    st: &ClassifyRunStatement,
++    blocks: &'b dyn TokenBlocks,
++    kept: Option<&'b [std::sync::Arc<super::super::run::fork::KeptBlock>]>,
++    src: &mut dyn ClassifyRunSource,
++    cheating: bool,
++    ntt: &NttTables,
++    tag: &zkp_core::hashtag::HashTag,
++    binding: &crate::merkle::Digest,
++    rng: &mut ZkRng,
++    stream_a: ZkRng,
++    tr: &mut Transcript,
++    stats: &mut ClassifyRunStats,
++    sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
++    mut pending: Vec<ZClaim>,
++    mut prev: (BoundarySpec, PreparedBoundary),
++) -> Result<(Vec<ZClaim>, (BoundarySpec, PreparedBoundary)), String> {
++    let l = st.l();
++    #[cfg(test)]
++    eprintln!("A36 path | a classifier run of {l} blocks through prove_blocks_core_ahead");
++    let kept_of = |k: usize| kept.filter(|_| a26_kept_on()).and_then(|v| v.get(k)).map(|a| &**a);
++    let block_of = |k: usize| blocks.resident_block(k).ok_or_else(|| format!("classifier run: A36: no resident block {k}"));
++    let mut rng_a = Some(stream_a);
++    let mut job: Option<Result<CoreAheadOut<'b>, String>> = None;
++    for k in 0..l {
++        let t0 = Instant::now();
++        let mut ph = timing::Phases::start();
++        let mut phases: Vec<(&'static str, f64)> = Vec::new();
++        let mut tick = Instant::now();
++        let start = position_tag(tr);
++        tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
++        tr.absorb(b"pb-run-block", &st.block_digests[k]);
++        let blk = block_of(k)?;
++        // block k's transcript-free host work: made beside block k - 1's second half, or (k = 0) here
++        let out = match job.take() {
++            Some(done) => done?,
++            None => {
++                let (plane, wit) = core_ahead_inputs(st, k, blk, &mut *src);
++                core_ahead_job(st, k, blk, kept_of(k), cheating, plane, wit, ntt, tag, rng_a.take().ok_or("classifier run: A36: the second stream is not held")?)?
++            }
++        };
++        #[cfg(test)]
++        A36_STATS.with(|c| {
++            let (s, b, o) = c.get();
++            c.set((s, b + 1, o + u64::from(out.on_thread != std::thread::current().id())));
++        });
++        let CoreAheadOut { spec, cur, lay, ssh, checked, ahead, rng: stream_back, .. } = out;
++        rng_a = Some(stream_back);
++        ph.mark(timing::Half::Run, "run: block k host work taken (A36)", 1, "block");
++        protocol::absorb_root(tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
++        let hints = protocol::CoreHints { checked: checked.as_ref().filter(|_| a26_run_record_on()) };
++        // block k + 1's inputs: read here (the source is not Send), worked on by a pool worker
++        let launch = (k + 1 < l).then(|| {
++            let nb = block_of(k + 1)?;
++            let (plane, wit) = core_ahead_inputs(st, k + 1, nb, &mut *src);
++            Ok::<_, String>((nb, plane, wit))
++        });
++        let done: std::sync::Mutex<Option<Result<CoreAheadOut<'b>, String>>> = std::sync::Mutex::new(None);
++        let core = rayon::in_place_scope(|s| {
++            match launch {
++                Some(Ok((nb, plane, wit))) => {
++                    let ra = rng_a.take();
++                    let kn = kept_of(k + 1);
++                    let done = &done;
++                    s.spawn(move |_| {
++                        let r = match ra {
++                            Some(ra) => core_ahead_job(st, k + 1, nb, kn, cheating, plane, wit, ntt, tag, ra),
++                            None => Err("classifier run: A36: the second stream is not held".to_string()),
++                        };
++                        *done.lock().unwrap_or_else(|e| e.into_inner()) = Some(r);
++                    });
++                }
++                Some(Err(e)) => *done.lock().unwrap_or_else(|e| e.into_inner()) = Some(Err(e)),
++                None => {}
++            }
++            // block k's second half, on this thread, on the run's own stream
++            protocol::prove_core_after_with(&ssh, &lay, blk, ahead, [prev.1.data(), cur.data()], ntt, rng, tr, &mut ph, &mut phases, &mut tick, hints)
++        });
++        job = done.into_inner().unwrap_or_else(|e| e.into_inner());
++        let core = core?;
++        let [ic, oc] = core.io_claims;
++        let mut claims = std::mem::take(&mut pending);
++        claims.extend(ic);
++        let (pspec, powner) = prev;
++        let in_open = powner.into_opening(&pspec, &claims, tr)?;
++        ph.mark(timing::Half::Open, "run: boundary B_(k-1) opening", claims.len() as u64, "claims");
++        pending = oc;
++        let end = position_tag(tr);
++        let seg = Segment { b_root: Some(cur.root()), a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open, in_open, out_open: None };
++        let bytes = wire::encode_segment(&seg, &lay, st.block_geom(k)?, binding, &start, &end)?;
++        drop(seg);
++        let nbytes = bytes.len() as u64;
++        ph.mark(timing::Half::Frame, "frame: encode segment", nbytes, "bytes");
++        stats.segment_bytes.push(bytes.len());
++        sink(k + 1, bytes)?;
++        ph.mark(timing::Half::Frame, "sink: segment to disk", nbytes, "bytes");
++        prev = (spec, cur);
++        ph.report("prove", st.profile());
++        stats.prove_s.push(t0.elapsed().as_secs_f64());
++    }
++    Ok((pending, prev))
++}
++
+ /// **THE CLASSIFIER RUN VERIFIER** over a resident slice of blocks
+ pub(crate) fn verify_classify_run(st: &ClassifyRunStatement, blocks: &[BlockPublic], tables: &BoundClassifierTables, segments: &[Vec<u8>], policy: VerifierPolicy) -> Result<(), String> {
+     verify_classify_run_with(st, &mut ResidentBlocks(blocks), tables, segments, policy)
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_tests.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_tests.rs
+index cb1734da..1e923827 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_tests.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_tests.rs
+@@ -203,6 +203,145 @@ fn r12_the_tie_is_not_flagged_and_proves() {
+     eprintln!("TOKEN-IO R-C1 | the tie Delta = c = {margin}: verdict 0, delta 0, proves and verifies");
+ }
+ 
++/// **[A36]** the switch reads its environment variable (unset, empty or not a number: OFF), with no
++/// override set on this thread; the classifier modules run with `HL_A36_CORE_AHEAD=1` rely on it
++#[test]
++fn a36_the_switch_follows_its_environment_variable_and_is_off_by_default() {
++    set_a36_core_ahead_for_test(None);
++    let want = std::env::var("HL_A36_CORE_AHEAD").ok().and_then(|v| v.trim().parse::<usize>().ok()).unwrap_or(0) != 0;
++    assert_eq!(a36_core_ahead(), want, "the switch does not follow HL_A36_CORE_AHEAD");
++    eprintln!("A36 | HL_A36_CORE_AHEAD = {:?}: the switch reads {}", std::env::var("HL_A36_CORE_AHEAD").ok(), want);
++}
++
++/// **[A36] the entropy boundary (Sol's review 492): the second stream is seeded BEFORE the header and
++/// before anything reaches the sink.** Two halves. (1) A source-order check in the style of the S25
++/// scan: in `prove_classify_run_with` the call of `core_ahead_stream` comes before the first
++/// `sink(` call, and `prove_blocks_core_ahead` contains no call of `core_ahead_stream` and no
++/// `from_os`. (2) A run check: with the switch on, the second stream's construction is already
++/// recorded when segment 0 reaches the sink (and when the run header was built); with it off, no
++/// second stream is ever made.
++#[test]
++fn a36_the_second_stream_is_seeded_before_the_header_and_before_segment_0() {
++    let text = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/src/private_block/token_io/classify_run.rs")).unwrap();
++    let body_of = |signature: &str| -> String {
++        let start = text.find(signature).unwrap_or_else(|| panic!("classify_run.rs: `{signature}` is gone"));
++        let rest = &text[start..];
++        let end = rest[1..].find("\n}\n").map(|i| i + 2).unwrap_or(rest.len());
++        // code only: comment lines are prose
++        rest[..end].lines().filter(|l| !l.trim_start().starts_with("//")).collect::<Vec<_>>().join("\n")
++    };
++    let run = body_of("pub(crate) fn prove_classify_run_with(");
++    let made = run.find("core_ahead_stream(st)").expect("prove_classify_run_with no longer makes the A36 stream");
++    let header = run.find("st.transcript()").expect("the run header");
++    let first_sink = run.find("sink(").expect("the first sink call");
++    assert!(made < header && made < first_sink, "the A36 stream is no longer seeded before the header and the first sink call (Sol 492)");
++    let ahead = body_of("fn prove_blocks_core_ahead<'b>(");
++    assert!(!ahead.contains("core_ahead_stream(") && !ahead.contains("from_os"), "prove_blocks_core_ahead makes an OS-seeded stream itself");
++    assert!(ahead.contains("stream_a"), "prove_blocks_core_ahead does not take the stream as a parameter");
++    // the run check
++    let cx = cx();
++    let c = content(&cx, 0x4949);
++    for on in [true, false] {
++        set_a36_core_ahead_for_test(Some(on));
++        let before = a36_stats();
++        let headers = classify_headers();
++        let mut p = pipe(&cx, &item_tokens(&cx.policy, &c));
++        let cp = profile(&cx);
++        let (root, owner) = seal_input(&input_endpoint_spec(&cx.sh, ctx(), &cp).unwrap(), &p.in_plane, &cx.sh.hash_tag()).unwrap();
++        let st = statement(&cx, root, p.out_values.verdict).unwrap();
++        // (segment index, streams made so far, headers built so far) at each sink call
++        let mut at_sink: Vec<(usize, u64, u64)> = Vec::new();
++        let r = prove_classify_run(&st, &cx.blocks, &cx.bound, &mut ClassifySource(&mut p), owner, &mut |k, _| {
++            at_sink.push((k, a36_stats().0 - before.0, classify_headers() - headers));
++            Ok(())
++        });
++        set_a36_core_ahead_for_test(None);
++        r.unwrap_or_else(|e| panic!("switch {on}: the honest run is refused: {e}"));
++        assert_eq!(at_sink.len(), L + 2, "switch {on}: every segment reaches the sink");
++        let want_streams = u64::from(on);
++        assert_eq!(at_sink[0], (0, want_streams, 1), "switch {on}: at segment 0 the second stream must already be made (and the header built): (segment, streams, headers)");
++        assert!(at_sink.iter().all(|(_, s, _)| *s == want_streams), "switch {on}: the second stream count moved during the run: {at_sink:?}");
++    }
++    eprintln!("A36 entropy boundary | the second stream is seeded before the header and segment 0 (source order and run); off: none");
++}
++
++/// **[A36] `HL_A36_CORE_AHEAD`: gate G0 (correctness, no timing).** A classifier run (L = 2) proved
++/// with the switch OFF and with it ON, over a resident slice (`ResidentBlocks`), over the server's
++/// resident blocks with their kept records handed (`KeptResidentBlocks`) and over a loading source
++/// (not resident: the switch falls back to the loop as before): every receipt is accepted by the
++/// UNCHANGED verifier (`verify_classify_run`), the owner's check holds, the segment lengths are the
++/// counted ones and the same in every run, and a tampered receipt made with the switch on is
++/// refused. The thread's counters show which path ran: the A36 path makes one second stream and
++/// proves both blocks through it, and block 1's ahead work ran on a thread other than the
++/// caller's; off, and over the loading source, none of that happens.
++#[test]
++fn a36_core_ahead_proves_receipts_the_unchanged_verifier_accepts() {
++    use super::super::run::fork::KeptBlock;
++    use super::super::run::BlockRef;
++    use super::run::{KeptResidentBlocks, ResidentBlocks, TokenBlocks};
++    /// a loading source: hands blocks out through `&mut self`, claims no residency
++    struct Loading<'a>(&'a [BlockPublic]);
++    impl TokenBlocks for Loading<'_> {
++        fn count(&self) -> usize {
++            self.0.len()
++        }
++        fn block(&mut self, k: usize) -> Result<BlockRef<'_>, String> {
++            self.0.get(k).map(BlockRef::Borrowed).ok_or_else(|| format!("no block {k}"))
++        }
++    }
++    let cx = cx();
++    let c = content(&cx, 0x3636);
++    let kept: Vec<std::sync::Arc<KeptBlock>> = cx.blocks.iter().map(|b| KeptBlock::new(b.clone(), std::slice::from_ref(&cx.sh))).collect();
++    // source: 0 a resident slice, 1 the server's resident blocks with kept records handed, 2 a loading source
++    let prove = |on: bool, source: u8| -> (Run, (u64, u64, u64)) {
++        set_a36_core_ahead_for_test(Some(on));
++        let before = a36_stats();
++        let mut p = pipe(&cx, &item_tokens(&cx.policy, &c));
++        let cp = profile(&cx);
++        let (root, owner) = seal_input(&input_endpoint_spec(&cx.sh, ctx(), &cp).unwrap(), &p.in_plane, &cx.sh.hash_tag()).unwrap();
++        let st = statement(&cx, root, p.out_values.verdict).unwrap();
++        let mut segs = Vec::new();
++        let (mut res, mut kres, mut load) = (ResidentBlocks(&cx.blocks), KeptResidentBlocks(&kept), Loading(&cx.blocks));
++        let (blocks, kp): (&mut dyn TokenBlocks, Option<&[std::sync::Arc<KeptBlock>]>) = match source {
++            0 => (&mut res, None),
++            1 => (&mut kres, Some(&kept)),
++            _ => (&mut load, None),
++        };
++        let r = prove_classify_run_with(&st, blocks, kp, &cx.bound, &mut ClassifySource(&mut p), owner, &mut |_, b| {
++            segs.push(b);
++            Ok(())
++        });
++        let after = a36_stats();
++        set_a36_core_ahead_for_test(None);
++        let (_, dec) = r.unwrap_or_else(|e| panic!("switch {on}, source {source}: the honest run is refused: {e}"));
++        (Run { st, segs, dec }, (after.0 - before.0, after.1 - before.1, after.2 - before.2))
++    };
++    let mut lens: Option<Vec<usize>> = None;
++    let mut last_on: Option<Run> = None;
++    for (on, source) in [(false, 0u8), (false, 1), (true, 0), (true, 1), (true, 2), (false, 2)] {
++        let (r, (streams, blocks_ahead, beside)) = prove(on, source);
++        verify(&cx, &r).unwrap_or_else(|e| panic!("switch {on}, source {source}: the unchanged verifier refuses the receipt: {e}"));
++        owner_check_input(&r.st, &r.dec, &c).unwrap_or_else(|e| panic!("switch {on}, source {source}: the owner's check: {e}"));
++        let these: Vec<usize> = r.segs.iter().map(|s| s.len()).collect();
++        assert_eq!(*lens.get_or_insert_with(|| these.clone()), these, "switch {on}, source {source}: the receipt's segment lengths moved");
++        assert_eq!(these, r.st.segment_lens().unwrap(), "switch {on}, source {source}: the segments are not the counted lengths");
++        if on && source < 2 {
++            assert_eq!((streams, blocks_ahead, beside), (1, L as u64, L as u64 - 1), "switch on, source {source}: the A36 path did not run as designed (second streams, blocks proved through it, blocks 1.. worked beside the caller)");
++            last_on = Some(r);
++        } else {
++            assert_eq!((streams, blocks_ahead, beside), (0, 0, 0), "switch {on}, source {source}: the A36 path ran where it must not");
++        }
++        eprintln!("A36 G0 | switch {on} source {source}: verified; second streams {streams}, blocks through the A36 path {blocks_ahead}, blocks worked beside the caller {beside}");
++    }
++    // a tampered receipt made with the switch on is refused
++    let r = last_on.expect("a receipt made with the switch on");
++    let mut bad = Run { st: statement(&cx, r.st.in_root(), r.st.verdict()).unwrap(), segs: r.segs.clone(), dec: r.dec.clone() };
++    let mid = bad.segs[1].len() / 2;
++    bad.segs[1][mid] ^= 1;
++    assert!(verify(&cx, &bad).is_err(), "a tampered receipt made with the switch on verified");
++    eprintln!("A36 G0 | receipts of the A36 path verify under the unchanged verifier (resident and kept sources); a tampered one is refused; the loading source falls back to the loop");
++}
++
+ fn flip_with_forged_limbs(cx: &Cx, p: &mut HonestClassify) -> u8 {
+     let b = p.out_values.verdict;
+     let fb = 1 - b;
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_w16r2_tests.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_w16r2_tests.rs
+index 416ccbc6..1f5e6984 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_w16r2_tests.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/classify_w16r2_tests.rs
+@@ -420,3 +420,31 @@ fn a30_table_and_block_digests_are_identical_with_switch_on_and_off() {
+     assert_eq!(blk_par, blk_seq, "BlockPublic::digest moved under Words16Le/Words64Le");
+     assert_eq!(blk_1k, blk_seq, "BlockPublic::a21_digest_tree(1024) moved under Words16Le/Words64Le");
+ }
++
++/// **[A36] what the next block's first half holds one block early, at the W16R2 Shieldstral T128
++/// shape**, read off the shape and the layout (no proof is made): the committed `A` matrix's host
++/// words, its encoded matrix at the shape's code rate, and the committed witness planes the next
++/// block's witness holds (`CoreAhead::host_bytes` adds the derived lookup columns to these; they
++/// are not counted here). Printed for the A36 write-up; asserted only to be non-empty.
++#[test]
++fn a36_the_bytes_the_next_blocks_first_half_holds_at_the_w16r2_shieldstral_shape() {
++    let sh = shieldstral(pshape::W16R2_SHIELD_T128_H24);
++    let lay = crate::private_block::layout::Layout::for_shape(&sh).unwrap();
++    let (rows, n) = (lay.a_rows, lay.n());
++    let ids = lay.ids();
++    let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
++    let wit_words: usize = (0..ids.n_a()).filter(|p| committed.contains(p)).map(|p| sh.size(ids.dom(p))).sum();
++    let a_host = 8 * rows * n;
++    let a_encoded = 8 * rows * n * sh.inv_rate;
++    let m_rows = lay.m_rows();
++    assert!(rows > 0 && n > 0 && wit_words > 0);
++    eprintln!(
++        "A36 memory | W16R2_SHIELD_T128_H24: a_rows {rows}, n {n}, inv_rate {}, m_rows {m_rows}; A host {a_host} B ({:.1} MiB), A encoded {a_encoded} B ({:.1} MiB), committed witness planes {} words = {} B ({:.1} MiB)",
++        sh.inv_rate,
++        a_host as f64 / 1048576.0,
++        a_encoded as f64 / 1048576.0,
++        wit_words,
++        8 * wit_words,
++        (8 * wit_words) as f64 / 1048576.0
++    );
++}
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/run.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/run.rs
+index 848ecdaa..3a88dd45 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/run.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/run.rs
+@@ -758,6 +758,14 @@ pub(crate) trait TokenBlocks {
+     fn resident(&self) -> bool {
+         false
+     }
++    /// **[A36]** block `k` by shared reference, for a source whose blocks are `resident` (the
++    /// very object `block(k)` hands out, at the same address, for the source's life); `None`
++    /// for every loading source (which cannot hold two blocks), and the default. Several of
++    /// these borrows may be live at once, which `block`'s `&mut self` forbids; the classifier's
++    /// `HL_A36_CORE_AHEAD` path needs block `k` and block `k + 1` at the same time.
++    fn resident_block(&self, _k: usize) -> Option<&BlockPublic> {
++        None
++    }
+ }
+ 
+ /// a resident slice of blocks (R1, R2)
+@@ -773,6 +781,9 @@ impl TokenBlocks for ResidentBlocks<'_> {
+     fn resident(&self) -> bool {
+         true
+     }
++    fn resident_block(&self, k: usize) -> Option<&BlockPublic> {
++        self.0.get(k)
++    }
+ }
+ 
+ /// **[A26] a resident classifier server's blocks** (`classify_serve.rs`), each a
+@@ -793,6 +804,9 @@ impl TokenBlocks for KeptResidentBlocks<'_> {
+     fn resident(&self) -> bool {
+         true
+     }
++    fn resident_block(&self, k: usize) -> Option<&BlockPublic> {
++        self.0.get(k).map(|b| b.block())
++    }
+ }
+ 
+ /// RULINGS CS-1 / CS-4 / CS-6 for the block of stage `k`, before the stage

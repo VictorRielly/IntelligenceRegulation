@@ -1,0 +1,24 @@
+
+running 5 tests
+test private_block::s26_tests::a36_the_second_run_stream_has_its_own_domain_and_the_run_streams_length ... S26/A36: the classifier run's second stream: its own literal and role byte at every run profile, the run stream's length, distinct from every domain of a run
+ok
+test private_block::token_io::classify_cli::w16r2::tests::a36_the_bytes_the_next_blocks_first_half_holds_at_the_w16r2_shieldstral_shape ... A36 memory | W16R2_SHIELD_T128_H24: a_rows 2501, n 16384, inv_rate 2, m_rows 50; A host 327811072 B (312.6 MiB), A encoded 655622144 B (625.2 MiB), committed witness planes 37003776 words = 296030208 B (282.3 MiB)
+ok
+test private_block::token_io::classify_tests::a36_core_ahead_proves_receipts_the_unchanged_verifier_accepts ... A36 G0 | switch false source 0: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 G0 | switch false source 1: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 G0 | switch true source 0: verified; second streams 1, blocks through the A36 path 2, blocks worked beside the caller 1
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 G0 | switch true source 1: verified; second streams 1, blocks through the A36 path 2, blocks worked beside the caller 1
+A36 G0 | switch true source 2: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 G0 | switch false source 2: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 G0 | receipts of the A36 path verify under the unchanged verifier (resident and kept sources); a tampered one is refused; the loading source falls back to the loop
+ok
+test private_block::token_io::classify_tests::a36_the_second_stream_is_seeded_before_the_header_and_before_segment_0 ... A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 entropy boundary | the second stream is seeded before the header and segment 0 (source order and run); off: none
+ok
+test private_block::token_io::classify_tests::a36_the_switch_follows_its_environment_variable_and_is_off_by_default ... A36 | HL_A36_CORE_AHEAD = None: the switch reads false
+ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 1144 filtered out; finished in 11.26s
+

@@ -1,0 +1,26 @@
+writer 7.3 s, content tokens 14
+{"id": "l1-r0", "status": "proved", "wall_s": 11.36210298538208, "prove_seconds": 9.081, "total_seconds": 11.357}
+{"id": "l1-r1", "status": "proved", "wall_s": 11.302862882614136, "prove_seconds": 8.942, "total_seconds": 11.297}
+{"id": "l1-r2", "status": "proved", "wall_s": 11.2392258644104, "prove_seconds": 8.933, "total_seconds": 11.234}
+{"id": "l1-r3", "status": "proved", "wall_s": 11.244294166564941, "prove_seconds": 8.948, "total_seconds": 11.238}
+{"id": "l2-r0", "status": "proved", "wall_s": 11.01681399345398, "prove_seconds": 8.691, "total_seconds": 11.011}
+{"id": "l2-r1", "status": "proved", "wall_s": 10.825496912002563, "prove_seconds": 8.51, "total_seconds": 10.82}
+{"id": "l2-r2", "status": "proved", "wall_s": 10.88242506980896, "prove_seconds": 8.548, "total_seconds": 10.877}
+{"id": "l2-r3", "status": "proved", "wall_s": 10.780070066452026, "prove_seconds": 8.461, "total_seconds": 10.774}
+{"id": "l2-r0", "status": "checked", "verify_seconds": 6.109, "wall_s": 6.291656970977783}
+{"id": "l2-r1", "status": "checked", "verify_seconds": 6.11, "wall_s": 6.3198418617248535}
+{"id": "l2-r2", "status": "checked", "verify_seconds": 6.091, "wall_s": 6.300258159637451}
+{"id": "l2-r3", "status": "checked", "verify_seconds": 6.101, "wall_s": 6.309962034225464}
+{"id": "l3-r0", "status": "proved", "wall_s": 10.929274082183838, "prove_seconds": 8.642, "total_seconds": 10.924}
+{"id": "l3-r1", "status": "proved", "wall_s": 10.876430988311768, "prove_seconds": 8.524, "total_seconds": 10.871}
+{"id": "l3-r2", "status": "proved", "wall_s": 10.855356931686401, "prove_seconds": 8.464, "total_seconds": 10.85}
+{"id": "l3-r3", "status": "proved", "wall_s": 10.751742124557495, "prove_seconds": 8.448, "total_seconds": 10.746}
+{"id": "l3-r0", "status": "checked", "verify_seconds": 6.092, "wall_s": 6.275858163833618}
+{"id": "l3-r1", "status": "checked", "verify_seconds": 6.09, "wall_s": 6.299148082733154}
+{"id": "l3-r2", "status": "checked", "verify_seconds": 6.116, "wall_s": 6.323665142059326}
+{"id": "l3-r3", "status": "checked", "verify_seconds": 6.099, "wall_s": 6.308439016342163}
+{"id": "l4-r0", "status": "proved", "wall_s": 11.421359777450562, "prove_seconds": 9.103, "total_seconds": 11.416}
+{"id": "l4-r1", "status": "proved", "wall_s": 11.44339108467102, "prove_seconds": 9.111, "total_seconds": 11.438}
+{"id": "l4-r2", "status": "proved", "wall_s": 11.179957151412964, "prove_seconds": 8.881, "total_seconds": 11.174}
+{"id": "l4-r3", "status": "proved", "wall_s": 11.172194004058838, "prove_seconds": 8.901, "total_seconds": 11.166}
+{"medians": [8.942, 8.51, 8.464, 8.901], "ratio_pair1_on_over_off": 0.9516886602549764, "ratio_pair2_on_over_off": 0.9509043927648579}

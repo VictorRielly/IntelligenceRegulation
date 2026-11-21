@@ -1,0 +1,145 @@
+{
+ "content_tokens": 14,
+ "binary": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+ "legs": [
+  {
+   "leg": 1,
+   "A36": 0,
+   "argv": [
+    "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+    "serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--lanes",
+    "1",
+    "--lane-threads",
+    "5",
+    "--witness-cache-gib",
+    "16",
+    "--dev-w16r2-public-content-only"
+   ],
+   "requests": [
+    {
+     "id": "l1-r0",
+     "warmup": false,
+     "status": "proved",
+     "wall_s": 12.207016944885254,
+     "served_seconds": 12.207,
+     "queued_seconds": 0.0,
+     "prove_seconds": 9.907,
+     "total_seconds": 12.2,
+     "receipt_bytes": 669561472,
+     "segment_elapsed": [
+      0.221,
+      1.435,
+      1.802,
+      2.136,
+      2.475,
+      2.818,
+      3.154,
+      3.485,
+      3.814,
+      4.142,
+      4.473,
+      4.802,
+      5.136,
+      5.468,
+      5.802,
+      6.139,
+      6.471,
+      6.802,
+      7.137,
+      7.49,
+      7.845,
+      8.173,
+      8.505,
+      8.833,
+      9.16,
+      9.497,
+      9.851,
+      9.907
+     ],
+     "out": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/t1_smoke5/pub/leg1/r0"
+    }
+   ],
+   "ds4_bench_before": "(none)",
+   "gpu_util_before": 0,
+   "startup_s": 29.432347059249878,
+   "serve_start": {
+    "event": "serve-start",
+    "command": "classify-serve",
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "hl_gpu": "1",
+    "variant": "shieldstral-s2-uniform-cal-a29-low-h24-t128-dev1",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2",
+    "blocks": 26,
+    "trained_statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "policies": [
+     "shieldstral-1.0-3b-moderate-sexual/1",
+     "shieldstral-1.0-3b-moderate-violence/1",
+     "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "lanes": 1,
+    "lane_threads": 5,
+    "startup_seconds": 29.408,
+    "development_profile": "W16R2 (unregistered; PUBLIC development content only; not for real content: A10 awaits Victor's ruling)",
+    "witness_cache_bytes": 17179869184,
+    "seal_ahead": false,
+    "scope": "a process form of the existing commands: no receipt or statement byte changes; NOT a privacy acceptance (D58 covers the named r16b CPU binary only); not production (D63); one data owner per process (D73)"
+   },
+   "gpu_util_samples": [
+    [
+     1795238580.4,
+     1
+    ],
+    [
+     1795238582.4,
+     26
+    ],
+    [
+     1795238584.5,
+     61
+    ],
+    [
+     1795238586.5,
+     65
+    ],
+    [
+     1795238588.5,
+     63
+    ],
+    [
+     1795238590.5,
+     72
+    ],
+    [
+     1795238592.6,
+     75
+    ]
+   ],
+   "timed_prove_seconds": [
+    9.907
+   ],
+   "median_prove_seconds": 9.907,
+   "median_wall_s": 12.207016944885254,
+   "ds4_bench_after": "(none)",
+   "verified": [
+    {
+     "id": "l1-r0",
+     "status": "checked",
+     "verify_seconds": 6.107,
+     "wall_s": 6.286473035812378
+    }
+   ]
+  }
+ ],
+ "medians": [
+  9.907
+ ]
+}

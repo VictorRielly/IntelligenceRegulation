@@ -1,0 +1,659 @@
+
+running 114 tests
+test private_block::token_io::classify_capture_tests::capture_a_classify_rung_run ... ignored, writes a classifier rung capture; set HL_PB_CAPTURE_DIR (outside the repo), HL_PB_CLASSIFY_VERDICT and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::capture_a_short_item_through_the_classify_cli ... ignored, writes the classifier CLI-path capture of a SHORT item; set HL_PB_CAPTURE_DIR, HL_PB_CLI_BIN, HL_PB_CLI_BIN_SHA256, HL_RUN_CAPTURE_PUBLIC_TABLES (and HL_PB_CLI_SHORT_N)
+test private_block::token_io::classify_capture_tests::capture_the_classify_cli_verify_path ... ignored, writes the classifier CLI-path capture; set HL_PB_CAPTURE_DIR, HL_PB_CLI_BIN, HL_PB_CLI_BIN_SHA256 and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::gate19::gate19_capture_a_real_classify_cli_run ... ignored, gate round 19 (H19-2): records the verification of a REAL classifier run directory; set HL_PB_CAPTURE_DIR, HL_PB_REAL_* , HL_PB_CLI_BIN(_SHA256) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::gate19::gate19_capture_an_r13_rung_classify_run ... ignored, gate round 19 (H19-1): writes an R13-rung classifier capture; set HL_PB_CAPTURE_DIR, HL_PB_CLASSIFY_VERDICT, HL_RUN_CAPTURE_PUBLIC_TABLES and HL_R13_LOADER_FIXTURES
+R17 PLANE INDEX stage 0 G 20: 109 A planes (accuracy layout names), 54 H planes; R13 slots DZC / QZC / KVZC / FZC list 58 / 22 / 22 / 24 planes
+R17 PLANE INDEX stage 1 G 21: 109 A planes (accuracy layout names), 54 H planes; R13 slots DZC / QZC / KVZC / FZC list 58 / 22 / 22 / 24 planes
+test private_block::token_io::classify_capture_tests::gate19::r17::r17_the_plane_index_builds_at_an_r13_shape_from_the_accuracy_layout ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+LEAN-L15 | stage OUT-C of an accepted classifier run (rung, L = 1, verdict 1, margin -174280): 8 slots, corpus 50658 B
+test private_block::token_io::classify_capture_tests::lean_l15_export_tests::lean_l15_export_the_classifier_stage_out_c_slots ... ok
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+LEAN-L18 | the classify run's framing (rung, L = 2, verdict 1): 4 segments, corpus 2412 B
+test private_block::token_io::classify_capture_tests::lean_l18_export_tests::lean_l18_export_the_classify_run_framing ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+R17 EXPORT REPLAY REFUSES layer 0 gamma_a: replay: stage 1 (block 0) slot 14 [03 D zero-check (hosts 12, 13D)] public table 0 (gamma_a) disagrees with the export: the export's layer 0 derives 16384 entries hashing to d54b59aa8292160d, the verifier evaluated 16384
+R17 EXPORT REPLAY REFUSES layer 0 gamma_m: replay: stage 1 (block 0) slot 14 [03 D zero-check (hosts 12, 13D)] public table 1 (gamma_m) disagrees with the export: the export's layer 0 derives 16384 entries hashing to c818867284c62395, the verifier evaluated 16384
+R17 EXPORT REPLAY REFUSES layer 0 w_q: replay: stage 1 (block 0) slot 5 [09Q matmul (private)] public table 0 (fold(w_q)) disagrees with the export: the export's layer 0 derives 512 entries hashing to f3305d9d939bbf52, the verifier evaluated 512 entries hashi
+R17 EXPORT REPLAY REFUSES layer 0 w_d: replay: stage 1 (block 0) slot 13 [13D down matmul (private)] public table 0 (fold(w_d)) disagrees with the export: the export's layer 0 derives 1024 entries hashing to 7ff182f6a7c1a1a6, the verifier evaluated 1024 entri
+R17 EXPORT REPLAY REFUSES layer 0 rope_sin: replay: stage 1 (block 0) slot 15 [04 Q zero-check (hosts 09Q, 11)] public table 1 (rope_sin@Q) disagrees with the export: the export's layer 0 derives 32768 entries hashing to 44ba8d89c1852901, the verifier evaluated 32
+R17 EXPORT REPLAY REFUSES layer 0 exp: replay: stage 1 (block 0) slot 19 [TAB table helper zero-check] public table 1 (exp_values) disagrees with the export: the export's layer 0 derives 16384 entries hashing to d6d7f9f4957ac164, the verifier evaluated 16384 
+R17 EXPORT REPLAY REFUSES layer 0 m_o: replay: stage 1 (block 0) slot 10 [12 Wo matmul (private)] public table 0 (fold(w_o)) disagrees with the export: the export's layer 0 derives 1024 entries hashing to fcdf670ff2357c84, the verifier evaluated 1024 entries 
+R17 EXPORT REPLAY REFUSES layer 0 m_g: replay: stage 1 (block 0) slot 11 [13G gate matmul (private)] public table 0 (fold(w_g)) disagrees with the export: the export's layer 0 derives 512 entries hashing to a96bfe7385cf979d, the verifier evaluated 512 entries
+R17 EXPORT REPLAY REFUSES layer 0 group_id: replay: stage 1 (block 0) slot 11 [13G gate matmul (private)] public table 0 (fold(w_g)) disagrees with the export: the export's layer 0 derives 512 entries hashing to b029ebe373e4e919, the verifier evaluated 512 entries
+R17 EXPORT REPLAY REFUSES layer 1 gamma_a: replay: stage 2 (block 1) slot 14 [03 D zero-check (hosts 12, 13D)] public table 0 (gamma_a) disagrees with the export: the export's layer 1 derives 16384 entries hashing to d54b59aa8292160d, the verifier evaluated 16384
+R17 EXPORT REPLAY REFUSES layer 1 gamma_m: replay: stage 2 (block 1) slot 14 [03 D zero-check (hosts 12, 13D)] public table 1 (gamma_m) disagrees with the export: the export's layer 1 derives 16384 entries hashing to c818867284c62395, the verifier evaluated 16384
+R17 EXPORT REPLAY REFUSES layer 1 w_q: replay: stage 2 (block 1) slot 5 [09Q matmul (private)] public table 0 (fold(w_q)) disagrees with the export: the export's layer 1 derives 512 entries hashing to 6fc8544e55fa0cb0, the verifier evaluated 512 entries hashi
+R17 EXPORT REPLAY REFUSES layer 1 w_d: replay: stage 2 (block 1) slot 13 [13D down matmul (private)] public table 0 (fold(w_d)) disagrees with the export: the export's layer 1 derives 1024 entries hashing to c3609f7ec8b652c8, the verifier evaluated 1024 entri
+R17 EXPORT REPLAY REFUSES layer 1 rope_sin: replay: stage 2 (block 1) slot 15 [04 Q zero-check (hosts 09Q, 11)] public table 1 (rope_sin@Q) disagrees with the export: the export's layer 1 derives 32768 entries hashing to 44ba8d89c1852901, the verifier evaluated 32
+R17 EXPORT REPLAY REFUSES layer 1 exp: replay: stage 2 (block 1) slot 19 [TAB table helper zero-check] public table 1 (exp_values) disagrees with the export: the export's layer 1 derives 16384 entries hashing to 5f2a9db50f2dc39c, the verifier evaluated 16384 
+R17 EXPORT REPLAY REFUSES layer 1 m_o: replay: stage 2 (block 1) slot 10 [12 Wo matmul (private)] public table 0 (fold(w_o)) disagrees with the export: the export's layer 1 derives 1024 entries hashing to 293ddaa8787970e1, the verifier evaluated 1024 entries 
+R17 EXPORT REPLAY REFUSES layer 1 m_g: replay: stage 2 (block 1) slot 11 [13G gate matmul (private)] public table 0 (fold(w_g)) disagrees with the export: the export's layer 1 derives 512 entries hashing to f6c597a64d1fa604, the verifier evaluated 512 entries
+R17 EXPORT REPLAY REFUSES layer 1 group_id: replay: stage 2 (block 1) slot 11 [13G gate matmul (private)] public table 0 (fold(w_g)) disagrees with the export: the export's layer 1 derives 512 entries hashing to 36f03430f56ea1a4, the verifier evaluated 512 entries
+R17 R13 RUNG CAPTURE L=2 gates [Some(20), Some(21)] verdict 1: run.json 48844 B, stages [2434067, 5054785, 5054068, 3275444] B, arrays.bin 31602336 B; manifest 10378 B
+test private_block::token_io::classify_capture_tests::gate19::r17::r17_an_r13_rung_classify_run_is_recorded_under_the_classifier_schema ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+R17 R13 CAPTURE WITH VALUES L=2 gates [Some(20), Some(21)]: 34 statement tables replayed (435200 entries, 2 layers; act3_values x2, act_support x2, exp_values x2, fold(w_d) x2, fold(w_g) x2, fold(w_k) x2, fold(w_o) x2, fold(w_q) x2, fold(w_u) x2, fold(w_v) x2, gamma_a x2, gamma_m x2, group_column x2, rope_cos@Kv x2, rope_cos@Q x2, rope_sin@Kv x2, rope_sin@Q x2), run.json 48848 B, stages [2433078, 5059847, 5056762, 3274144] B, arrays.bin 38381216 B; arrays.bin 38381216 B
+test private_block::token_io::classify_capture_tests::gate19::r17::r17_an_r13_capture_with_table_values_records_every_statement_table_and_replays_it_against_the_export ... ok
+LEAN-L29 | the classify run's stages replayed (rung, L = 1, verdict 1): IN-C 1224328 B, OUT-C 2489016 B, corpus 163004 B
+test private_block::token_io::classify_capture_tests::lean_l29_export_tests::lean_l29_export_the_classify_stages ... ok
+R17 EXPORT REPLAY REFUSES each of the 34 recorded statement tables when its recorded digest moves (17 kinds: {"act3_values", "act_support", "exp_values", "fold(w_d)", "fold(w_g)", "fold(w_k)", "fold(w_o)", "fold(w_q)", "fold(w_u)", "fold(w_v)", "gamma_a", "gamma_m", "group_column", "rope_cos@Kv", "rope_cos@Q", "rope_sin@Kv", "rope_sin@Q"})
+test private_block::token_io::classify_capture_tests::gate19::r17::r17_a_recorded_table_that_disagrees_with_the_export_is_refused_by_the_replay ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+LEAN-L51 | the classify run header rebuilt on the production binding (rung, L = 1, verdict 1): corpus 5677 B
+test private_block::token_io::classify_capture_tests::lean_l51_export_tests::lean_l51_export_the_classify_header ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+CLASSIFY CAPTURE rung L=1 chunk 1 of 2 [4, 27) at the tie: run.json 44375 B, arrays.bin 9042544 B
+test private_block::token_io::classify_capture_tests::r12_a_classify_chunk_at_the_tie_is_captured ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+CLASSIFY CAPTURE | a tampered run refused (block 0: A: pcs zk: Merkle path for column 3819 fails); read as verdict 0 refused (token I/O wire: this segment belongs to another run); no bundle
+test private_block::token_io::classify_capture_tests::r12_a_tampered_or_reverdicted_classify_run_is_refused_and_no_bundle_is_written ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+LEAN-L56 | the boundary roots' positions and openings (rung, L = 2, verdict 1): 11 negative controls refused, corpus 2807 B
+test private_block::token_io::classify_capture_tests::lean_l56_export_tests::lean_l56_export_the_boundary_positions ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+CLASSIFY CAPTURE rung L=2 verdict 1 (margin -190166): run.json 45075 B, stage files [4731270, 24033695, 24031453, 8367872] B
+test private_block::token_io::classify_capture_tests::r12_a_classify_run_is_captured_and_its_bundle_is_self_consistent ... ok
+TOKEN-IO R14 | N-r13-1 | the replay refuses a run on the relation tests' synthetic tables: replay: the classifier run's tables are not derived from the pinned tied tensor (N-r13-1); no capture of them is written
+test private_block::token_io::classify_capture_tests::r14_a_capture_of_relation_test_tables_is_refused_by_the_replay ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+TOKEN-IO R14 | the gate's capture fixture (L = 1, 2) proves with the dev rung's derived tables (embedding c0e816c9…, margin 24e6ff4c…)
+test private_block::token_io::classify_capture_tests::r14_the_gate_capture_fixture_proves_with_the_tables_derived_from_the_pinned_tensor ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::complete_plan_creates_nothing ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::dangling_symlink_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::distinct_names_required ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::dotdot_path_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::existing_receipt_and_sidecar_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::missing_category_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::output_in_model_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::output_sidecar_alias_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::owner_under_other_receipt_parent_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::prefix_subset_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::reordered_plan_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::repeated_chunk_refused ... ok
+test private_block::token_io::classify_cli::batch::plan::tests::symlink_parent_alias_refused ... ok
+test private_block::token_io::classify_cli::batch::r18::gcl_rung_single_prove_digests_under_fixed_entropy ... ignored
+{"event":"batch-loaded","jobs":2,"model_loads":1,"table_loads":1,"load_seconds":0.014,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","context_label":"zk60-classify-verdict"}
+{"event":"batch-job-start","index":0,"name":"c0","policy":"rung-tc-synthetic-policy-dev/1","chunk":0}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.064}
+CLASSIFY CAPTURE | the prover records nothing with a recorder attached; the receipt verifies with and without one
+test private_block::token_io::classify_capture_tests::r12_the_classify_hooks_are_inert_on_the_prover_and_a_run_verifies_the_same_with_and_without_a_recorder ... ok
+{"event":"batch-loaded","jobs":2,"model_loads":1,"table_loads":1,"load_seconds":0.008,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","context_label":"zk60-classify-verdict"}
+{"event":"batch-job-start","index":0,"name":"c0","policy":"rung-tc-synthetic-policy-dev/1","chunk":0}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+CLASSIFY CAPTURE rung L=1 short item (20 ids, chunk [0, 20) of a 23-id plan) at the tie: run.json 44373 B
+test private_block::token_io::classify_capture_tests::r14_a_short_item_is_captured ... ok
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.058}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.583}
+zk60_classify prove-batch: --content-file is given more than once; a batch proves ONE post in ONE process (its tables and digest pass are held for that post only)
+zk60_classify prove-batch: --batch-file is given more than once; a batch proves ONE post in ONE process (its tables and digest pass are held for that post only)
+zk60_classify prove-batch: --export is given more than once; a batch proves ONE post in ONE process (its tables and digest pass are held for that post only)
+zk60_classify prove-batch: --label is given more than once; a batch proves ONE post in ONE process (its tables and digest pass are held for that post only)
+TOKEN-IO R18 | one post per process: a second --content-file, --batch-file, --export or --label is refused (exit 2), nothing created
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.653}
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-fail-97744/r18f-c0","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r18-fail-97744/r18f-c0.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.653,"whole_run_floor_bits":94,"total_seconds":0.695,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"batch-job-proved","index":0,"name":"c0","seal_block_loads":1,"prove_block_loads":1,"blocks":1}
+{"event":"batch-job-start","index":1,"name":"c1","policy":"rung-tc-synthetic-policy-dev/1","chunk":1}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"content_length_n":23}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r18-fail-97744/r18f-c1.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-fail-97744/r18f-c1.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-fail-97744/r18f-c1.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r18-fail-97744/r18f-c0.owner-private","why":"the batch was refused; this directory was made by a finished job of this batch and is removed with everything in it: no receipt, statement or decommitment of a failed batch is left (REVIEW A5 finding 1)"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-fail-97744/r18f-c0.unverified-statement","why":"the batch was refused; this directory was made by a finished job of this batch and is removed with everything in it: no receipt, statement or decommitment of a failed batch is left (REVIEW A5 finding 1)"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-fail-97744/r18f-c0","why":"the batch was refused; this directory was made by a finished job of this batch and is removed with everything in it: no receipt, statement or decommitment of a failed batch is left (REVIEW A5 finding 1)"}
+{"event":"refused","command":"classify-prove-batch","error":"refused","detail":"owner-private"}
+TOKEN-IO R18 | Fix 1 | job 0 proved, job 1 refused before its header: no run, .incomplete, .unverified-statement or owner directory of either job is left
+test private_block::token_io::classify_cli::batch::r18::r18_a_second_post_or_any_repeated_flag_is_refused_before_anything_is_read ... ok
+test private_block::token_io::classify_cli::batch::r18::r18_a_failed_batch_leaves_no_receipt_statement_or_decommitment_behind ... ok
+test private_block::token_io::classify_cli::batch::r18::r18_rung_batch_receipts_equal_single_proves_under_fixed_entropy ... ignored
+{"event":"batch-loaded","jobs":2,"model_loads":1,"table_loads":1,"load_seconds":0.015,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","context_label":"zk60-classify-verdict"}
+{"event":"batch-job-start","index":0,"name":"c0","policy":"rung-tc-synthetic-policy-dev/1","chunk":0}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+{"event":"refused","command":"classify-prove-batch","error":"refused","detail":"owner-private"}
+TOKEN-IO R18 | the production prove-batch refuses the rung post (policy list, profile); nothing created
+test private_block::token_io::classify_cli::batch::r18::r18_the_production_batch_command_refuses_a_rung_post_and_creates_nothing ... ok
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.060}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.722}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.805}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-ok-97744/r18k-c0","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r18-ok-97744/r18k-c0.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.805,"whole_run_floor_bits":94,"total_seconds":0.847,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"batch-job-proved","index":0,"name":"c0","seal_block_loads":1,"prove_block_loads":1,"blocks":1}
+{"event":"batch-job-start","index":1,"name":"c1","policy":"rung-tc-synthetic-policy-dev/1","chunk":1}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"content_length_n":23}
+TOKEN-IO R18 | note 7: a symlinked request and a FIFO request are refused (the FIFO at once)
+test private_block::token_io::classify_cli::batch::r18::r18_the_request_reader_refuses_a_symlink_and_a_fifo_without_blocking ... ok
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.073}
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+TOKEN-IO R15 | F18-1 | the classifier run file lists exactly n_slots = 23 slot triples (full item and short item)
+test private_block::token_io::classify_capture_tests::r15_a_classify_run_files_slot_list_has_exactly_n_slots_triples ... ok
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.701}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.764}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-loads-97744/r18l-c0","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r18-loads-97744/r18l-c0.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.764,"whole_run_floor_bits":94,"total_seconds":0.826,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"batch-job-proved","index":0,"name":"c0","seal_block_loads":1,"prove_block_loads":1,"blocks":1}
+{"event":"batch-job-start","index":1,"name":"c1","policy":"rung-tc-synthetic-policy-dev/1","chunk":1}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.045}
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.636}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.710}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-ok-97744/r18k-c1","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r18-ok-97744/r18k-c1.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.714,"whole_run_floor_bits":94,"total_seconds":0.776,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"batch-job-proved","index":1,"name":"c1","seal_block_loads":1,"prove_block_loads":1,"blocks":1}
+{"event":"batch-proved","jobs":2,"total_seconds":1.631,"verified":false}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"1280738c29d56599bf58e698b8b71cff02ed4d92ad58511e25d32db9e5c92e0a","verify_seconds":0.086,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"f6055b4b575e5daa43f0ef339e8e838579f37d9cdcfb50055405a58153af1bb7","verify_seconds":0.084,"whole_run_floor_bits":94,"published_by":"this verifier"}
+A24 | a refused request created nothing; a bad line and an unadmitted policy refused; the next request proved and verifies
+test private_block::token_io::classify_cli::serve::tests::a24_a_refused_request_creates_nothing_and_the_stream_carries_on ... ok
+{"event":"content-checked","content_total":27,"chunk":0,"range":[0, 23],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"7e8cb069b07f0f87bd6554e7640a9f88c4d6c39d72bf37b6476e7a4dcb6b1d70","verify_seconds":0.088,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.515}
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"content-checked","content_total":27,"chunk":1,"range":[4, 27],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.583}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-loads-97744/r18l-c1","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r18-loads-97744/r18l-c1.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.583,"whole_run_floor_bits":94,"total_seconds":0.633,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"batch-job-proved","index":1,"name":"c1","seal_block_loads":1,"prove_block_loads":1,"blocks":1}
+{"event":"batch-proved","jobs":2,"total_seconds":1.475,"verified":false}
+TOKEN-IO R18 | note 9: per-job block reloads (sealing, proving) = [(1, 1), (1, 1)] at L = 1
+test private_block::token_io::classify_cli::batch::r18::r18_each_batch_job_reloads_every_block_through_its_own_digest_checked_readers ... ok
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-ok-97744/r18k-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r18-ok-97744/r18k-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":2,"content_total":27,"expect_total":27,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+TOKEN-IO R18 | rung batch: 2 jobs proved, both verify, both owner-check on the whole content, label --expect-total 27 accepted
+test private_block::token_io::classify_cli::batch::r18::r18_a_rung_batch_proves_every_job_and_each_receipt_verifies_owner_checks_and_labels ... ok
+A24 | the table digests in 1 MiB pieces equal the word-by-word digests (3 sizes, one past a piece boundary)
+test private_block::token_io::classify_cli::serve::tests::a24_the_piecewise_table_digests_equal_the_word_by_word_ones ... ok
+A26 | the embedding fold in split 32-bit limbs equals the per-word field fold (4 shapes, 3 point kinds, extreme words)
+test private_block::token_io::classify_cli::serve::tests::a26_the_split_limb_embedding_fold_equals_the_field_fold ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+A24 | check-serve negative controls: tampered segment, other content of the same length, unadmitted policy, prefix only, missing chunk, wrong model (startup and export): all refused, fail-closed
+test private_block::token_io::classify_cli::serve::tests::a24_check_serve_refuses_every_negative_control ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"54d0a2f5291110a5229ecc2b41fb9a245069dec96cd5ce9402fb205a94f5b36f","verify_seconds":0.084,"whole_run_floor_bits":94,"published_by":"an earlier verifier (re-checked byte for byte)"}
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"e9cefd31cadbd86eb98b4ea804264f2c91e82b2872665fc11c8b8bf5244458bc","verify_seconds":0.081,"whole_run_floor_bits":94,"published_by":"an earlier verifier (re-checked byte for byte)"}
+A24 | check-serve: both chunks verified once each, published, owner-checked, labelled; a second check re-checks the published statements
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"31b3d1cb09c41a488a04f57ea8947e4884d983eb83af44e3c4b768101f08ab49","verify_seconds":0.085,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test private_block::token_io::classify_cli::serve::tests::a24_check_serve_verifies_publishes_owner_checks_and_labels_one_category ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"content-checked","content_total":27,"chunk":0,"range":[0, 23],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"3c9c65ac76843b755b765d84449ed591acd34708c4407facf613f15a30296104","verify_seconds":0.086,"whole_run_floor_bits":94,"published_by":"this verifier"}
+A28 | the seal-ahead dispatch: idle lanes first, then the earliest-begun lane, never three on a lane; every request served once (2 and 1 request threads a lane)
+test private_block::token_io::classify_cli::serve::tests::a28_the_seal_ahead_dispatch_fills_idle_lanes_first_and_never_sends_a_third_request_to_a_lane ... ok
+A25 | seed map | R13_SHIELD_T128_H24 -> W16R2_SHIELD_T128_H24 (rate 1/4 Q 256 -> 1/2 Q 280, every geometry field equal); T256, W16, W16R2 itself and the legacy rung refused
+test private_block::token_io::classify_cli::w16r2::tests::a25_the_switch_maps_only_an_admitted_r13_seed_to_its_w16r2_twin ... ok
+{"event":"content-checked","content_total":27,"chunk":1,"range":[4, 27],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-a25-switch-97744/a25-switch-run.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a25-switch-97744/a25-switch-run.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a25-switch-97744/a25-switch-run.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a24-serve-1-97744/a24s-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.056}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a24-serve-1-97744/a24s-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":2,"content_total":27,"expect_total":27,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+A24 | serve (witness cache 1 GiB): 2 lanes, both chunks proved; CLI verify, input-owner and label accept them
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"adab0247c24fda9d368171e6cd6d0eb1a29183cc406677e5ef73dd629cb50100","verify_seconds":0.117,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"content-checked","content_total":27,"chunk":0,"range":[0, 23],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"a636b55ecd571ad67020585338b9489f61efed0f3ade654ec7a0b5d46bba8ba1","verify_seconds":0.126,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"content-checked","content_total":27,"chunk":1,"range":[4, 27],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.718}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a28-ahead-true-97744/a28s-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.786}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a25-switch-97744/a25-switch-run","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-a25-switch-97744/a25-switch-run.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.786,"whole_run_floor_bits":94,"total_seconds":0.846,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"refused","command":"classify-verify","error":"--dev-w16r2-public-content-only: the export's block profile hashline-zk-mr1/private-block-rung-tc-t32-dev/2 has no W16R2 development twin (this build admits the R13 Shieldstral T128 export only)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a28-ahead-true-97744/a28s-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":2,"content_total":27,"expect_total":27,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"231d11423daba61a5032ee587402348c44a52a6673ef3d14d91824c4b332accc","verify_seconds":0.082,"whole_run_floor_bits":94,"published_by":"this verifier"}
+A25 | switch | on the legacy rung: serve and check-serve refuse to start, prove refuses and creates nothing, verify refuses; without it the fixture proves and verifies
+test private_block::token_io::classify_cli::w16r2::tests::a25_the_switch_on_an_export_without_a_w16r2_twin_is_refused_and_nothing_else_moves ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"ad77cb28c1e79155c6ed2b3b95eb4b572cc3d5d08f555a279af14ccd2d0dc037","verify_seconds":0.082,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"content-checked","content_total":27,"chunk":0,"range":[0, 23],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"e243b9d68eb3e095d703d5d5a75aceb6b397b8258302664fef45ede5b713af91","verify_seconds":0.077,"whole_run_floor_bits":94,"published_by":"this verifier"}
+A25 | registry | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2: unregistered, CS-7 at W16R2_SHIELD_T128_H24 only; L26 whole-run 2^-97.96 floor 97 bits (R13: 2^-96.86, floor 96), 112 openings, 79 at the unique-decoding radius
+test private_block::token_io::classify_cli::w16r2::tests::a25_the_w16r2_dev_profile_is_unregistered_and_names_only_its_w16r2_block_shape ... ok
+{"event":"content-checked","content_total":27,"chunk":1,"range":[4, 27],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+A25 | digest pass | r13-h24-wide: the W16R2 pass keeps the R13 pass's 1 blocks (equal digests); identities R13 3339aad284f863a8b2a96fb20dadebaf02e50ea79cd1f75742ee7cf8c0d4703e / W16R2 d4c23ed01ef16f3387c9accd94552cfd588dd07bf539fba8e65e21c05829821a
+test private_block::token_io::classify_cli::w16r2::tests::a25_the_w16r2_digest_pass_loads_the_same_blocks_under_its_own_identity ... ok
+test private_block::token_io::classify_cli::w16r2::tests::a30_table_and_block_digests_are_identical_with_switch_on_and_off ... ok
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a24-serve-0-97744/a24s-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+test private_block::token_io::classify_cli::w16r2::tests::a30_words16_and_words64_unaligned_subtrees_match_blake3_hash_byte_for_byte ... ok
+A36 memory | W16R2_SHIELD_T128_H24: a_rows 2501, n 16384, inv_rate 2, m_rows 50; A host 327811072 B (312.6 MiB), A encoded 655622144 B (625.2 MiB), committed witness planes 37003776 words = 296030208 B (282.3 MiB)
+test private_block::token_io::classify_cli::w16r2::tests::a36_the_bytes_the_next_blocks_first_half_holds_at_the_w16r2_shieldstral_shape ... ok
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"20e498c8a8dce6ae7d26b494959c4acd6fa139e46d350a31fa27f6497d7be34c","verify_seconds":0.121,"whole_run_floor_bits":94,"published_by":"this verifier"}
+A28 | serve, seal-ahead true: one lane, both chunks proved and accepted by the CLI checks; a refused request created nothing and the next proved
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a24-serve-0-97744/a24s-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":2,"content_total":27,"expect_total":27,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+A24 | serve (witness cache 0 GiB): 2 lanes, both chunks proved; CLI verify, input-owner and label accept them
+test private_block::token_io::classify_cli::serve::tests::a24_serve_proves_a_rung_post_whose_receipts_pass_the_unchanged_cli_checks ... ok
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.065}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.075}
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.744}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.680}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.813}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.754}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c0","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-chunks-97744/item-c0.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.813,"whole_run_floor_bits":94,"total_seconds":0.881,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-door-97744/run","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-door-97744/run.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.757,"whole_run_floor_bits":94,"total_seconds":0.835,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"content_length_n":23}
+{"event":"refused","command":"classify-verify","error":"classifier (R-C2): classifier.json's yes_id is not the export profile's classifier_margin_parameters (the file is outside the profile digest and never an authority)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"refused","command":"classify-verify","error":"token I/O wire: this segment belongs to another run"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.049}
+{"event":"refused","command":"classify-verify","error":"block 0: A: pcs zk: Merkle path for column 3936 fails"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R-C1 CLI | refused, nothing published: the other margin vector (B-3), a consistently flipped verdict (transcript), a tampered segment
+test private_block::token_io::classify_cli_tests::r12_cli_other_tables_a_consistently_flipped_verdict_or_a_tampered_segment_are_refused ... ok
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.054}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"897f7e77650184ad5cb5c5534a75ad2509e5ac5d964d60f57b98e0e04642f6b1","verify_seconds":0.085,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"content-checked","content_total":27,"chunk":0,"range":[0, 23],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.663}
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"6fc1a048ff0b448715eb86a88c216517c4ef4dcf240e86df04652f1cd4a22f2e","verify_seconds":0.153,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.732}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c1","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-chunks-97744/item-c1.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.732,"whole_run_floor_bits":94,"total_seconds":0.793,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-chunks-97744/item-c2.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c2.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c2.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+{"event":"refused","command":"classify-verify","error":"token I/O wire: this segment belongs to another run"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"content-checked","content_total":27,"chunk":1,"range":[4, 27],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"691f55793034643099f9ec89aed3009b38e08c61927aefade62b6eaae5465237","verify_seconds":0.123,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a28-ahead-false-97744/a28s-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.761}
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"1a453844231b367b6b4ed315241a1ca3759d2914ea24cc20a27b7f9078799532","verify_seconds":0.114,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-a28-ahead-false-97744/a28s-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":2,"content_total":27,"expect_total":27,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.829}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-e2e-97744/run-w","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-e2e-97744/run-w.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.829,"whole_run_floor_bits":94,"total_seconds":0.901,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"refused","command":"classify-verify","error":"privacy review P-5: the export directory /Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-e2e-97744/x/tiny holds the prover-private entry \"seq_s0\"; a verifier's copy of the export holds the public files only (copy it without seq_*)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+A25 | W16R2 rung | two stages: prove 1.65 s (R13 1.76 s), fresh verify 0.30 s; receipt 34866832 B (R13 35293200 B), block segments 30407376 B (R13 30840528 B); the same planes and verdict as R13; changed byte, R13-over-W16R2, W16R2-over-R13, other verdict, crossed tables: refused
+test private_block::token_io::classify_cli::w16r2::tests::a25_a_w16r2_rung_classify_run_proves_verifies_equals_the_r13_verdict_and_refuses_the_controls ... ok
+{"event":"refused","command":"classify-verify","error":"the export's trained statement identity (classifier run profile) is fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7, not the pinned one"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"content-checked","content_total":27,"chunk":1,"range":[4, 27],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"e13c3c0d4b1b41a77fecb320faa24b3c6d71876a6f1699dfed2284fcb5f1456b","verify_seconds":0.092,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"content-checked","content_total":27,"chunk":0,"range":[0, 23],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_tables_loader_refuses_a_changed_margin_vector ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_label_is_the_or_over_every_chunk_exactly_once ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"e13c3c0d4b1b41a77fecb320faa24b3c6d71876a6f1699dfed2284fcb5f1456b","verify_seconds":0.089,"whole_run_floor_bits":94,"published_by":"an earlier verifier (re-checked byte for byte)"}
+{"event":"refused","command":"classify-input-owner","error":"the content holds 23 ids; the verified statement's item holds 27"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+zk60_classify prove: --content is not accepted: the hidden content never goes on the command line (it shows in the process list and shell history); give --content-file FILE (mode 0600) or --content-file - (standard input) (PR4-17)
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-prover-97744/run-a.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-prover-97744/run-a.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-prover-97744/run-a.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"content-checked","content_total":23,"chunk":0,"range":[0, 23],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-prover-97744/run-a.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-prover-97744/run-a.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-prover-97744/run-a.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":22}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-prover-97744/run-a.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-prover-97744/run-a.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-prover-97744/run-a.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"refused","command":"classify-input-owner","error":"owner check: the sealed input plane is not the owner's content"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":2,"content_total":27,"expect_total":27,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"aa45b911ff2a3b75a6871d0de0c9537cc386f66e44b13c98688289f6c7d76e6a","policy":"rung-tc-synthetic-policy-dev-swapped/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.047}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.055}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":2,"content_total":27,"expect_total":27,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"refused","command":"classify-label","error":"label: chunk 1 of 2 has no accepted proof (fail-closed: handled as flagged)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"381ab79fd4b4ea00a66e615102a15e1c8a58a832dc2095a52319e1f9a2285bc7","verify_seconds":0.137,"whole_run_floor_bits":94,"published_by":"this verifier"}
+A28 | serve, seal-ahead false: one lane, both chunks proved and accepted by the CLI checks; a refused request created nothing and the next proved
+test private_block::token_io::classify_cli::serve::tests::a28_serve_with_and_without_seal_ahead_proves_the_post_and_a_refusal_frees_its_lane ... ok
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.788}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"refused","command":"classify-label","error":"label: chunk 1 appears twice"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.796}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.865}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-prover-97744/run-a","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-prover-97744/run-a.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.865,"whole_run_floor_bits":94,"total_seconds":0.918,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+TOKEN-IO R-C1 CLI | refused: --content (exit 2), unknown policy, content control id (before any header), wrong length, existing directory
+test private_block::token_io::classify_cli_tests::r12_cli_the_prover_refuses_content_on_the_command_line_an_unknown_policy_and_a_control_id ... ok
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.866}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-e2e-97744/run-negw","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-e2e-97744/run-negw.owner-private","verdict":"flagged","policy":"rung-tc-synthetic-policy-dev-swapped/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.866,"whole_run_floor_bits":94,"total_seconds":0.916,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"refused","command":"classify-verify","error":"privacy review P-5: the export directory /Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-e2e-97744/x/tiny holds the prover-private entry \"seq_s0\"; a verifier's copy of the export holds the public files only (copy it without seq_*)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"refused","command":"classify-verify","error":"the export's trained statement identity (classifier run profile) is fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7, not the pinned one"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"refused","command":"classify-label","error":"chunk run /Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-chunks-97744/item-c1: block 0: A: pcs zk: Merkle path for column 3363 fails"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R-C1 CLI | D41: 27 ids -> chunks [0, 23) + [4, 27) proved, verified, owner-checked, labelled | fail-closed: missing, repeated, tampered chunk; re-labelled chunk refused
+test private_block::token_io::classify_cli_tests::r12_cli_chunks_prove_verify_owner_check_and_label_fail_closed ... ok
+{"event":"classified","verdict":"flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev-swapped/1","trained_statement_identity":"aa45b911ff2a3b75a6871d0de0c9537cc386f66e44b13c98688289f6c7d76e6a","input_token_endpoint_root":"5f60122abcae076c8a58fab365cfb984df6dafce76035f0c7592945183f3280f","verify_seconds":0.086,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"classified","verdict":"flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev-swapped/1","trained_statement_identity":"aa45b911ff2a3b75a6871d0de0c9537cc386f66e44b13c98688289f6c7d76e6a","input_token_endpoint_root":"5f60122abcae076c8a58fab365cfb984df6dafce76035f0c7592945183f3280f","verify_seconds":0.089,"whole_run_floor_bits":94,"published_by":"an earlier verifier (re-checked byte for byte)"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":22}
+{"event":"content-checked","content_total":23,"chunk":0,"range":[0, 23],"verdict":"flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.059}
+{"event":"refused","command":"classify-input-owner","error":"owner check: the sealed input plane is not the owner's content"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R-C1 CLI | prove -> verify (published) -> re-check -> input-owner at verdicts [0, 1] | refused: seq_* export, wrong pin, another content
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_proves_at_both_verdicts_the_verifier_publishes_and_the_owner_checks ... ok
+test private_block::token_io::classify_r14_tests::r14_a_short_item_proves_and_verifies_through_the_named_binary_in_fresh_processes ... ignored, runs the named zk60_classify binary; set HL_PB_CLI_BIN
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":22}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.064}
+TOKEN-IO R14 | N-r13-1 | doctored margin row + rehashed classifier.json refused by the library path: classifier (R-C2): margin_int16.bin is not the margin row recomputed from the pinned tensor with the bound profile's yes / no ids and public scale (the file is compared, never trusted)
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.834}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.901}
+TOKEN-IO R14 | N-r13-1 | doctored embedding row 200 + rehashed token_io.json refused by the library path: classifier (R-C2): embedding_int16.bin is not the table derived from the pinned tied tensor (its manifest's digest is consistent, but the table is not the model's)
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r14-short-97744/short-22","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r14-short-97744/short-22.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.901,"whole_run_floor_bits":94,"total_seconds":0.981,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+test private_block::token_io::classify_r14_tests::r14_a_library_call_with_doctored_tables_and_a_consistent_manifest_is_refused ... ok
+TOKEN-IO R14 | N-r13-1 | BoundClassifierTables: 2 literals (the tied loader; the cfg(test) relation binding); the six entry points take it
+test private_block::token_io::classify_r14_tests::r14_only_the_tied_derivation_constructs_bound_tables ... ok
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"aa334666469e975bce4db125ace1c13b6708985875009336c3a309660703c7be","verify_seconds":0.082,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"content-checked","content_total":22,"chunk":0,"range":[0, 22],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.687}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.757}
+{"event":"refused","command":"classify-input-owner","error":"owner check: the sealed input plane is not the owner's content"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r14-short-len-97744/short","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r14-short-len-97744/short.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.758,"whole_run_floor_bits":94,"total_seconds":0.824,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"refused","command":"classify-verify","error":"classifier run: chunk 0 of a 22-id content holds 22 ids; the statement's n is 23"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"refused","command":"classify-verify","error":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r14-short-len-97744/short.unverified-statement/statement.json: not byte for byte the canonical statement of this run under the verifier's own inputs (B-3: the margin vector, ids, threshold, template and model are re-derived, never taken from the statement)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"refused","command":"classify-input-owner","error":"the content holds 23 ids; the verified statement's item holds 22"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"75590c7009e2b66ce1cf2d2e88c95a258d644b9444f54d26119b5a1b679ab17c","verify_seconds":0.128,"whole_run_floor_bits":94,"published_by":"this verifier"}
+TOKEN-IO R14 | a 22-id item's statement read as n = 23 (alone, or as a consistent 23-id chunk) is refused; the honest one verifies
+test private_block::token_io::classify_r14_tests::r14_a_short_items_statement_read_under_another_length_is_refused ... ok
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r14-short-97744/short-22","chunk":0,"range":[0, 22],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":1,"content_total":22,"expect_total":22,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+TOKEN-IO R14 | short item short-22: 22 ids as one chunk [0, 22) of a 23-id plan; proved, verified, owner-checked, labelled
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":1}
+TOKEN-IO R14 | N-r13-6 | a block profile whose tied source is not the run profile's is refused; an unregistered run profile has none
+test private_block::token_io::classify_r14_tests::r14_the_block_and_run_profiles_must_name_one_tied_source ... ok
+test private_block::token_io::classify_r15_tests::r15_label_expect_total_through_the_named_binary_in_fresh_processes ... ignored, runs the named zk60_classify binary; set HL_PB_CLI_BIN
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.063}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.052}
+TOKEN-IO R14 | N-r13-1 | another trained statement's tables refused by the statement, the prover and the verifier; the verifier copy's tables verify
+test private_block::token_io::classify_r14_tests::r14_tables_bound_to_another_trained_statement_are_refused_at_every_entry_point ... ok
+test private_block::token_io::classify_r15_tests::r15_receipts_cross_verify_between_two_named_binaries ... ignored, runs two named zk60_classify binaries; set HL_PB_CLI_BIN and HL_PB_CLI_BIN_OTHER
+TOKEN-IO R15 | N-r14-1 | the library's aggregate_label refuses another total, a range off the split, a wrong count and an index beyond it
+test private_block::token_io::classify_r15_tests::r15_the_library_label_checks_the_posts_total_and_every_range ... ok
+A36 path | a classifier run of 1 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.819}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.954}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r14-short-97744/short-1","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r14-short-97744/short-1.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.954,"whole_run_floor_bits":94,"total_seconds":1.020,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"5d8a5660567bfc15a25e911580c50c3137adc3a7ea1f1de08516008f586e454b","verify_seconds":0.169,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.987}
+{"event":"content-checked","content_total":1,"chunk":0,"range":[0, 1],"verdict":"not-flagged","checked_against":"the verified statement's input root, re-verified against every segment in this process"}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.054}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/post23","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r15-trunc-97744/post23.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.054,"whole_run_floor_bits":94,"total_seconds":1.135,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":22}
+{"event":"refused","command":"classify-input-owner","error":"owner check: the sealed input plane is not the owner's content"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.062}
+{"event":"refused","command":"classify-input-owner","error":"the content holds 2 ids; the verified statement's item holds 1"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r14-short-97744/short-1","chunk":0,"range":[0, 1],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":1,"content_total":1,"expect_total":1,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+TOKEN-IO R14 | short item short-1: 1 ids as one chunk [0, 1) of a 23-id plan; proved, verified, owner-checked, labelled
+test private_block::token_io::classify_r14_tests::r14_a_short_dev_rung_item_is_one_chunk_of_its_true_length ... ok
+A26 | kept records: honest records prove verifiable receipts (on and off); a wrong kept digest refused by CS-6 when on, ignored when off; a record for another object never taken; verify-once: the same verdicts and refusal (block 0: A: pcs zk: Merkle path for column 3231 fails)
+test private_block::token_io::classify_r14_tests::a26_kept_records_prove_verifiable_receipts_and_a_wrong_kept_digest_is_refused_by_cs6 ... ok
+TOKEN-IO R16 | T mismatch | trained statement: the calibration 'token-io-r16/synthetic-r13' declares constants the proof relations at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2 do not use (the relations prove the code's constants; see PLAN.md C-1)
+test private_block::token_io::classify_r16_tests::r16_a_t256_export_statement_with_a_t128_profile_is_refused ... ok
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.062}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.149}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/first22","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r15-trunc-97744/first22.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.149,"whole_run_floor_bits":94,"total_seconds":1.222,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.072}
+TOKEN-IO R16 | R13 rung | swapped blocks refused before the header; 2 of 2 blocks do not fit the run seed (G 17)
+test private_block::token_io::classify_r16_tests::r16_a_block_at_another_stage_shape_and_the_run_seed_shape_are_refused ... ok
+TOKEN-IO R16 | N-r13-5 | the loader's derivation is reused with the bound margin parameters (no second stream) and only then; the post-derivation digest check still applies
+test private_block::token_io::classify_r16_tests::r16_the_loaders_tied_derivation_is_reused_only_with_the_bound_margin_parameters ... ok
+TOKEN-IO R16 | registry | the two R13 Shieldstral classifier run profiles at their block shapes; the moderate D37 list; CS-7 refuses the swapped T
+test private_block::token_io::classify_r16_tests::r16_the_r13_shieldstral_classifier_profiles_are_registered_at_their_block_shapes ... ok
+TOKEN-IO R16 | bits [COUNTED] | hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/2: N 66879488 (legacy count 66879488), T_d 16896, per block 2^-102.00
+TOKEN-IO R16 | bits [COUNTED] | hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/2: N 154730496 (legacy count 154730496), T_d 16896, per block 2^-100.79
+TOKEN-IO R16 | bits [COUNTED] | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2 L26: whole-run 2^-96.86 (column 2^-98.79, LogUp 2^-97.30, PCS+sumcheck 2^-106.17), floor 96 bits, 112 openings
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.004}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.071}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/post27-c0","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r15-trunc-97744/post27-c0.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.071,"whole_run_floor_bits":94,"total_seconds":1.145,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"content_length_n":23}
+TOKEN-IO R16 | bits [COUNTED] | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2 L26: whole-run 2^-95.91 (column 2^-99.01, LogUp 2^-96.09, PCS+sumcheck 2^-106.17), floor 95 bits, 112 openings
+test private_block::token_io::classify_r16_tests::r16_the_r13_whole_run_figure_charges_the_degree_two_tables_and_clears_95 ... ok
+test private_block::token_io::classify_r16_tests::r16_write_item_activations ... ignored, real Shieldstral export via HL_R16_EXPORT / HL_R16_ITEMS; streams the checkpoint once; guarded
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.056}
+TOKEN-IO R16b | F-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2: refuses rung-tc-synthetic-policy-dev/1: classifier (R-C2): the registered policy "rung-tc-synthetic-policy-dev/1" (yes 40, no 41, scale 3.90625e-3, c 0) is not the export profile's classifier_margin_parameters (yes 13059, no 2649, scale 4.08288030735373e-6, c 0)
+TOKEN-IO R16b | F-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2: ADMITS shieldstral-1.0-3b-moderate-sexual/1 (P0 72, chunk 55, floor 96 bits)
+TOKEN-IO R16b | F-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2: ADMITS shieldstral-1.0-3b-moderate-violence/1 (P0 72, chunk 55, floor 96 bits)
+TOKEN-IO R16b | F-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2: ADMITS shieldstral-1.0-3b-moderate-hate/1 (P0 78, chunk 49, floor 96 bits)
+TOKEN-IO R16b | F-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2: admits exactly ["shieldstral-1.0-3b-moderate-sexual/1", "shieldstral-1.0-3b-moderate-violence/1", "shieldstral-1.0-3b-moderate-hate/1"]; shieldstral-1.0-3b-card-unsafe/1 refused by name at the door and the statement constructor (classifier: the policy "shieldstral-1.0-3b-card-unsafe/1" is not the pre-registered one of that name (B-6))
+TOKEN-IO R16b | F-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2: refuses rung-tc-synthetic-policy-dev/1: classifier (R-C2): the registered policy "rung-tc-synthetic-policy-dev/1" (yes 40, no 41, scale 3.90625e-3, c 0) is not the export profile's classifier_margin_parameters (yes 13059, no 2649, scale 4.08288030735373e-6, c 0)
+TOKEN-IO R16b | F-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2: ADMITS shieldstral-1.0-3b-moderate-sexual/1 (P0 72, chunk 183, floor 95 bits)
+TOKEN-IO R16b | F-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2: ADMITS shieldstral-1.0-3b-moderate-violence/1 (P0 72, chunk 183, floor 95 bits)
+TOKEN-IO R16b | F-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2: ADMITS shieldstral-1.0-3b-moderate-hate/1 (P0 78, chunk 177, floor 95 bits)
+TOKEN-IO R16b | F-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2: admits exactly ["shieldstral-1.0-3b-moderate-sexual/1", "shieldstral-1.0-3b-moderate-violence/1", "shieldstral-1.0-3b-moderate-hate/1"]; shieldstral-1.0-3b-card-unsafe/1 refused by name at the door and the statement constructor (classifier: the policy "shieldstral-1.0-3b-card-unsafe/1" is not the pre-registered one of that name (B-6))
+TOKEN-IO R16b | F-1 | the pre-registered list is ["rung-tc-synthetic-policy-dev/1", "shieldstral-1.0-3b-moderate-sexual/1", "shieldstral-1.0-3b-moderate-violence/1", "shieldstral-1.0-3b-moderate-hate/1"]; shieldstral-1.0-3b-card-unsafe/1 refused by name (classifier: "shieldstral-1.0-3b-card-unsafe/1" is not a pre-registered policy (B-6))
+test private_block::token_io::classify_r16_tests::r16b::r16b_each_r13_shieldstral_profile_admits_exactly_the_three_moderate_policies_and_refuses_the_card_by_name ... ok
+TOKEN-IO R16b | N-r16-1 [COUNTED] | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2 / shieldstral-1.0-3b-moderate-sexual/1: whole run 2^-96.8601 (column 2^-98.7928, LogUp 2^-97.3014 = OUT-C 54015 + IN-C 1971712 + 26 x 66947071, PCS+sumcheck 2^-106.1732), 112 openings, floor 96 bits
+TOKEN-IO R16b | N-r16-1 [COUNTED] | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2 / shieldstral-1.0-3b-moderate-violence/1: whole run 2^-96.8601 (column 2^-98.7928, LogUp 2^-97.3014 = OUT-C 54015 + IN-C 1971712 + 26 x 66947071, PCS+sumcheck 2^-106.1732), 112 openings, floor 96 bits
+TOKEN-IO R16b | N-r16-1 [COUNTED] | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2 / shieldstral-1.0-3b-moderate-hate/1: whole run 2^-96.8601 (column 2^-98.7928, LogUp 2^-97.3014 = OUT-C 54015 + IN-C 1971712 + 26 x 66947071, PCS+sumcheck 2^-106.1732), 112 openings, floor 96 bits
+TOKEN-IO R16b | N-r16-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/2: floor 96; --min-bits 96 passes the floor door (classifier run: 0 blocks and 0 segments were offered, this run has 26 blocks and 28 segments); --min-bits 97 refused (classifier run: the statement's derived whole-run figure (96 bits) is below the verifier's minimum of 97 bits (D27 policy))
+TOKEN-IO R16 | R13 rung | a doctored gate denominator (G 21 -> 22) refused by the verifier before its header and by the prover's sealing pass (no header); G None / 16 / 25 do not construct
+test private_block::token_io::classify_r16_tests::r16_a_doctored_per_layer_gate_shift_is_refused_before_any_header ... ok
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.860}
+TOKEN-IO R16b | N-r16-1 [COUNTED] | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2 / shieldstral-1.0-3b-moderate-sexual/1: whole run 2^-95.9124 (column 2^-99.0096, LogUp 2^-96.0930 = OUT-C 54015 + IN-C 1973248 + 26 x 154798079, PCS+sumcheck 2^-106.1732), 112 openings, floor 95 bits
+TOKEN-IO R16b | N-r16-1 [COUNTED] | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2 / shieldstral-1.0-3b-moderate-violence/1: whole run 2^-95.9124 (column 2^-99.0096, LogUp 2^-96.0930 = OUT-C 54015 + IN-C 1973248 + 26 x 154798079, PCS+sumcheck 2^-106.1732), 112 openings, floor 95 bits
+TOKEN-IO R16b | N-r16-1 [COUNTED] | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2 / shieldstral-1.0-3b-moderate-hate/1: whole run 2^-95.9124 (column 2^-99.0096, LogUp 2^-96.0930 = OUT-C 54015 + IN-C 1973248 + 26 x 154798079, PCS+sumcheck 2^-106.1732), 112 openings, floor 95 bits
+TOKEN-IO R16b | N-r16-1 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/2: floor 95; --min-bits 95 passes the floor door (classifier run: 0 blocks and 0 segments were offered, this run has 26 blocks and 28 segments); --min-bits 96 refused (classifier run: the statement's derived whole-run figure (95 bits) is below the verifier's minimum of 96 bits (D27 policy))
+test private_block::token_io::classify_r16_tests::r16b::r16b_the_r13_shieldstral_whole_run_floors_and_terms_are_pinned_exactly ... ok
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.989}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/post27-c1","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-r15-trunc-97744/post27-c1.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.989,"whole_run_floor_bits":94,"total_seconds":1.063,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"1e8ed512ad49883fd9cd2f2f4ad1a70b812f6b62dc4be3aa9742b807a3671e92","verify_seconds":0.114,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"3fbd82ce15eb5c10d3ed40613440301bff62ac6d5d62408afe72c3fdf8138af3","verify_seconds":0.120,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"76b5ea0a84446ed596cd3cd11e7261f6ce4e08ded87750e2582a978463263495","verify_seconds":0.117,"whole_run_floor_bits":94,"published_by":"this verifier"}
+TOKEN-IO R16 | R13 rung | two stages at G 20 and G 21: prove 4 segments (35293200 B), fresh verify, owner check, changed byte refused; floor 100 bits
+test private_block::token_io::classify_r16_tests::r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies ... ok
+A36 | HL_A36_CORE_AHEAD = Some("1"): the switch reads true
+test private_block::token_io::classify_tests::a36_the_switch_follows_its_environment_variable_and_is_off_by_default ... ok
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"a898e4426675a8f1968bbeabed738489c8c6d3199b35ed9ed546d6b080aba71f","verify_seconds":0.133,"whole_run_floor_bits":94,"published_by":"this verifier"}
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/first22","chunk":0,"range":[0, 22],"verdict":"not-flagged"}
+{"event":"refused","command":"classify-label","error":"label: the chunk runs cover a content of 22 ids, but the post has 23 (--expect-total): a proof set of another length (e.g. only the post's first 22 ids) is not the post's label (N-r14-1; fail-closed: handled as flagged)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R15 | N-r14-1 | truncated: the first 22 ids of the 23-id post, --expect-total 23: exit 1 (want 1)
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/post23","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"refused","command":"classify-label","error":"label: the chunk runs cover a content of 23 ids, but the post has 27 (--expect-total): a proof set of another length (e.g. only the post's first 23 ids) is not the post's label (N-r14-1; fail-closed: handled as flagged)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R15 | N-r14-1 | truncated: the first 23 ids of the 27-id post, --expect-total 27: exit 1 (want 1)
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/first22","chunk":0,"range":[0, 22],"verdict":"not-flagged"}
+{"event":"refused","command":"classify-label","error":"label: the chunk runs cover a content of 22 ids, but the post has 27 (--expect-total): a proof set of another length (e.g. only the post's first 22 ids) is not the post's label (N-r14-1; fail-closed: handled as flagged)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R15 | N-r14-1 | truncated: the first 22 ids of the 27-id post, --expect-total 27: exit 1 (want 1)
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/post27-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"refused","command":"classify-label","error":"label: chunk 1 of 2 has no accepted proof (fail-closed: handled as flagged)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R15 | N-r14-1 | truncated: chunk 0 of the 27-id post alone, --expect-total 27: exit 1 (want 1)
+{"event":"refused","command":"classify-label","error":"--expect-total N is required: N is the post's own token count from the policy's pinned tokenizer, counted by the caller (REVIEW_R14 N-r14-1: the proofs cannot tell how long the post is, so a proof set of only its first ids would otherwise label)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R15 | N-r14-1 | truncated: the first 22 ids with no --expect-total: exit 1 (want 1)
+{"event":"refused","command":"classify-label","error":"--expect-total 0: an empty content has no chunk and no label (n >= 1)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R15 | N-r14-1 | bad value: --expect-total 0: exit 1 (want 1)
+{"event":"refused","command":"classify-label","error":"--expect-total: the post's token count, a positive integer, not \"x\""}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R15 | N-r14-1 | bad value: --expect-total x: exit 1 (want 1)
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/post23","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":1,"content_total":23,"expect_total":23,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+TOKEN-IO R15 | N-r14-1 | honest: the 23-id post's one chunk, --expect-total 23: exit 0 (want 0)
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/post27-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/post27-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":2,"content_total":27,"expect_total":27,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+TOKEN-IO R15 | N-r14-1 | honest: the 27-id post's two chunks, --expect-total 27: exit 0 (want 0)
+A36 G0 | switch false source 0: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/post27-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/post27-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":2,"content_total":27,"expect_total":27,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+TOKEN-IO R15 | N-r14-1 | honest: the 27-id post's two chunks in the other order: exit 0 (want 0)
+{"event":"chunk-verified","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-r15-trunc-97744/first22","chunk":0,"range":[0, 22],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":1,"content_total":22,"expect_total":22,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+TOKEN-IO R15 | N-r14-1 | honest: the 22-id post's own one chunk, --expect-total 22: exit 0 (want 0)
+test private_block::token_io::classify_r15_tests::r15_label_refuses_a_truncated_proof_set_against_the_posts_own_total ... ok
+TOKEN-IO R-C1 | a changed template id: refused at INC-01 (stage IN-C slot 01 [INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim); before the header (classifier stage IN-C: the witness's lookup misses (the class of the miss only) (refused in the sealing pass, before any header))
+test private_block::token_io::classify_tests::r12_a_changed_template_position_is_refused_at_the_template_clause ... ok
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 entropy boundary | the second stream is seeded before the header and segment 0 (source order and run); off: none
+test private_block::token_io::classify_tests::a36_the_second_stream_is_seeded_before_the_header_and_before_segment_0 ... ok
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 G0 | switch false source 1: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+TOKEN-IO R-C1 | a content control id: refused at stage IN-C's LogUp (stage IN-C H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim); before the header (classifier stage IN-C: the witness's lookup misses (the class of the miss only) (refused in the sealing pass, before any header))
+test private_block::token_io::classify_tests::r12_a_content_control_id_is_refused_by_the_ctl_column ... ok
+TOKEN-IO R-C1 | D41 chunk 1 of 2 [4, 27) proves, verifies, owner-checks | refused: read as chunk 0 (token I/O wire: this segment belongs to another run); another total (token I/O wire: this segment belongs to another run); index 2 at the door
+test private_block::token_io::classify_tests::r12_a_chunk_receipt_is_bound_to_its_index_and_total ... ok
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+TOKEN-IO R-C1 | a flipped verdict with field limbs: cheating prover refused by the verifier (stage OUT-C H (the LogUp sum claim is part of this opening): pcs zk: group 4: <v, c> != combined claim); honest prover refused before the header (classifier stage OUT-C: the witness looks up a value that is not a byte (the class of the miss only) (refused in the sealing pass, before any header))
+test private_block::token_io::classify_tests::r12_a_flipped_verdict_with_field_limbs_is_refused_at_the_byte_lookups ... ok
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 G0 | switch true source 0: verified; second streams 1, blocks through the A36 path 2, blocks worked beside the caller 1
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+TOKEN-IO R-C1 | a nonzero limb pad: refused at LZC (stage OUT-C slot 04 [OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)]: sumcheck round 0: s(0) + s(1) != claim); before the header (classifier stage OUT-C: a limb-plane pad entry is not zero (refused in the sealing pass, before any header))
+test private_block::token_io::classify_tests::r12_a_nonzero_limb_pad_is_refused ... ok
+test private_block::token_io::classify_tests::r12_chunk_ranges_cover_the_content_consecutively_with_the_overlap_and_end_align ... ok
+TOKEN-IO R-C1 | a verdict-0 receipt read as verdict 1: refused (token I/O wire: this segment belongs to another run)
+test private_block::token_io::classify_tests::r12_a_receipt_does_not_verify_under_the_other_verdict ... ok
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+TOKEN-IO R-C1 | byte limbs off by one: refused at the margin identity (stage OUT-C slot 04 [OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)]: sumcheck round 0: s(0) + s(1) != claim); before the header (classifier stage OUT-C: the verdict and its limbs are not the margin's (refused before any header) (refused in the sealing pass, before any header))
+test private_block::token_io::classify_tests::r12_byte_limbs_that_break_the_margin_identity_are_refused ... ok
+TOKEN-IO R-C1 | stage OUT-C layout: A 76 rows, H 38 rows at 2^12 (466944 elements); margin window 34 bits, 5 limbs
+test private_block::token_io::classify_tests::r12_the_ruling_switches_are_in_the_profile_text ... ok
+A36 G0 | switch true source 1: verified; second streams 1, blocks through the A36 path 2, blocks worked beside the caller 1
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+TOKEN-IO R-C1 | the door: an unregistered or edited policy refused; a swapped-vector receipt refused under the verifier's own vector
+test private_block::token_io::classify_tests::r12_the_door_refuses_an_unregistered_policy_and_reads_the_margin_vector_itself ... ok
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+TOKEN-IO R-C1 | honest classifier run, verdict 0 (margin 5214444), 4 segments [1224328, 7421464, 7421464, 2489016] B, floor 93 bits
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+TOKEN-IO R-C1 | the tie Delta = c = 5269429: verdict 0, delta 0, proves and verifies
+test private_block::token_io::classify_tests::r12_the_tie_is_not_flagged_and_proves ... ok
+A36 G0 | switch true source 2: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+TOKEN-IO R14 | pad position 30 = 200: refused by the verifier (stage IN-C slot 01 [INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim); by the honest prover before the header (classifier stage IN-C: the witness's lookup misses (the class of the miss only) (refused in the sealing pass, before any header))
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+TOKEN-IO R-C1 | honest classifier run, verdict 1 (margin 5269429), 4 segments [1224328, 7421464, 7421464, 2489016] B, floor 93 bits
+test private_block::token_io::classify_tests::r12_honest_runs_prove_and_verify_at_both_verdicts_and_the_owner_check_holds ... ok
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+TOKEN-IO R14 | a margin read at row T - 1 instead of the verdict row 28: refused (stage OUT-C slot 00 [OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)]: sumcheck round 0: s(0) + s(1) != claim)
+test private_block::token_io::classify_tests::r14_a_margin_read_at_another_row_than_the_verdict_row_is_refused ... ok
+TOKEN-IO R14 | N-r13-2 | a Shieldstral-path derivation that read another profile.json is refused by the post-derivation check; the bound one is accepted
+test private_block::token_io::classify_tied_tests::r14_the_post_derivation_profile_digest_check_refuses_a_derivation_that_read_another_profile ... ok
+A36 G0 | switch false source 2: verified; second streams 0, blocks through the A36 path 0, blocks worked beside the caller 0
+A36 G0 | receipts of the A36 path verify under the unchanged verifier (resident and kept sources); a tampered one is refused; the loading source falls back to the loop
+test private_block::token_io::classify_tests::a36_core_ahead_proves_receipts_the_unchanged_verifier_accepts ... ok
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.049}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-rc2-norm-97744/run-cn.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-norm-97744/run-cn.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-norm-97744/run-cn.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+TOKEN-IO R-C2 | req 2 | refused: classifier.json cn 2047 / bos 2 against the export's token_io_parameters; a moved export parameter (cn, c) moves the pinned identity
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused ... ok
+TOKEN-IO R14 | pad position 31 = 3: refused by the verifier (stage IN-C slot 01 [INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim); by the honest prover before the header (classifier stage IN-C: the witness's lookup misses (the class of the miss only) (refused in the sealing pass, before any header))
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+A36 path | a classifier run of 2 blocks through prove_blocks_core_ahead
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.067}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.835}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.906}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-emb-97744/run-honest","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-rc2-emb-97744/run-honest.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.906,"whole_run_floor_bits":94,"total_seconds":0.965,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-rc2-emb-97744/run-forged.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-emb-97744/run-forged.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-emb-97744/run-forged.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+{"event":"refused","command":"classify-verify","error":"classifier (R-C2): embedding_int16.bin is not the table derived from the pinned tied tensor (its manifest's digest is consistent, but the table is not the model's)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R-C2 | doctored embedding row 200 + rehashed token_io.json: R-C1 reader accepts; R-C2 prover and verifier refuse
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused ... ok
+TOKEN-IO R14 | a 20-id item (chunk size 23): proved and verified at the public verdict row 28 (margin 5269429), owner-checked; read as 21 or 23 ids refused
+test private_block::token_io::classify_tests::r14_a_short_item_proves_and_verifies_and_reads_its_public_verdict_row ... ok
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2","blocks":1,"trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-rc2-overflow-97744/run-overflow.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-overflow-97744/run-overflow.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-overflow-97744/run-overflow.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.748}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+TOKEN-IO R-C2 | req 4 | a bound scale 2^-12 overflows int16: refused by the derivation, the loader and the prover; never clamped
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.069}
+test private_block::token_io::classify_tied_tests::rc2_a_margin_word_beyond_int16_is_refused_never_clamped ... ok
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.818}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-margin-97744/run-honest","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-rc2-margin-97744/run-honest.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.818,"whole_run_floor_bits":94,"total_seconds":0.905,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-rc2-margin-97744/run-forged.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-margin-97744/run-forged.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-margin-97744/run-forged.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+{"event":"refused","command":"classify-verify","error":"classifier (R-C2): margin_int16.bin is not the margin row recomputed from the pinned tensor with the bound profile's yes / no ids and public scale (the file is compared, never trusted)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R-C2 | req 3 | doctored margin row + rehashed classifier.json: R-C1 reader accepts; R-C2 loader, prover and verifier refuse
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused ... ok
+TOKEN-IO R-C2 | req 2, 5 | dev tensor pinned (bba6d094…), embedding c0e816c9…, margin 24e6ff4c… = the Python reference | refused: another profile digest, changed / short tensor, missing parameter blocks, a rotation, an unregistered profile
+test private_block::token_io::classify_tied_tests::rc2_the_dev_tensor_is_pinned_and_the_tables_derive_with_r12bs_quantizer ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_shieldstral_export_tables_are_recomputed_through_native_r12b ... ignored, streams the pinned 7.7 GB Shieldstral checkpoint through native R12b; run guarded with ZK60_RC2_SHIELDSTRAL_EXPORT
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-rc2-params-97744/run-swapped-on-dev.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-params-97744/run-swapped-on-dev.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-params-97744/run-swapped-on-dev.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+TOKEN-IO R-C2 | req 1 | refused: a policy disagreeing with classifier_margin_parameters (ids, scale, c); classifier.json copies of yes_id / no_id / threshold_c / scale that are not the profile's
+test private_block::token_io::classify_tied_tests::rc2_the_margin_parameters_come_only_from_the_bound_profile ... ok
+TOKEN-IO R14 | pad position 29 = 0: refused by the verifier (stage IN-C slot 01 [INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each]: sumcheck round 0: s(0) + s(1) != claim); by the honest prover before the header (classifier stage IN-C: the witness's lookup misses (the class of the miss only) (refused in the sealing pass, before any header))
+test private_block::token_io::classify_tests::r14_a_doctored_pad_position_is_refused ... ok
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":0.673}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":0.731}
+{"event":"proved","run":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-rc2-bits-97744/run","owner_dir":"/Users/victorrielly/zk60-artifacts/token-io/test-fixtures/tio-cls-owners-rc2-bits-97744/run.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":0.731,"whole_run_floor_bits":94,"total_seconds":0.820,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"refused","command":"classify-verify","error":"--min-bits 92 is below the floor 93 of the run profile hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/2 (D27: production >= 95; 93 only at the development rung)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"63fd6c98cb9be75137e34426ff71b5d80226204d22af191e139d907f58735c03","verify_seconds":0.085,"whole_run_floor_bits":94,"published_by":"this verifier"}
+TOKEN-IO R-C2 | --min-bits 92 refused at the rung (floor 93, dev only); production floor 95
+test private_block::token_io::classify_tied_tests::rc2_min_bits_below_the_profile_floor_is_refused ... ok
+
+test result: ok. 102 passed; 0 failed; 12 ignored; 0 measured; 1035 filtered out; finished in 37.17s
+

@@ -1,0 +1,4 @@
+writer 7.4 s, content tokens 14
+{"id": "l1-r0", "status": "proved", "wall_s": 11.004464864730835, "prove_seconds": 8.713, "total_seconds": 11.0}
+{"id": "l1-r0", "status": "checked", "verify_seconds": 6.129, "wall_s": 6.306793928146362}
+{"medians": [8.713], "ratio_pair1_on_over_off": null, "ratio_pair2_on_over_off": null}

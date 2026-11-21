@@ -1,0 +1,4 @@
+{"id": "s1-r0", "warmup": true, "status": "proved", "wall_s": 11.442070960998535, "prove_seconds": 9.132, "timing_lines": 4005}
+{"id": "s1-r1", "warmup": false, "status": "proved", "wall_s": 11.286527872085571, "prove_seconds": 8.962, "timing_lines": 4005}
+{"id": "s1-r2", "warmup": false, "status": "proved", "wall_s": 11.3920419216156, "prove_seconds": 8.995, "timing_lines": 4005}
+{"id": "s1-r3", "warmup": false, "status": "proved", "wall_s": 11.359050989151001, "prove_seconds": 9.017, "timing_lines": 4005}

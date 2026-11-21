@@ -1,0 +1,4 @@
+[04:07:39] launching t2_setA
+[zk60-guard 04:07:39] START a36-t2_setA class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=f7269da6e7d6
+[zk60-guard 04:26:26] END a36-t2_setA exit=0 child_wall=1126s peak_rss=65.02G min_avail=125.83G peak_vram=29803MiB
+[04:26:26] t2_setA guard exit 0
