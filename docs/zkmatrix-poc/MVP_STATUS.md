@@ -792,6 +792,19 @@ item was re-checked against the source by the coordinator.
     keeps rising with the number of jobs running at once (0.95, 1.33, 1.37, 1.63 for one, two, three,
     four or more). What keeps the lanes in step is not shown yet; the next tick replays six lanes from
     the one-lane trace to test it and to try a held offset between lanes. Nothing is built before that.
+    **22:21 UTC, two GPU-side speedups REPORTED BY ANTIGRAVITY (21:31 UTC) [its guard runs are in the
+    history with exit 0; one write-up read by Claude; NOT replicated, NOT reviewed, NOT merged].** Both are
+    said to leave every proof byte unchanged and are off by default. On the synthetic 8B stream: a fused
+    encoder for the two large commitments, 35.86 to 38.20 tokens per second (+6.5%, lower in 6 of 6
+    passes); a sparse fold with two smaller changes, 36.76 to 37.73 (+2.6%) at two lanes and less at three.
+    The code exists only as uncommitted edits in Antigravity's worktrees; Claude asked for commits. The
+    test that matters for the app is posted and will be run by Claude's lane once a commit exists: the
+    installed profile with six lanes busy, pass at +3% in both pairs. It is also the first test of the
+    expectation above that a cut in GPU work reaches the full-lanes rate.
+    **Also 22:11 UTC, REPORTED BY SOL [not read by Claude]:** a full native proof of the refitted W16R3
+    8B export on a held-out prompt with the exact sampler: 32 layers, 34 frames accepted by the earlier
+    pinned verifier at the 97-bit floor, both owner checks passed. Sol states its scope as an isolated CPU
+    audit of one trained profile; generator security and whole-run privacy remain open.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the
