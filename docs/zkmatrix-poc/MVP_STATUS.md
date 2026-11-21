@@ -688,6 +688,13 @@ item was re-checked against the source by the coordinator.
     Sol reviews the split; pass and kill rules are pre-registered in the coordination file. (2) A33's
     de-duplicated check in the classifier's sealing pass, at most 1.9%. (3) Seal-ahead, a setting: 4% as a
     prior from R13, 18% as a ceiling, up to 43 GiB more memory; proposed to Astra as a fourth arm.
+    **05:13 UTC: candidate (1), named A36, is implemented on a branch (`worktree-agent-a3be4019d2dca3765`,
+    head `3879c471`), NOT merged and NOT measured.** Its correctness gate is green [guard receipts read by
+    Claude: the classifier tests pass with the switch off and on, and receipts made with it on are accepted
+    by the unchanged verifier; tested at a small shape only so far]. It adds a second operating-system
+    seeded randomness stream and edits the pinned count of such streams in a security test, so it waits
+    for Sol's review before any merge. The one-lane timing test at the app's shape is defined in the
+    coordination file (pass: at least 4% faster in both of two paired runs) and is being run.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the
