@@ -713,6 +713,13 @@ item was re-checked against the source by the coordinator.
     lanes. A one-lane reading of the phases at the installed profile is pre-registered in the coordination
     file. If Astra has not answered by 12:00 UTC, Claude's lane runs the six-lane A36 test on public posts
     (it can kill A36 by rate; it cannot measure the GPU busy share, so it cannot alone declare a pass).
+    **08:00 UTC: that reading is done [MEASURED once, one lane, public content; summary re-run by
+    Claude].** The segment write is 21 ms a block at the installed profile (19 to 26 over 78 blocks), so
+    the writer-thread idea stays alive by its posted rule; it is 6.3% of a one-lane block and at most 3.4%
+    of a six-lane block. This is the first phase table at the installed profile: of a block's 335 ms at
+    one lane, the 23 sumcheck slots take 145 ms, the openings 49 ms, the commitments 54 ms, host
+    preparation of the committed rows 59 ms, and the segment write with its encoding 23 ms. The table is
+    on the unmerged A36 branch (`results/zk60_a36_core_ahead_20261121/README.md`, section 11).
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the
