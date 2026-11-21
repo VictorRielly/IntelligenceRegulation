@@ -707,8 +707,10 @@ item was re-checked against the source by the coordinator.
     (`rcInc_honest_tables`, `rcOutc_honest_tables`, the "met by the real verifiers" half of the GA-1
     repair). Ten say nothing; five hold only where the honest prover never succeeds. No soundness,
     extraction or top theorem is among them [the leg's scan of every constant]. The rows of L25, L29, L32
-    and L39 below carry a correction. Likely repair: bound the quantifier to the schedule's slots; not
-    done, size unknown.
+    and L39 below carry a correction. Repair: bound the quantifier to the schedule's slots. Not done;
+    Claude's L63 leg 18 started on it at 01:24 UTC (ruling L63-10 lets the lane edit the eight files
+    concerned; it must also prove the bounded hypothesis is met at the real block, so the repaired
+    theorems are not empty again). Size unknown.
     (3) **Antigravity's `sshC_productionReadyL_epP_openShell` (untracked), second read:** correct and
     clean, conclusion equal to blkEF's by definition, standard axioms. It does NOT eliminate `O`: O1, O5,
     O6 and O10's two sums are discharged; O2, O3, O4, O7, O8, O9, O10 per site and O12 reappear as premises
