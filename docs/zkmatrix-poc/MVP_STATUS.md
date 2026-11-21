@@ -732,6 +732,19 @@ item was re-checked against the source by the coordinator.
     query bound (a counterexample is proved); it follows from a length bound on the header words, at the
     code's widths a parameter line of at most 2^20 - 292 bytes. It stays a setting premise until the
     header writer is modelled in Lean.
+    **The Lean model's constants against the code, landed 2026-11-21 02:25 UTC (L63 leg 19;
+    `results/zk60_lean_l63_20261116/INST_CONSTANTS_20261121.md`):** the two constants fixed by ruling L63-9
+    were wrong for days because no proof read them, so the leg listed all 58 constants that the Lean model
+    of the Shieldstral run fixes and asked which were ever compared with the code. Before: 14 were compared
+    with a code-side export by a committed check. Now: 43 are (a new regression in the lane's full check,
+    158 checks, 0 failed [log read by Claude]; full check green, guard run `24002a82f0bf`, exit 0), 8 have
+    no export and were read against the Rust source [ARGUED], 6 are derived in Lean. **No mismatch found.**
+    One export of a real classify run's geometry would make most of the remaining 8 mechanical.
+    **Finding L63-14 (scope, open):** the code's statement check accepts any consecutive range of layers
+    that ends below 26 (`trained_statement.rs:784-795` [read by Claude]); the Lean top covers runs over all
+    26 layers. The top is sound as stated, but the model matches the code only when the public statement
+    lists all 26 layers, and a receipt over fewer layers proves a different function. Whether the app's
+    check pins the full list is asked of Astra and Sol; not answered yet.
     **Scope fact, stated by Antigravity 2026-11-20 22:57 UTC:** the whole Lean chain up to the newest top
     models Shieldstral T128 at the **R13** profile (rows 4577 and 4390). The installed app has run the
     **W16R2** Shieldstral profile (rows 2504 and 2606, statement identity named dev-only) since 2026-11-13.
@@ -741,9 +754,13 @@ item was re-checked against the source by the coordinator.
     days). The block layer is R13 throughout (the R13 block statement alone, lane L49, is 47 files, and
     its W16R2 counterpart exists only at the small test rung); the run and stage layers are mostly generic
     in the block shape; no Lean file contains the W16R2 Shieldstral row counts; the code has no shape
-    export for that profile yet. A cheaper first step, useful for any later profile too: make the chain
-    take the block profile as a parameter (one or two legs). **Which profile goes to production is Victor's
-    ruling, not made.**
+    export for that profile yet. **Probed 02:22 UTC [CHECKED in a scratch file by L63 leg 19, not
+    committed]:** the committed block instance equals a profile-generic definition at R13 by `rfl`, and the
+    lane's theorems that read profile numbers are recovered unchanged from an R13 instance of a profile
+    record, at no measurable cost. Making the lane's own chain take the profile as a parameter is 2 to 3
+    legs, but it does not make the expensive part cheaper (the block statement per profile, in other
+    lanes' files), so it is worth doing only once a production profile is chosen. **Which profile goes to
+    production is Victor's ruling, not made.**
     **Open after L68a:** the four stage premises `hLI_stg`, `hLO_stg`, `hdinS`, `hdoutS` and the extractor
     remainder `E0` (Claude's L63, next leg); `O : ClassifyOpenP` including `O.zk` (Antigravity's L68b); the
     header-fit fact, the verifier's free check hooks, `ShieldRun Rp`. **Not a Lean item but now load-bearing:**
