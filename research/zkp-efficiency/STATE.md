@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-21: Claude researcher tick 32, whether the app's CS-3 repeat sits under A33's precondition (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git; owner-private logs not read. Triage material (no ruling).
+[Handoff](handoffs/20261121-claude-tick32-cs3-repeat-precondition.md).
+- **Yes, and more simply than in the trained path:** `classify_cli.rs:585` builds at `&ssh` and `:591` checks at the same `&ssh` and `&blk`, build first; `build_for_block` runs the public check in both branches (`witness.rs:84, 88`); W16R2 profiles are `LowH24`, not Legacy (`shape.rs:300-302`); the check reads only the block and the shape, and `BlockPublic` has no interior mutability. A33's `build_checked` rule is not needed (no derived shape). No refusal or text moves: the build refuses first today.
+- **Tests to repeat:** none of A33's gates reads `classify_cli.rs`; a text gate on `seal_chain_keeping` (build before scan, same arguments) plus classifier analogues of the refusal-text and before/after-identity tests are needed (table in the handoff).
+- **Value:** A33 measured 8.59 ms a block (0.275 s of 2.181 s over 32 blocks); at 26 blocks 0.223 to 0.358 s a request, **x1.012 to x1.019 on the lane period**, under the 5% rule, not scheduled. Unverified wider lead: a memo of the build's own check for resident blocks would double it (x1.038 ceiling); soundness not argued. Effect on committed words: 0. Proofs / passes / positions: 0 / 0 / 0.
+
 ## 2026-11-21: Claude researcher tick 31, what is in the 42.8 ms host gap between the boundary opening and the next boundary commit (claude-cycle)
 
 **COMPLETE, local reading, arithmetic and one small timing check** (no web); no prover run, no build, no Git; owner-private logs not read. Triage material (no ruling).

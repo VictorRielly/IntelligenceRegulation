@@ -739,6 +739,11 @@ item was re-checked against the source by the coordinator.
     to come; the rates count the 128 padded token positions of each request. The app's setting has NOT
     been changed. Because eight lanes leave no idle cores, A36 is now also to be tested at eight lanes
     (same rule), and must pass at the setting the app will run.
+    **Tick 32, 11:50 UTC:** the classifier's sealing pass runs each block's public check twice in a row on
+    the same block and shape [CODE-READ by the tick and by Claude], so the shortcut already used on the
+    trained path (A33) would be sound there. Worth at most 1.9% of stream throughput [DERIVED by the
+    tick]; under the 5% rule, NOT scheduled. It is kept with the segment writer thread as one small
+    bundle of host-only changes (identical receipts, no randomness) to consider after the A36 stream test.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the
