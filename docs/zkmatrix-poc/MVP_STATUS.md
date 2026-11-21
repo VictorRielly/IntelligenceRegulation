@@ -707,10 +707,22 @@ item was re-checked against the source by the coordinator.
     (`rcInc_honest_tables`, `rcOutc_honest_tables`, the "met by the real verifiers" half of the GA-1
     repair). Ten say nothing; five hold only where the honest prover never succeeds. No soundness,
     extraction or top theorem is among them [the leg's scan of every constant]. The rows of L25, L29, L32
-    and L39 below carry a correction. Repair: bound the quantifier to the schedule's slots. Not done;
-    Claude's L63 leg 18 started on it at 01:24 UTC (ruling L63-10 lets the lane edit the eight files
-    concerned; it must also prove the bounded hypothesis is met at the real block, so the repaired
-    theorems are not empty again). Size unknown.
+    and L39 below carry a correction. **REPAIRED, merged 2026-11-21 01:56 UTC (L63 leg 18, ruling L63-10;
+    `results/zk60_lean_l63_20261116/L68B3_REPAIR_20261121.md`):** the quantifier is bounded to the
+    schedule's slots in all 15 and in the three contracts; every conclusion is unchanged, every hypothesis
+    weaker, so each theorem is stronger [diff read by Claude]. One added premise on the two loop lemmas
+    (the loop's slots lie inside the schedule; finding L63-13), which every caller proves. Full check green
+    (guard run `aa529cfb1d58`, exit 0 [receipt read by Claude]; 586 declarations audited, all 23 tops'
+    types byte-identical before and after [the leg's comparison]). **And the repaired hypothesis is PROVED
+    met at the real run** (`RunStgShieldSlotDeg.lean`: every Shieldstral block at every layer, and both
+    stages), so that premise is no longer empty.
+    **What the repair does NOT give [ARGUED by the leg, not repaired]:** the five theorems that take the
+    contracts `IncOK` / `D12aBlockOK` / `OutcOK` still cannot be used for the code's prover, for a second
+    reason Antigravity had named (L32-1): the contracts fix one honest data object for every start
+    transcript, while the code's prover builds its data from the transcript. Antigravity's own files avoid
+    the contracts and prove the parts directly; O8 (completeness of the parts) therefore goes through
+    Antigravity's route, and the ten repaired theorems that do not take a contract are what that route can
+    reuse. O8 stays open.
     (3) **Antigravity's `sshC_productionReadyL_epP_openShell` (untracked), second read:** correct and
     clean, conclusion equal to blkEF's by definition, standard axioms. It does NOT eliminate `O`: O1, O5,
     O6 and O10's two sums are discharged; O2, O3, O4, O7, O8, O9, O10 per site and O12 reappear as premises
@@ -724,7 +736,14 @@ item was re-checked against the source by the coordinator.
     models Shieldstral T128 at the **R13** profile (rows 4577 and 4390). The installed app has run the
     **W16R2** Shieldstral profile (rows 2504 and 2606, statement identity named dev-only) since 2026-11-13.
     The proved chain and the running app are two different profiles; the D63 rule applies to whichever
-    profile goes to production.
+    profile goes to production. **Sized 2026-11-21 [ARGUED: L63 leg 18, reading and counting, no proof]:**
+    moving the top theorem to W16R2 is roughly **12 to 25 Lean legs** (at three legs a day, four to eight
+    days). The block layer is R13 throughout (the R13 block statement alone, lane L49, is 47 files, and
+    its W16R2 counterpart exists only at the small test rung); the run and stage layers are mostly generic
+    in the block shape; no Lean file contains the W16R2 Shieldstral row counts; the code has no shape
+    export for that profile yet. A cheaper first step, useful for any later profile too: make the chain
+    take the block profile as a parameter (one or two legs). **Which profile goes to production is Victor's
+    ruling, not made.**
     **Open after L68a:** the four stage premises `hLI_stg`, `hLO_stg`, `hdinS`, `hdoutS` and the extractor
     remainder `E0` (Claude's L63, next leg); `O : ClassifyOpenP` including `O.zk` (Antigravity's L68b); the
     header-fit fact, the verifier's free check hooks, `ShieldRun Rp`. **Not a Lean item but now load-bearing:**
@@ -759,7 +778,9 @@ item was re-checked against the source by the coordinator.
   2026-11-21 (finding L68b-3, checked in Lean by L63 leg 17): the two theorems behind "met by the real stage
   verifiers and by the honest segments" (`rcInc_honest_tables`, `rcOutc_honest_tables`) take a hypothesis that
   is false for every block shape (`∀ s, 1 ≤ slotD P s`, false at the slot after the last), so they say
-  nothing. That the repaired contracts can be met is therefore NOT established in Lean; not repaired yet.**
+  nothing as they stood. REPAIRED the same day (L63 leg 18, merged 01:56 UTC): the hypothesis is bounded to
+  the schedule's slots and is proved met at every stage verifier (`shdSD_incV`, `shdSD_outcV`), so the two
+  theorems now say what was claimed, given their remaining premises on the honest tables.**
   L39 also restated the
   soundness covers in a weaker, correct form and the top theorem in the approved form
   (`rc_productionReadyL_r13_exec_top_range`), but proved none of the covers. Finding L39-2: the per-block soundness
@@ -1462,7 +1483,11 @@ here. The rates count proving and witness work. Verification time is recorded se
       take the hypothesis `∀ s, 1 ≤ slotD P s`, false at the slot after the last, or the contract
       `D12aBlockOK` built on it. As committed they prove nothing about an honest block that succeeds. The
       sentence below on L9's block verifier, and O8 "reduced to named contracts", are affected; the
-      single-slot step, the sumcheck rounds and O10 are not. Not repaired yet.
+      single-slot step, the sumcheck rounds and O10 are not. **REPAIRED the same day (L63 leg 18, merged
+      01:56 UTC):** the hypothesis is bounded to the schedule's slots and proved met at every Shieldstral
+      block, so `slotsLoop_of_prove` and `blockVerify_of_prove` hold as described. The two that take the
+      contract `D12aBlockOK` still cannot be used for the code's prover (L32-1: the contract fixes one
+      data object for every start transcript); O8 goes through Antigravity's direct route instead.
     - The honest provers are written out in Lean. L9's block verifier accepts the honest block core, for any block
       shape, so at W16R2 and at R13. The executable sumcheck verifier accepts the honest rounds at every oracle.
     - O10 is discharged for refusal sites written as transcript programs: such a site's challenge point is never one
@@ -1542,8 +1567,11 @@ here. The rates count proving and witness work. Verification time is recorded se
       behind this sentence (`stSlotsLoop_of_prove`, `incVerify_of_prove`, `outcVerify_of_prove`,
       `inc_stageInOK`, `outc_stageOutOK`, `classify_parts_exec`) take the hypothesis `∀ s, 1 ≤ slotD P s`,
       false at the slot after the last, or the contracts `IncOK` / `OutcOK` / `D12aBlockOK` built on it, so
-      as committed they establish nothing for an honest run that succeeds. Not repaired yet. The
-      acceptance-exactly-when-every-check-passes result and the agreement check above do not use it.**
+      as committed they establish nothing for an honest run that succeeds. The
+      acceptance-exactly-when-every-check-passes result and the agreement check above do not use it.
+      REPAIRED the same day (L63 leg 18, merged 01:56 UTC): the hypothesis is bounded and proved met at
+      both stages, so the first three hold as described; the three that take a contract still cannot be
+      used for the code's prover (L32-1), so "O8 holds at the executable stages" is NOT yet usable.**
     - The honest slot loop is one transcript program, and a refusal of the honest prover in a block's core, in IN-C
       or in OUT-C is one of a short list of events (toward O9).
     - **No `ClassifyOpen` field is discharged outright.** O8 and O9 are reduced further; O12 (the run's zero
@@ -1591,8 +1619,10 @@ here. The rates count proving and witness work. Verification time is recorded se
       (finding L68b-3, checked in Lean by L63 leg 17): the three theorems behind "a block's core at R13 and
       both stages are accepted" (`blockVerify_of_tables_r13`, `incVerify_of_tables`, `outcVerify_of_tables`)
       keep the hypothesis `∀ s, 1 ≤ slotD P s`, false at the slot after the last, so as committed they say
-      nothing. Not repaired yet. The opening and mask verifier results in the first sentence do not use it
-      [not in the leg's list of 15].**
+      nothing. The opening and mask verifier results in the first sentence do not use it [not in the leg's
+      list of 15]. REPAIRED the same day (L63 leg 18, merged 01:56 UTC): the hypothesis is bounded and
+      proved met at the real block and stages; the three theorems hold as described, given the slots'
+      arithmetic and the honest-table premises, which nobody has proved at the Shieldstral run yet.**
     - The opening refusals are exact counted sites: one opening on n claims has n + 2 sites and exactly p + n + 1 bad
       values. The dependent-proximity refusal (L18-3) is now a theorem, not an estimate.
     - With stage IN-C counted as L29-3 corrected it, the run's total refusal probability stays inside the approved
