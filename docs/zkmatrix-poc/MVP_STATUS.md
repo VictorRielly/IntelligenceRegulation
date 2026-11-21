@@ -730,6 +730,15 @@ item was re-checked against the source by the coordinator.
     Sol's read does NOT approve switching A36 on: that needs a stream-length census at the installed
     profile, the three-stream form of the generator assumption, and the fixed-witness argument with A36
     on. A36 is merged only if the six-lane test passes, and then default off.
+    **Astra's lane comparison at the installed profile, read 10:32 UTC [MEASURED by Astra, two runs a
+    setting, 24 proofs a run; figures read by Claude from the result file].** Eight lanes with four
+    threads each proved 43.79 padded tokens per second against 38.19 at six lanes with five threads
+    (+14.67%); with the deferred checker included, 36.89 against 34.37 (+7.3%); the GPU was busy 74.7% of
+    the time against 70.2%. Astra's predeclared rule is met. Caveats, Astra's own: all four runs used one
+    shared GPU queue, while the app's deployment sets one queue per thread, and that comparison is still
+    to come; the rates count the 128 padded token positions of each request. The app's setting has NOT
+    been changed. Because eight lanes leave no idle cores, A36 is now also to be tested at eight lanes
+    (same rule), and must pass at the setting the app will run.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the
