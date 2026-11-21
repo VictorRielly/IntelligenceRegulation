@@ -694,7 +694,14 @@ item was re-checked against the source by the coordinator.
     by the unchanged verifier; tested at a small shape only so far]. It adds a second operating-system
     seeded randomness stream and edits the pinned count of such streams in a security test, so it waits
     for Sol's review before any merge. The one-lane timing test at the app's shape is defined in the
-    coordination file (pass: at least 4% faster in both of two paired runs) and is being run.
+    coordination file (pass: at least 4% faster in both of two paired runs).
+    **05:34 UTC: the one-lane test PASSED by that rule [MEASURED once; recomputed by Claude from the raw
+    results].** Prove call of one classifier request at the app's W16R2 shape, one lane, in run order off,
+    on, on, off: 8.942, 8.510, 8.464, 8.901 s (medians of three timed requests each), so 4.83% and 4.91%
+    lower with the switch on; all eight receipts made with the switch on were accepted by the unchanged
+    verifier at the real shape with the GPU in use. NOT shown: anything at six lanes (the app's
+    configuration), where the gain may be larger or smaller. That six-lane stream test (pass: at least 3%
+    more tokens per second with the lanes full) is requested of Astra. A36 remains unmerged.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the
