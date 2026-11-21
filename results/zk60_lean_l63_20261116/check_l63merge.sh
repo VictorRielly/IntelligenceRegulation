@@ -186,7 +186,10 @@ echo "root: every lane and Antigravity module imported, diff exactly the $nnew n
 # 2026-11-21 (leg 18): PERF=0cbb1356 (the working head the lane was fast-forwarded to; documents and ops/ only since
 # 36306934). Ruling L63-10 (finding L68b-3) permits the lane to edit the listed L25/L29/L32/L39 files to bound the
 # slot-degree quantifier; ALLOWED_MOD lists exactly the files edited (each shown with its numstat, not counted).
-PERF=0cbb1356
+# 2026-11-21 (leg 19): PERF=6b689875 (the working head the lane was fast-forwarded to: the lane's 21412a9c merged plus
+# two document commits; no formal/ change since 21412a9c). The leg adds one new file (RunStgShieldInstCheck.lean, not in
+# the root) and edits no existing file under formal/.
+PERF=6b689875
 ALLOWED_MOD="formal/ZK60Formal/RunShieldBlkInst.lean formal/ZK60Formal/HonestClassifyBlock.lean formal/ZK60Formal/HonestClassifyRun.lean formal/ZK60Formal/HonestRunBlock.lean formal/ZK60Formal/HonestRunStageIn.lean formal/ZK60Formal/HonestRunStageOut.lean formal/ZK60Formal/StageVerifyExecComplete.lean formal/ZK60Formal/RunCoverStage.lean"
 fromperf=$(git -C "$WT" diff --name-only --diff-filter=MDR $BASE $PERF -- formal ops src | grep -v '^formal/ZK60Formal.lean$')
 echo "existing files under formal/, ops/, src/ modified by the working branch between $BASE and $PERF (from the merge; root excluded): $(echo $fromperf | wc -w | tr -d ' ')"
@@ -217,6 +220,26 @@ echo "== regression: the fixture L1 check =="
   > "$OUT/l1check_regression.log" 2>&1
 c1=$?
 tail -n 1 "$OUT/l1check_regression.log"
+# 2026-11-21 (leg 19): the Shield run's instance constants against the code's exports (RunStgShieldInstCheck.lean,
+# not in the root: it defines main; its ties are theorems elaborated on this run, its #print axioms lines audited here).
+echo "== regression: RunStgShieldInstCheck on L17's shape corpus, L49's Shieldstral export, L17's segment corpus =="
+"$LAKE" -d "$WT/formal" env lean --run "$L/RunStgShieldInstCheck.lean" "$WT/results/zk60_lean_l17_20261107/shape_corpus.txt" \
+  "$WT/results/zk60_lean_l49_20261110/pub_shield_short.txt" "$WT/results/zk60_lean_l17_20261107/segment_corpus.txt" \
+  < /dev/null > "$OUT/instcheck_regression.log" 2>&1
+cic=$?
+# the ten reports are one line each; the check's per-kind lines are indented, so the raw log is read (joining indented
+# lines, as for the library audits, would glue them onto the last report)
+nic=$(grep -c -E 'depends on axioms|does not depend on any axioms' "$OUT/instcheck_regression.log")
+oic=$(grep 'depends on axioms' "$OUT/instcheck_regression.log" \
+  | grep -v -c -E "\[(propext|Classical.choice|Quot.sound)(, (propext|Classical.choice|Quot.sound))*\]$")
+eic=$(grep -c -E '^error|error:|warning:' "$OUT/instcheck_regression.log")
+tail -n 1 "$OUT/instcheck_regression.log"
+echo "RunStgShieldInstCheck: rc $cic, axiom reports $nic (expected 10), other axioms $oic, error/warning lines $eic"
+grep -n -E '\bsorry\b|\baxiom\b|native_decide|admit|maxRecDepth|maxHeartbeats|implemented_by|@\[extern|\bextern\b|bv_decide|ofReduceBool' \
+  "$L/RunStgShieldInstCheck.lean" && scan=1 || echo "source scan of RunStgShieldInstCheck.lean: none"
+gic=1
+grep -q '^RunStgShieldInstCheck: 158 checks, 0 failed$' "$OUT/instcheck_regression.log" && [ "$nic" -eq 10 ] \
+  && [ "$oic" -eq 0 ] && [ "$eic" -eq 0 ] && gic=0
 g6=1
 grep -q '^L6Check: 1206 checks, 0 failed$' "$OUT/l6check_regression.log" && g6=0
 g5=1
@@ -225,9 +248,9 @@ g11=1
 grep -q '^L11Check: 404 checks, 0 failed$' "$OUT/l11check_regression.log" && g11=0
 g1=1
 grep -q '^L1 TOTAL: 101956 checks, 0 failed$' "$OUT/l1check_regression.log" && g1=0
-echo "regression verdicts: L6 $g6, L5 $g5, L11 $g11, L1 $g1 (0 = the committed count with 0 failed)"
+echo "regression verdicts: L6 $g6, L5 $g5, L11 $g11, L1 $g1, InstCheck $gic (0 = the committed count with 0 failed)"
 echo "total $(( $(date +%s) - start )) s"
-echo "VERDICT inputs: rootbuild rc $rrc, root warnings $rbw, root error lines $rbe, module builds rc $brc, module warnings $nwp, axioms rc $arc, audited $na of $ng, sorryAx $nsa, ofReduceBool $nrb, other axioms $oth, non-report lines $nel, blkAlive rc $abrc reports $nba of $nbx non-report $nbal other axioms $oba, L62 top rc $a62rc reports $n62 non-report $n62l other axioms $o62, source scan $scan, generators $gch, name clashes $ncl, Statements/unchanged $unch, root diff ok $rootok, modified existing files $nmod, regressions rc $c6/$c5/$c11/$c1 verdicts $g6/$g5/$g11/$g1"
+echo "VERDICT inputs: rootbuild rc $rrc, root warnings $rbw, root error lines $rbe, module builds rc $brc, module warnings $nwp, axioms rc $arc, audited $na of $ng, sorryAx $nsa, ofReduceBool $nrb, other axioms $oth, non-report lines $nel, blkAlive rc $abrc reports $nba of $nbx non-report $nbal other axioms $oba, L62 top rc $a62rc reports $n62 non-report $n62l other axioms $o62, source scan $scan, generators $gch, name clashes $ncl, Statements/unchanged $unch, root diff ok $rootok, modified existing files $nmod, regressions rc $c6/$c5/$c11/$c1/$cic verdicts $g6/$g5/$g11/$g1/$gic"
 [ $rrc -eq 0 ] && [ "$rbw" -eq 0 ] && [ "$rbe" -eq 0 ] \
   && [ $brc -eq 0 ] && [ "$nwp" -eq 0 ] && [ $arc -eq 0 ] && [ "$na" -eq "$ng" ] && [ "$nsa" -eq 0 ] \
   && [ "$nrb" -eq 0 ] && [ "$oth" -eq 0 ] && [ "$nel" -eq 0 ] \
@@ -235,5 +258,5 @@ echo "VERDICT inputs: rootbuild rc $rrc, root warnings $rbw, root error lines $r
   && [ $a62rc -eq 0 ] && [ "$n62" -eq 1 ] && [ "$n62l" -eq 0 ] && [ "$o62" -eq 0 ] \
   && [ $scan -eq 0 ] && [ $gch -eq 0 ] && [ $ncl -eq 0 ] \
   && [ $unch -eq 0 ] && [ $rootok -eq 0 ] && [ "$nmod" -eq 0 ] \
-  && [ $c6 -eq 0 ] && [ $c5 -eq 0 ] && [ $c11 -eq 0 ] && [ $c1 -eq 0 ] \
-  && [ $g6 -eq 0 ] && [ $g5 -eq 0 ] && [ $g11 -eq 0 ] && [ $g1 -eq 0 ]
+  && [ $c6 -eq 0 ] && [ $c5 -eq 0 ] && [ $c11 -eq 0 ] && [ $c1 -eq 0 ] && [ $cic -eq 0 ] \
+  && [ $g6 -eq 0 ] && [ $g5 -eq 0 ] && [ $g11 -eq 0 ] && [ $g1 -eq 0 ] && [ $gic -eq 0 ]

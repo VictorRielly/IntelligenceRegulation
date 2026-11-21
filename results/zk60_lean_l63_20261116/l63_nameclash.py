@@ -42,6 +42,12 @@ mine = {}
 for f in sorted(glob.glob(f"{wt}/formal/ZK60Formal/{prefix}*.lean")):
     for n in decls(f):
         mine.setdefault(n, []).append(os.path.basename(f))
+# L63 leg 19: an executable check's top-level `main` (a lane file the library root does NOT import, run with
+# `lean --run`) never enters the library, so it cannot clash with the other checks' `main`; it is set aside, and
+# printed, only when no root-imported lane file declares it.
+root_imports = set(re.findall(r"^import ZK60Formal\.(\S+)$", open(f"{wt}/formal/ZK60Formal.lean").read(), re.M))
+if "main" in mine and all(f[:-len(".lean")] not in root_imports for f in mine["main"]):
+    print(f"set aside: main of the executable check(s) {mine.pop('main')} (not imported by the root)")
 print(f"declarations in {prefix}*.lean: {len(mine)}")
 print("declared twice inside the lane:", sorted(n for n, v in mine.items() if len(v) > 1) or "none")
 listing = subprocess.run(["git", "-C", main, "worktree", "list", "--porcelain"], capture_output=True, text=True).stdout

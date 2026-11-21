@@ -1,0 +1,27 @@
+'ZK60.ProtocolClassify.ShdInstCheck.shdIC_lists' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ShdInstCheck.shdIC_counts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ShdInstCheck.shdIC_geometry' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ShdInstCheck.shdIC_cube' depends on axioms: [propext]
+'ZK60.ProtocolClassify.ShdInstCheck.shdIC_rowsOf' depends on axioms: [propext]
+'ZK60.ProtocolClassify.ShdInstCheck.shdIC_kinds' does not depend on any axioms
+'ZK60.ProtocolClassify.ShdInstCheck.shdIC_rtBlk' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.ProtocolClassify.ShdInstCheck.shdIC_r13Prm' does not depend on any axioms
+'ZK60.ProtocolClassify.ShdInstCheck.shdIC_sgeom' depends on axioms: [propext]
+'ZK60.ProtocolClassify.ShdInstCheck.shdIC_stageAxes' depends on axioms: [propext]
+  CORPUS: 3
+  RUN: 1
+  SHAPE-AXES: 26
+  SHAPE-DOMS: 26
+  LAYER-SHAPE: 26
+  LAYER-CUBE: 26
+  HEADER: 3
+  STAGE-AXES: 1
+  SCHEDULE: 1
+  TERMS: 1
+  DRAWS: 24
+  COUNTS: 8
+  OPENING: 8
+  SCHEDULE-H: 2
+  SCHEDULE-A: 1
+  IO-ROWS: 1
+RunStgShieldInstCheck: 158 checks, 0 failed
