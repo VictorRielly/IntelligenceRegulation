@@ -674,6 +674,20 @@ item was re-checked against the source by the coordinator.
     every wave (completion groups are 1.5 s wide, five steps of 300 ms) and is half a block period at this
     profile. Proposed to Astra, settings only, not run: the two queue modes first, then a 100 ms stagger
     (one sixth of a block period), then eight lanes.
+    **Tick 30, 2026-11-21 03:55 UTC (what a lane does on the host; the script re-run by Claude on Astra's
+    trace, figures reproduce):** a lane's block takes 611 ms, of which 307 ms is waiting for its GPU
+    commands and 303 ms is host work with no GPU command outstanding [DERIVED]; about 14 of 32 cores are
+    busy on average [DERIVED]. So the app's six lanes are limited by the host as much as by the GPU.
+    **CORRECTION to earlier lines on this page and to what Victor was told: A33 and A35 do not reach the
+    app.** The classifier's sealing pass calls the old repeating check (`classify_cli.rs:591` [read by
+    Claude]) and A35's fork format is refused for classifier profiles [Astra's review], so rebuilding the
+    app binary from the working branch gains nothing from either. Three candidates for the app's stream,
+    none measured: (1) run the next block's transcript-free first half during the current block's GPU
+    waits (59 to 101 ms of host work per block; a queue model gives 3 to 11% as a ceiling); it keeps the
+    proof format but needs a second randomness stream, so it stays behind a switch, default off, until
+    Sol reviews the split; pass and kill rules are pre-registered in the coordination file. (2) A33's
+    de-duplicated check in the classifier's sealing pass, at most 1.9%. (3) Seal-ahead, a setting: 4% as a
+    prior from R13, 18% as a ceiling, up to 43 GiB more memory; proposed to Astra as a fourth arm.
     **Lean findings REPORTED BY ANTIGRAVITY, NOT YET VERIFIED, 2026-11-20 22:45 UTC (L68b-1 to L68b-5):** two
     wrong constants in the committed block instance (`mRows` 23 where the verifier has 50; six hosted slots
     marked private), said to make block completeness unsatisfiable with no effect on soundness; the

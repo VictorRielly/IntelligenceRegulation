@@ -2,6 +2,15 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-21: Claude researcher tick 30, what a lane does on the host at the W16R2 classifier and what seal-ahead would buy (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git; owner-private logs not read. Triage material (no ruling).
+[Handoff](handoffs/20261121-claude-tick30-lane-host-phases.md) and its script `20261121-claude-tick30-lane-host-phases.py` (reads Astra's retained buffer trace, timings only).
+- **A request thread's block is 611 ms: 307 ms waiting on command buffers, 303 ms with none outstanding** (DERIVED, 600 blocks of 24 requests); a lane's request is 19.405 s = 26 blocks 15.96 s + 3.44 s outside, sealing window 2.88 s (range 2.60 to 3.59), of which product buffers are 18.5%.
+- **The installed app has no A33, A35 or seal-ahead:** `classify_cli.rs:591` still calls the repeating CS-3 check. The harness rule "sealing savings do not reach the stream" is a two-lane prove-paced result; the app runs six lanes with the device 72.7% busy.
+- **Host work independent of the transcript and of block k's device results: 59 to 101 ms of the 303 ms a block** (A rows and masks 48.6 ms, M commit, next boundary prepare; the split of the 42.8 ms gap is not retained). `prove_core_before_with` already reads no transcript but the classifier calls it inline; four of five pool workers idle while the request thread waits. Closed-queue MODEL: x1.03 to x1.11 on the lane period (ceilings, no memory contention). A33's dedup carried to the app: at most x1.019. Seal-ahead: x1.039 on R13's 25% pass-through (ceiling x1.178), +43 GiB at six lanes (about 157 GiB against 220).
+- **Cores:** 14.1 of 32 busy on average (batch 2, arm B); no per-thread record at W16R2. Tests (one-lane before-part ahead; HL_PB_TIMING phases in the app for the 42.8 ms split) stated, NOT scheduled. Effect on committed words: 0. Proofs / passes / positions: 0 / 0 / 0.
+
 ## 2026-11-20: Claude researcher tick 29, which lane settings were measured at the app's W16R2 classifier, and the lane-count test (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git; the owner-private event logs were not read. Triage material (no ruling).
