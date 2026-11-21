@@ -595,3 +595,4 @@ import ZK60Formal.RunStgShieldOutDoomC
 import ZK60Formal.RunStgShieldClTopOC
 import ZK60Formal.RunStgShieldEmbFold
 import ZK60Formal.RunStgShieldClTopEF
+import ZK60Formal.RunStgShieldHdrFit
