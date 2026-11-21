@@ -725,7 +725,8 @@ item was re-checked against the source by the coordinator.
     threads. A classifier request has 2 randomness streams with the switch off and 3 with it on (Claude's
     earlier "fourth stream" was wrong). One change is requested: the second stream is seeded after the
     first frame has been handed to the writer, so a failure of the operating system's randomness could
-    follow a written frame; the seeding moves before the header (being done on the branch, gates re-run).
+    follow a written frame; the seeding moves before the header (DONE on the branch at 08:38 UTC, head
+    `0368a718`: all correctness gates green again and one switch-on receipt verified at the real shape).
     Sol's read does NOT approve switching A36 on: that needs a stream-length census at the installed
     profile, the three-stream form of the generator assumption, and the fixed-witness argument with A36
     on. A36 is merged only if the six-lane test passes, and then default off.
