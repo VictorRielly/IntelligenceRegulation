@@ -694,6 +694,30 @@ item was re-checked against the source by the coordinator.
     Soundness and extraction are not affected by either reading. `O.zk` stays open; the repair (column
     digests as dependent queries, an error term counted for the real schedule) is accepted in principle
     and lands only with the proofs that discharge it.
+    **Landed 2026-11-21 01:20 UTC, working branch `4c4db293` (Claude's L63 leg 17; findings
+    `results/zk60_lean_l63_20261116/L68B_CHECK_20261121.md`):**
+    (1) **Ruling L63-9 applied and PROVED**: `mRows` 50 and six hosted slots in `RunShieldBlkInst.lean`. No
+    proof anywhere needed a change, no top's text changed, and the lane's full check is green twice (guard
+    runs `7198366ef441` and `b16ae08adf00`, exit 0 [receipts read by Claude]; 576 declarations audited, 23
+    tops on the three standard axioms). Not claimed: block completeness itself; the change removes two
+    reasons it could not hold.
+    (2) **L68b-3 confirmed in Lean and wider than reported**: the hypothesis `∀ s, 1 ≤ slotD P s` is
+    refuted for every block shape (false at the slot after the last), and **15 committed theorems** take it
+    or one of the contracts `IncOK` / `D12aBlockOK` / `OutcOK`: 4 of L25, 6 of L29, 3 of L32 and **2 of L39**
+    (`rcInc_honest_tables`, `rcOutc_honest_tables`, the "met by the real verifiers" half of the GA-1
+    repair). Ten say nothing; five hold only where the honest prover never succeeds. No soundness,
+    extraction or top theorem is among them [the leg's scan of every constant]. The rows of L25, L29, L32
+    and L39 below carry a correction. Likely repair: bound the quantifier to the schedule's slots; not
+    done, size unknown.
+    (3) **Antigravity's `sshC_productionReadyL_epP_openShell` (untracked), second read:** correct and
+    clean, conclusion equal to blkEF's by definition, standard axioms. It does NOT eliminate `O`: O1, O5,
+    O6 and O10's two sums are discharged; O2, O3, O4, O7, O8, O9, O10 per site and O12 reappear as premises
+    of the same strength, and the zero-knowledge premise still carries the error term that cannot be met.
+    Acceptable for the working branch after five documentation changes (its header over-claims).
+    (4) **`hhdrFit` settled** (`RunStgShieldHdrFit.lean`, PROVED): it does not follow from the run and the
+    query bound (a counterexample is proved); it follows from a length bound on the header words, at the
+    code's widths a parameter line of at most 2^20 - 292 bytes. It stays a setting premise until the
+    header writer is modelled in Lean.
     **Scope fact, stated by Antigravity 2026-11-20 22:57 UTC:** the whole Lean chain up to the newest top
     models Shieldstral T128 at the **R13** profile (rows 4577 and 4390). The installed app has run the
     **W16R2** Shieldstral profile (rows 2504 and 2606, statement identity named dev-only) since 2026-11-13.
@@ -729,7 +753,12 @@ item was re-checked against the source by the coordinator.
   an unrestricted extractor), 2 rulings and 4 public-data facts.
 - **REPAIRED 2026-11-10: GA-1, the top theorem applied the way lane L34 said was empty (lane L39).** The stage
   contracts now check the number of slots, and the repaired contracts are proved to be met by the REAL stage
-  verifiers and by the honest segments; the audit's proof of emptiness no longer builds. L39 also restated the
+  verifiers and by the honest segments; the audit's proof of emptiness no longer builds. **CORRECTION
+  2026-11-21 (finding L68b-3, checked in Lean by L63 leg 17): the two theorems behind "met by the real stage
+  verifiers and by the honest segments" (`rcInc_honest_tables`, `rcOutc_honest_tables`) take a hypothesis that
+  is false for every block shape (`∀ s, 1 ≤ slotD P s`, false at the slot after the last), so they say
+  nothing. That the repaired contracts can be met is therefore NOT established in Lean; not repaired yet.**
+  L39 also restated the
   soundness covers in a weaker, correct form and the top theorem in the approved form
   (`rc_productionReadyL_r13_exec_top_range`), but proved none of the covers. Finding L39-2: the per-block soundness
   theorems cannot be plugged in as a run-level premise directly; the link goes through the run's transcript. Lane L43
@@ -1426,6 +1455,12 @@ here. The rates count proving and witness work. Verification time is recorded se
       squeeze count.
   - **L25, the honest provers and completeness** [PROVED; merged 6d1b21ad, checked on the merged tree 8baff9cc:
     3565 jobs, no warning; `ZK60_LEAN_L25_HONEST_20261107.md`].
+    - **CORRECTION 2026-11-21 (finding L68b-3, checked in Lean by L63 leg 17):** four of this lane's
+      theorems (`slotsLoop_of_prove`, `blockVerify_of_prove`, `d12a_block_complete`, `classify_parts_d12a`)
+      take the hypothesis `∀ s, 1 ≤ slotD P s`, false at the slot after the last, or the contract
+      `D12aBlockOK` built on it. As committed they prove nothing about an honest block that succeeds. The
+      sentence below on L9's block verifier, and O8 "reduced to named contracts", are affected; the
+      single-slot step, the sumcheck rounds and O10 are not. Not repaired yet.
     - The honest provers are written out in Lean. L9's block verifier accepts the honest block core, for any block
       shape, so at W16R2 and at R13. The executable sumcheck verifier accepts the honest rounds at every oracle.
     - O10 is discharged for refusal sites written as transcript programs: such a site's challenge point is never one
@@ -1501,7 +1536,12 @@ here. The rates count proving and witness work. Verification time is recorded se
       transcripts. A negative control of seven single changes fails exactly 8. No mismatch with the code was found.
       Not yet checked on a Shieldstral T128 receipt.
     - The stages' completeness is proved in L25's form, so O8 holds at the executable stages, given the parts'
-      contracts.
+      contracts. **CORRECTION 2026-11-21 (finding L68b-3, checked in Lean by L63 leg 17): the six theorems
+      behind this sentence (`stSlotsLoop_of_prove`, `incVerify_of_prove`, `outcVerify_of_prove`,
+      `inc_stageInOK`, `outc_stageOutOK`, `classify_parts_exec`) take the hypothesis `∀ s, 1 ≤ slotD P s`,
+      false at the slot after the last, or the contracts `IncOK` / `OutcOK` / `D12aBlockOK` built on it, so
+      as committed they establish nothing for an honest run that succeeds. Not repaired yet. The
+      acceptance-exactly-when-every-check-passes result and the agreement check above do not use it.**
     - The honest slot loop is one transcript program, and a refusal of the honest prover in a block's core, in IN-C
       or in OUT-C is one of a short list of events (toward O9).
     - **No `ClassifyOpen` field is discharged outright.** O8 and O9 are reduced further; O12 (the run's zero
@@ -1545,7 +1585,12 @@ here. The rates count proving and witness work. Verification time is recorded se
     2026-11-09; `ZK60_LEAN_L32_COMPLETE_RUN_20261109.md`].
     - The code's opening verifier and mask verifier, as written in Lean, accept the honest prover's openings at every
       hash function and transcript, with error 0. A block's core at R13 and both stages are accepted once the slots'
-      arithmetic holds; every opening premise of L25's and L29's theorems is gone.
+      arithmetic holds; every opening premise of L25's and L29's theorems is gone. **CORRECTION 2026-11-21
+      (finding L68b-3, checked in Lean by L63 leg 17): the three theorems behind "a block's core at R13 and
+      both stages are accepted" (`blockVerify_of_tables_r13`, `incVerify_of_tables`, `outcVerify_of_tables`)
+      keep the hypothesis `∀ s, 1 ≤ slotD P s`, false at the slot after the last, so as committed they say
+      nothing. Not repaired yet. The opening and mask verifier results in the first sentence do not use it
+      [not in the leg's list of 15].**
     - The opening refusals are exact counted sites: one opening on n claims has n + 2 sites and exactly p + n + 1 bad
       values. The dependent-proximity refusal (L18-3) is now a theorem, not an estimate.
     - With stage IN-C counted as L29-3 corrected it, the run's total refusal probability stays inside the approved
