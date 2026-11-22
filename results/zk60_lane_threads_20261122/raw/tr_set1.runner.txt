@@ -1,0 +1,4 @@
+[07:13:29] launching tr_set1
+[zk60-guard 07:13:30] START lanethreads-tr_set1 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=6acc13611b3a
+[zk60-guard 07:45:50] END lanethreads-tr_set1 exit=0 child_wall=1940s peak_rss=57.90G min_avail=136.09G peak_vram=21785MiB
+[07:45:50] tr_set1 guard exit 0

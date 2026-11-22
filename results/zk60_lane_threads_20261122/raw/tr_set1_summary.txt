@@ -1,0 +1,11 @@
+spec C:6:8:48,D:6:8:48,E:6:8:48,E:6:8:48,D:6:8:48,C:6:8:48
+leg 1  6x8  arm C  rate 49.469 tok/s  proved 54/54  receipts accepted by B0 54/54  other 0  GPU busy 89.0%  start 2026-11-22T15:13:53Z  valid True
+leg 2  6x8  arm D  rate 50.821 tok/s  proved 54/54  receipts accepted by B0 54/54  other 0  GPU busy 89.7%  start 2026-11-22T15:19:11Z  valid True
+leg 3  6x8  arm E  rate 49.778 tok/s  proved 54/54  receipts accepted by B0 54/54  other 0  GPU busy 87.5%  start 2026-11-22T15:24:27Z  valid True
+leg 4  6x8  arm E  rate 49.319 tok/s  proved 54/54  receipts accepted by B0 54/54  other 0  GPU busy 86.2%  start 2026-11-22T15:29:46Z  valid True
+leg 5  6x8  arm D  rate 49.870 tok/s  proved 54/54  receipts accepted by B0 54/54  other 0  GPU busy 88.9%  start 2026-11-22T15:35:07Z  valid True
+leg 6  6x8  arm C  rate 48.017 tok/s  proved 54/54  receipts accepted by B0 54/54  other 0  GPU busy 87.6%  start 2026-11-22T15:40:26Z  valid True
+6x8 against 6x8: +2.73% and +3.86%  -> REPEAT ONCE
+6x8 against 6x8: +0.62% and +2.71%  -> NO GAIN
+6x8 leg 1 to leg 6: -2.94%
+requests proved 324, receipts accepted 324

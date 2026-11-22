@@ -92,10 +92,29 @@ Level means over all timed legs of the day (binary B1, both switches on, per-thr
 
 Three legs with `HL_A27_GPU_TRACE`: 6 x 5 (46.94 tok/s traced), 6 x 4 (44.54), one lane x 5 threads with 8 timed requests (12.40). 117 receipts accepted. The traces are in `raw/traces/*.tsv.xz` (compressed by `compress_traces.py`, round trip checked). Traced rates are not compared with untraced ones. Reading the gap tables is queue item 64 of the background researcher.
 
+## Tail-round setting at 6 x 8 [MEASURED, guard runs `6acc13611b3a` (15:13 to 15:45 UTC) and `0ed4b573137a` (15:46 to 16:19 UTC); smoke runs `fecd13f0a7a5` and `b9dec84934f2`; rule and arms posted at 15:13:20Z before any timed run]
+
+**Why.** Research tick 40 (`research/zkp-efficiency/handoffs/20261122-claude-tick40-device-demand.md`) ranked "more tail rounds on the host" first among the cuts of device work that keep the committed words, and it is a setting. A zero-check slot runs its leading sumcheck rounds on the device in one command buffer; the host takes a round once its estimated host cost is at or under a budget (`BATCH_TAIL_BUDGET_S`, 25 microseconds, `HL_METAL_BATCH_TAIL_US`; `metal.rs:4426-4438`, `4670-4690`). "Which side computes a round changes no byte (M4k)."
+
+**Arms (all binary B1, both switches on, 6 lanes x 8 threads, per-thread queues, the settings above):** C = defaults; D = `HL_METAL_BATCH_TAIL_US=250`; E = `HL_METAL_BATCH_TAIL_US=1000` with `HL_METAL_TAIL_BUDGET_US=1000`; F = `HL_METAL_BATCH_TAIL_US=1000` alone (smoke only).
+
+**Smoke runs, traced, 12 requests a leg, no rate quoted (`python3 -I -B tail_rounds_nd.py raw/traces/tr_smoke*.tsv.xz`).** Device rounds a block in the 12 main slots, of 218 rounds in all: 141 at the default (`lt_trace_leg1`, 6 x 5), 105 in arm D, 79 in arm E. All 36 receipts accepted by the base verifier. Arm F (leg 2 of `tr_smoke`, recorded there under the letter E) showed a second budget: rounds that are not batched have their own (`TAIL_ROUND_BUDGET_S`, 250 microseconds, `metal.rs:4237`), so with the batched budget alone at 1000 each slot ran two rounds and one fold as command buffers of their own (36 more buffers and 9.3 ms of execution a block). A value above 250 therefore needs both budgets raised; arm E does that, and `tr_smoke2` shows no such buffers beyond the rare slots.
+
+**Timed sets, six legs X, Y, Z, Z, Y, X with X = C, Y = D, Z = E (tok/s; every leg 54 of 54 proved and 54 of 54 receipts accepted by the base verifier):**
+
+| set | X | Y | Z | Z | Y | X | Y over X | Z over X |
+|---|---:|---:|---:|---:|---:|---:|---|---|
+| `tr_set1` | 49.469 | 50.821 | 49.778 | 49.319 | 49.870 | 48.017 | +2.73%, +3.86% | +0.62%, +2.71% |
+| `tr_set1b` (the one repeat) | 49.171 | 49.846 | 49.626 | 50.058 | 49.450 | 49.194 | +1.37%, +0.52% | +0.92%, +1.76% |
+
+**Verdicts by the posted rule.** Y (250): the first pass was between the bars (both pairs at or above +1.5%, one under +3.0%), so the six legs were repeated once; the four pairs have a mean of **+2.12%** and a lowest pair of +0.52%: **gain under the bar**. Z (both budgets at 1000): **NO GAIN** at the first pass (one pair under +1.5%); with the repeat's legs its four pairs have a mean of +1.50%, which adds data and no verdict. Levels over four legs each: X 48.96, Y 50.00, Z 49.70 tok/s. All eight pairs are positive.
+
+**Limits.** The X leg that closes the first pass (48.02) is 2.9% under the X leg that opens it; without that leg the X level is 49.28 and Y's gain over it is +1.5%. So the honest range for the 250 setting is about +1.5% to +2%. One public stream, one machine state, one binary. No agent and no other heavy job ran beside any timed leg. Summaries: `raw/tr_set1_summary.txt`, `raw/tr_set1b_summary.txt`, `raw/tr_set1_four_pairs.txt` (the summary script prints every arm as "6x8"; the arm letter is in each leg's line).
+
 ## Not measured
 
-Private content; the shared-queue mode; lane counts other than 5 (set 3), 6 and 8; Astra's GPU-busy capture; the machine with other work on the GPU.
+Tail budgets other than 250 and 1000; a budget that adapts to the number of busy lanes. Private content; the shared-queue mode; lane counts other than 5 (set 3), 6 and 8; Astra's GPU-busy capture; the machine with other work on the GPU.
 
 ## Files
 
-`composed_driver.py`, `composed_launch.py`, `guarded_here.py`, `t1_driver.py`, `compress_traces.py`, `overlap_check.py` (the harness, copied from the composed test), `lane_threads_summary.py` (`python3 -I -B lane_threads_summary.py raw/lt_set1/t2_results.json`; output in `raw/lt_set1_summary.txt`), `raw/` (logs, guard records, per-leg results, guard status snapshots). No receipts and no binaries are kept. The helper scripts name the venv and export paths under the home directory's artifact folder, and the logs carry the session scratch paths; the content is public and nothing under the owner-private directory was read.
+`composed_driver.py`, `composed_launch.py`, `guarded_here.py`, `t1_driver.py`, `compress_traces.py`, `overlap_check.py` (the harness, copied from the composed test), `lane_threads_summary.py` (`python3 -I -B lane_threads_summary.py raw/lt_set1/t2_results.json`; output in `raw/lt_set1_summary.txt`), `tail_rounds_nd.py` (device rounds per slot from a trace), `raw/` (logs, guard records, per-leg results, guard status snapshots). No receipts and no binaries are kept. The helper scripts name the venv and export paths under the home directory's artifact folder, and the logs carry the session scratch paths; the content is public and nothing under the owner-private directory was read.

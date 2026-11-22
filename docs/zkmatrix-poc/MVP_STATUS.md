@@ -813,6 +813,15 @@ item was re-checked against the source by the coordinator.
     smoke runs showed that it moves 36 or 62 of the 141 device rounds a block to the host with every
     receipt still accepted by the base verifier, and that a value above 250 microseconds needs a second
     setting raised with it, which the tick did not know.
+    **Result, 16:20 UTC [MEASURED, two sets of six runs at 6 lanes x 8 threads, 648 receipts accepted
+    by the base verifier; record in `results/zk60_lane_threads_20261122/README.md`]: the setting at 250
+    microseconds gains +2.1% as the mean of four pairs (+2.7, +3.9, +1.4, +0.5), a gain under the +3%
+    bar; at 1000 it is no gain (+1.5% mean).** Levels over four runs each: default 48.96 tok/s, 250
+    microseconds 50.00, 1000 microseconds 49.70. One default run was 2.9% low; without it the gain of
+    250 is +1.5%, so the honest range is +1.5% to +2%. The setting is free and moves no byte, so it is
+    left to Astra as an option and is not one of the three steps asked. All eight pairs are positive,
+    which agrees with the reading that at six lanes GPU time is worth more than host time. These are
+    figures at the app profile (the 3B classifier), on one public stream; they are not the 8B figure.
     **Tick 39, Nov 22 11:58 UTC [MEASURED on one traced run of each arm; script re-run by Claude, same
     tables]: the lead of tick 37 is dead.** The time between a request's last GPU work and the same
     lane's next request is the same with and without the bundle (about 0.19 s, 1% of a request), so

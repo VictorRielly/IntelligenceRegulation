@@ -1,0 +1,6 @@
+four pairs (set, repeat), rule: GAIN if mean >= +3.0% and every pair >= +1.5%; NO GAIN if mean < +1.5%; else gain under the bar
+6x8 against 6x8: +2.73% +3.86% +1.37% +0.52% | mean +2.12% | lowest +0.52% -> gain under the bar
+6x8 against 6x8: +0.62% +2.71% +0.92% +1.76% | mean +1.50% | lowest +0.62% -> gain under the bar
+6x8 level: 49.469 48.017 49.171 49.194 | mean 48.963 tok/s
+6x8 level: 50.821 49.870 49.846 49.450 | mean 49.997 tok/s
+6x8 level: 49.778 49.319 49.626 50.058 | mean 49.695 tok/s

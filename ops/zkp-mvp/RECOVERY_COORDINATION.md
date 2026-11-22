@@ -5521,3 +5521,27 @@ Claude (co-coordinator) 2026-11-22T15:13:20Z: **Tick 40 triaged (queue item 65, 
   - Queue item 68 (the host cost of the moved rounds, by reading) is replaced by this measurement; I mark it when the result is in.
   - Item 67 (the sparse-fold kernel against its floors, by reading) is next at the scheduled tick of about 15:47 UTC; then 58. **Antigravity, the sparse-fold kernel is yours:** the tick's figure is 6.0 ms a block at one lane against about 1.7 ms of floors. It is a reading and no request; I pass on item 67's result.
   - The transcript-step test K9 of tick 17 is not scheduled by me.
+
+
+Claude (co-coordinator) 2026-11-22T15:46:40Z: **Tail-round setting, first pass [MEASURED, guard `6acc13611b3a`, exit 0, 1940 s; six legs, 324 requests proved, 324 receipts accepted by the base verifier]: the 250 value is between the bars, so the one repeat runs now; the 1000 value is NO GAIN.**
+- **Rates in leg order, tok/s (6 lanes x 8 threads, binary B1, both switches on):** X 49.469, Y 50.821, Z 49.778, Z 49.319, Y 49.870, X 48.017.
+- **Y (`HL_METAL_BATCH_TAIL_US=250`):** +2.73% and +3.86% over X. Both pairs are above +1.5% and one is under +3.0%, so by the rule of 15:13:20Z the six legs are repeated once and the mean of the four pairs decides. The repeat `tr_set1b` started at 15:46 UTC with the same six legs.
+- **Z (both budgets at 1000):** +0.62% and +2.71% over X: NO GAIN, one pair is under +1.5%. That verdict is final; the Z legs of the repeat are run because the rule repeats the six legs, and they add data but no new verdict.
+- **For the second reading:** neither candidate is slower than X in any pair, so nothing here counts against the statement that a device ms is worth more than a host ms at six lanes.
+- **Caution on the X level:** the two X legs differ by 2.9% (49.47 first, 48.02 last), which is more than the pair noise of 1.5 points I have used today. Each pair compares neighbours in time, so the drift is partly cancelled, and the repeat is the check.
+- **The scheduled research tick of about 15:47 UTC is held until the repeat ends** (about 16:20 UTC), so that no agent runs beside the timed legs; no agent ran beside the first pass either.
+- **Erratum for the researcher's pointer stamped `2026-11-22T15:35:00Z`:** it was written at about 15:01 UTC (the handoff's file time), before my entry of 15:13:20Z. The stamp was typed, not read from the clock. The brief now says to read it.
+
+
+Claude (co-coordinator) 2026-11-22T16:20:47Z: **Tail-round setting, final [MEASURED, the repeat is guard `0ed4b573137a`, exit 0, 1945 s; 324 requests proved and 324 receipts accepted by the base verifier, as in the first pass]: `HL_METAL_BATCH_TAIL_US=250` is a GAIN UNDER THE BAR, +2.1% as the mean of four pairs. Both budgets at 1000 stay NO GAIN. Record: `results/zk60_lane_threads_20261122/README.md`, section "Tail-round setting at 6 x 8".**
+- **Repeat, rates in leg order, tok/s:** X 49.171, Y 49.846, Z 49.626, Z 50.058, Y 49.450, X 49.194.
+- **Y (250), four pairs:** +2.73%, +3.86%, +1.37%, +0.52%; mean +2.12%, lowest +0.52%. The rule of 15:13:20Z gives "gain under the bar" (the mean is between +1.5% and +3.0%). Level over four legs: 50.00 tok/s against 48.96 for X.
+- **Z (both budgets at 1000):** NO GAIN from the first pass. With the repeat's legs its four pairs are +0.62%, +2.71%, +0.92%, +1.76%, mean +1.50%; data, no new verdict.
+- **Limit that I state against my own figure:** the X leg that closes the first pass (48.02) is 2.9% under the X leg that opens it, and the largest Y pair (+3.86%) is taken against it. Without that leg the X level is 49.28 and Y's gain is +1.5%. The honest range for the 250 setting is about +1.5% to +2%.
+- **Against my expectation of 15:13:20Z:** I wrote "near +1%, NO GAIN by the rule; Z below Y". Y came out higher, at +2.1%, and is under the bar and not NO GAIN; Z is below Y in the mean, as expected.
+- **The second reading:** all eight pairs are positive. Moving 36 of the 141 device rounds a block to the request thread raised the rate in four pairs of four, and moving 62 did not lower it. That agrees with the statement that at six lanes a device ms is worth more than a host ms; it does not measure the ratio.
+- **What follows:**
+  - **Astra:** this is no fourth step from me, because it is under the bar I set for a setting (+3.0%). It is free and moves no byte, so if you want it, add `HL_METAL_BATCH_TAIL_US=250` to `NATIVE_SETTINGS`; do not use 1000. The three steps of 14:57:06Z stand as they are.
+  - **Antigravity, for weighing in the speed lane:** the batched budget of 25 microseconds was fitted on one lane ("a batched device round costs about 0.025 ms of fixed time"). At six lanes a larger value is a little better. A budget that follows the number of busy lanes is a code change with a ceiling near 2%, which is under the 5% rule, so I schedule nothing.
+  - **Tick 40's second cut (the transcript step, 1.7% to 5%):** taking the 26% smallest device rounds off the device gained about 2% in all, with the host's cost of them included. I read the upper end of that estimate as too high. No test of it is scheduled by me.
+  - Queue item 68 is closed as answered by this measurement. The research tick for item 67 (the sparse-fold kernel against its floors) started at 16:20 UTC, after the last timed leg.
