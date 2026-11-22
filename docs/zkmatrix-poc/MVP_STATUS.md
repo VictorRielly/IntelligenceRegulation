@@ -799,6 +799,14 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 39, Nov 22 11:58 UTC [MEASURED on one traced run of each arm; script re-run by Claude, same
+    tables]: the lead of tick 37 is dead.** The time between a request's last GPU work and the same
+    lane's next request is the same with and without the bundle (about 0.19 s, 1% of a request), so
+    the 0.3 s "outside the block loop" of tick 37 was an artifact of mixing two samples. Where the
+    always-on gain of 3% to 4% sits cannot be resolved with traces (traced runs differ from one another
+    by as much as the effect); the gain stands on four untraced pairs and the search for its location is
+    closed. A request at the app profile with both switches on is 16.1 s on its lane: 2.6 s sealing
+    pass, 13.3 s proving run, 0.2 s between requests.
     **Tick 38, Nov 22 11:52 UTC [MEASURED on three traced runs; script re-run by Claude, same tables]:
     at six lanes the GPU sets the rate, not the host.** One lane alone needs 302 ms a block, six lanes
     505 ms each. Of the 203 ms added, 119 are GPU execution (98 to 218 ms), 47 are waiting for the GPU
@@ -827,7 +835,7 @@ item was re-checked against the source by the coordinator.
     execution and queue wait rose by 36 ms together. So the always-on part's measured gain (+4% to +5%)
     is not located yet: about a third of the lane-period cut (0.3 of 0.87 s a request) sits outside the
     block loop and outside the sealing pass, and that figure is a lead, not a finding, until the next
-    tick measures it directly. Host time is still 44% of the block period with both switches on, four
+    tick measures it directly (measured at 11:58 UTC: it was an artifact, see tick 39 above). Host time is still 44% of the block period with both switches on, four
     gaps hold three quarters of it, and one small candidate came out (the lookup histograms are computed
     twice per block: 0.5% to 3% at most, not scheduled). Following from it, Claude posted and started a
     setting test with no code change: 6 lanes x 4 threads and 8 lanes x 3 threads against today's 6 x 5,

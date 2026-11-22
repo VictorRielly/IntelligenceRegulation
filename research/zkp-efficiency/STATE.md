@@ -2,6 +2,15 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-22: Claude researcher tick 39, the tail between a request's last run buffer and the next request's first sealing buffer (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261122-claude-tick39-after-run-tail.md), scripts `20261122-claude-tick39-after-run-tail.py`, `-stagger-check.py`, `-startup-share.py`, `-head-buffers.py`.
+- **Item 63: the tail is not where the A-to-C gain is.** Measured per request and thread in the three traced arms of one run (37 requests an arm): tail mean 189 / 218 / 190 ms (A / B / C), median 128 / 140 / 129; **A minus C -0.001 s [-0.049, +0.051]**; 1.1% of the lane period. Pieces sum to the lane period by identity; the rate implied by the lane period matches the measured rate within 0.5%, 1.4%, 0.4%.
+- **Tick 37's 0.305 s "remainder" was a sample-set artifact** (lane period from 39 pairs, other pieces from 45 requests). On one set the same pair gives tail +0.047 [-0.001, +0.097]; the A-to-C cut of 0.865 s is run 0.708, sealing 0.106, tail 0.047, hand-over 0.005.
+- **Tail = floor of about 126 ms + the A28 start stagger.** About 100 ms is the start side (first-wave set-up before the first sealing buffer), about 25 ms the end side. All 56 tails above 0.2 s sit 0.29 to 0.32 s after another lane's start; stagger excess 62 / 92 / 64 ms a request (0.4 to 0.5% of the lane period). Neither always-on change is in the tail.
+- **The always-on part is not located:** in this traced triple B is 0.495 s slower than A (untraced: +4.2/+5.1% faster); between-leg spread exceeds the effect. The head (0.384 s) is 25 ms of buffers and 359 ms of host gaps, 176 ms before the first IN-C commit (the run's own sealing pass; relevant to H1). Effect on committed words 0; all candidates under the 5% rule, none scheduled.
+
 ## 2026-11-22: Claude researcher tick 38, which host phases shrink with a fifth thread, and the one-lane gap table at the app profile (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
