@@ -799,6 +799,29 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 22, 04:00 UTC: Antigravity's composed bundle (fused encoder, sparse opening fold, and two
+    always-on host changes) PASSES at the installed app profile: +8.4% and +8.5% over the pushed head
+    [MEASURED, one set of six runs, two pairs; rule posted at 03:01:33Z before any run; rates recomputed
+    by Claude from the raw file].** Rates in run order head, bundle with switches off, bundle with both
+    switches on, the same on, off, head: 42.53, 44.31, 46.12, 47.12, 45.61, 43.41 padded tokens per
+    second. The always-on part alone (what a merge changes with no setting touched) gives +4.2% and
+    +5.1%; the two switches on top of it +4.1% and +3.3%. All 216 receipts made by the composed build
+    were accepted by the pushed head's verifier. Claude had expected +4% to +6% for the whole bundle and
+    +1% to +2% for the always-on part, so both came out higher than expected. One traced pair [MEASURED
+    once, no verdict]: host time per block 296 to 243 ms, GPU execution 202 to 222 ms, GPU wait 53 to
+    68 ms, so the bundle cuts host time and moves some of it onto the GPU; the traced pair's own rate
+    gain was +4.1%, smaller than the untraced set's. **Not merged yet:** a second read (Opus,
+    `SPARSE_FOLD_BUNDLE_REVIEW_20261122.md`) found the two always-on parts equal to the old code for
+    every input and no High finding, and asked for one fix commit first (the new GPU kernels built on
+    first use, a call counter so the tests show the new path ran, the installed profile's shapes in the
+    kernel test); a fallback on device error is asked before the sparse-fold switch is turned on.
+    Record: `results/zk60_composed_app_20261122/`.
+    **Tick 36, Nov 22 03:56 UTC (re-run by Claude, same figures):** the researcher fitted the
+    hand-over-to-start wait of GPU jobs on the six-lane trace and tested it on the eight-lane trace. It
+    fails: the replay is still 7% too fast at six lanes and 13% at eight, and the wait is mostly not a
+    function of what the device is doing (35% of its variance). What the replay lacks is that the real
+    lanes move in step. The replay line gets one more tick; ahead of it the researcher reads the new
+    traces to find which host gaps the bundle removed and which remain, since host cuts paid best here.
     **Nov 22, 01:37 UTC: the fused encoder is MERGED, off by default.** Antigravity fixed the three
     conditions of the second read; Claude read the fix and ran the full suite on the merged tree
     [MEASURED, guard run `b2617388f526`]: 1008 passed, 2 failed, 135 ignored, the two failures being two

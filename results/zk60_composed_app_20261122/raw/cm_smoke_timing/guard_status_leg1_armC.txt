@@ -1,0 +1,14 @@
+2026-11-22T03:13:29Z
+RAM   206.73 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 125.0 of 252.5 GiB committed by guarded jobs
+  job  composed-cm_smoke_timing     gpu   need 125G since 2026-11-22T03:13:04Z
+LOCKS heavy HELD, build free
+GPU   525 of 196608 MiB used
+DISK  /System/Volumes/VM 103.8 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16631 MiB  pid 48978   agy
+  rss   4128 MiB  pid 1578    claude
+  rss   1885 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1370 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1313 MiB  pid 17265   claude
+  rss    976 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/

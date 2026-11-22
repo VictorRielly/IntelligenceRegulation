@@ -1,0 +1,596 @@
+{
+ "binary_B0": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/c-b0/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+ "binary_B1": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/c-b1/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+ "spec": "C:6:5:6,B:6:5:6",
+ "content_ids": [
+  14,
+  18,
+  18,
+  20,
+  18,
+  17,
+  15,
+  17
+ ],
+ "legs": [
+  {
+   "leg": 1,
+   "arm": "C",
+   "binary": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/c-b1/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+   "arm_env": {
+    "HL_METAL_FUSED_RS": "1",
+    "HL_METAL_SPARSE_FOLD": "1"
+   },
+   "verified_by_B0": true,
+   "lanes": 6,
+   "threads": 5,
+   "queues": "thread",
+   "N": 6,
+   "timed": 6,
+   "trace_prefix": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/results/zk60_composed_app_20261122/raw/traces/cm_smoke_leg1",
+   "argv": [
+    "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/c-b1/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+    "serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--lanes",
+    "6",
+    "--lane-threads",
+    "5",
+    "--witness-cache-gib",
+    "16",
+    "--dev-w16r2-public-content-only"
+   ],
+   "free_gb_before": 111.8,
+   "ds4_bench_before": "(none)",
+   "utc_start": "2026-11-22T03:08:20Z",
+   "startup_s": 30.236953258514404,
+   "serve_start": {
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "lanes": 6,
+    "lane_threads": 5,
+    "trained_statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "startup_seconds": 29.703
+   },
+   "t_send_abs": 1056802.095139916,
+   "server_pid": 76262,
+   "server_exit": 0,
+   "completions": [
+    {
+     "n": 1,
+     "q": 2,
+     "post": 2,
+     "lane": 2,
+     "status": "proved",
+     "t_s": 17.899542291881517,
+     "t_abs": 1056819.994682208,
+     "queued_s": 0.608,
+     "served_s": 17.289,
+     "prove_s": 14.324,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 2,
+     "q": 1,
+     "post": 1,
+     "lane": 1,
+     "status": "proved",
+     "t_s": 17.96461637504399,
+     "t_abs": 1056820.059756291,
+     "queued_s": 0.302,
+     "served_s": 17.661,
+     "prove_s": 14.77,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 3,
+     "q": 0,
+     "post": 0,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 17.969251292059198,
+     "t_abs": 1056820.064391208,
+     "queued_s": 0.0,
+     "served_s": 17.968,
+     "prove_s": 15.088,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 4,
+     "q": 3,
+     "post": 3,
+     "lane": 3,
+     "status": "proved",
+     "t_s": 17.97377729183063,
+     "t_abs": 1056820.068917208,
+     "queued_s": 0.905,
+     "served_s": 17.067,
+     "prove_s": 14.066,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 5,
+     "q": 4,
+     "post": 4,
+     "lane": 4,
+     "status": "proved",
+     "t_s": 18.075817042030394,
+     "t_abs": 1056820.170956958,
+     "queued_s": 1.208,
+     "served_s": 16.866,
+     "prove_s": 13.841,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 6,
+     "q": 5,
+     "post": 5,
+     "lane": 5,
+     "status": "proved",
+     "t_s": 18.384211709024385,
+     "t_abs": 1056820.479351625,
+     "queued_s": 1.508,
+     "served_s": 16.874,
+     "prove_s": 13.879,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 7,
+     "q": 6,
+     "post": 6,
+     "lane": 2,
+     "status": "proved",
+     "t_s": 34.32189916702919,
+     "t_abs": 1056836.417039083,
+     "queued_s": 17.897,
+     "served_s": 16.422,
+     "prove_s": 13.644,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 8,
+     "q": 7,
+     "post": 7,
+     "lane": 1,
+     "status": "proved",
+     "t_s": 35.04460020898841,
+     "t_abs": 1056837.139740125,
+     "queued_s": 18.202,
+     "served_s": 16.84,
+     "prove_s": 13.764,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 9,
+     "q": 9,
+     "post": 1,
+     "lane": 3,
+     "status": "proved",
+     "t_s": 35.4364620000124,
+     "t_abs": 1056837.531601916,
+     "queued_s": 18.798,
+     "served_s": 16.635,
+     "prove_s": 13.559,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 10,
+     "q": 8,
+     "post": 0,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 35.445187374949455,
+     "t_abs": 1056837.540327291,
+     "queued_s": 18.503,
+     "served_s": 16.94,
+     "prove_s": 13.847,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 11,
+     "q": 10,
+     "post": 2,
+     "lane": 4,
+     "status": "proved",
+     "t_s": 35.59305616701022,
+     "t_abs": 1056837.688196083,
+     "queued_s": 19.102,
+     "served_s": 16.489,
+     "prove_s": 13.415,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 12,
+     "q": 11,
+     "post": 3,
+     "lane": 5,
+     "status": "proved",
+     "t_s": 35.89037562487647,
+     "t_abs": 1056837.985515541,
+     "queued_s": 19.407,
+     "served_s": 16.481,
+     "prove_s": 13.402,
+     "receipt_bytes": 669561472
+    }
+   ],
+   "gpu_util_mean": 82.8,
+   "ds4_bench_after": "(none)",
+   "rate": 43.87026213690167,
+   "all_proved": true,
+   "utc_end": "2026-11-22T03:09:26Z",
+   "verified": [
+    {
+     "n": 1,
+     "q": 2,
+     "status": "checked",
+     "verify_seconds": 6.16
+    },
+    {
+     "n": 2,
+     "q": 1,
+     "status": "checked",
+     "verify_seconds": 6.182
+    },
+    {
+     "n": 3,
+     "q": 0,
+     "status": "checked",
+     "verify_seconds": 6.026
+    },
+    {
+     "n": 4,
+     "q": 3,
+     "status": "checked",
+     "verify_seconds": 6.181
+    },
+    {
+     "n": 5,
+     "q": 4,
+     "status": "checked",
+     "verify_seconds": 6.142
+    },
+    {
+     "n": 6,
+     "q": 5,
+     "status": "checked",
+     "verify_seconds": 6.141
+    },
+    {
+     "n": 7,
+     "q": 6,
+     "status": "checked",
+     "verify_seconds": 6.163
+    },
+    {
+     "n": 8,
+     "q": 7,
+     "status": "checked",
+     "verify_seconds": 6.189
+    },
+    {
+     "n": 9,
+     "q": 9,
+     "status": "checked",
+     "verify_seconds": 6.055
+    },
+    {
+     "n": 10,
+     "q": 8,
+     "status": "checked",
+     "verify_seconds": 6.059
+    },
+    {
+     "n": 11,
+     "q": 10,
+     "status": "checked",
+     "verify_seconds": 6.145
+    },
+    {
+     "n": 12,
+     "q": 11,
+     "status": "checked",
+     "verify_seconds": 6.212
+    }
+   ],
+   "verify_summary": {
+    "receipts": 12,
+    "checked": 12,
+    "other": 0
+   }
+  },
+  {
+   "leg": 2,
+   "arm": "B",
+   "binary": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/c-b1/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+   "arm_env": {},
+   "verified_by_B0": true,
+   "lanes": 6,
+   "threads": 5,
+   "queues": "thread",
+   "N": 6,
+   "timed": 6,
+   "trace_prefix": "/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a3be4019d2dca3765/results/zk60_composed_app_20261122/raw/traces/cm_smoke_leg2",
+   "argv": [
+    "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/c-b1/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify",
+    "serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--lanes",
+    "6",
+    "--lane-threads",
+    "5",
+    "--witness-cache-gib",
+    "16",
+    "--dev-w16r2-public-content-only"
+   ],
+   "free_gb_before": 111.8,
+   "ds4_bench_before": "(none)",
+   "utc_start": "2026-11-22T03:10:22Z",
+   "startup_s": 29.650641918182373,
+   "serve_start": {
+    "gpu": "gpu: ON (Metal, Apple M3 Ultra, unified memory, max buffer 167 GiB; commitments on the device)",
+    "lanes": 6,
+    "lane_threads": 5,
+    "trained_statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "startup_seconds": 29.628
+   },
+   "t_send_abs": 1056923.757036666,
+   "server_pid": 77253,
+   "server_exit": 0,
+   "completions": [
+    {
+     "n": 1,
+     "q": 0,
+     "post": 0,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 17.59718616702594,
+     "t_abs": 1056941.354222833,
+     "queued_s": 0.0,
+     "served_s": 17.597,
+     "prove_s": 14.867,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 2,
+     "q": 1,
+     "post": 1,
+     "lane": 1,
+     "status": "proved",
+     "t_s": 17.64157275017351,
+     "t_abs": 1056941.398609416,
+     "queued_s": 0.307,
+     "served_s": 17.334,
+     "prove_s": 14.437,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 3,
+     "q": 2,
+     "post": 2,
+     "lane": 2,
+     "status": "proved",
+     "t_s": 18.105276209069416,
+     "t_abs": 1056941.862312875,
+     "queued_s": 0.61,
+     "served_s": 17.495,
+     "prove_s": 14.49,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 4,
+     "q": 4,
+     "post": 4,
+     "lane": 4,
+     "status": "proved",
+     "t_s": 18.711898042121902,
+     "t_abs": 1056942.468934708,
+     "queued_s": 1.21,
+     "served_s": 17.502,
+     "prove_s": 14.425,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 5,
+     "q": 3,
+     "post": 3,
+     "lane": 3,
+     "status": "proved",
+     "t_s": 18.735460084164515,
+     "t_abs": 1056942.49249675,
+     "queued_s": 0.906,
+     "served_s": 17.829,
+     "prove_s": 14.804,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 6,
+     "q": 5,
+     "post": 5,
+     "lane": 5,
+     "status": "proved",
+     "t_s": 19.072383417049423,
+     "t_abs": 1056942.829420083,
+     "queued_s": 1.503,
+     "served_s": 17.569,
+     "prove_s": 14.551,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 7,
+     "q": 6,
+     "post": 6,
+     "lane": 0,
+     "status": "proved",
+     "t_s": 35.8282332920935,
+     "t_abs": 1056959.585269958,
+     "queued_s": 17.597,
+     "served_s": 18.231,
+     "prove_s": 15.001,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 8,
+     "q": 8,
+     "post": 0,
+     "lane": 2,
+     "status": "proved",
+     "t_s": 36.305756916990504,
+     "t_abs": 1056960.062793583,
+     "queued_s": 18.207,
+     "served_s": 18.099,
+     "prove_s": 14.685,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 9,
+     "q": 7,
+     "post": 7,
+     "lane": 1,
+     "status": "proved",
+     "t_s": 36.33135462505743,
+     "t_abs": 1056960.088391291,
+     "queued_s": 17.907,
+     "served_s": 18.424,
+     "prove_s": 15.009,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 10,
+     "q": 9,
+     "post": 1,
+     "lane": 4,
+     "status": "proved",
+     "t_s": 37.11318883416243,
+     "t_abs": 1056960.8702255,
+     "queued_s": 18.711,
+     "served_s": 18.402,
+     "prove_s": 15.023,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 11,
+     "q": 10,
+     "post": 2,
+     "lane": 3,
+     "status": "proved",
+     "t_s": 37.2409729170613,
+     "t_abs": 1056960.998009583,
+     "queued_s": 19.021,
+     "served_s": 18.219,
+     "prove_s": 14.894,
+     "receipt_bytes": 669561472
+    },
+    {
+     "n": 12,
+     "q": 11,
+     "post": 3,
+     "lane": 5,
+     "status": "proved",
+     "t_s": 37.59268704196438,
+     "t_abs": 1056961.349723708,
+     "queued_s": 19.321,
+     "served_s": 18.271,
+     "prove_s": 14.927,
+     "receipt_bytes": 669561472
+    }
+   ],
+   "gpu_util_mean": 83.7,
+   "ds4_bench_after": "(none)",
+   "rate": 41.46800266097292,
+   "all_proved": true,
+   "utc_end": "2026-11-22T03:11:29Z",
+   "verified": [
+    {
+     "n": 1,
+     "q": 0,
+     "status": "checked",
+     "verify_seconds": 6.319
+    },
+    {
+     "n": 2,
+     "q": 1,
+     "status": "checked",
+     "verify_seconds": 6.289
+    },
+    {
+     "n": 3,
+     "q": 2,
+     "status": "checked",
+     "verify_seconds": 6.241
+    },
+    {
+     "n": 4,
+     "q": 4,
+     "status": "checked",
+     "verify_seconds": 6.101
+    },
+    {
+     "n": 5,
+     "q": 3,
+     "status": "checked",
+     "verify_seconds": 6.191
+    },
+    {
+     "n": 6,
+     "q": 5,
+     "status": "checked",
+     "verify_seconds": 6.215
+    },
+    {
+     "n": 7,
+     "q": 6,
+     "status": "checked",
+     "verify_seconds": 6.1
+    },
+    {
+     "n": 8,
+     "q": 8,
+     "status": "checked",
+     "verify_seconds": 6.19
+    },
+    {
+     "n": 9,
+     "q": 7,
+     "status": "checked",
+     "verify_seconds": 6.121
+    },
+    {
+     "n": 10,
+     "q": 9,
+     "status": "checked",
+     "verify_seconds": 6.335
+    },
+    {
+     "n": 11,
+     "q": 10,
+     "status": "checked",
+     "verify_seconds": 6.298
+    },
+    {
+     "n": 12,
+     "q": 11,
+     "status": "checked",
+     "verify_seconds": 6.335
+    }
+   ],
+   "verify_summary": {
+    "receipts": 12,
+    "checked": 12,
+    "other": 0
+   }
+  }
+ ]
+}

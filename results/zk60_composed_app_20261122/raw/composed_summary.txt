@@ -1,0 +1,22 @@
+== cm_set1: six legs A, B, C, C, B, A (6 lanes x 5 threads, per-thread queues, N + 48)
+leg 1 arm A: rate 42.532 tok/s | mean prove call 14.836 s | all proved True | arm A: receipts deleted unverified | 2026-11-22T03:16:35Z to 2026-11-22T03:19:47Z
+leg 2 arm B: rate 44.307 tok/s | mean prove call 14.272 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-22T03:19:48Z to 2026-11-22T03:22:56Z
+leg 3 arm C: rate 46.117 tok/s | mean prove call 13.561 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-22T03:25:25Z to 2026-11-22T03:28:29Z
+leg 4 arm C: rate 47.115 tok/s | mean prove call 13.392 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-22T03:30:59Z to 2026-11-22T03:33:59Z
+leg 5 arm B: rate 45.614 tok/s | mean prove call 13.913 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-22T03:36:26Z to 2026-11-22T03:39:32Z
+leg 6 arm A: rate 43.411 tok/s | mean prove call 14.602 s | all proved True | arm A: receipts deleted unverified | 2026-11-22T03:42:01Z to 2026-11-22T03:45:15Z
+PRIMARY, C over A: pair (leg 1, leg 3) +8.43%, pair (leg 6, leg 4) +8.53%
+secondary, B over A: pair (1, 2) +4.17%, pair (6, 5) +5.08%; C over B: pair (2, 3) +4.08%, pair (5, 4) +3.29%
+verdict of this set by the 03:01:33Z rule: PASS
+guard fe477fa74a83: exit 0, peak RSS 58.99 GiB, peak VRAM 21754 MiB, waited 45.9 s
+
+== primary pair gains of the sets read: +8.43%, +8.53%; mean +8.48%
+
+== smoke legs (not timed measurements; evidence for which paths are taken) (cm_smoke), no verdict
+leg 1 arm C: rate 43.870 tok/s | wall 523.3 ms/block | prover e 216.4 q 59.6 w 3.1 ms/block | host time (wall - e - q - w, DERIVED) 244.2 ms/block | empty-device share (1 - union over all buffers) 20.9 % | commit e: rows 2504 18.70, rows 2606 17.65 ms/block | commit buffers/block 3.23 | spfold buffers 504 (3.23/block, e 9.99 ms/block) | records 9331
+leg 2 arm B: rate 41.468 tok/s | wall 574.0 ms/block | prover e 225.0 q 54.8 w 2.7 ms/block | host time (wall - e - q - w, DERIVED) 291.5 ms/block | empty-device share (1 - union over all buffers) 28.3 % | commit e: rows 2504 27.79, rows 2606 21.77 ms/block | commit buffers/block 3.23 | spfold buffers 0 (0.00/block, e 0.00 ms/block) | records 8332
+
+== traced pair A then C (cm_trace), no verdict
+leg 1 arm A: rate 43.446 tok/s | wall 552.6 ms/block | prover e 201.5 q 52.8 w 2.6 ms/block | host time (wall - e - q - w, DERIVED) 295.7 ms/block | empty-device share (1 - union over all buffers) 22.7 % | commit e: rows 2504 24.15, rows 2606 21.88 ms/block | commit buffers/block 3.23 | spfold buffers 0 (0.00/block, e 0.00 ms/block) | records 37437
+leg 2 arm C: rate 45.221 tok/s | wall 534.9 ms/block | prover e 222.0 q 67.6 w 2.9 ms/block | host time (wall - e - q - w, DERIVED) 242.5 ms/block | empty-device share (1 - union over all buffers) 19.0 % | commit e: rows 2504 18.53, rows 2606 18.59 ms/block | commit buffers/block 3.23 | spfold buffers 4032 (3.23/block, e 9.54 ms/block) | records 41876
+

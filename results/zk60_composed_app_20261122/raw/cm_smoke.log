@@ -1,0 +1,6 @@
+writer 23.7 s; posts 8; content ids per post [14, 18, 18, 20, 18, 17, 15, 17]
+{"leg": 1, "arm": "C", "rate": 43.87026213690167, "all_proved": true, "span_s": 35.89037562487647}
+{"leg": 1, "verify": {"receipts": 12, "checked": 12, "other": 0}}
+{"leg": 2, "arm": "B", "rate": 41.46800266097292, "all_proved": true, "span_s": 37.59268704196438}
+{"leg": 2, "verify": {"receipts": 12, "checked": 12, "other": 0}}
+done

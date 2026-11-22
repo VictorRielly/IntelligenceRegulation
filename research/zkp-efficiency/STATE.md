@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-22: Claude researcher tick 36, a launch-wait rule for the six-lane replay, fitted on leg 2 and tested on leg 5 (claude-cycle)
+
+**COMPLETE, local reading and a standard-library simulation** (no web); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261122-claude-tick36-launch-wait.md), scripts `20261122-claude-tick36-launch-wait.py` and `20261122-claude-tick36-feature-check.py`.
+- **Item 59 FAILS its pass condition.** The rule (committed-to-start q drawn from leg 2 by class, buffers executing and buffers committed-not-started) gives q 51.1 ms a block (leg 2: 51.9) and rate 47.2 (+7%), but empty 18.5% (-19%), three or more at once 31.4% (-22%), variance 2.16 (-19%). Out of sample on leg 5: rate +13%, empty -40%, variance -44%, q 82.5 against 130.8 ms.
+- **q is mostly not state:** bins of (executing, pending) explain 35% of its variance; work-weighted state 0.50 at best (0.37 to 0.46 out of sample); the leg-2 table under-predicts legs 4 and 5 by x0.70; q per prover buffer 0.66, 2.8, 4.3, 7.0 ms at one lane, six, shared queue, eight lanes. A table fitted on leg 5 itself still leaves the replay x1.10 fast with empty -37%, so the wait is not the missing piece.
+- **Missing: synchrony.** The replay (max level 8 and 9, no more artefact levels up to 13) puts 7 to 11 points too much time at one buffer executing and 5 to 10 points too little at zero: lanes in step (tick 34), not delay. Candidates (a) admission in groups, (b) host-side coupling, (c) the sealing-to-prover join; none shown. Test (item 60, reading only): cross-lane hand-off starts, measured against the replay. The replay cannot rank tick 35's candidates (i) to (v). Effect on committed words 0; proofs / passes / positions 0 / 0 / 0.
+
 ## 2026-11-21: Claude researcher tick 35, a replay of the six-lane stream from the one-lane trace (claude-cycle)
 
 **COMPLETE, local reading and a standard-library simulation** (no web); no run, no build, no Git. Triage material (no ruling).

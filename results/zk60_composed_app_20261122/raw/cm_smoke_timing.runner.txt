@@ -1,0 +1,5 @@
+[19:12:38] launching cm_smoke_timing
+[zk60-guard 19:12:38] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 19:13:04] START composed-cm_smoke_timing class=gpu need=125G cap=200G enforce=watchdog-only waited=26s run=46392bf3faa3
+[zk60-guard 19:15:37] END composed-cm_smoke_timing exit=0 child_wall=153s peak_rss=59.65G min_avail=134.85G peak_vram=22618MiB
+[19:15:37] cm_smoke_timing guard exit 0
