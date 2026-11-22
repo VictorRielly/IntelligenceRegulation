@@ -1,0 +1,25 @@
+== set of record fu_set (HL_METAL_FUSED_RS off, on, on, off; 6 lanes x 5 threads; untraced)
+leg 1 FUSED_RS 0: rate 42.956 tok/s | mean prove call 14.687 s | all proved True | off leg: receipts deleted unverified | T2 untraced off range 43.0 to 43.9: -0.1% from the nearest end
+leg 2 FUSED_RS 1: rate 44.858 tok/s | mean prove call 14.029 s | all proved True | receipts checked 54 of 54, other 0
+leg 3 FUSED_RS 1: rate 44.780 tok/s | mean prove call 14.020 s | all proved True | receipts checked 54 of 54, other 0
+leg 4 FUSED_RS 0: rate 43.532 tok/s | mean prove call 14.466 s | all proved True | off leg: receipts deleted unverified | T2 untraced off range 43.0 to 43.9: inside
+gain pair (leg 1, leg 2): +4.43%   gain pair (leg 4, leg 3): +2.87%
+verdict of this set by the 22:21:03Z rule: INCONCLUSIVE (the set is repeated once)
+peak memory (guard eb24a2825522, whole job): RSS 58.7 GiB, VRAM 22086 MiB, exit 0
+
+== set of record fu_set2 (HL_METAL_FUSED_RS off, on, on, off; 6 lanes x 5 threads; untraced)
+leg 1 FUSED_RS 0: rate 43.019 tok/s | mean prove call 14.635 s | all proved True | off leg: receipts deleted unverified | T2 untraced off range 43.0 to 43.9: inside
+leg 2 FUSED_RS 1: rate 44.335 tok/s | mean prove call 14.065 s | all proved True | receipts checked 54 of 54, other 0
+leg 3 FUSED_RS 1: rate 44.039 tok/s | mean prove call 14.251 s | all proved True | receipts checked 54 of 54, other 0
+leg 4 FUSED_RS 0: rate 43.417 tok/s | mean prove call 14.493 s | all proved True | off leg: receipts deleted unverified | T2 untraced off range 43.0 to 43.9: inside
+gain pair (leg 1, leg 2): +3.06%   gain pair (leg 4, leg 3): +1.43%
+verdict of this set by the 22:21:03Z rule: NO TRANSFER
+peak memory (guard 1b44cef2d0d4, whole job): RSS 58.99 GiB, VRAM 22275 MiB, exit 0
+
+== two sets: 4 pair gains +4.43%, +2.87%, +3.06%, +1.43%; mean +2.95%
+FINAL VERDICT (23:42:06Z rule: mean of the four pair gains; PASS if mean >= +3% and every pair >= +1.5%; NO TRANSFER if mean < +1.5%; otherwise transfers, under the bar): transfers, under the bar
+
+== traced pair (off, on; six lanes; HL_A27_GPU_TRACE), no verdict
+leg 1 FUSED_RS 0: rate 42.491 tok/s | mean prove call 14.781 s | wall 568.5 ms | prover e 212.2 q 60.1 w 2.4 ms/block | union over all buffers 76.2 % | e by tag: commit rows 2504 25.81, commit rows 2606 22.69, everything else 163.66 ms/block | records 37478, last record 0.032 s before the last completion
+leg 2 FUSED_RS 1: rate 44.589 tok/s | mean prove call 14.084 s | wall 541.7 ms | prover e 195.2 q 51.5 w 2.4 ms/block | union over all buffers 75.6 % | e by tag: commit rows 2504 19.68, commit rows 2606 18.28, everything else 157.23 ms/block | records 37385, last record 0.047 s before the last completion
+off against on: rate 42.49 -> 44.59 (+4.94%), wall 568.5 -> 541.7 ms, e 212.2 -> 195.2 ms (commit 2504: 25.81 -> 19.68; 2606: 22.69 -> 18.28; other: 163.66 -> 157.23)

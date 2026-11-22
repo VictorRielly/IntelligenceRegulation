@@ -1,0 +1,5 @@
+writer 24.1 s; posts 8; content ids per post [14, 18, 18, 20, 18, 17, 15, 17]
+{"leg": 1, "A36": 0, "rate": 42.49052399437725, "all_proved": true, "span_s": 163.3178752079839}
+{"leg": 2, "A36": 1, "rate": 44.589441856857626, "all_proved": true, "span_s": 156.52279087493662}
+{"leg": 2, "verify": {"receipts": 54, "checked": 54, "other": 0}}
+done

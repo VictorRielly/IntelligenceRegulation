@@ -1,0 +1,5 @@
+[15:44:21] launching fu_set2
+[zk60-guard 15:44:21] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 15:44:31] START fused-fu_set2 class=gpu need=125G cap=200G enforce=watchdog-only waited=10s run=1b44cef2d0d4
+[zk60-guard 16:02:38] END fused-fu_set2 exit=0 child_wall=1087s peak_rss=58.99G min_avail=134.01G peak_vram=22275MiB
+[16:02:38] fu_set2 guard exit 0

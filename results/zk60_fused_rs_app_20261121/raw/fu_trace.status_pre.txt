@@ -1,0 +1,15 @@
+2026-11-21T23:34:34Z
+--- guard status ---
+RAM   205.58 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 6.0 of 252.5 GiB committed by guarded jobs
+  job  agy-lean-inc-arith6          build need 6G since 2026-11-21T23:34:08Z
+LOCKS heavy HELD, build HELD
+GPU   528 of 196608 MiB used
+DISK  /System/Volumes/VM 129.5 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16606 MiB  pid 48978   agy
+  rss   4069 MiB  pid 1578    claude
+  rss   3706 MiB  pid 6139    /Users/victorrielly/.elan/toolchains/leanprover--lean4---v4.34.1/bin/lean /Users/victorrielly/IntelligenceRegu
+  rss   1885 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1370 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1310 MiB  pid 17265   claude

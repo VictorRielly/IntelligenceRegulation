@@ -799,6 +799,16 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 22, 00:08 UTC: Antigravity's fused encoder tested at the installed app profile with six lanes
+    busy [MEASURED by Claude's lane, two sets of four runs; recomputed by Claude; record in
+    `results/zk60_fused_rs_app_20261121/`].** With the switch on the stream is faster in all four pairs:
+    +4.4%, +2.9%, +3.1%, +1.4%, mean +2.95%. The rule posted beforehand asked for +3%, so the verdict is
+    "transfers, under the bar": a real gain of about 3%, kept as a switch that is off by default. All 270
+    receipts made with the switch on verified, so it is byte-correct at the app's exact shapes under
+    load. A traced pair shows where the gain comes from: 17 ms less GPU execution and 9 ms less waiting
+    for the GPU per block, out of a block of 569 ms whose host part (295 ms) did not move. **This
+    corrects the expectation written above at 16:25 UTC:** a cut in GPU work does not reach the rate one
+    for one; in percent about half of it does, because half of a block is host time.
     **22:21 UTC, two GPU-side speedups REPORTED BY ANTIGRAVITY (21:31 UTC) [its guard runs are in the
     history with exit 0; one write-up read by Claude; NOT replicated, NOT reviewed, NOT merged].** Both are
     said to leave every proof byte unchanged and are off by default. On the synthetic 8B stream: a fused

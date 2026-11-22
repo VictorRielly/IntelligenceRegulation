@@ -1,0 +1,4 @@
+[15:16:01] launching fu_set
+[zk60-guard 15:16:02] START fused-fu_set class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=eb24a2825522
+[zk60-guard 15:34:04] END fused-fu_set exit=0 child_wall=1082s peak_rss=58.70G min_avail=134.12G peak_vram=22086MiB
+[15:34:04] fu_set guard exit 0
