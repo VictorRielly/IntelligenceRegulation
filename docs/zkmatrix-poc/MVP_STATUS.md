@@ -799,6 +799,12 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 22, 01:37 UTC: the fused encoder is MERGED, off by default.** Antigravity fixed the three
+    conditions of the second read; Claude read the fix and ran the full suite on the merged tree
+    [MEASURED, guard run `b2617388f526`]: 1008 passed, 2 failed, 135 ignored, the two failures being two
+    of the three long-known ones (files that are not on this machine); the third known one passes now.
+    The switch `HL_METAL_FUSED_RS` is byte-identical when on at every tested shape and worth about 3% at
+    the app profile; turning it on in the app is Astra's step.
     **Nov 22, 00:51 UTC, Lean (two legs of Claude's lane):**
     (1) Leg 20, merged at `acf23691` [PROVED in Lean, the lane's full check green, 586 of 586 audited]:
     Antigravity's finding L68c-1 is closed. At padded rows one activation lookup needs the public table's
