@@ -799,6 +799,18 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 38, Nov 22 11:52 UTC [MEASURED on three traced runs; script re-run by Claude, same tables]:
+    at six lanes the GPU sets the rate, not the host.** One lane alone needs 302 ms a block, six lanes
+    505 ms each. Of the 203 ms added, 119 are GPU execution (98 to 218 ms), 47 are waiting for the GPU
+    and only 37 are host time. Six lanes together ask the GPU for 591 ms of work, counted at one-lane
+    speed, in each 505 ms block period, and the GPU is busy 88% of the time. This
+    fits the day's other results: a host cut inside the block loop passed only a third, more than six
+    lanes lose, and threads help only up to eight. So the next gains are in cutting GPU work per block,
+    above all the zero-check phase (181 of the 218 ms), and Claude withdrew an earlier remark that host
+    cuts pay more. About 126 of the 224 ms of host time per block is serial code that more threads do
+    not touch; each piece is under 30 ms and none is scheduled. The researcher's next items: where the
+    always-on gain sits, then a table of GPU work by kind with the three largest cuts that keep the
+    committed words.
     **Nov 22, 11:22 UTC: the always-on part of the bundle re-measured; corrected to about +3% to +4%
     [MEASURED, four untraced runs old, new, new, old; reading fixed at 11:03:49Z before the run].** The
     researcher's tables and one traced run did not show the gain that Claude had stated for a rebuild

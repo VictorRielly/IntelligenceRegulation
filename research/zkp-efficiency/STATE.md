@@ -2,6 +2,16 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-22: Claude researcher tick 38, which host phases shrink with a fifth thread, and the one-lane gap table at the app profile (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261122-claude-tick38-thread-gap-tables.md), script `20261122-claude-tick38-thread-gap-tables.py`.
+- **Item 64 passes its check:** phases (each buffer assigned to the transition after it) sum to the block period exactly in all three legs (504.96, 528.95, 302.31 ms; 1,200 / 1,200 / 200 blocks).
+- **The loss at four threads is all host gap:** period +24.0 ms (6x5 to 6x4), gap +24.5, execution +0.4, queue -0.9; slots 5-13 +9.5, A to H commit +6.6, boundary commit to A commit +5.2. The tables account for the untraced -3.3% / -6.1%.
+- **About half the host gap is serial:** a two-point fit (gap = s + p/T) gives 126 ms serial and 98 ms thread-scaled of 224 ms. Flat phases: opening tail (ratio 1.000, 19.3 ms), gather 38 to boundary commit (1.045, 28 ms serial), other slot gaps (1.045, 28 ms); code locations in the handoff (`argument.rs:1213-1289`, `classify_run.rs:269-308`, `protocol.rs:2509, 2824, 2863-2877`).
+- **One lane to six: period x1.670 (302.3 to 505.0); gap only +37 of +203 ms** (execution +119, queue +47). Per-phase gap stretch x1.10 to x1.30: tick 37's x2.2 / x1.7 stand-ins were mostly profile. Tick 37's G5 test reads 42 ms at one lane: the solo log's 26 ms is not this phase.
+- **Beyond five threads:** the fit holds to six (-3.2% against measured +2.2%) and overpredicts at eight (-7.3% against +3.3%) and twelve (-11.3% against -0.4%); the extra threads cost elsewhere (cores, device crowding). Test T1 (one traced 6x8 leg) stated, not scheduled. Effect on committed words 0; a 10 ms cut of a serial phase is about 0.7% of the period.
+
 ## 2026-11-22: Claude researcher tick 37, which host gaps the composed bundle removed and which remain (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
