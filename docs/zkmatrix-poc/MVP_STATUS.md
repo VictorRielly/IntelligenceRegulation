@@ -799,6 +799,23 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 22, 00:51 UTC, Lean (two legs of Claude's lane):**
+    (1) Leg 20, merged at `acf23691` [PROVED in Lean, the lane's full check green, 586 of 586 audited]:
+    Antigravity's finding L68c-1 is closed. At padded rows one activation lookup needs the public table's
+    entry at input 0 to be 0; that condition is now a field of the model's validity conditions, citing the
+    code line that refuses a table without it (`accuracy_act.rs:21-22`, confirmed by Sol). No other lookup
+    has the same gap [READ]. Sol's geometry values, checked against a real verified receipt, match the
+    Lean constants (39 of 39) [CHECKED by script]. The finding that the layer range is not pinned (L63-14)
+    is answered by Sol and recorded as a deployment premise; the eight such premises of the Lean top are
+    listed in plain words in `results/zk60_lean_l63_20261116/DEPLOYMENT_PREMISES_20261122.md`.
+    (2) Leg 21, a second read of the first four of Antigravity's 18 honest-prover modules [READ only,
+    nothing built; `results/zk60_claude_review_20261116/L68C_SECOND_READ_1_20261122.md`]: no `sorry`, no
+    wrong constant; three modules can be merged after small documentation changes. But the completeness
+    results in them are conditional on an arithmetic bundle that later modules are said to prove, one
+    honest-prover check in the Lean differs from the code, and the zero-knowledge premise of the top is
+    still stated at an error budget that undercounts the real run (known since Nov 20). **So completeness
+    and zero-knowledge of the run are not proved yet; the open list is: the slot sums, the claim truths,
+    the honest-carry invariant, three premises on the site construction, and the zero-knowledge premise.**
     **Nov 22, 00:08 UTC: Antigravity's fused encoder tested at the installed app profile with six lanes
     busy [MEASURED by Claude's lane, two sets of four runs; recomputed by Claude; record in
     `results/zk60_fused_rs_app_20261121/`].** With the switch on the stream is faster in all four pairs:
