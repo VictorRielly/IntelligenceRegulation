@@ -118,6 +118,10 @@ mod device {
         let _lock = lock_device();
         require_device();
         let ntt = NttTables::new(16);
+        let sf_on = hashline::gpu::metal_sparse_fold_for_test();
+        let dev_fold_on = std::env::var("HL_METAL_DEVICE_FOLD").map(|v| v == "1").unwrap_or(false);
+        let sf_before = hashline::gpu::metal_sparse_fold_calls_for_test();
+        let fb_before = hashline::gpu::metal_sparse_fold_fallbacks_for_test();
         for (si, &(log_cols, ir, rows)) in SHAPES.iter().enumerate() {
             let p = params(log_cols, ir);
             let (n, nn) = (p.cols(), p.enc_cols());
@@ -148,7 +152,15 @@ mod device {
                 }
             }
         }
-        println!("ZK60_METAL_SUMMARY {{\"case\":\"m1-plain\",\"shapes\":{}}}", SHAPES.len());
+        let sf_delta = hashline::gpu::metal_sparse_fold_calls_for_test() - sf_before;
+        let fb_delta = hashline::gpu::metal_sparse_fold_fallbacks_for_test() - fb_before;
+        assert_eq!(fb_delta, 0, "m1-plain: unexpected sparse fold fallback");
+        if sf_on && !dev_fold_on {
+            assert_eq!(sf_delta, SHAPES.len() as u64, "m1-plain: expected exact {} sparse fold dispatches", SHAPES.len());
+        } else {
+            assert_eq!(sf_delta, 0, "m1-plain: sparse fold dispatched when off");
+        }
+        println!("ZK60_METAL_SUMMARY {{\"case\":\"m1-plain\",\"shapes\":{},\"sparse_folds\":{sf_delta}}}", SHAPES.len());
     }
 
     /// claims touching data rows and a mask row through one shared column key,
@@ -177,6 +189,10 @@ mod device {
         require_device();
         let ntt = NttTables::new(16);
         let backend = hashline::gpu::backend();
+        let sf_on = hashline::gpu::metal_sparse_fold_for_test();
+        let dev_fold_on = std::env::var("HL_METAL_DEVICE_FOLD").map(|v| v == "1").unwrap_or(false);
+        let sf_before = hashline::gpu::metal_sparse_fold_calls_for_test();
+        let fb_before = hashline::gpu::metal_sparse_fold_fallbacks_for_test();
         let mut cases = 0usize;
         // q_pad = num_col_checks = 8; the (3, 4, 9) shape has n = 8 < q... see below
         for (si, &(log_cols, ir, rows0)) in SHAPES.iter().enumerate() {
@@ -224,7 +240,15 @@ mod device {
             cases += 1;
         }
         assert!(cases >= 8, "too few zk shapes ran: {cases}");
-        println!("ZK60_METAL_SUMMARY {{\"case\":\"m1-zk{}\",\"shapes\":{cases}}}", if tag.is_some() { "-keyed" } else { "" });
+        let sf_delta = hashline::gpu::metal_sparse_fold_calls_for_test() - sf_before;
+        let fb_delta = hashline::gpu::metal_sparse_fold_fallbacks_for_test() - fb_before;
+        assert_eq!(fb_delta, 0, "m1-zk: unexpected sparse fold fallback");
+        if sf_on && !dev_fold_on {
+            assert_eq!(sf_delta, cases as u64, "m1-zk: expected exact {cases} sparse fold dispatches");
+        } else {
+            assert_eq!(sf_delta, 0, "m1-zk: sparse fold dispatched when off");
+        }
+        println!("ZK60_METAL_SUMMARY {{\"case\":\"m1-zk{}\",\"shapes\":{cases},\"sparse_folds\":{sf_delta}}}", if tag.is_some() { "-keyed" } else { "" });
     }
 
     #[test]
@@ -529,6 +553,90 @@ mod device {
             "ZK60_METAL_SUMMARY {{\"case\":\"m1-fused-rs-classifier\",\"shapes\":{}}}",
             cls_shapes.len()
         );
+    }
+
+    struct SparseFoldGuard(Option<bool>);
+    impl Drop for SparseFoldGuard {
+        fn drop(&mut self) {
+            hashline::gpu::metal_set_sparse_fold_for_test(self.0);
+        }
+    }
+
+    /// [Opt 1 + OPT-NEXT-1, M4 + L8] Composed sparse-fold + fused-RS byte parity
+    /// across installed classifier shapes (holding `METAL_TEST_LOCK`), asserting
+    /// exact `SPARSE_FOLD_CALLS`, `SPARSE_FOLD_FALLBACKS`, and `FUSED_RS_CALLS` deltas.
+    #[test]
+    fn m1_sparse_fold_and_fused_rs_composed_parity() {
+        let _lock = lock_device();
+        require_device();
+        let _frs_guard = FusedRsGuard(hashline::gpu::set_fused_rs_for_test(Some(false)));
+        let _sf_guard = SparseFoldGuard(hashline::gpu::metal_set_sparse_fold_for_test(Some(false)));
+
+        let ntt18 = NttTables::new(18);
+        let backend = hashline::gpu::backend();
+        let tag = HashTag::for_profile("hashline-zk-mr1/metal-test/1");
+
+        // Installed classifier geometries covering log_cols in {8, 12, 14}
+        let shapes: [(&str, u32, usize, usize, usize, u64); 5] = [
+            ("w16r2_block_a", 14, 2, 280, 2504, 1),
+            ("w16r2_block_h", 14, 2, 280, 2606, 1),
+            ("w16r2_boundary_traced", 14, 2, 280, 38, 1),
+            ("w16r2_log12_76", 12, 4, 256, 76, 1),
+            ("w16r2_log8_6", 8, 4, 256, 6, 0),
+        ];
+
+        for (si, &(label, log_cols, ir, q, rows, exp_frs)) in shapes.iter().enumerate() {
+            let p = params(log_cols, ir);
+            let zk = ZkOpts { q_pad: q, coset: Fp::new(7) };
+            let data = rnd(31000 + si as u64, rows * p.cols());
+            let cl = claims(rows, log_cols, 35000 + si as u64);
+
+            // Reference: CPU oracle
+            let mut r_cpu = ZkRng::new(34000 + si as u64, b"metal-sf-frs");
+            let mut cpu = pcs::commit_zk_owned_with_tag(&Cpu, &p, data.clone(), &ntt18, &zk, &mut r_cpu, &tag);
+            cpu.mask_rows = vec![rows - 3, rows - 2];
+            cpu.prox_mask_row = Some(rows - 1);
+            let mut t_cpu = Transcript::new(b"metal-sf-frs-open");
+            let o_cpu = pcs::open_zk(&cpu, &cl, &mut t_cpu);
+            let mut b_cpu = Vec::new();
+            o_cpu.write_bytes(&mut b_cpu);
+            let tr_cpu = t_cpu.challenge_fp2();
+
+            for (frs_on, sf_on, arm) in [(false, false, "frs0+sf0"), (false, true, "frs0+sf1"), (true, true, "frs1+sf1")] {
+                hashline::gpu::set_fused_rs_for_test(Some(frs_on));
+                hashline::gpu::metal_set_sparse_fold_for_test(Some(sf_on));
+                let frs_before = hashline::gpu::fused_rs_calls_for_test();
+                let sf_before = hashline::gpu::metal_sparse_fold_calls_for_test();
+                let fb_before = hashline::gpu::metal_sparse_fold_fallbacks_for_test();
+
+                let mut r_dev = ZkRng::new(34000 + si as u64, b"metal-sf-frs");
+                let mut dev = pcs::commit_zk_owned_with_tag(&backend, &p, data.clone(), &ntt18, &zk, &mut r_dev, &tag);
+                assert!(matches!(dev.cm.store, Store::Device(_)), "{label}/{arm}: Metal declined");
+                assert_eq!(dev.commitment().root, cpu.commitment().root, "{label}/{arm}: root mismatch");
+                dev.mask_rows = vec![rows - 3, rows - 2];
+                dev.prox_mask_row = Some(rows - 1);
+
+                let mut t_dev = Transcript::new(b"metal-sf-frs-open");
+                let o_dev = pcs::open_zk(&dev, &cl, &mut t_dev);
+                let mut b_dev = Vec::new();
+                o_dev.write_bytes(&mut b_dev);
+
+                let frs_delta = hashline::gpu::fused_rs_calls_for_test() - frs_before;
+                let sf_delta = hashline::gpu::metal_sparse_fold_calls_for_test() - sf_before;
+                let fb_delta = hashline::gpu::metal_sparse_fold_fallbacks_for_test() - fb_before;
+
+                assert_eq!(b_dev, b_cpu, "{label}/{arm}: OpeningZk bytes mismatch");
+                assert_eq!(t_dev.challenge_fp2(), tr_cpu, "{label}/{arm}: transcript mismatch");
+                assert_eq!(frs_delta, if frs_on { exp_frs } else { 0 }, "{label}/{arm}: FUSED_RS_CALLS delta");
+                assert_eq!(fb_delta, 0, "{label}/{arm}: unexpected sparse fold fallback");
+                if sf_on {
+                    assert_eq!(sf_delta, 1, "{label}/{arm}: expected exact 1 SPARSE_FOLD_CALLS dispatch");
+                } else {
+                    assert_eq!(sf_delta, 0, "{label}/{arm}: sf0 dispatched sparse fold");
+                }
+            }
+        }
+        println!("ZK60_METAL_SUMMARY {{\"case\":\"m1-sparse-fold-composed\",\"shapes\":{}}}", shapes.len());
     }
 
     /// [ZK60-METAL M2] The keyed hiding commitment at model-block sizes, CPU

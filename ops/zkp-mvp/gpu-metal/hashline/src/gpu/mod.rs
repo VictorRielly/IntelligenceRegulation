@@ -40,6 +40,40 @@ pub use metal::{fold_rows_host_for_test as metal_fold_rows_host_for_test, fold_r
 // capture of its inputs (the census and the bench)
 #[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
 pub use metal::{a8_opts as metal_a8_opts, fold_capture_for_test as metal_fold_capture_for_test, fold_rows_host_a8 as metal_fold_rows_host_a8, fold_rows_host_m11_for_test as metal_fold_rows_host_m11_for_test, fold_segments_a8 as metal_fold_segments_a8, fold_segments_a8_opts as metal_fold_segments_a8_opts, set_a8_fold_for_test as metal_set_a8_fold_for_test, A8Form as MetalA8Form, A8Opts as MetalA8Opts, A8Seg as MetalA8Seg, FoldCapture as MetalFoldCapture};
+// [Opt 1] tests: the 1-CB row-sparse GPU opening fold and its switch/counters
+#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub use metal::fold_rows_sparse_for_test as metal_fold_rows_sparse_for_test;
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub use metal::{set_sparse_fold_for_test as metal_set_sparse_fold_for_test, sparse_fold_calls_for_test as metal_sparse_fold_calls_for_test, sparse_fold_fallbacks_for_test as metal_sparse_fold_fallbacks_for_test, sparse_fold_for_test as metal_sparse_fold_for_test};
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+pub fn metal_set_sparse_fold_for_test(_on: Option<bool>) -> Option<bool> {
+    None
+}
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+pub fn metal_sparse_fold_for_test() -> bool {
+    false
+}
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+pub fn metal_sparse_fold_calls_for_test() -> u64 {
+    0
+}
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+pub fn metal_sparse_fold_fallbacks_for_test() -> u64 {
+    0
+}
+#[cfg(all(test, not(all(feature = "gpu-metal", not(feature = "gpu-cuda")))))]
+#[allow(clippy::too_many_arguments)]
+pub fn metal_fold_rows_sparse_for_test(
+    _src: &[u64],
+    _rows: usize,
+    _n: usize,
+    _nn: usize,
+    _ir: usize,
+    _rhos: &[Vec<crate::field::Fp2>],
+    _pads: Option<(&[u64], usize)>,
+) -> Result<Option<Vec<Vec<crate::field::Fp2>>>, String> {
+    Ok(None)
+}
 // [A4] the witness weight products on the device (exact; the CPU stays the
 // reference and the default, `private_block/witness.rs`)
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]

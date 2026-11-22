@@ -6851,6 +6851,9 @@ mod a22 {
         ba: Option<bool>,
         /// [OPT-NEXT-1] `frs0` / `frs1`: fused DIF-INTT -> DIT-FWD coset RS encoder (`HL_METAL_FUSED_RS`, default off)
         frs: Option<bool>,
+        /// [Opt 1] `sf0` / `sf1`: the 1-CB row-sparse GPU opening fold (`HL_METAL_SPARSE_FOLD`);
+        /// default OFF: `sf1` turns it on, `sf0` forces it off
+        sf: Option<bool>,
     }
 
     #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
@@ -6864,13 +6867,15 @@ mod a22 {
         } else {
             panic!("HL_A22_AB: an arm starts with serve<R> or harness<R>, not {first:?}")
         };
-        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None, a23: A23Set::default(), seal: None, ba: None, frs: None };
+        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None, a23: A23Set::default(), seal: None, ba: None, frs: None, sf: None };
         for w in words {
             match w {
                 "ba0" => a.ba = Some(false),
                 "ba1" => a.ba = Some(true),
                 "frs0" => a.frs = Some(false),
                 "frs1" => a.frs = Some(true),
+                "sf0" => a.sf = Some(false),
+                "sf1" => a.sf = Some(true),
                 "dig0" => a.dig = Some(false),
                 "dig1" => a.dig = Some(true),
                 "share0" => a.a23.share = Some(false),
@@ -6891,11 +6896,15 @@ mod a22 {
         assert_eq!(a22_arm("serve4").frs, None);
         assert_eq!(a22_arm("serve4+frs0").frs, Some(false));
         assert_eq!(a22_arm("serve4+frs1").frs, Some(true));
-        let combined = a22_arm("harness4+ba1+frs1");
+        assert_eq!(a22_arm("serve4").sf, None);
+        assert_eq!(a22_arm("serve4+sf0").sf, Some(false));
+        assert_eq!(a22_arm("serve4+sf1").sf, Some(true));
+        let combined = a22_arm("harness4+ba1+frs1+sf1");
         assert!(combined.harness);
         assert_eq!(combined.r, 4);
         assert_eq!(combined.ba, Some(true));
         assert_eq!(combined.frs, Some(true));
+        assert_eq!(combined.sf, Some(true));
     }
 
     /// [A22] one stream's clocks: each request's completion and latency (from its arrival
@@ -7070,6 +7079,7 @@ mod a22 {
             crate::private_block::trained_block::set_seal_pool_for_test(a.seal);
             crate::private_block::trained_block::set_a35_bounds_ahead_for_test(a.ba);
             crate::gpu::set_fused_rs_for_test(a.frs);
+            crate::gpu::metal_set_sparse_fold_for_test(a.sf);
         };
         let reset = || {
             a18_apply(&A18Arm::default());
@@ -7079,6 +7089,7 @@ mod a22 {
             crate::private_block::trained_block::set_seal_pool_for_test(None);
             crate::private_block::trained_block::set_a35_bounds_ahead_for_test(None);
             crate::gpu::set_fused_rs_for_test(None);
+            crate::gpu::metal_set_sparse_fold_for_test(None);
         };
         // one cold request through the server (kernel compiles), verified
         let cold = serve("serve1 (cold)", 1, None, true);
@@ -7090,7 +7101,7 @@ mod a22 {
                 let (a, label) = (&arms[ai], &labels[ai]);
                 apply(a);
                 let settings = format!(
-                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}, bounds ahead {}, fused rs {}",
+                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}, bounds ahead {}, fused rs {}, sparse fold {}",
                     run::fork::ahead_window(),
                     a22_digest_ahead(),
                     a22_lanes(),
@@ -7098,7 +7109,8 @@ mod a22 {
                     crate::private_block::trained_block::a23_checked(),
                     crate::private_block::trained_block::seal_pool_threads(),
                     crate::private_block::trained_block::a35_bounds_ahead(),
-                    crate::gpu::fused_rs_for_test()
+                    crate::gpu::fused_rs_for_test(),
+                    crate::gpu::metal_sparse_fold_for_test()
                 );
                 let s = if a.harness { harness(label, a.r, p == 0) } else { serve(label, a.r, Some(p), p == 0) };
                 reset();

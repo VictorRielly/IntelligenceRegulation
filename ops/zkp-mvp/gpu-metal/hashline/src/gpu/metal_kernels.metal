@@ -921,6 +921,93 @@ kernel void k_fold_reduce(device const ulong *part [[buffer(0)]],
     out[o + 1] = s1;
 }
 
+// [Opt 1] 1-CB row-sparse opening fold over [data | pads] for up to 64 rho
+// vectors at once. Threadgroup size is 32x1x1 (one SIMD-group, zero barriers):
+// dynamic threadgroup memory holds SoA accumulators acc[(g << 6) + lid] (c0)
+// and acc[(g << 6) + 32 + lid] (c1). Every operation uses canonical Goldilocks
+// arithmetic (gl_mul / gl_add), so outputs are bit-identical to the host fold.
+struct SparseFoldArgs {
+    ulong n;       // offset 0
+    ulong nn;      // offset 8  (self.n for hiding; self.nn for plain)
+    ulong ir;      // offset 16 (1 for hiding; self.ir for plain)
+    ulong q;       // offset 24 (pad columns; 0 if no pads)
+    uint k;        // offset 32
+    uint blocks;   // offset 36
+};
+
+kernel void k_fold_sparse_partial(
+    device const ulong *data [[buffer(0)]],
+    device const ulong *pads [[buffer(1)]],
+    device const uint *row_idx [[buffer(2)]],
+    device const uint *row_starts [[buffer(3)]],
+    device const ulong2 *term_r [[buffer(4)]],
+    device const uint *term_g [[buffer(5)]],
+    device const uint *blk_starts [[buffer(6)]],
+    device ulong2 *part [[buffer(7)]],
+    constant SparseFoldArgs &args [[buffer(8)]],
+    threadgroup ulong *acc [[threadgroup(0)]],
+    uint2 tid2 [[thread_position_in_threadgroup]],
+    uint2 tg [[threadgroup_position_in_grid]]) {
+    uint lid = tid2.x;
+    ulong total_cols = args.n + args.q;
+    ulong j = ulong(tg.x) * 32UL + ulong(lid);
+    uint b = tg.y;
+    if (j >= total_cols || b >= args.blocks) { return; }
+
+    uint k = args.k;
+    for (uint g = 0; g < k; g++) {
+        uint off = (g << 6) + lid;
+        acc[off]       = 0UL;
+        acc[off + 32u] = 0UL;
+    }
+
+    bool in_data = (j < args.n);
+    device const ulong *col_base = in_data ? (data + j * args.ir) : (pads + (j - args.n));
+    ulong col_stride = in_data ? args.nn : args.q;
+
+    uint r0 = blk_starts[b];
+    uint r1 = blk_starts[b + 1u];
+    for (uint r = r0; r < r1; r++) {
+        ulong row = ulong(row_idx[r]);
+        ulong v = col_base[row * col_stride];
+        if (v == 0UL) { continue; }
+        uint t0 = row_starts[r];
+        uint t1 = row_starts[r + 1u];
+        for (uint t = t0; t < t1; t++) {
+            ulong2 rw = term_r[t];
+            uint off = (term_g[t] << 6) + lid;
+            acc[off]       = gl_add(acc[off],       gl_mul(rw.x, v));
+            acc[off + 32u] = gl_add(acc[off + 32u], gl_mul(rw.y, v));
+        }
+    }
+
+    ulong base_blk = ulong(b) * ulong(k) * total_cols;
+    for (uint g = 0; g < k; g++) {
+        uint off = (g << 6) + lid;
+        part[base_blk + ulong(g) * total_cols + j] = ulong2(acc[off], acc[off + 32u]);
+    }
+}
+
+kernel void k_fold_sparse_reduce(
+    device const ulong2 *part [[buffer(0)]],
+    device ulong2 *out [[buffer(1)]],
+    constant SparseFoldArgs &args [[buffer(2)]],
+    uint2 gid [[thread_position_in_grid]]) {
+    ulong total_cols = args.n + args.q;
+    ulong j = ulong(gid.x);
+    uint g = gid.y;
+    if (j >= total_cols || g >= args.k) { return; }
+    ulong s0 = 0UL, s1 = 0UL;
+    ulong stride = ulong(args.k) * total_cols;
+    ulong base = ulong(g) * total_cols + j;
+    for (uint b = 0; b < args.blocks; b++) {
+        ulong2 p = part[ulong(b) * stride + base];
+        s0 = gl_add(s0, p.x);
+        s1 = gl_add(s1, p.y);
+    }
+    out[base] = ulong2(s0, s1);
+}
+
 // ------------------------------------------------- sumcheck table fold (M3)
 // tab[t][i] = lo + r * (hi - lo) for i < half, every table t (zkp-core
 // sumcheck/rounds.rs ClosureRounds::fold); tables are Fp2 (c0, c1) pairs, table
