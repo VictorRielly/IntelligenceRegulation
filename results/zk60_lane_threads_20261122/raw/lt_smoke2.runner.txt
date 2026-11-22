@@ -1,0 +1,4 @@
+[00:39:58] launching lt_smoke2
+[zk60-guard 00:39:58] START lanethreads-lt_smoke2 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=a46f172b9f7b
+[zk60-guard 00:44:24] END lanethreads-lt_smoke2 exit=0 child_wall=265s peak_rss=58.36G min_avail=137.21G peak_vram=18830MiB
+[00:44:24] lt_smoke2 guard exit 0

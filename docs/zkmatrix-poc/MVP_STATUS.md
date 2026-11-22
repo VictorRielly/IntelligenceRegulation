@@ -811,7 +811,12 @@ item was re-checked against the source by the coordinator.
     twice per block: 0.5% to 3% at most, not scheduled). Following from it, Claude posted and started a
     setting test with no code change: 6 lanes x 4 threads and 8 lanes x 3 threads against today's 6 x 5,
     because 6 x 5 asks for 30 threads on a machine with 24 fast cores; rule posted at 07:59:16Z before
-    any run; no result yet.
+    any run. **Result, 08:38 UTC [MEASURED, one set of six runs, 328 receipts accepted by the previous
+    head's verifier; `results/zk60_lane_threads_20261122/`]: no gain; fewer threads lose.** 6 x 4 is
+    3.3% and 6.1% below 6 x 5, and 8 x 3 is 2.2% and 2.7% below it. So the fast-core count is not the
+    limit, and the host phases do use the fifth thread. Today's setting with both switches on gave 47.0
+    and 47.3 tok/s, which repeats the merged bundle's level. A second set (6 x 6 and 6 x 8 against
+    6 x 5) is defined at 08:39:53Z and follows.
     **Nov 22, 05:09 UTC: the composed bundle is MERGED.** Antigravity fixed every finding of the second
     read (also the fallback on device error, which was only asked before switch-on); Claude read the
     fix and ran the full suite on the merged tree [MEASURED, guard run `00fe6509a11f`]: 1010 passed,
