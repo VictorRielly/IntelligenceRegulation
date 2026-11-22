@@ -1,0 +1,57 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan212.txt ==
+build ZK60Formal.RunShapeShield
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeAct0.lean
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/check_l63merge.sh
+== lake build ZK60Formal.RunShapeShield ==
+Build completed successfully (3366 jobs).
+build rc 0 (16 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeAct0.lean ==
+'ZK60.L63Act0Probe.hAct0_of_valid' depends on axioms: [propext]
+'ZK60.L63Act0Probe.hAct0_run' depends on axioms: [propext]
+'ZK60.L63Act0Probe.hAct0_runV' depends on axioms: [propext]
+'ZK60.RunShape.Shield.zeroPub_valid' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.RunShape.Shield.shield_run_exists' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeAct0.lean (18 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/check_l63merge.sh ==
+check rc 0 (819 s); its log is check.log
+existing files under formal/, ops/, src/ modified by the working branch between 25e70c25 and a32421f9 (from the merge; root excluded): 13
+  merged: formal/ZK60Formal/HonestClassifyBlock.lean
+  merged: formal/ZK60Formal/HonestClassifyRun.lean
+  merged: formal/ZK60Formal/HonestRunBlock.lean
+  merged: formal/ZK60Formal/HonestRunStageIn.lean
+  merged: formal/ZK60Formal/HonestRunStageOut.lean
+  merged: formal/ZK60Formal/RunCoverStage.lean
+  merged: formal/ZK60Formal/RunShieldBlkInst.lean
+  merged: formal/ZK60Formal/StageVerifyExecComplete.lean
+  merged: ops/zkp-mvp/RECOVERY_COORDINATION.md
+  merged: ops/zkp-mvp/gpu-metal/hashline/src/private_block/run_fork.rs
+  merged: ops/zkp-mvp/gpu-metal/hashline/src/private_block/run_fork_tests.rs
+  merged: ops/zkp-mvp/gpu-metal/hashline/src/private_block/trained_block.rs
+  merged: ops/zkp-mvp/gpu-metal/hashline/src/private_block/trained_stack_tests.rs
+permitted edit (ruling L63-9 / L63-10): 8	4	formal/ZK60Formal/RunShieldBlkInst.lean
+permitted edit (ruling L63-9 / L63-10): 12	10	formal/ZK60Formal/HonestClassifyBlock.lean
+permitted edit (ruling L63-9 / L63-10): 1	1	formal/ZK60Formal/HonestClassifyRun.lean
+permitted edit (ruling L63-9 / L63-10): 1	1	formal/ZK60Formal/HonestRunBlock.lean
+permitted edit (ruling L63-9 / L63-10): 2	1	formal/ZK60Formal/HonestRunStageIn.lean
+permitted edit (ruling L63-9 / L63-10): 1	1	formal/ZK60Formal/HonestRunStageOut.lean
+permitted edit (ruling L63-9 / L63-10): 29	13	formal/ZK60Formal/StageVerifyExecComplete.lean
+permitted edit (ruling L63-9 / L63-10): 3	2	formal/ZK60Formal/RunCoverStage.lean
+permitted edit (ruling L63-9 / L63-10): 10	1	formal/ZK60Formal/CircuitBlock.lean
+permitted edit (ruling L63-9 / L63-10): 1	0	formal/ZK60Formal/RunShapeShield.lean
+existing files under formal/, ops/, src/ modified, deleted or renamed since 25e70c25 (excluding the root, the merge's and the rulings' permitted edits): 0; since a32421f9 (excluding the root and the permitted edits): 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== regression: RunStgShieldInstCheck on L17's shape corpus, L49's Shieldstral export, L17's segment corpus ==
+RunStgShieldInstCheck: 158 checks, 0 failed
+RunStgShieldInstCheck: rc 0, axiom reports 10 (expected 10), other axioms 0, error/warning lines 0
+source scan of RunStgShieldInstCheck.lean: none
+regression verdicts: L6 0, L5 0, L11 0, L1 0, InstCheck 0 (0 = the committed count with 0 failed)
+total 801 s
+VERDICT inputs: rootbuild rc 0, root warnings 0, root error lines 0, module builds rc 0, module warnings 0, axioms rc 0, audited 586 of 586, sorryAx 0, ofReduceBool 0, other axioms 0, non-report lines 0, blkAlive rc 0 reports 23 of 23 non-report 0 other axioms 0, L62 top rc 0 reports 1 non-report 0 other axioms 0, source scan 0, generators 0, name clashes 0, Statements/unchanged 0, root diff ok 0, modified existing files 0, regressions rc 0/0/0/0/0 verdicts 0/0/0/0/0
+rc 0, 819 s

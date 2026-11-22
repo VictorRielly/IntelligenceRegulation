@@ -313,6 +313,7 @@ theorem zeroPub_valid (S : BlockShape) (hn : 1 ≤ S.nG) : (zeroPub S).Valid whe
   exp1 _ := by show (0 : ℤ) ≤ 2 ^ S.fe; positivity
   act _ _ := by simp [zeroPub]
   grpF _ := by show 0 < S.nG; omega
+  act0 := rfl
 
 /-- The 26 real blocks with zero public data. -/
 def shieldZeroBlocks : List (RunBlock shieldS0) := shieldExport.map fun c => ⟨shieldCal c, zeroPub _⟩
