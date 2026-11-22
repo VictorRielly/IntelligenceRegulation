@@ -252,8 +252,51 @@ grep -q '^L11Check: 404 checks, 0 failed$' "$OUT/l11check_regression.log" && g11
 g1=1
 grep -q '^L1 TOTAL: 101956 checks, 0 failed$' "$OUT/l1check_regression.log" && g1=0
 echo "regression verdicts: L6 $g6, L5 $g5, L11 $g11, L1 $g1, InstCheck $gic (0 = the committed count with 0 failed)"
+# 2026-11-22 (leg 20): the earlier lanes' in-repo corpus checkers as regressions (handoff 20261121_3 next step 3):
+# L31's BlockInstCheck, L36's BlockAlgCheck, L49's BlockR13HostExportCheck on the Shieldstral block, L55's
+# RunCloseBGeoCheck, L51's RunAbsCheck, each on its committed corpus with its committed count, 0 failed.
+O9=$WT/results/zk60_lean_l9_20261107
+O17=$WT/results/zk60_lean_l17_20261107
+O49=$WT/results/zk60_lean_l49_20261110
+O51=$WT/results/zk60_lean_l51_20261110
+echo "== regression: BlockInstCheck (L31) on L9's and L17's corpora =="
+"$LAKE" -d "$WT/formal" env lean --run "$L/BlockInstCheck.lean" "$O9/corpus.txt" "$O17/block_corpus.txt" \
+  "$O17/shape_corpus.txt" < /dev/null > "$OUT/blockinst_regression.log" 2>&1
+cbi=$?
+tail -n 1 "$OUT/blockinst_regression.log"
+echo "== regression: BlockAlgCheck (L36) on L17's shape corpus =="
+"$LAKE" -d "$WT/formal" env lean --run "$L/BlockAlgCheck.lean" "$O17/shape_corpus.txt" < /dev/null \
+  > "$OUT/blockalg_regression.log" 2>&1
+cba=$?
+tail -n 1 "$OUT/blockalg_regression.log"
+echo "== regression: BlockR13HostExportCheck (L49) on the Shieldstral block export =="
+"$LAKE" -d "$WT/formal" env lean --run "$L/BlockR13HostExportCheck.lean" "$O49/pub_shield_short.txt" < /dev/null \
+  > "$OUT/r13hostexport_regression.log" 2>&1
+crh=$?
+grep '^checks: ' "$OUT/r13hostexport_regression.log"
+echo "== regression: RunCloseBGeoCheck (L55) on L29's corpus, L49's export and the code =="
+"$LAKE" -d "$WT/formal" env lean --run "$L/RunCloseBGeoCheck.lean" "$WT/results/zk60_lean_l29_20261107/corpus.txt" \
+  "$O49/pub_shield_short.txt" "$WT/ops/zkp-mvp/gpu-metal" < /dev/null > "$OUT/closebgeo_regression.log" 2>&1
+ccg=$?
+tail -n 1 "$OUT/closebgeo_regression.log"
+echo "== regression: RunAbsCheck (L51) on L51's corpus and the code =="
+"$LAKE" -d "$WT/formal" env lean --run "$L/RunAbsCheck.lean" "$O51/l51_corpus.txt" "$WT/ops/zkp-mvp/gpu-metal" \
+  < /dev/null > "$OUT/abs_regression.log" 2>&1
+cab=$?
+tail -n 1 "$OUT/abs_regression.log"
+gbi=1
+grep -q '^BlockInstCheck: 82 checks, 0 failed$' "$OUT/blockinst_regression.log" && gbi=0
+gba=1
+grep -q '^BlockAlgCheck: 56 checks, 0 failed$' "$OUT/blockalg_regression.log" && gba=0
+grh=1
+grep -q '^checks: 210 passed, 0 failed, 14 fold tables skipped' "$OUT/r13hostexport_regression.log" && grh=0
+gcg=1
+grep -q '^RunCloseBGeoCheck: 24 checks, 0 failed$' "$OUT/closebgeo_regression.log" && gcg=0
+gab=1
+grep -q '^RunAbsCheck: 29 checks, 0 failed$' "$OUT/abs_regression.log" && gab=0
+echo "earlier corpus checkers: rc $cbi/$cba/$crh/$ccg/$cab verdicts $gbi/$gba/$grh/$gcg/$gab (BlockInst 82, BlockAlg 56, R13HostExport 210, CloseBGeo 24, Abs 29; 0 = the committed count with 0 failed)"
 echo "total $(( $(date +%s) - start )) s"
-echo "VERDICT inputs: rootbuild rc $rrc, root warnings $rbw, root error lines $rbe, module builds rc $brc, module warnings $nwp, axioms rc $arc, audited $na of $ng, sorryAx $nsa, ofReduceBool $nrb, other axioms $oth, non-report lines $nel, blkAlive rc $abrc reports $nba of $nbx non-report $nbal other axioms $oba, L62 top rc $a62rc reports $n62 non-report $n62l other axioms $o62, source scan $scan, generators $gch, name clashes $ncl, Statements/unchanged $unch, root diff ok $rootok, modified existing files $nmod, regressions rc $c6/$c5/$c11/$c1/$cic verdicts $g6/$g5/$g11/$g1/$gic"
+echo "VERDICT inputs: rootbuild rc $rrc, root warnings $rbw, root error lines $rbe, module builds rc $brc, module warnings $nwp, axioms rc $arc, audited $na of $ng, sorryAx $nsa, ofReduceBool $nrb, other axioms $oth, non-report lines $nel, blkAlive rc $abrc reports $nba of $nbx non-report $nbal other axioms $oba, L62 top rc $a62rc reports $n62 non-report $n62l other axioms $o62, source scan $scan, generators $gch, name clashes $ncl, Statements/unchanged $unch, root diff ok $rootok, modified existing files $nmod, regressions rc $c6/$c5/$c11/$c1/$cic verdicts $g6/$g5/$g11/$g1/$gic, earlier corpus checkers rc $cbi/$cba/$crh/$ccg/$cab verdicts $gbi/$gba/$grh/$gcg/$gab"
 [ $rrc -eq 0 ] && [ "$rbw" -eq 0 ] && [ "$rbe" -eq 0 ] \
   && [ $brc -eq 0 ] && [ "$nwp" -eq 0 ] && [ $arc -eq 0 ] && [ "$na" -eq "$ng" ] && [ "$nsa" -eq 0 ] \
   && [ "$nrb" -eq 0 ] && [ "$oth" -eq 0 ] && [ "$nel" -eq 0 ] \
@@ -262,4 +305,6 @@ echo "VERDICT inputs: rootbuild rc $rrc, root warnings $rbw, root error lines $r
   && [ $scan -eq 0 ] && [ $gch -eq 0 ] && [ $ncl -eq 0 ] \
   && [ $unch -eq 0 ] && [ $rootok -eq 0 ] && [ "$nmod" -eq 0 ] \
   && [ $c6 -eq 0 ] && [ $c5 -eq 0 ] && [ $c11 -eq 0 ] && [ $c1 -eq 0 ] && [ $cic -eq 0 ] \
-  && [ $g6 -eq 0 ] && [ $g5 -eq 0 ] && [ $g11 -eq 0 ] && [ $g1 -eq 0 ] && [ $gic -eq 0 ]
+  && [ $g6 -eq 0 ] && [ $g5 -eq 0 ] && [ $g11 -eq 0 ] && [ $g1 -eq 0 ] && [ $gic -eq 0 ] \
+  && [ $cbi -eq 0 ] && [ $cba -eq 0 ] && [ $crh -eq 0 ] && [ $ccg -eq 0 ] && [ $cab -eq 0 ] \
+  && [ $gbi -eq 0 ] && [ $gba -eq 0 ] && [ $grh -eq 0 ] && [ $gcg -eq 0 ] && [ $gab -eq 0 ]
