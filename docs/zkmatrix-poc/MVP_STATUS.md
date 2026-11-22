@@ -799,6 +799,16 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 43, Nov 22 23:57 UTC [MEASURED gaps on three traced runs; code read by Claude]: every
+    request hashes the same 805 MB word-embedding table three times.** The table never changes
+    between requests, and the hash keeps nothing from one call to the next. Two of the three passes
+    fill the largest CPU pause at the start of a request (176 ms); the third comes just before it.
+    Keeping the hash with the loaded table would save up to a quarter second of CPU time a request on
+    each lane and change no proof byte. That is worth 1.6% of the rate at most and about 0.5% as
+    measured for CPU savings with six lanes, where the GPU sets the pace. Under the 5% rule, so
+    nothing is scheduled; it would also need a security ruling of the kind already made once for
+    kept block hashes (D72). An earlier tick's label for this pause ("the run's own sealing pass")
+    was wrong and is corrected by this one.
     **Tick 42, Nov 22 19:59 UTC [MEASURED shares from a traced run; DERIVED costs; script re-run by
     Claude, same numbers]: no GPU work can be moved back to the CPU at a profit.** A request's GPU work
     with one lane is 59% the zero-check steps, 26% the two large commitments and 15% the seven weight

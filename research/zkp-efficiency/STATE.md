@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-22: Claude researcher tick 43, which host work fills the head's gaps and whether any of it repeats the sealing pass (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261122-claude-tick43-head-gap-code-map.md), script `20261122-claude-tick43-head-gap-code-map.py`.
+- **Item 66: tick 39's reading of the head was wrong in two places.** In the app the run's "sealing pass" runs no histograms (`CliSource::seal_check` is a no-op, `classify_cli.rs:552-558`) and, with `HL_A26_KEPT=1` (the fixture's and `deploy.json`'s setting), the 26 `stage_block_kept` calls read startup records, not scans. The 176 ms gap follows the input-endpoint commit (rows=6), not "the first IN-C commit".
+- **The 176 ms gap (1.09% of the C lane period) is two full BLAKE3 digests of the 805 MB embedding table** (`ClassifierProfile::new` in `new_chunk`, and `check_tables`); a third pass sits on the start side (about 85 of its 100 ms). DERIVED: 2 x 805 MB at 5 lane threads x 1.89 GB/s (A21's measure) = 170 ms against 176.1 MEASURED (equal across arms, p10 to p90 173 to 179); consistency, not a passed prediction. The 98 ms gap (0.61%) is the challenge-dependent embedding fold (1.61 G i64 madds, about 80 ms at 5 threads, ASSUMED rate); not a repeat.
+- **H1 does not take the head**; only the last gap (block 0's G3, 49.7 against steady 38.6 ms) is H1's site. **New H2: keep the embedding digest with the bound tables** (A26 §6 item 3 named it), same bytes, a D72-type ruling for the security owner: up to 255 ms a request, 1.6% of the lane period at full pass-through, about 0.5% at tick 37's one third. Fold to the device up to 0.5%. Under the 5% rule, not scheduled. Tests T-dig, T-fold (CPU, about 0.1 s of five cores) stated.
+
 ## 2026-11-22: Claude researcher tick 42, which device work per request could come off the device (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
