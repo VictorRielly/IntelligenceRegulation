@@ -29,7 +29,7 @@ use std::sync::{Mutex, OnceLock};
 use zkp_core::pcs::PcsParams;
 
 const SRC: &str = include_str!("metal_kernels.metal");
-const KERNELS: [&str; 23] = [
+const KERNELS: [&str; 25] = [
     "k_ntt_head_pruned",
     "k_hash_chunk",
     "k_hash_merge",
@@ -43,6 +43,8 @@ const KERNELS: [&str; 23] = [
     "k_gather_cols",
     "k_fold_partial",
     "k_fold_reduce",
+    "k_fold_sparse_partial",
+    "k_fold_sparse_reduce",
     "k_gl_probe",
     "k_bitrev_copy",
     "k_ntt_stage",
@@ -1479,6 +1481,14 @@ impl MetalCommit {
         if let Some(c) = FOLD_CAPTURE.lock().expect("the fold capture").as_mut() {
             c.push(FoldCapture { rows: self.rows, n: self.n, nn, ir, src: src.to_vec(), rhos: rhos.to_vec(), pads: None });
         }
+        if sparse_fold_on() {
+            if let Some(out) = fold_rows_sparse_device(buf, self.rows, self.n, nn, ir, rhos, &[], 0)? {
+                if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+                    eprintln!("[ZK60-METAL] store fold (sparse-gpu): {} rho x {} rows x {} cols ({}) in {:.4} s", rhos.len(), self.rows, self.n, if self.data.is_some() { "zk data" } else { "systematic" }, t.elapsed().as_secs_f64());
+                }
+                return Ok(out);
+            }
+        }
         let out = fold_rows_host_by_form(src, self.rows, self.n, nn, ir, rhos);
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
             eprintln!("[ZK60-METAL] store fold: {} rho x {} rows x {} cols ({}) in {:.4} s", rhos.len(), self.rows, self.n, if self.data.is_some() { "zk data" } else { "systematic" }, t.elapsed().as_secs_f64());
@@ -1517,6 +1527,18 @@ impl MetalCommit {
         #[cfg(test)]
         if let Some(c) = FOLD_CAPTURE.lock().expect("the fold capture").as_mut() {
             c.push(FoldCapture { rows: self.rows, n: self.n, nn: self.n, ir: 1, src: src.to_vec(), rhos: rhos.to_vec(), pads: Some((pw.to_vec(), q)) });
+        }
+        if sparse_fold_on() {
+            match fold_rows_sparse_device(data, self.rows, self.n, self.n, 1, rhos, pads, q) {
+                Ok(Some(out)) => {
+                    if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+                        eprintln!("[ZK60-METAL] store fold with pads (sparse-gpu): {} rho x {} rows x ({} + {q}) cols (zk data) in {:.4} s", rhos.len(), self.rows, self.n, t.elapsed().as_secs_f64());
+                    }
+                    return Some(Ok(out));
+                }
+                Ok(None) => {}
+                Err(e) => return Some(Err(e)),
+            }
         }
         let segs = [A8Seg { src, n: self.n, nn: self.n, ir: 1 }, A8Seg { src: pw, n: q, nn: q, ir: 1 }];
         let out = fold_segments_a8_opts(&segs, self.rows, rhos, a8_opts(self.n, small));
@@ -1670,6 +1692,268 @@ pub fn set_device_fold_for_test(on: Option<bool>) {
         },
         Ordering::Relaxed,
     );
+}
+
+/// [Opt 1] hard cap on rho vectors for `k_fold_sparse_partial` (64 * 32 * 16 B = 32 KiB TG memory)
+const SPARSE_FOLD_MAX_K: usize = 64;
+
+/// [Opt 1, tests] 0 lets `HL_METAL_SPARSE_FOLD=1` decide, 1 forces off, 2 forces on
+static SPARSE_FOLD_TEST: AtomicUsize = AtomicUsize::new(0);
+
+/// [Opt 1] `HL_METAL_SPARSE_FOLD=1` (default OFF): 1-CB row-sparse GPU opening fold
+fn sparse_fold_on() -> bool {
+    match SPARSE_FOLD_TEST.load(Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => std::env::var("HL_METAL_SPARSE_FOLD").map(|v| v == "1").unwrap_or(false),
+    }
+}
+
+/// [Opt 1, tests] override `HL_METAL_SPARSE_FOLD` in-process (`None`: env); returns previous override
+#[cfg(test)]
+pub fn set_sparse_fold_for_test(on: Option<bool>) -> Option<bool> {
+    let v = match on {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    match SPARSE_FOLD_TEST.swap(v, Ordering::Relaxed) {
+        1 => Some(false),
+        2 => Some(true),
+        _ => None,
+    }
+}
+
+/// [Opt 1, tests] whether the sparse GPU opening fold is currently active
+#[cfg(test)]
+pub fn sparse_fold_for_test() -> bool {
+    sparse_fold_on()
+}
+
+#[repr(C)]
+struct SparseFoldArgs {
+    n: u64,
+    nn: u64,
+    ir: u64,
+    q: u64,
+    k: u32,
+    blocks: u32,
+}
+
+/// **[Opt 1] 1-CB row-sparse GPU opening fold** over `[data | pads]`.
+/// Returns `Ok(None)` when runtime limits (e.g. `k > 64`, threadgroup memory,
+/// or `u32` index ceiling) are exceeded so the caller falls back cleanly to
+/// `fold_segments_a8_opts` with bit-identical canonical outputs.
+#[allow(clippy::too_many_arguments)]
+fn fold_rows_sparse_device(
+    data: &Buffer,
+    rows: usize,
+    n: usize,
+    nn: usize,
+    ir: usize,
+    rhos: &[Vec<Fp2>],
+    pads: &[Fp],
+    q: usize,
+) -> Result<Option<Vec<Vec<Fp2>>>, String> {
+    let k = rhos.len();
+    let total_cols = n + q;
+    if k == 0 || total_cols == 0 || rows == 0 {
+        return Ok(Some(vec![vec![Fp2::ZERO; total_cols]; k]));
+    }
+    if k > SPARSE_FOLD_MAX_K || rows > u32::MAX as usize {
+        return Ok(None);
+    }
+    if pads.len() != rows * q {
+        return Err(format!("metal sparse fold: {} pad words for {} rows x q = {q}", pads.len(), rows));
+    }
+
+    let c = ctx()?;
+    let p_part = &c.pipes["k_fold_sparse_partial"];
+    let tg_bytes = (k * 32 * 16) as u64;
+    let max_tg = c
+        .device
+        .max_threadgroup_memory_length()
+        .saturating_sub(p_part.static_threadgroup_memory_length())
+        .min(32 * 1024);
+    if tg_bytes > max_tg || p_part.max_total_threads_per_threadgroup() < 32 {
+        return Ok(None);
+    }
+
+    // Active-row CSR: skip rows with zero coefficients across all k vectors.
+    let mut row_idx: Vec<u32> = Vec::with_capacity(rows);
+    let mut row_starts: Vec<u32> = Vec::with_capacity(rows + 1);
+    let mut term_r: Vec<u64> = Vec::new();
+    let mut term_g: Vec<u32> = Vec::new();
+    row_starts.push(0);
+    for i in 0..rows {
+        let before = term_g.len();
+        for (g, rho) in rhos.iter().enumerate() {
+            let r = rho[i];
+            if !r.is_zero() {
+                term_r.push(r.c0.0);
+                term_r.push(r.c1.0);
+                term_g.push(g as u32);
+            }
+        }
+        if term_g.len() > before {
+            if term_g.len() > u32::MAX as usize {
+                return Ok(None);
+            }
+            row_idx.push(i as u32);
+            row_starts.push(term_g.len() as u32);
+        }
+    }
+    let active_rows = row_idx.len();
+    if active_rows == 0 {
+        return Ok(Some(vec![vec![Fp2::ZERO; total_cols]; k]));
+    }
+
+    // Adaptive block count capped at 128 MiB partial buffer; blocks == 1 writes
+    // directly into out_buf with 0 part_buf and 1 dispatch.
+    let per_blk_bytes = k.saturating_mul(total_cols).saturating_mul(16).max(1);
+    let max_by_mem = ((128usize << 20) / per_blk_bytes).max(1);
+    let max_by_rows = (active_rows / 64).max(1);
+    let target = 262_144usize.div_ceil(total_cols.max(1)).clamp(1, 16);
+    let blocks = target.min(max_by_mem).min(max_by_rows).min(active_rows).max(1);
+
+    // NNZ-balanced disjoint partition of [0, active_rows), weight = 1 + nnz(r).
+    let mut blk_starts: Vec<u32> = Vec::with_capacity(blocks + 1);
+    blk_starts.push(0);
+    if blocks == 1 {
+        blk_starts.push(active_rows as u32);
+    } else {
+        let total_w: u64 = (active_rows as u64) + (term_g.len() as u64);
+        let mut acc_w: u64 = 0;
+        let mut next_b: usize = 1;
+        for r in 0..active_rows {
+            let row_nnz = (row_starts[r + 1] - row_starts[r]) as u64;
+            acc_w += 1 + row_nnz;
+            while next_b < blocks && acc_w * (blocks as u64) >= total_w * (next_b as u64) {
+                blk_starts.push((r + 1) as u32);
+                next_b += 1;
+            }
+        }
+        while blk_starts.len() <= blocks {
+            blk_starts.push(active_rows as u32);
+        }
+    }
+    debug_assert_eq!(blk_starts.len(), blocks + 1);
+    debug_assert_eq!(blk_starts[0], 0);
+    debug_assert_eq!(blk_starts[blocks], active_rows as u32);
+
+    let align256 = |x: usize| (x + 255) & !255;
+    let off_row_idx = 0usize;
+    let off_row_starts = align256(off_row_idx + row_idx.len() * 4);
+    let off_term_g = align256(off_row_starts + row_starts.len() * 4);
+    let off_blk_starts = align256(off_term_g + term_g.len() * 4);
+    let meta_bytes = off_blk_starts + blk_starts.len() * 4;
+
+    objc::rc::autoreleasepool(|| {
+        let pads_buf = if q > 0 { Some(upload(c, pads)?) } else { None };
+        let meta_buf = shared_buffer(c, meta_bytes as u64)?;
+        // SAFETY: meta_buf has >= meta_bytes of exclusively owned shared memory;
+        // every section offset is 256-byte aligned (4-byte aligned for u32) and disjoint.
+        unsafe {
+            let base = meta_buf.contents() as *mut u8;
+            std::ptr::copy_nonoverlapping(row_idx.as_ptr(), base.add(off_row_idx) as *mut u32, row_idx.len());
+            std::ptr::copy_nonoverlapping(row_starts.as_ptr(), base.add(off_row_starts) as *mut u32, row_starts.len());
+            std::ptr::copy_nonoverlapping(term_g.as_ptr(), base.add(off_term_g) as *mut u32, term_g.len());
+            std::ptr::copy_nonoverlapping(blk_starts.as_ptr(), base.add(off_blk_starts) as *mut u32, blk_starts.len());
+        }
+        let term_r_buf = shared_buffer(c, (term_r.len() * 8) as u64)?;
+        // SAFETY: term_r_buf has >= term_r.len() * 8 bytes of exclusively owned shared memory.
+        unsafe {
+            std::ptr::copy_nonoverlapping(term_r.as_ptr(), term_r_buf.contents() as *mut u64, term_r.len());
+        }
+        let out_bytes = (k as u64) * (total_cols as u64) * 16;
+        let out_buf = shared_buffer(c, out_bytes)?;
+        let part_buf = if blocks > 1 {
+            Some(shared_buffer(c, (blocks as u64) * out_bytes)?)
+        } else {
+            None
+        };
+        let pads_ref: &Buffer = pads_buf.as_deref().unwrap_or(data);
+        let dst_ref: &Buffer = part_buf.as_deref().unwrap_or(&out_buf);
+        let args = SparseFoldArgs {
+            n: n as u64,
+            nn: nn as u64,
+            ir: ir as u64,
+            q: q as u64,
+            k: k as u32,
+            blocks: blocks as u32,
+        };
+        trace_detail(|| format!("rows={rows} active={active_rows} nnz={} n={n} q={q} k={k} blocks={blocks}", term_g.len()));
+        run_tagged(c, "spfold", |enc| {
+            enc.set_compute_pipeline_state(p_part);
+            enc.set_buffer(0, Some(data), 0);
+            enc.set_buffer(1, Some(pads_ref), 0);
+            enc.set_buffer(2, Some(&meta_buf), off_row_idx as u64);
+            enc.set_buffer(3, Some(&meta_buf), off_row_starts as u64);
+            enc.set_buffer(4, Some(&term_r_buf), 0);
+            enc.set_buffer(5, Some(&meta_buf), off_term_g as u64);
+            enc.set_buffer(6, Some(&meta_buf), off_blk_starts as u64);
+            enc.set_buffer(7, Some(dst_ref), 0);
+            set_args(enc, 8, &args);
+            enc.set_threadgroup_memory_length(0, tg_bytes);
+            enc.dispatch_thread_groups(
+                MTLSize::new(total_cols.div_ceil(32) as u64, blocks as u64, 1),
+                MTLSize::new(32, 1, 1),
+            );
+            if let Some(part) = part_buf.as_deref() {
+                enc.set_buffer(0, Some(part), 0);
+                enc.set_buffer(1, Some(&out_buf), 0);
+                set_args(enc, 2, &args);
+                dispatch_2d(c, enc, "k_fold_sparse_reduce", total_cols as u64, k as u64);
+            }
+            Ok(())
+        })?;
+        let o = as_u64s(&out_buf, k * total_cols * 2);
+        let out: Vec<Vec<Fp2>> = if k > 1 && k * total_cols >= 65_536 {
+            (0..k)
+                .into_par_iter()
+                .map(|g| {
+                    let row = &o[g * total_cols * 2..(g + 1) * total_cols * 2];
+                    row.chunks_exact(2).map(|p| Fp2::new(Fp(p[0]), Fp(p[1]))).collect()
+                })
+                .collect()
+        } else {
+            (0..k)
+                .map(|g| {
+                    let row = &o[g * total_cols * 2..(g + 1) * total_cols * 2];
+                    row.chunks_exact(2).map(|p| Fp2::new(Fp(p[0]), Fp(p[1]))).collect()
+                })
+                .collect()
+        };
+        Ok(Some(out))
+    })
+}
+
+/// [Opt 1, tests] run `fold_rows_sparse_device` directly on host slices (uploading
+/// `src` to a temporary shared buffer). Returns `Ok(None)` on clean fallback.
+#[cfg(test)]
+#[allow(clippy::too_many_arguments)]
+pub fn fold_rows_sparse_for_test(
+    src: &[u64],
+    rows: usize,
+    n: usize,
+    nn: usize,
+    ir: usize,
+    rhos: &[Vec<Fp2>],
+    pads: Option<(&[u64], usize)>,
+) -> Result<Option<Vec<Vec<Fp2>>>, String> {
+    let c = ctx()?;
+    let (pw, q) = pads.unwrap_or((&[], 0));
+    objc::rc::autoreleasepool(|| {
+        // SAFETY: Fp is repr(transparent) over u64
+        let src_fp: &[Fp] = unsafe { std::slice::from_raw_parts(src.as_ptr() as *const Fp, src.len()) };
+        let pads_fp: &[Fp] = unsafe { std::slice::from_raw_parts(pw.as_ptr() as *const Fp, pw.len()) };
+        let data_buf = if src_fp.is_empty() {
+            shared_buffer(c, 8)?
+        } else {
+            upload(c, src_fp)?
+        };
+        fold_rows_sparse_device(&data_buf, rows, n, nn, ir, rhos, pads_fp, q)
+    })
 }
 
 /// [M11] the most rho vectors the opening fold takes the lazy form for

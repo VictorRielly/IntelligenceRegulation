@@ -178,3 +178,155 @@ fn f12_an_opening_under_one_version_does_not_verify_under_the_other() {
     // the hook is per thread and is reset: this thread is back on theta^1
     assert!(!pre_f12_theta_start_for_tests(), "the pre-F12 hook leaked out of the helper");
 }
+
+/// Pre-Opt-4 reference `mask_open` using `weight_polys` + `poly_mul_512` term-by-term.
+fn mask_open_poly_mul_reference(mc: &MaskCommit, functionals: &[MaskFunctional], ntt: &NttTables, tr: &mut Transcript) -> MaskOpening {
+    let m = 1usize << MASK_LOG_MSG;
+    let dom = 1usize << MASK_LOG_DOM;
+    let theta = tr.challenge_fp2();
+    let (ws, _v) = combined_weights(&mc.specs, functionals, theta);
+    let mut q_re = mc.b.0.clone();
+    let mut q_im = mc.b.1.clone();
+    for s in 0..mc.masks.len() {
+        let (w_re, w_im) = weight_polys(&ws[s], ntt);
+        let (a_re, a_im) = (&mc.a_coefs[2 * s], &mc.a_coefs[2 * s + 1]);
+        let rr = poly_mul_512(a_re, &w_re, ntt);
+        let ii = poly_mul_512(a_im, &w_im, ntt);
+        let ri = poly_mul_512(a_re, &w_im, ntt);
+        let ir = poly_mul_512(a_im, &w_re, ntt);
+        for i in 0..2 * m {
+            q_re[i] = q_re[i].add(rr[i]).add(ii[i].mul(Fp::new(7)));
+            q_im[i] = q_im[i].add(ri[i]).add(ir[i]);
+        }
+    }
+    let q: Vec<Fp2> = q_re.iter().zip(q_im.iter()).map(|(a, b)| Fp2::new(*a, *b)).collect();
+    tr.absorb_fp2(b"mask-q", &q);
+    let n_rows = 2 * mc.masks.len() + 2;
+    let rs = tr.challenge_fp2_vec(n_rows);
+    let mut prox: Vec<Fp2> = (0..2 * m).map(|i| Fp2::new(mc.u.0[i], mc.u.1[i])).collect();
+    for (row, r) in rs.iter().enumerate() {
+        let coeffs: &[Fp] = if row < 2 * mc.masks.len() { &mc.a_coefs[row] } else if row == 2 * mc.masks.len() { &mc.b.0 } else { &mc.b.1 };
+        for (i, c) in coeffs.iter().enumerate() {
+            prox[i] = prox[i].add(r.mul_base(*c));
+        }
+    }
+    tr.absorb_fp2(b"mask-prox", &prox);
+    let idx = tr.challenge_indices(MASK_Q, dom);
+    let n_base = 2 * mc.masks.len() + 4;
+    let columns = idx
+        .iter()
+        .map(|&j| {
+            let col: Vec<Fp> = (0..n_base).map(|r| mc.encoded[r * dom + j]).collect();
+            (j, col, mc.salts[j], mc.tree.path(j))
+        })
+        .collect();
+    MaskOpening { q, prox, columns }
+}
+
+/// **[Opt 4] `mask_open`'s stride-4 coset eval-domain accumulation equals the
+/// `poly_mul_512` reference byte-for-byte** across 0, 1, 2, all-zero functionals,
+/// partial-row functionals, and 23-mask W16R2-sized specs (both `max_log = 12`
+/// and `max_log = 16`): `q`, `prox`, `columns`, `write_bytes`, post-opening
+/// transcript state, and `mask_verify`.
+#[test]
+fn mask_open_stride4_matches_poly_mul_reference_byte_for_byte() {
+    let ntt12 = NttTables::new(MASK_LOG_DOM);
+    let ntt16 = NttTables::new(16);
+
+    let check = |label: &str, mc: &MaskCommit, fs: &[MaskFunctional], ntt: &NttTables| {
+        let mut t_got = Transcript::new(b"zk60-opt4-parity");
+        let mut t_want = Transcript::new(b"zk60-opt4-parity");
+        let got = mask_open(mc, fs, ntt, &mut t_got);
+        let want = mask_open_poly_mul_reference(mc, fs, ntt, &mut t_want);
+        assert_eq!(got.q, want.q, "{label}: q differs");
+        assert_eq!(got.prox, want.prox, "{label}: prox differs");
+        assert_eq!(got.columns, want.columns, "{label}: columns differ");
+        let (mut gb, mut wb) = (Vec::new(), Vec::new());
+        got.write_bytes(&mut gb);
+        want.write_bytes(&mut wb);
+        assert_eq!(gb, wb, "{label}: serialized opening bytes differ");
+        assert_eq!(t_got.state(), t_want.state(), "{label}: post-opening transcript state differs");
+        assert_eq!(t_got.counter(), t_want.counter(), "{label}: post-opening transcript counter differs");
+        let mut tv = Transcript::new(b"zk60-opt4-parity");
+        mask_verify(&mc.tree.root(), &mc.specs, fs, &got, ntt, &mut tv)
+            .unwrap_or_else(|e| panic!("{label}: mask_verify failed: {e}"));
+    };
+
+    // 0 masks
+    let mut rng = ZkRng::new(0x0400, b"zk60-opt4-0");
+    let mc0 = mask_commit(&[], &ntt12, &mut rng);
+    check("0 masks, empty functionals", &mc0, &[], &ntt12);
+
+    // 1 mask: empty functionals, explicit all-zero functional, and non-zero Fp2 functional
+    let mut rng = ZkRng::new(0x0401, b"zk60-opt4-1");
+    let mc1 = mask_commit(&[(4, 3)], &ntt12, &mut rng);
+    check("1 mask, empty functionals", &mc1, &[], &ntt12);
+    let l1 = CfsMask::len(4, 3);
+    let zero_f = vec![MaskFunctional { terms: vec![(0, vec![Fp2::ZERO; l1])], value: Fp2::ZERO }];
+    check("1 mask, all-zero functional", &mc1, &zero_f, &ntt12);
+    let w1: Vec<Fp2> = (0..l1)
+        .map(|j| Fp2::new(Fp::new(7 * j as u64 + 13), Fp::new(11 * j as u64 + 29)))
+        .collect();
+    let v1 = w1.iter().zip(mc1.masks[0].coeffs.iter()).fold(Fp2::ZERO, |a, (x, c)| a.add(x.mul(*c)));
+    check("1 mask, non-zero Fp2 functional", &mc1, &[MaskFunctional { terms: vec![(0, w1)], value: v1 }], &ntt12);
+
+    // 2 masks: partial (row 1 untouched) and multi-term spanning both rows
+    let mut rng = ZkRng::new(0x0402, b"zk60-opt4-2");
+    let mc2 = mask_commit(&[(3, 2), (5, 4)], &ntt12, &mut rng);
+    let (fs2, _) = functionals(&mc2);
+    check("2 masks, only row 0 active", &mc2, &fs2[..1], &ntt12);
+    let w2_0: Vec<Fp2> = (0..CfsMask::len(3, 2))
+        .map(|j| Fp2::new(Fp::new(crate::field::P - 1 - j as u64), Fp::new(19 * j as u64 + 5)))
+        .collect();
+    let w2_1: Vec<Fp2> = (0..CfsMask::len(5, 4))
+        .map(|j| Fp2::new(Fp::new(31 * j as u64 + 3), Fp::new(crate::field::P - 2 - j as u64)))
+        .collect();
+    let v2 = w2_0
+        .iter()
+        .zip(mc2.masks[0].coeffs.iter())
+        .chain(w2_1.iter().zip(mc2.masks[1].coeffs.iter()))
+        .fold(Fp2::ZERO, |a, (x, c)| a.add(x.mul(*c)));
+    let multi_f = vec![
+        MaskFunctional { terms: vec![(0, w2_0), (1, w2_1)], value: v2 },
+        fs2[1].clone(),
+    ];
+    check("2 masks, multi-term Fp2 functionals", &mc2, &multi_f, &ntt12);
+
+    // 23-mask W16R2-sized spec (at max_log = 16 as in 8B blocks) with mixed active + untouched rows
+    let specs23: Vec<(usize, usize)> = (0..23)
+        .map(|s| {
+            let n_vars = 10 + (s % 11);
+            let deg = 2 + (s % 4);
+            (n_vars, deg)
+        })
+        .collect();
+    let mut rng = ZkRng::new(0x0423, b"zk60-opt4-23");
+    let mc23 = mask_commit(&specs23, &ntt16, &mut rng);
+    let mut fs23 = Vec::new();
+    for s in 0..23 {
+        if s == 7 || s == 19 {
+            continue; // leave two masks completely untouched (all-zero ws[s])
+        }
+        let (nv, deg) = specs23[s];
+        let l = CfsMask::len(nv, deg);
+        let w: Vec<Fp2> = (0..l)
+            .map(|j| Fp2::new(Fp::new((s as u64 * 97 + j as u64 * 13 + 1) % crate::field::P), Fp::new((s as u64 * 53 + j as u64 * 29 + 7) % crate::field::P)))
+            .collect();
+        let v = w.iter().zip(mc23.masks[s].coeffs.iter()).fold(Fp2::ZERO, |a, (x, c)| a.add(x.mul(*c)));
+        fs23.push(MaskFunctional { terms: vec![(s, w)], value: v });
+    }
+    // Also add a multi-mask functional combining rows 0, 11, and 22
+    let mut terms_m = Vec::new();
+    let mut val_m = Fp2::ZERO;
+    for &s in &[0usize, 11, 22] {
+        let (nv, deg) = specs23[s];
+        let l = CfsMask::len(nv, deg);
+        let w: Vec<Fp2> = (0..l)
+            .map(|j| Fp2::new(Fp::new(crate::field::P - 1 - ((j + s) as u64 % 100)), Fp::new((j as u64 + 1) * (s as u64 + 3))))
+            .collect();
+        val_m = w.iter().zip(mc23.masks[s].coeffs.iter()).fold(val_m, |a, (x, c)| a.add(x.mul(*c)));
+        terms_m.push((s, w));
+    }
+    fs23.push(MaskFunctional { terms: terms_m, value: val_m });
+    check("23-mask W16R2-sized spec (max_log=16)", &mc23, &fs23, &ntt16);
+}

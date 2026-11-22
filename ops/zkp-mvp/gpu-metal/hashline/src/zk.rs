@@ -602,6 +602,7 @@ fn weight_polys(w: &[Fp2], ntt: &NttTables) -> (Vec<Fp>, Vec<Fp>) {
 }
 
 /// The product of two polynomials given by coefficients (each < 512): 1024 coefficients.
+#[cfg(test)]
 fn poly_mul_512(a: &[Fp], b: &[Fp], ntt: &NttTables) -> Vec<Fp> {
     let m2 = 2usize << MASK_LOG_MSG;
     let mut ea = vec![Fp::ZERO; m2];
@@ -615,27 +616,86 @@ fn poly_mul_512(a: &[Fp], b: &[Fp], ntt: &NttTables) -> Vec<Fp> {
     ea
 }
 
+/// [Opt 4] cached coset powers `7^i` (len 512) and `(7^-1)^i` (len 1024) for
+/// `mask_open`'s stride-4 coset evaluation-domain accumulation.
+fn mask_coset_tables() -> &'static ([Fp; 1usize << MASK_LOG_MSG], [Fp; 2usize << MASK_LOG_MSG]) {
+    static TABLES: std::sync::OnceLock<([Fp; 1usize << MASK_LOG_MSG], [Fp; 2usize << MASK_LOG_MSG])> = std::sync::OnceLock::new();
+    TABLES.get_or_init(|| {
+        let m = 1usize << MASK_LOG_MSG;
+        let m2 = 2 * m;
+        let p = coset_powers(Fp::new(7), m);
+        let ip = coset_powers(Fp::new(7).inv(), m2);
+        let mut pows = [Fp::ZERO; 1usize << MASK_LOG_MSG];
+        let mut inv_pows = [Fp::ZERO; 2usize << MASK_LOG_MSG];
+        pows.copy_from_slice(&p);
+        inv_pows.copy_from_slice(&ip);
+        (pows, inv_pows)
+    })
+}
+
 pub fn mask_open(mc: &MaskCommit, functionals: &[MaskFunctional], ntt: &NttTables, tr: &mut Transcript) -> MaskOpening {
     let m = 1usize << MASK_LOG_MSG;
+    let m2 = 2 * m;
     let dom = 1usize << MASK_LOG_DOM;
+    assert!(ntt.max_log >= MASK_LOG_DOM, "mask_open: NTT tables 2^{} < 2^{MASK_LOG_DOM}", ntt.max_log);
+    debug_assert_eq!(dom, 4 * m2);
     let theta = tr.challenge_fp2();
     let (ws, _v) = combined_weights(&mc.specs, functionals, theta);
-    // q' = sum_s p_{a_s} p_{W_s} + p_b as 1024 Fp2 coefficients, a_s = a_re + U a_im, W = W_re + U W_im (U^2 = 7)
-    let mut q_re = mc.b.0.clone();
-    let mut q_im = mc.b.1.clone();
+    // [Opt 4] q' = sum_s p_{a_s} p_{W_s} + p_b as 1024 Fp2 coefficients (U^2 = 7).
+    // Since omega_4096^4 = omega_1024, mc.encoded[(2s + k) * 4096 + 4j] already holds
+    // p_{a_{s,k}}(7 * omega_1024^j). Accumulate all S products in the 1024-point coset
+    // evaluation domain (2S + 2 size-1024 NTTs instead of 12S), then run two 1024-IFFTs
+    // and unscale by (7^-1)^i: exact and bit-identical to summing poly_mul_512 term-by-term.
+    let (pows, inv_pows) = mask_coset_tables();
+    let mut acc_re = vec![Fp::ZERO; m2];
+    let mut acc_im = vec![Fp::ZERO; m2];
+    let mut w_re = vec![Fp::ZERO; m2];
+    let mut w_im = vec![Fp::ZERO; m2];
+    let mut any_nonzero = false;
+    let seven = Fp::new(7);
     for s in 0..mc.masks.len() {
-        let (w_re, w_im) = weight_polys(&ws[s], ntt);
-        let (a_re, a_im) = (&mc.a_coefs[2 * s], &mc.a_coefs[2 * s + 1]);
-        let rr = poly_mul_512(a_re, &w_re, ntt);
-        let ii = poly_mul_512(a_im, &w_im, ntt);
-        let ri = poly_mul_512(a_re, &w_im, ntt);
-        let ir = poly_mul_512(a_im, &w_re, ntt);
-        for i in 0..2 * m {
-            q_re[i] = q_re[i].add(rr[i]).add(ii[i].mul(Fp::new(7)));
-            q_im[i] = q_im[i].add(ri[i]).add(ir[i]);
+        if ws[s].iter().all(|w| w.c0.0 == 0 && w.c1.0 == 0) {
+            continue;
+        }
+        any_nonzero = true;
+        for (i, w) in ws[s].iter().enumerate() {
+            w_re[i] = w.c0;
+            w_im[i] = w.c1;
+        }
+        ntt.inverse(&mut w_re[..m]);
+        ntt.inverse(&mut w_im[..m]);
+        for i in 0..m {
+            let p = pows[i];
+            w_re[i] = w_re[i].mul(p);
+            w_im[i] = w_im[i].mul(p);
+        }
+        w_re[m..m2].fill(Fp::ZERO);
+        w_im[m..m2].fill(Fp::ZERO);
+        ntt.forward(&mut w_re);
+        ntt.forward(&mut w_im);
+        let enc_re = &mc.encoded[(2 * s) * dom..(2 * s + 1) * dom];
+        let enc_im = &mc.encoded[(2 * s + 1) * dom..(2 * s + 2) * dom];
+        for j in 0..m2 {
+            let ar = enc_re[4 * j];
+            let ai = enc_im[4 * j];
+            let wr = w_re[j];
+            let wi = w_im[j];
+            acc_re[j] = acc_re[j].add(ar.mul(wr)).add(ai.mul(wi).mul(seven));
+            acc_im[j] = acc_im[j].add(ar.mul(wi)).add(ai.mul(wr));
         }
     }
-    let q: Vec<Fp2> = q_re.iter().zip(q_im.iter()).map(|(a, b)| Fp2::new(*a, *b)).collect();
+    let q: Vec<Fp2> = if any_nonzero {
+        ntt.inverse(&mut acc_re);
+        ntt.inverse(&mut acc_im);
+        (0..m2)
+            .map(|i| {
+                let ip = inv_pows[i];
+                Fp2::new(acc_re[i].mul(ip).add(mc.b.0[i]), acc_im[i].mul(ip).add(mc.b.1[i]))
+            })
+            .collect()
+    } else {
+        (0..m2).map(|i| Fp2::new(mc.b.0[i], mc.b.1[i])).collect()
+    };
     tr.absorb_fp2(b"mask-q", &q);
     // the proximity combination: sum_rows r_row p_row + u (Fp2), 1024 coefficients
     let n_rows = 2 * mc.masks.len() + 2;

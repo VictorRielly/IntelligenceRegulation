@@ -1638,71 +1638,170 @@ pub(super) fn looked_cols<'a>(lay: &Layout, wit: &'a Witness, dom: Dom, built: &
         .collect()
 }
 
-/// **[A17] [`w16_histograms`] over [`LookedCol`]s**: the same chunks of 2^16
-/// words, each read a sub-block at a time; the bins and the miss count are
-/// integer sums, so they are that function's
-pub(super) fn w16_histograms_cols(lay: &Layout, looked: &[(Dom, Vec<LookedCol<'_>>)]) -> (Vec<u64>, Vec<Vec<u64>>, usize) {
-    use rayon::prelude::*;
-    let widths: Vec<u32> = lay.shape().range_families().iter().map(|f| f.width).collect();
-    let mut chunks: Vec<(LookedCol<'_>, usize, usize, LkTag)> = Vec::new();
-    for (dom, cols) in looked {
-        for (c, l) in cols.iter().zip(lay.lookups(*dom)) {
-            let n = c.len();
-            chunks.extend((0..n).step_by(1 << 16).map(|s| (*c, s, (s + (1 << 16)).min(n), l.tag)));
+trait W16BinWord: Copy + Send + Sync {
+    const ZERO: Self;
+    fn inc(&mut self);
+    fn to_u64(self) -> u64;
+}
+
+impl W16BinWord for u32 {
+    const ZERO: Self = 0;
+    #[inline(always)]
+    fn inc(&mut self) {
+        *self += 1;
+    }
+    #[inline(always)]
+    fn to_u64(self) -> u64 {
+        self as u64
+    }
+}
+
+impl W16BinWord for u64 {
+    const ZERO: Self = 0;
+    #[inline(always)]
+    fn inc(&mut self) {
+        *self += 1;
+    }
+    #[inline(always)]
+    fn to_u64(self) -> u64 {
+        self
+    }
+}
+
+struct W16LocalHist<'a, T: W16BinWord> {
+    bins: Vec<T>,
+    missed: usize,
+    pool: &'a std::sync::Mutex<Vec<(Vec<T>, usize)>>,
+}
+
+impl<T: W16BinWord> Drop for W16LocalHist<'_, T> {
+    fn drop(&mut self) {
+        let bins = std::mem::take(&mut self.bins);
+        if !bins.is_empty() {
+            if let Ok(mut p) = self.pool.lock() {
+                p.push((bins, self.missed));
+            }
         }
     }
-    let fresh = || (vec![0u64; U8_LEN], widths.iter().map(|w| vec![0u64; 1usize << w]).collect::<Vec<_>>(), 0usize);
-    chunks
-        .par_iter()
-        .fold(fresh, |mut acc, &(col, s, e, tag)| {
-            let mut buf = [0i64; LOOKED_BLOCK];
-            let f = match tag {
-                LkTag::Range(w) => widths.iter().position(|x| *x == w).expect("a W16 lookup's width is one of the shape's range families"),
-                LkTag::U8 => 0,
+}
+
+#[inline(always)]
+fn w16_bin_chunk<T: W16BinWord, const IS_U8: bool>(col: LookedCol<'_>, s: usize, e: usize, slice: &mut [T], missed: &mut usize) {
+    let lim = slice.len() as u64;
+    let mut miss = 0usize;
+    macro_rules! step {
+        ($v:expr) => {{
+            let u = ($v) as u64;
+            if u < lim {
+                slice[u as usize].inc();
+            } else {
+                if IS_U8 {
+                    slice[0].inc();
+                }
+                miss += 1;
+            }
+        }};
+    }
+    match col {
+        LookedCol::Words(w) => {
+            for &v in &w[s..e] {
+                step!(v);
+            }
+        }
+        LookedCol::Term { plane, c: 1, cst: 0 } => {
+            for &v in &plane[s..e] {
+                step!(v);
+            }
+        }
+        LookedCol::Term { plane, c: 1, cst } => {
+            for &v in &plane[s..e] {
+                step!(cst.wrapping_add(v));
+            }
+        }
+        LookedCol::Term { plane, c, cst } => {
+            for &v in &plane[s..e] {
+                step!(cst.wrapping_add(c.wrapping_mul(v)));
+            }
+        }
+    }
+    *missed += miss;
+}
+
+fn w16_histograms_cols_flat<T: W16BinWord>(
+    chunks: &[(LookedCol<'_>, usize, usize, usize, usize, bool)],
+    total_bins: usize,
+    widths: &[u32],
+    fam_off: &[usize],
+) -> (Vec<u64>, Vec<Vec<u64>>, usize) {
+    use rayon::prelude::*;
+    let pool: std::sync::Mutex<Vec<(Vec<T>, usize)>> = std::sync::Mutex::new(Vec::new());
+    chunks.par_iter().for_each_init(
+        || {
+            let (bins, missed) = pool.lock().ok().and_then(|mut p| p.pop()).unwrap_or_else(|| (vec![T::ZERO; total_bins], 0));
+            W16LocalHist { bins, missed, pool: &pool }
+        },
+        |local, &(col, s, e, base_off, bin_len, is_u8)| {
+            let slice = &mut local.bins[base_off..base_off + bin_len];
+            if is_u8 {
+                w16_bin_chunk::<T, true>(col, s, e, slice, &mut local.missed);
+            } else {
+                w16_bin_chunk::<T, false>(col, s, e, slice, &mut local.missed);
+            }
+        },
+    );
+    let mut m_u8 = vec![0u64; U8_LEN];
+    let mut m_rng: Vec<Vec<u64>> = widths.iter().map(|w| vec![0u64; 1usize << w]).collect();
+    let mut missed = 0usize;
+    let locals = pool.into_inner().expect("w16 histogram pool poisoned");
+    for (bins, m) in locals {
+        missed += m;
+        for (dst, &src) in m_u8.iter_mut().zip(&bins[..U8_LEN]) {
+            *dst += src.to_u64();
+        }
+        for ((dst_f, &off), &w) in m_rng.iter_mut().zip(fam_off).zip(widths) {
+            let len = 1usize << w;
+            for (dst, &src) in dst_f.iter_mut().zip(&bins[off..off + len]) {
+                *dst += src.to_u64();
+            }
+        }
+    }
+    (m_u8, m_rng, missed)
+}
+
+/// **[A17 / Quick C3] [`w16_histograms`] over [`LookedCol`]s**: flat per-worker
+/// `u32` bins (falling back to `u64` if `total_words > u32::MAX`) reused across
+/// Rayon splits via `for_each_init` + direct `LookedCol` iteration (zero
+/// sub-block copy); the bins and miss count are exact integer sums, identical
+/// to [`w16_histograms`].
+pub(super) fn w16_histograms_cols(lay: &Layout, looked: &[(Dom, Vec<LookedCol<'_>>)]) -> (Vec<u64>, Vec<Vec<u64>>, usize) {
+    let widths: Vec<u32> = lay.shape().range_families().iter().map(|f| f.width).collect();
+    let mut fam_off: Vec<usize> = Vec::with_capacity(widths.len());
+    let mut total_bins = U8_LEN;
+    for &w in &widths {
+        fam_off.push(total_bins);
+        total_bins += 1usize << w;
+    }
+    let mut chunks: Vec<(LookedCol<'_>, usize, usize, usize, usize, bool)> = Vec::new();
+    let mut total_words: u64 = 0;
+    for (dom, cols) in looked {
+        for (c, l) in cols.iter().zip(lay.lookups(*dom)) {
+            let (base_off, bin_len, is_u8) = match l.tag {
+                LkTag::U8 => (0usize, U8_LEN, true),
+                LkTag::Range(w) => {
+                    let f = widths.iter().position(|x| *x == w).expect("a W16 lookup's width is one of the shape's range families");
+                    (fam_off[f], 1usize << w, false)
+                }
             };
-            let mut x = s;
-            while x < e {
-                let m = (e - x).min(LOOKED_BLOCK);
-                let vs = &mut buf[..m];
-                col.fill(x, vs);
-                match tag {
-                    LkTag::U8 => {
-                        for v in vs.iter() {
-                            if (0..U8_LEN as i64).contains(v) {
-                                acc.0[*v as usize] += 1;
-                            } else {
-                                acc.0[0] += 1;
-                                acc.2 += 1;
-                            }
-                        }
-                    }
-                    LkTag::Range(w) => {
-                        let n = 1i64 << w;
-                        for v in vs.iter() {
-                            if (0..n).contains(v) {
-                                acc.1[f][*v as usize] += 1;
-                            } else {
-                                acc.2 += 1;
-                            }
-                        }
-                    }
-                }
-                x += m;
-            }
-            acc
-        })
-        .reduce(fresh, |mut a, b| {
-            for (x, y) in a.0.iter_mut().zip(&b.0) {
-                *x += *y;
-            }
-            for (fa, fb) in a.1.iter_mut().zip(&b.1) {
-                for (x, y) in fa.iter_mut().zip(fb) {
-                    *x += *y;
-                }
-            }
-            a.2 += b.2;
-            a
-        })
+            let n = c.len();
+            total_words = total_words.saturating_add(n as u64);
+            chunks.extend((0..n).step_by(1 << 16).map(|s| (*c, s, (s + (1 << 16)).min(n), base_off, bin_len, is_u8)));
+        }
+    }
+    if total_words <= u32::MAX as u64 {
+        w16_histograms_cols_flat::<u32>(&chunks, total_bins, &widths, &fam_off)
+    } else {
+        w16_histograms_cols_flat::<u64>(&chunks, total_bins, &widths, &fam_off)
+    }
 }
 
 /// [A17] the cheating prover's misfiled range counts (test builds) over

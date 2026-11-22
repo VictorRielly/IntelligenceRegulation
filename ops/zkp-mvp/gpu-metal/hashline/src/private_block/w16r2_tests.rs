@@ -3924,6 +3924,351 @@ fn a18_the_8b_block_proves_the_same_under_every_a18_setting() {
     std::env::remove_var("HL_GPU");
 }
 
+// ------------------------------------------- Opt 1 & Quick C3 byte-parity tests
+
+/// **[Opt 1] `k_fold_sparse_partial` + `k_fold_sparse_reduce` equal the per-term
+/// host fold word-for-word** on all 9 A8 shapes PLUS edge cases: `rows = 0`,
+/// `k = 0`, `k = 1, 2, 10, 37, 64` (32 KiB TG cap), `k = 65` (clean `Ok(None)`
+/// fallback), `q = 0`, `n = 33 + q = 280`, all-zero `rhos`, and `blocks == 1` vs
+/// `blocks > 1` with skewed per-row NNZ.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "Opt 1: runs Metal sparse-fold kernels directly; run alone by name on a Mac with HL_GPU=1 HL_GPU_REQUIRED=1"]
+fn sparse_fold_device_equals_per_term_fold_word_for_word() {
+    let p = crate::field::P;
+    let h = 1u64 << 15;
+    let small_edges = [0u64, 1, h - 1, p - h, p - 1];
+    let edges = [0u64, 1, h - 1, h, p - h, p - h - 1, 1 << 16, (1 << 16) - 1, p - 1, p - 2];
+    let mut seed = 0x0104_2026_1120u64;
+
+    let make_case = |rows: usize, n: usize, nn: usize, ir: usize, k: usize, q: Option<usize>, skewed: bool, seed: &mut u64| -> (Vec<u64>, Option<Vec<u64>>, Vec<Vec<Fp2>>) {
+        let word = |kind: u64, s: &mut u64| -> u64 {
+            let r = a8_mix(s);
+            match kind {
+                0 => match r % 4 {
+                    0 => r % h,
+                    1 => p - 1 - (r >> 8) % h,
+                    2 => small_edges[(r >> 4) as usize % small_edges.len()],
+                    _ => (r >> 9) % 256,
+                },
+                1 => {
+                    if r % 29 == 0 {
+                        edges[(r >> 5) as usize % edges.len()]
+                    } else {
+                        r % h
+                    }
+                }
+                2 => match r % 3 {
+                    0 => r % p,
+                    1 => p - 1 - (r >> 3) % 4,
+                    _ => (r >> 7) % (1 << 32),
+                },
+                _ => 0,
+            }
+        };
+        let _ = (n, ir);
+        let kinds: Vec<u64> = (0..rows).map(|i| [0u64, 0, 1, 2, 0, 3, 0, 2][i % 8]).collect();
+        let mut src = Vec::with_capacity(rows * nn);
+        for e in 0..rows * nn {
+            src.push(word(kinds[e / nn], seed));
+        }
+        let pads: Option<Vec<u64>> = match q {
+            None => None,
+            Some(qv) => {
+                let mut pv = Vec::with_capacity(rows * qv);
+                for e in 0..rows * qv {
+                    pv.push(if e % 3 == 0 { word(0, seed) } else { word(2, seed) });
+                }
+                Some(pv)
+            }
+        };
+        let mut rhos: Vec<Vec<Fp2>> = Vec::with_capacity(k);
+        for g in 0..k {
+            let mut row = Vec::with_capacity(rows);
+            for i in 0..rows {
+                let on = if skewed {
+                    // Concentrate dense rows at the start and sparse rows at the tail
+                    i < rows / 8 || (i % 7 == 0 && (g + i) % 3 == 0)
+                } else {
+                    match g % 4 {
+                        0 => true,
+                        1 => (i / 8) % 3 == g % 3,
+                        2 => a8_mix(seed) % 5 == 0,
+                        _ => g % 8 == 3 && i == rows / 2,
+                    }
+                };
+                if !on {
+                    row.push(Fp2::ZERO);
+                    continue;
+                }
+                let r = a8_mix(seed);
+                let v = match r % 6 {
+                    0 => Fp2::new(Fp(p - 1), Fp(p - 2)),
+                    1 => Fp2::new(Fp(1), Fp(0)),
+                    2 => Fp2::new(Fp(0), Fp(p - 1)),
+                    _ => Fp2::new(Fp(a8_mix(seed) % p), Fp(a8_mix(seed) % p)),
+                };
+                row.push(v);
+            }
+            rhos.push(row);
+        }
+        (src, pads, rhos)
+    };
+
+    // All 9 A8 shapes plus explicit multi-block, k = 1/2/10/37/64, and non-multiple-of-32 shapes
+    let shapes: [(usize, usize, usize, usize, usize, Option<usize>, bool, &str); 15] = [
+        (1, 1, 1, 1, 1, None, false, "a8-0"),
+        (37, 300, 300, 1, 3, Some(7), false, "a8-1"),
+        (64, 513, 2052, 4, 2, None, false, "a8-2 (strided ir=4)"),
+        (9, 256, 512, 2, 5, Some(280), false, "a8-3 (strided ir=2 + pads)"),
+        (300, 1024, 1024, 1, 37, Some(280), false, "a8-4 (k=37 multi-block)"),
+        (70, 100, 100, 1, 0, None, false, "a8-5 (k=0)"),
+        (40, 64, 64, 1, 10, Some(1), false, "a8-6 (k=10, q=1)"),
+        (5, 33, 33, 1, 17, Some(280), false, "a8-7 (n=33 + q=280)"),
+        (128, 96, 96, 1, 1, None, false, "a8-8 (k=1)"),
+        (37, 100, 100, 1, 2, Some(7), false, "blocks==1 (k=2)"),
+        (512, 512, 512, 1, 10, Some(280), true, "blocks>1 skewed NNZ (k=10)"),
+        (300, 33, 33, 1, 37, Some(280), true, "blocks>1 n=33 + q=280 (k=37)"),
+        (160, 65, 65, 1, 64, Some(7), false, "k=64 exact 32KiB TG cap"),
+        (16, 64, 64, 1, 0, Some(7), false, "k=0 with pads"),
+        (18, 97, 97, 1, 4, Some(0), false, "explicit q=0"),
+    ];
+
+    let mut checked = 0usize;
+    for &(rows, n, nn, ir, k, q, skewed, label) in &shapes {
+        let (src, pads, rhos) = make_case(rows, n, nn, ir, k, q, skewed, &mut seed);
+        let pads_arg = pads.as_ref().map(|v| (v.as_slice(), q.unwrap()));
+        let pads_ref = pads_arg.filter(|&(_, qv)| qv > 0);
+        let want = a8_reference(&src, rows, n, nn, ir, &rhos, pads_ref);
+        let got = crate::gpu::metal_fold_rows_sparse_for_test(&src, rows, n, nn, ir, &rhos, pads_arg)
+            .unwrap_or_else(|e| panic!("{label}: sparse fold errored: {e}"))
+            .unwrap_or_else(|| panic!("{label}: sparse fold unexpectedly fell back to None"));
+        assert_eq!(got, want, "{label}: sparse GPU fold differs from per-term host fold");
+        checked += 1;
+    }
+
+    // Edge case: rows == 0 (with and without pads)
+    for (q_opt, label) in [(None, "rows=0 no pads"), (Some(280usize), "rows=0 with q=280")] {
+        let rhos = vec![Vec::<Fp2>::new(); 3];
+        let pads_arg = q_opt.map(|qv| (&[][..], qv));
+        let want = a8_reference(&[], 0, 33, 33, 1, &rhos, pads_arg);
+        let got = crate::gpu::metal_fold_rows_sparse_for_test(&[], 0, 33, 33, 1, &rhos, pads_arg)
+            .unwrap_or_else(|e| panic!("{label}: errored: {e}"))
+            .unwrap_or_else(|| panic!("{label}: unexpectedly fell back"));
+        assert_eq!(got, want, "{label}: output differs");
+        checked += 1;
+    }
+
+    // Edge case: all-zero rhos (active_rows == 0 early exit)
+    {
+        let (rows, n, k, q) = (128, 96, 10, 7);
+        let (src, pads, _) = make_case(rows, n, n, 1, 0, Some(q), false, &mut seed);
+        let rhos = vec![vec![Fp2::ZERO; rows]; k];
+        let pads_arg = pads.as_ref().map(|v| (v.as_slice(), q));
+        let want = a8_reference(&src, rows, n, n, 1, &rhos, pads_arg);
+        let got = crate::gpu::metal_fold_rows_sparse_for_test(&src, rows, n, n, 1, &rhos, pads_arg)
+            .expect("all-zero rhos errored")
+            .expect("all-zero rhos fell back");
+        assert_eq!(got, want, "all-zero rhos differs");
+        checked += 1;
+    }
+
+    // Edge case: k == 65 MUST cleanly fall back (`Ok(None)`)
+    {
+        let (rows, n, k, q) = (32, 64, 65, 7);
+        let (src, pads, rhos) = make_case(rows, n, n, 1, k, Some(q), false, &mut seed);
+        let pads_arg = pads.as_ref().map(|v| (v.as_slice(), q));
+        let res = crate::gpu::metal_fold_rows_sparse_for_test(&src, rows, n, n, 1, &rhos, pads_arg)
+            .expect("k=65 fallback errored");
+        assert!(res.is_none(), "k=65 must fall back cleanly with Ok(None)");
+        checked += 1;
+    }
+
+    eprintln!("OPT1-SPARSE-FOLD-EQUAL: {checked} shapes/edge cases verified word-for-word against per-term fold (incl. k=64 cap & k=65 fallback)");
+}
+
+/// **[Opt 1] W16R2 rung golden digest under `HL_METAL_SPARSE_FOLD=1`** in both
+/// `shared` and `thread` Metal queue modes, verifying bit-for-bit equality to
+/// the CPU proof and `W16R2_RUNG_GOLDEN` (`96e4f0b6`), with a drop guard so
+/// panics never poison process-wide test hooks.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "Opt 1: toggles HL_GPU, Metal queues, and sparse-fold in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn sparse_fold_w16r2_rung_golden() {
+    struct Reset {
+        prev_sf: Option<bool>,
+        prev_q: bool,
+        prev_gpu: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::gpu::metal_set_sparse_fold_for_test(self.prev_sf);
+            crate::gpu::metal_set_queues_for_test(self.prev_q);
+            crate::gpu::metal_fold_capture_for_test(false);
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_sf: crate::gpu::metal_set_sparse_fold_for_test(None),
+        prev_q: crate::gpu::metal_set_queues_for_test(false),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+    };
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::remove_var("HL_GPU");
+    let cpu = seeded_digest(&sh, &blk, copy(&w));
+    assert!(cpu.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's CPU digest moved: {cpu}");
+
+    std::env::set_var("HL_GPU", "1");
+    crate::gpu::metal_set_sparse_fold_for_test(Some(true));
+    for (per_thread, qname) in [(false, "shared"), (true, "thread")] {
+        crate::gpu::metal_set_queues_for_test(per_thread);
+        let before = crate::gpu::metal_sumcheck_stats().1;
+        crate::gpu::metal_fold_capture_for_test(true);
+        let d = seeded_digest(&sh, &blk, copy(&w));
+        let caps = crate::gpu::metal_fold_capture_for_test(false);
+        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+        assert_eq!(d, cpu, "Metal W16R2 rung digest under sparse fold ({qname}) differs from CPU");
+        assert!(d.starts_with(W16R2_RUNG_GOLDEN), "Metal W16R2 rung digest ({qname}) != golden: {d}");
+        assert!(ran > 0.0, "no sumcheck round ran on Metal ({qname})");
+        assert!(!caps.is_empty(), "no store fold was captured ({qname})");
+        for (ci, c) in caps.iter().enumerate() {
+            let pads = c.pads.as_ref().map(|(p, q)| (p.as_slice(), *q));
+            let want = a8_reference(&c.src, c.rows, c.n, c.nn, c.ir, &c.rhos, pads);
+            let got = crate::gpu::metal_fold_rows_sparse_for_test(&c.src, c.rows, c.n, c.nn, c.ir, &c.rhos, pads)
+                .unwrap_or_else(|e| panic!("rung fold {ci} ({qname}) errored: {e}"))
+                .unwrap_or_else(|| panic!("rung fold {ci} ({qname}) fell back unexpectedly"));
+            assert_eq!(got, want, "rung fold {ci} ({qname}) sparse GPU != per-term reference");
+        }
+        eprintln!("OPT1-RUNG {} queues={qname}: digest {} (golden); {} folds verified word-for-word", sh.name, &d[..8], caps.len());
+    }
+}
+
+/// **[Quick C3] `w16_histograms_cols` (flat `u32` bins + `for_each_init` pool +
+/// direct `LookedCol` iteration) matches `w16_histograms` word-for-word** on a
+/// valid W16R2 rung witness, with injected U8 and Range misses (negative values,
+/// `2^w`, `i64::MIN`, `i64::MAX`), across all `LookedCol` variants (including
+/// wrapping `Term` arithmetic), multi-chunk columns, and empty columns.
+#[test]
+fn w16_histograms_cols_u32_matches_reference_with_and_without_misses() {
+    let (sh, _blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    let lay = Layout::for_shape(&sh).unwrap();
+
+    // 1. Valid W16R2 rung witness (0 misses)
+    let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, protocol::lookup_values(&lay, &w, *d))).collect();
+    let built: Vec<(Dom, Vec<Option<Vec<i64>>>)> = lay.lookup_doms().iter().map(|d| (*d, protocol::looked_built(&lay, &w, *d))).collect();
+    let views: Vec<(Dom, Vec<protocol::LookedCol<'_>>)> = built.iter().map(|(d, b)| (*d, protocol::looked_cols(&lay, &w, *d, b))).collect();
+    let want = protocol::w16_histograms(&lay, &looked);
+    let got = protocol::w16_histograms_cols(&lay, &views);
+    assert_eq!(got, want, "valid W16R2 rung histograms differ");
+    assert_eq!(got.2, 0, "valid W16R2 rung witness must have 0 misses");
+
+    // 2. Witness with injected U8 + Range misses in witness planes
+    let mut w_bad = copy(&w);
+    let bad_vals = [-1i64, i64::MIN, i64::MAX, U8_LEN as i64, 1i64 << 16, -(1i64 << 20)];
+    for (pi, plane) in w_bad.planes.iter_mut().enumerate() {
+        if plane.is_empty() {
+            continue;
+        }
+        for (k, &bv) in bad_vals.iter().enumerate() {
+            let idx = (pi * 13 + k * 7) % plane.len();
+            plane[idx] = bv;
+        }
+    }
+    let looked_bad: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, protocol::lookup_values(&lay, &w_bad, *d))).collect();
+    let built_bad: Vec<(Dom, Vec<Option<Vec<i64>>>)> = lay.lookup_doms().iter().map(|d| (*d, protocol::looked_built(&lay, &w_bad, *d))).collect();
+    let views_bad: Vec<(Dom, Vec<protocol::LookedCol<'_>>)> = built_bad.iter().map(|(d, b)| (*d, protocol::looked_cols(&lay, &w_bad, *d, b))).collect();
+    let want_bad = protocol::w16_histograms(&lay, &looked_bad);
+    let got_bad = protocol::w16_histograms_cols(&lay, &views_bad);
+    assert_eq!(got_bad, want_bad, "mutated W16R2 witness histograms differ");
+    assert!(got_bad.2 > 0, "injected misses must be counted");
+
+    // 3. Direct LookedCol variant & miss-semantics test (Words, Term c=1 cst=0, Term c=1 cst!=0,
+    //    Term c!=1 with wrapping arithmetic, exact boundaries, multi-chunk > 65536, and empty cols)
+    let big_len = (1usize << 16) + 1234;
+    let mut big_plane: Vec<i64> = (0..big_len).map(|i| (i % 512) as i64 - 16).collect();
+    big_plane[0] = i64::MIN;
+    big_plane[1] = i64::MAX;
+    big_plane[2] = -1;
+    big_plane[3] = 0;
+    big_plane[4] = U8_LEN as i64;
+    big_plane[5] = (U8_LEN as i64) - 1;
+    big_plane[6] = 1i64 << 16;
+    big_plane[7] = (1i64 << 16) - 1;
+    let empty_plane: Vec<i64> = Vec::new();
+    let small_words: Vec<i64> = vec![-5, -1, 0, 1, 255, 256, (1 << 12) - 1, 1 << 12, (1 << 15) - 1, 1 << 15, i64::MIN, i64::MAX];
+
+    let mut syn_views: Vec<(Dom, Vec<protocol::LookedCol<'_>>)> = Vec::new();
+    for (di, &dom) in lay.lookup_doms().iter().enumerate() {
+        let n_look = lay.lookups(dom).len();
+        let cols: Vec<protocol::LookedCol<'_>> = (0..n_look)
+            .map(|ci| match (di + ci) % 5 {
+                0 => protocol::LookedCol::Words(&small_words),
+                1 => protocol::LookedCol::Term { plane: &big_plane, c: 1, cst: 0 },
+                2 => protocol::LookedCol::Term { plane: &big_plane, c: 1, cst: 17 },
+                3 => protocol::LookedCol::Term { plane: &big_plane, c: -3, cst: 11 },
+                _ => protocol::LookedCol::Words(&empty_plane),
+            })
+            .collect();
+        syn_views.push((dom, cols));
+    }
+    let syn_looked: Vec<(Dom, Vec<Vec<i64>>)> = syn_views.iter().map(|(d, cs)| (*d, cs.iter().map(|c| c.to_vec()).collect())).collect();
+    let syn_want = protocol::w16_histograms(&lay, &syn_looked);
+    let syn_got = protocol::w16_histograms_cols(&lay, &syn_views);
+    assert_eq!(syn_got, syn_want, "synthetic LookedCol variants/misses/multi-chunk/empty cols differ");
+    assert!(syn_got.2 > 0, "synthetic stress test must produce misses");
+
+    // 4. Pin U8 miss (bumps bin[0] AND missed) vs Range miss (bumps missed ONLY, never bin[0])
+    let widths: Vec<u32> = lay.shape().range_families().iter().map(|f| f.width).collect();
+    let mut checked_u8_miss = false;
+    let mut checked_rng_miss = false;
+    for dom in lay.lookup_doms() {
+        let lookups = lay.lookups(dom);
+        if let Some(u8_idx) = lookups.iter().position(|l| matches!(l.tag, LkTag::U8)) {
+            if !checked_u8_miss {
+                let miss_words = [-1i64, U8_LEN as i64, i64::MIN, i64::MAX];
+                let cols: Vec<protocol::LookedCol<'_>> = (0..lookups.len())
+                    .map(|i| if i == u8_idx { protocol::LookedCol::Words(&miss_words) } else { protocol::LookedCol::Words(&empty_plane) })
+                    .collect();
+                let (m_u8, m_rng, missed) = protocol::w16_histograms_cols(&lay, &[(dom, cols)]);
+                assert_eq!(missed, miss_words.len(), "U8 misses must be counted");
+                assert_eq!(m_u8[0], miss_words.len() as u64, "U8 misses must increment bin[0]");
+                assert!(m_u8[1..].iter().all(|&x| x == 0), "U8 misses must not touch other bins");
+                assert!(m_rng.iter().flatten().all(|&x| x == 0), "U8 misses must not touch range bins");
+                checked_u8_miss = true;
+            }
+        }
+        if let Some((rng_idx, w_bits)) = lookups.iter().enumerate().find_map(|(i, l)| match l.tag {
+            LkTag::Range(wb) => Some((i, wb)),
+            LkTag::U8 => None,
+        }) {
+            if !checked_rng_miss {
+                let lim = 1i64 << w_bits;
+                let miss_words = [-1i64, lim, i64::MIN, i64::MAX];
+                let cols: Vec<protocol::LookedCol<'_>> = (0..lookups.len())
+                    .map(|i| if i == rng_idx { protocol::LookedCol::Words(&miss_words) } else { protocol::LookedCol::Words(&empty_plane) })
+                    .collect();
+                let (m_u8, m_rng, missed) = protocol::w16_histograms_cols(&lay, &[(dom, cols)]);
+                let fam = widths.iter().position(|&wb| wb == w_bits).unwrap();
+                assert_eq!(missed, miss_words.len(), "Range misses must be counted");
+                assert_eq!(m_rng[fam][0], 0, "Range misses must NOT increment bin[0]");
+                assert!(m_rng.iter().flatten().all(|&x| x == 0), "Range misses must not touch any range bin");
+                assert!(m_u8.iter().all(|&x| x == 0), "Range misses must not touch U8 bins");
+                checked_rng_miss = true;
+            }
+        }
+    }
+    assert!(checked_u8_miss && checked_rng_miss, "W16R2 rung must contain both U8 and Range lookups");
+
+    // 5. Completely empty input
+    let empty_want = protocol::w16_histograms(&lay, &[]);
+    let empty_got = protocol::w16_histograms_cols(&lay, &[]);
+    assert_eq!(empty_got, empty_want, "empty looked input differs");
+    assert_eq!(empty_got.2, 0);
+}
+
 // D63 lane L10 (2026-11-07): the Lean lane's export of this rung's M / A / H openings (test only; the file is in `src/`)
 #[path = "../lean_l10_export_tests.rs"]
 mod lean_l10_export_tests;
