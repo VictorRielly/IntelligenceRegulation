@@ -32,12 +32,16 @@ minute of several cores).
 5. Add a dated entry at the top of the entries in `research/zkp-efficiency/STATE.md`, in the style of the 2026-11-16
    entries.
 6. Update `CLAUDE_CYCLE_QUEUE.md`: move the item to "Done" with the handoff's path and one line of result; add at
-   most two new "Open" items if the cycle raised a question worth a later cycle. Change nothing else in it.
+   most two new "Open" items if the cycle raised a question worth a later cycle. Put new items directly behind the
+   first item that remains under "Open", never in front of it: the co-coordinator has set which item is next.
+   Change nothing else in it.
 7. Post a pointer for the other agents: one `python3` append (open in mode `'a'`, write once, never rewrite the file)
    to `ops/zkp-mvp/RECOVERY_COORDINATION.md`, starting with two newlines and
    `Claude researcher (background) <UTC ISO timestamp>: `, under 100 words: the handoff path, the one finding that
-   matters, and "triage material, not a work order". If the append fails, say so in your report; do not retry more
-   than twice.
+   matters, and "triage material, not a work order". Take the timestamp from the clock inside that same call
+   (`datetime.datetime.now(datetime.timezone.utc)`), never type one: tick 40's pointer was stamped 34 minutes ahead
+   of the clock. The same holds for every time you write in the handoff or in `STATE.md`. If the append fails, say so
+   in your report; do not retry more than twice.
 
 ## Rules
 

@@ -53,8 +53,17 @@ def main():
     ap.add_argument('--check-threads', type=int, default=4)
     a = ap.parse_args()
     BIN0, BIN1 = Path(a.bin0), Path(a.bin1)
-    ARMS = {'A': (BIN0, {}), 'B': (BIN1, {}), 'C': (BIN1, {'HL_METAL_FUSED_RS': '1', 'HL_METAL_SPARSE_FOLD': '1'})}
-    for k in ('HL_METAL_FUSED_RS', 'HL_METAL_SPARSE_FOLD', 'HL_A36_CORE_AHEAD'):
+    BOTH = {'HL_METAL_FUSED_RS': '1', 'HL_METAL_SPARSE_FOLD': '1'}
+    # arms D and E (added 2026-11-22 15:10 UTC for the tail-round test): arm C plus the host-tail budget of the batched
+    # sumcheck rounds (metal.rs BATCH_TAIL_BUDGET_S, default 25 us) raised to 250 us (D) and to 1000 us (E).  The
+    # unbatched rounds have a budget of their own (TAIL_ROUND_BUDGET_S, default 250 us): with the batched budget alone at
+    # 1000 the two rounds a slot between 1000 and 250 us ran as device command buffers of their own (smoke tr_smoke,
+    # leg 2), so arm E raises both.  Arm F is that first form of E, kept only so that tr_smoke's leg 2 has a name.
+    ARMS = {'A': (BIN0, {}), 'B': (BIN1, {}), 'C': (BIN1, dict(BOTH)),
+            'D': (BIN1, dict(BOTH, HL_METAL_BATCH_TAIL_US='250')),
+            'E': (BIN1, dict(BOTH, HL_METAL_BATCH_TAIL_US='1000', HL_METAL_TAIL_BUDGET_US='1000')),
+            'F': (BIN1, dict(BOTH, HL_METAL_BATCH_TAIL_US='1000'))}
+    for k in ('HL_METAL_FUSED_RS', 'HL_METAL_SPARSE_FOLD', 'HL_A36_CORE_AHEAD', 'HL_METAL_BATCH_TAIL_US', 'HL_METAL_TAIL_BUDGET_US'):
         os.environ.pop(k, None)
     os.umask(0o077)
     out, scr = Path(a.out), Path(a.scratch)
@@ -181,7 +190,7 @@ def main():
             t1.BIN = BIN0
             cargv = [str(BIN0), 'check-serve', '--export', str(t1.VEXP), '--tables', str(t1.VEXP / 'token_io'), '--policies', pols, '--label', 'zk60-classify-verdict',
                      '--expect-statement', ident, '--min-bits', '95', '--lanes', str(a.check_lanes), '--lane-threads', str(a.check_threads), t1.SWITCH]
-            chk = t1.Server(cargv, out / f'leg{leg_no}_arm{arm}.checker.log', {k: v for k, v in env.items() if k not in ('HL_METAL_FUSED_RS', 'HL_METAL_SPARSE_FOLD')})
+            chk = t1.Server(cargv, out / f'leg{leg_no}_arm{arm}.checker.log', {k: v for k, v in env.items() if k not in ('HL_METAL_FUSED_RS', 'HL_METAL_SPARSE_FOLD', 'HL_METAL_BATCH_TAIL_US', 'HL_METAL_TAIL_BUDGET_US')})
             chk.ready.wait(900)
             if not chk.start or chk.start.get('event') != 'serve-start':
                 raise SystemExit(f'the verifier refused to start: {chk.start}')

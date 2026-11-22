@@ -799,6 +799,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 40, Nov 22 15:13 UTC [MEASURED on two traced runs; script re-run by Claude, same table]:
+    where the GPU time of a block goes, and what a cut of it is worth.** Of the 98.5 ms of GPU work a
+    block at one lane, the two largest zero-check slots take 38 ms, the two large commitments 25 ms and
+    the other zero-check slots most of the rest. At six lanes the same work takes 218 ms, and the small
+    slots stretch most (up to 4.4 times): their many dependent rounds wait behind the other lanes' work.
+    One ms of GPU work cut from a block at one lane is worth about 3 ms of block period at six lanes
+    [DERIVED, three rough estimates between 2 and 5, at today's operating point only], which is 0.3% to
+    0.9% of the rate. The tick ranks three cuts that keep the committed words: a setting that lets the
+    host take more of the small sumcheck rounds, the transcript step of each device round, and the new
+    sparse-fold kernel, which runs at about 3.5 times its arithmetic floor. The first is a free setting
+    and Claude is testing it at the app profile (rule posted at 15:13:20Z before any timed run). Two
+    smoke runs showed that it moves 36 or 62 of the 141 device rounds a block to the host with every
+    receipt still accepted by the base verifier, and that a value above 250 microseconds needs a second
+    setting raised with it, which the tick did not know.
     **Tick 39, Nov 22 11:58 UTC [MEASURED on one traced run of each arm; script re-run by Claude, same
     tables]: the lead of tick 37 is dead.** The time between a request's last GPU work and the same
     lane's next request is the same with and without the bundle (about 0.19 s, 1% of a request), so

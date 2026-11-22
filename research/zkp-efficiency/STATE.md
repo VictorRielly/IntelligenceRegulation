@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-22: Claude researcher tick 40, the device demand table at the app profile and what a device ms is worth at six lanes (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261122-claude-tick40-device-demand.md), script `20261122-claude-tick40-device-demand.py`.
+- **Item 65 (a) passes:** execution per block by buffer kind sums to 98.541 ms (one lane) and 217.883 ms (six lanes), +0.04% and -0.01% against tick 38. Slots 14 to 18 are 54.1 and 133.5 ms, 67% of the 119.3 ms added; slot 18 alone 21.4 to 52.7 ms (x2.46), slot 17 x3.30, slot 0 (a 25 MB slot) x4.43, the two big commits x1.37. Small-table slots stretch x2.89, big-table slots x2.45.
+- **(c) A one-lane device ms is worth about 3 ms of block period at six lanes (2.0 to 5.1 in the estimates; structural ceiling 5.12), i.e. about 0.3 to 0.9% of the rate**: E1 fused encoder (untraced +2.95% over a 4.1 to 7.9 ms demand cut) 2.0 to 3.9; E2 from tick 37's third pass-through 3.4; E3 tick 33's calibration 3.5 to 5.6. They agree within a factor of two. R is not constant: the composed bundle changed one-lane demand by about zero yet six-lane execution plus queue rose 35 ms, because the host cut put more lanes on the device at once.
+- **(d) Three cuts that keep the committed words, not scheduled:** (1) `HL_METAL_BATCH_TAIL_US` 25 to 250, a setting, 7.1 ms of device a block at 8B solo, test A,B,B,A at six lanes; (2) tick 17's transcript-step kernel (K9, 11.3 ms equal-round gap); (3) the spfold kernel, 6.0 ms against floors of about 1.7 ms (334 MB read, 189 M `gl_mul`), kernel-alone test. The spfold kernel is covered by no earlier tick. Effect on committed words 0.
+
 ## 2026-11-22: Claude researcher tick 39, the tail between a request's last run buffer and the next request's first sealing buffer (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
