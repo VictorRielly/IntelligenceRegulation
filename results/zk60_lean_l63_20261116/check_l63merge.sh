@@ -56,7 +56,7 @@ echo "== full root build: lake build ZK60Formal (L62 and L63 modules together) =
 "$LAKE" -d "$WT/formal" build ZK60Formal < /dev/null > "$OUT/merge_rootbuild.log" 2>&1
 rrc=$?
 echo "root build rc $rrc"
-rbw=$(grep -c -E "warning: .*(RunStgShield[A-Za-z0-9]*|RunBlkShieldInst|RunBlkAliveR13|RunBlkPinsHd)\.lean" "$OUT/merge_rootbuild.log")
+rbw=$(grep -c -E "warning: .*(RunStgShield[A-Za-z0-9]*|RunBlkShieldInst|RunBlkAliveR13|RunBlkPinsHd|CircuitBlock|RunShapeShield)\.lean" "$OUT/merge_rootbuild.log")
 rbe=$(grep -c "error" "$OUT/merge_rootbuild.log")
 echo "root build: warnings naming a RunStgShield*.lean or RunBlkShieldInst.lean file: $rbw; error lines: $rbe"
 if [ $rrc -ne 0 ]; then
@@ -189,8 +189,11 @@ echo "root: every lane and Antigravity module imported, diff exactly the $nnew n
 # 2026-11-21 (leg 19): PERF=6b689875 (the working head the lane was fast-forwarded to: the lane's 21412a9c merged plus
 # two document commits; no formal/ change since 21412a9c). The leg adds one new file (RunStgShieldInstCheck.lean, not in
 # the root) and edits no existing file under formal/.
-PERF=6b689875
-ALLOWED_MOD="formal/ZK60Formal/RunShieldBlkInst.lean formal/ZK60Formal/HonestClassifyBlock.lean formal/ZK60Formal/HonestClassifyRun.lean formal/ZK60Formal/HonestRunBlock.lean formal/ZK60Formal/HonestRunStageIn.lean formal/ZK60Formal/HonestRunStageOut.lean formal/ZK60Formal/StageVerifyExecComplete.lean formal/ZK60Formal/RunCoverStage.lean"
+# 2026-11-22 (leg 20): PERF=a32421f9 (the working head the lane was fast-forwarded to; no formal/ change since
+# 0bcbda88). The coordinator's task (a) for finding L68c-1 permits two edits: CircuitBlock.lean (the new field
+# BlockPublic.Valid.act0) and RunShapeShield.lean (zeroPub_valid gains act0 := rfl); both listed in ALLOWED_MOD.
+PERF=a32421f9
+ALLOWED_MOD="formal/ZK60Formal/RunShieldBlkInst.lean formal/ZK60Formal/HonestClassifyBlock.lean formal/ZK60Formal/HonestClassifyRun.lean formal/ZK60Formal/HonestRunBlock.lean formal/ZK60Formal/HonestRunStageIn.lean formal/ZK60Formal/HonestRunStageOut.lean formal/ZK60Formal/StageVerifyExecComplete.lean formal/ZK60Formal/RunCoverStage.lean formal/ZK60Formal/CircuitBlock.lean formal/ZK60Formal/RunShapeShield.lean"
 fromperf=$(git -C "$WT" diff --name-only --diff-filter=MDR $BASE $PERF -- formal ops src | grep -v '^formal/ZK60Formal.lean$')
 echo "existing files under formal/, ops/, src/ modified by the working branch between $BASE and $PERF (from the merge; root excluded): $(echo $fromperf | wc -w | tr -d ' ')"
 for f in $fromperf; do echo "  merged: $f"; done

@@ -187,7 +187,9 @@ structure BlockPublic (S : BlockShape) where
 * folded multipliers `≤ 2^14` (accuracy_fold.rs:51-55);
 * CS-4 (private_block.rs:631-643): `|cos|, |sin| ≤ 2^7`, `0 ≤ exp ≤ 2^f_e`;
 * the scaled ACT words `|act| ≤ 32767·2^16 < 2^31` (accuracy_aligned.rs:44-45);
-* every hidden channel's group registered (accuracy_public.rs:142-144, `group_column`, accuracy_act.rs:33-41). -/
+* every hidden channel's group registered (accuracy_public.rs:142-144, `group_column`, accuracy_act.rs:33-41);
+* the ACT zero row `act 0 2048 = 0` (field `act0`, finding L68c-1): the padded `Dom::F` rows query group 0 at gate 0
+  (`query_group`, accuracy_act.rs:52-53), i.e. index 2048. -/
 structure BlockPublic.Valid {S : BlockShape} (P : BlockPublic S) : Prop where
   gA : ∀ i, |P.gA i| ≤ 127
   gM : ∀ i, |P.gM i| ≤ 127
@@ -211,6 +213,13 @@ structure BlockPublic.Valid {S : BlockShape} (P : BlockPublic S) : Prop where
   exp1 : ∀ i, P.exp i ≤ 2 ^ S.fe
   act : ∀ g i, |P.act g i| ≤ 2 ^ 31
   grpF : ∀ k, P.grpF k < S.nG
+  /-- **The ACT zero row** (finding L68c-1; added by lane L63 leg 20, 2026-11-22): group 0's scaled table is `0` at
+  index `2048` (gate input 0). The code enforces it for every registered group: `accuracy_act.rs:21-22` refuses a
+  scaled group table whose word at index 2048 is not zero, and `accuracy_public.rs:157-163` refuses a supplied SiLU
+  table that is not the generated member. R13 `SC_FZC`'s ACT term (`mu.getD 3 0 * r13FzcAct …`, BlockR13HostFzc.lean)
+  carries no `gate` factor, so the padded `Dom::F` rows look up `(group 0, gate 0, word act 0 2048)`; this field is
+  exactly the premise `hAct0 : Pb.act 0 2048 = 0` of lane L68c (`hPb.act0`). -/
+  act0 : P.act 0 2048 = 0
 
 variable {S : BlockShape}
 

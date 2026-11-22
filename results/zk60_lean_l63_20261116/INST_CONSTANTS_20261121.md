@@ -154,6 +154,11 @@ segment count; stage index; the run profile's domain), in the style of L29's dev
   holds only when the verifier's public statement lists all 26 layers; the app or the verifier policy must pin that
   (the calibration and schedule digests in the header bind whatever list the statement carries). Decision for the
   coordinator: record that the verifier policy pins 26 layers from 0, or add the sub-range case to the model.
+  **Answered (leg 20, 2026-11-22; Sol's SHIELD_CLASSIFIER_SCOPE_495):** the app's verifier paths pin the layer list
+  through the trusted statement identity (`trained_statement.rs:936-940`, BLAKE3 at 970-971: record count, each
+  record's index and digests; `classify_cli.rs:888-891` and `classify_serve.rs:636-644` refuse a different identity);
+  both configured profiles list layers 0-25 (CHECKED, Sol's audit re-run and `l63_geom495.py`). Recorded as a
+  deployment premise in DEPLOYMENT_PREMISES_20261122.md (item 1; item 3: an untrusted identity is outside the claim).
 
 ### 1f. Full check
 
@@ -172,6 +177,41 @@ segment count; stage index; the run profile's domain), in the style of L29's dev
   name clashes 0 (the check's `main` set aside); Statements.lean unchanged; root diff exact; 0 modified existing files;
   regressions L6 1206, L5 5553, L11 404, L1 101956, **RunStgShieldInstCheck 158**, all 0 failed; its 10 axiom reports
   standard. Log check_merge39.log.
+
+### 1g. Leg 20 (2026-11-22): the rows Sol's 495 authenticates against a real verified receipt
+
+Sol's `results/zk60_sol_20261105_w16r3/b3/SHIELD_CLASSIFIER_SCOPE_495.{md,json}` (untracked in the main checkout)
+reads the verifier-written public statement and the 28 frame headers of Astra's archived Shieldstral R13 receipt and
+checks their hashes against Astra's archived audit, which recorded one fresh native verification (Sol did not re-run
+the native verifier: `ran_native_verifier: false`). Sol's audit script was re-run this leg (CHECKED: "R13 and W16R2
+ordered profiles, archived R13 statement and 28 wire frames verified"). The lane's `l63_geom495.py` reads the Lean
+values from the Lean source (RunShieldInstP.lean, RunShieldBlkInst.lean) and Sol's JSON: **39 constants, 0
+mismatches** (CHECKED; a planted change of the boundary rows and the domain gave 5 MISMATCH lines).
+
+**Authenticated by 495 (receipt values; "derived" = the Lean value is a function of receipt values only):**
+
+| row | constants | 495 source |
+|---|---|---|
+| 22, 40, 42 | boundary rows 38 (`shdP_sgeom`, every `cbBndOpen tag 38`; row 22's `shdP_rowsOf .inp/.out` by value only, the script does not read it), sites 2 | parameter line `boundaries-…-log_n14-rate4-pad256-rows38-sites2` |
+| 41 | segments 28; block k at segment k + 1 (k < 26); IN-C at 0 | frame headers `(28, index)` and magics |
+| 43 | 26 blocks; layers 0-25 in both configured profiles | statement `blocks 26`, `/L26/`, hashed profiles |
+| 45 | `shdP_runDomain` (the 73-byte string) | statement `run_profile`, parameter line `under …` |
+| 47 | tokens 128 | profile `T 128` (statement `T 128`) |
+| 49 | stage `lt` 12 (IN-C and OUT-C), `shdP_stgDim` (all four fields derived), `lr` 2, `q` 256 | `stages-log_n12-rate4-pad256` |
+| 50 | `epLogN` 8, words 256, `shdP_epDim` (derived), `elr` 3, `eq` 256 | `token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1` |
+| 51 | endpoint rows `Rr` 6 | the same descriptor |
+| 52 | `shdP_incGeo` bLogN 14, bRows 38, epRows 6 | boundary and endpoint descriptors |
+| 55 | `shdP_outcGeo` bLogN 14, bRows 38, sites 2 | boundary descriptor |
+| 56 | OUT-C stage index 27, `lr` 2, `blr` 2, `q` 256, `bq` 256 | frame 27 `HLPCLOT1`; stage and boundary descriptors |
+| 57 | 768 (derived from row 50) | derived |
+
+**Stay source-read only (READ / ARGUED, or covered only by earlier corpus checks):** row 25 (the bit-cube embedding);
+row 45's use of the string as the transcript domain (`classify.rs:1314`); row 51's data-row count `dR = 1`, the
+endpoint site count's role, and `shdP_epPos` (token t at row 0, column t); row 52's field 1 (`epDataRows`); row 53 and
+row 58's 15 (the head's private draws; Sol keeps them source-derived); row 55's 32 data rows (C0 by value only,
+RunCloseBGeoCheck); row 56's `bd = R13.blkDim` (C0 / C19 by the L17 / L49 corpora, not by 495); row 47's `tPad`,
+`dPad`, `v`; every block-instance row 1-39 not listed above (their coverage is unchanged, by the L17 / L49 / L31 /
+L5 corpora).
 
 ## Part 2. A design probe: the lane's chain over a block-profile parameter
 
