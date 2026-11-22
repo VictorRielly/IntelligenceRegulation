@@ -111,10 +111,25 @@ Three legs with `HL_A27_GPU_TRACE`: 6 x 5 (46.94 tok/s traced), 6 x 4 (44.54), o
 
 **Limits.** The X leg that closes the first pass (48.02) is 2.9% under the X leg that opens it; without that leg the X level is 49.28 and Y's gain over it is +1.5%. So the honest range for the 250 setting is about +1.5% to +2%. One public stream, one machine state, one binary. No agent and no other heavy job ran beside any timed leg. Summaries: `raw/tr_set1_summary.txt`, `raw/tr_set1b_summary.txt`, `raw/tr_set1_four_pairs.txt` (the summary script prints every arm as "6x8"; the arm letter is in each leg's line).
 
+## The two speeds of the gate and up sealing buffers [MEASURED from retained traces, nothing run; 2026-11-22 19:59 UTC]
+
+Research tick 42 found that the largest sealing buffer (`wprod ... k=4096 n=16384`, the gate and the up product of a block) takes about 3.4 ms or about 5.8 ms at one lane, about half each, and is fast in 93% to 95% of cases at six lanes. `sealing_pair_check.py` reads four traces (this record's one-lane and six-lane legs and the same two of `zk60_lanes_trace_20261121`, the previous binary); output in `raw/sealing_pair_check.txt`.
+
+| trace | device start offset in the pair | pairs | first buffer, submit to start | pair, first start to last end | slow buffers |
+|---|---|---:|---:|---:|---:|
+| one lane, Nov 21 | under 0.1 ms | 71 (40%) | 1.09 ms | 6.63 ms | 100% |
+| one lane, Nov 21 | 0.3 to 0.6 ms | 95 (54%) | 0.65 ms | 4.17 ms | 21% |
+| one lane, Nov 22 | under 0.1 ms | 80 (34%) | 1.11 ms | 6.20 ms | 100% |
+| one lane, Nov 22 | 0.3 to 0.6 ms | 141 (61%) | 0.68 ms | 4.16 ms | 19% |
+| six lanes, Nov 21 | under 0.1 ms | 4 of 998 | 2.21 ms | 6.26 ms | 75% |
+| six lanes, Nov 22 | under 0.1 ms | 15 of 1,004 | 1.37 ms | 6.18 ms | 73% |
+
+The host submits the two buffers within 0.01 ms of each other in every pair. When the device starts both in the same instant the pair takes 6.2 to 6.6 ms; when it starts them 0.3 to 0.6 ms apart, 4.2 ms. So the speed is set by the device's start timing of two equal buffers, not by the layer's weights and not by load before the pair. The cause inside the driver is not visible in a trace. Cost: about 1.0 to 1.3 ms a block at one lane (26 to 34 ms a request), nothing measurable at six lanes. A submit offset of 0.4 ms between the two products is the obvious test and was not run, since the six-lane rate gains nothing from it.
+
 ## Not measured
 
-Tail budgets other than 250 and 1000; a budget that adapts to the number of busy lanes. Private content; the shared-queue mode; lane counts other than 5 (set 3), 6 and 8; Astra's GPU-busy capture; the machine with other work on the GPU.
+A submit offset between the gate and the up product; whether a common start slows the proof's own buffers (a quick look at six lanes showed mixed signs). Tail budgets other than 250 and 1000; a budget that adapts to the number of busy lanes. Private content; the shared-queue mode; lane counts other than 5 (set 3), 6 and 8; Astra's GPU-busy capture; the machine with other work on the GPU.
 
 ## Files
 
-`composed_driver.py`, `composed_launch.py`, `guarded_here.py`, `t1_driver.py`, `compress_traces.py`, `overlap_check.py` (the harness, copied from the composed test), `lane_threads_summary.py` (`python3 -I -B lane_threads_summary.py raw/lt_set1/t2_results.json`; output in `raw/lt_set1_summary.txt`), `tail_rounds_nd.py` (device rounds per slot from a trace), `raw/` (logs, guard records, per-leg results, guard status snapshots). No receipts and no binaries are kept. The helper scripts name the venv and export paths under the home directory's artifact folder, and the logs carry the session scratch paths; the content is public and nothing under the owner-private directory was read.
+`composed_driver.py`, `composed_launch.py`, `guarded_here.py`, `t1_driver.py`, `compress_traces.py`, `overlap_check.py` (the harness, copied from the composed test), `lane_threads_summary.py` (`python3 -I -B lane_threads_summary.py raw/lt_set1/t2_results.json`; output in `raw/lt_set1_summary.txt`), `tail_rounds_nd.py` (device rounds per slot from a trace), `sealing_pair_check.py` (the gate and up pair by device start offset), `raw/` (logs, guard records, per-leg results, guard status snapshots). No receipts and no binaries are kept. The helper scripts name the venv and export paths under the home directory's artifact folder, and the logs carry the session scratch paths; the content is public and nothing under the owner-private directory was read.

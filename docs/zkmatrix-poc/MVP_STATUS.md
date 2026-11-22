@@ -799,6 +799,17 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 42, Nov 22 19:59 UTC [MEASURED shares from a traced run; DERIVED costs; script re-run by
+    Claude, same numbers]: no GPU work can be moved back to the CPU at a profit.** A request's GPU work
+    with one lane is 59% the zero-check steps, 26% the two large commitments and 15% the seven weight
+    products of the sealing pass (6% with six lanes). On the CPU those seven products would need two
+    thirds of all cores, and each would take 11 to 36 times as long as on the GPU against a break-even
+    near 10. What is left is faster GPU code for single steps, each worth 1% to 2.4% of the rate at
+    most, under the 5% rule, so nothing is scheduled. The tick also saw the largest sealing product
+    run at two speeds with one lane (3.4 or 5.8 ms). Claude found the switch in four retained traces:
+    the program hands the GPU two equal jobs at the same moment; when the GPU starts both in the same
+    instant the pair takes 6.2 ms, when it starts them 0.4 ms apart, 4.2 ms. That costs about 1 ms a
+    layer with one lane and nothing with six lanes, where a common start is rare (1% of pairs).
     **Tick 41, Nov 22 16:26 UTC [DERIVED from measured times and bench floors; inputs checked by Claude
     against the trace and the code]: the new sparse-fold kernel is at its floor on one of its two large
     calls and 2.4 times over it on the other.** The call on the H rows takes 1.85 ms a block against a

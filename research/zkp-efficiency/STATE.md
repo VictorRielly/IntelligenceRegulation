@@ -2,6 +2,15 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-22: Claude researcher tick 42, which device work per request could come off the device (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261122-claude-tick42-device-work-ranked.md), script `20261122-claude-tick42-device-work-ranked.py`.
+- **Item 58 (a): the request's 2.968 s of device work is 58.8% zero-check slots, 25.5% commits A and H, 15.1% sealing products, 0.5% the rest** (leg 1, MEASURED; the sum matches the README to 0.01%). Slots 18 and 14 are 33.1%; the two big gathers are 0.07% each in device time (they are a host-gap item). At six lanes the shares are 71.7 / 20.7 / 6.2%: sealing is 13.55 ms a block there, not 17.28.
+- **(b) No sealing product can go back to the CPU at a profit.** At A4's measured CPU speed (about 10 to 11.4 G MAC/s per thread, DERIVED from 85 ms for the 8B seven) the seven products need 62 thread-s a request, 67% of the machine's cores at the six-lane rate; CPU wall at five threads is 11 to 36 times the device ms against a break-even of about 10 (tick 40's R over tick 37's pass-through). K and V alone net -2.1% to +0.2%.
+- **New: the one-lane gate/up sealing buffer is bimodal** (3.4 ms, 44%; 5.8 ms, 56%; six lanes 95% fast, median 2.6 ms). Not a property of the layer (0 of 26 block positions always slow); cause not shown, opposite of a clock ramp-up. It makes the one-lane sealing unit about a fifth too high for the stream.
+- **(c)/(d)** The trace cannot split transform from hash; from tick 21's diag split: forward NTT 13.9%, inverse 8.2%, hash 3.4% of the request. Rates per candidate at R = 5.12 / 3.4 / 0: NTT traffic-floor kernel +2.4 / +1.6 / 0, small sealing products' kernel time +1.9 / +1.3 / 0, hash +1.6 / +1.0 / 0. Under the 5% rule, none scheduled; effect on committed words 0.
+
 ## 2026-11-22: Claude researcher tick 41, the spfold kernel against its floors (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
