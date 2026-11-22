@@ -799,6 +799,13 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 22, 05:09 UTC: the composed bundle is MERGED.** Antigravity fixed every finding of the second
+    read (also the fallback on device error, which was only asked before switch-on); Claude read the
+    fix and ran the full suite on the merged tree [MEASURED, guard run `00fe6509a11f`]: 1010 passed,
+    2 failed, 137 ignored, the two failures being the two long-known fixture ones. From this head on,
+    the two host changes are in every build (about +4% to +5% at the app profile with no setting
+    changed); the fused encoder and the sparse fold stay behind switches that are off by default (both
+    on: about +8.5% in total). Rebuilding the app and turning the switches on is Astra's step.
     **Nov 22, 04:00 UTC: Antigravity's composed bundle (fused encoder, sparse opening fold, and two
     always-on host changes) PASSES at the installed app profile: +8.4% and +8.5% over the pushed head
     [MEASURED, one set of six runs, two pairs; rule posted at 03:01:33Z before any run; rates recomputed
@@ -810,7 +817,8 @@ item was re-checked against the source by the coordinator.
     +1% to +2% for the always-on part, so both came out higher than expected. One traced pair [MEASURED
     once, no verdict]: host time per block 296 to 243 ms, GPU execution 202 to 222 ms, GPU wait 53 to
     68 ms, so the bundle cuts host time and moves some of it onto the GPU; the traced pair's own rate
-    gain was +4.1%, smaller than the untraced set's. **Not merged yet:** a second read (Opus,
+    gain was +4.1%, smaller than the untraced set's. **Not merged at that hour (merged at 05:09, see
+    above):** a second read (Opus,
     `SPARSE_FOLD_BUNDLE_REVIEW_20261122.md`) found the two always-on parts equal to the old code for
     every input and no High finding, and asked for one fix commit first (the new GPU kernels built on
     first use, a call counter so the tests show the new path ran, the installed profile's shapes in the
