@@ -462,6 +462,378 @@ kernel void k_ntt_tail(device ulong *a [[buffer(0)]],
     }
 }
 
+// --------------------------------- [OPT-NEXT-1] fused DIF-INTT -> DIT-FWD RS
+// Zero-gather coset RS encoder for log_n in {12, 13, 14}, inv_rate in {2, 4},
+// q <= n (HL_METAL_FUSED_RS=1, default off).
+//   Pass 1 (k_inv_dif_top_{1,2,3}): top S_top = log_n - 11 Gentleman-Sande DIF
+//     inverse stages in registers, 100% coalesced reads of d and writes of t.
+//   Pass 2 (k_inv_fwd_fused_r{1,2}): 1 TG (512 threads, sh[2048] = 16 KB) per
+//     (row, DIF tile b): coalesced load of tile b + bottom 11 DIF stages + *inv_n
+//     yields sh[m] = c[rev_{log_n}(b*2048 + m)]; exact bit-reversal alignment
+//     rev_{log_n + r}(2^r * p + u) = rev_r(u) * n + rev_{log_n}(p) feeds the 2^r
+//     contiguous forward DIT tiles 2^r * b + h (h = 0..2^r-1) in registers with
+//     ZERO global gathers, applying MODE_PLAIN / MODE_ZK (pad + coset pows) +
+//     forward DIT stages 1..11, and writing contiguous 2048-word tiles to e.
+//   Pass 3 & 4 (unchanged): k_ntt_tail (stages 12..log_nn) + encode_hash.
+
+struct DifTopArgs { ulong rows; uint log_n; uint max_log; };
+
+inline void dif_bf(thread ulong &a, thread ulong &b, ulong w) {
+    ulong u = a, y = b;
+    a = gl_add(u, y);
+    b = gl_mul(gl_sub(u, y), w);
+}
+
+// Pass 1 for log_n = 12 (S_top = 1, T = 2: DIF stage 12)
+kernel void k_inv_dif_top_1(device const ulong *src [[buffer(0)]],
+                            device ulong *dst [[buffer(1)]],
+                            device const ulong *tw_i [[buffer(2)]],
+                            constant DifTopArgs &args [[buffer(3)]],
+                            uint2 gid [[thread_position_in_grid]]) {
+    uint low = gid.x;
+    ulong r = ulong(gid.y);
+    if (low >= TILE || r >= args.rows) { return; }
+    ulong off = r << 12u;
+    device const ulong *in_row = src + off;
+    device ulong *out_row = dst + off;
+    ulong lo = ulong(low);
+    ulong v0 = in_row[lo];
+    ulong v1 = in_row[2048UL + lo];
+    dif_bf(v0, v1, tw_i[lo << (args.max_log - 12u)]);
+    out_row[lo] = v0;
+    out_row[2048UL + lo] = v1;
+}
+
+// Pass 1 for log_n = 13 (S_top = 2, T = 4: DIF stages 13, 12)
+kernel void k_inv_dif_top_2(device const ulong *src [[buffer(0)]],
+                            device ulong *dst [[buffer(1)]],
+                            device const ulong *tw_i [[buffer(2)]],
+                            constant DifTopArgs &args [[buffer(3)]],
+                            uint2 gid [[thread_position_in_grid]]) {
+    uint low = gid.x;
+    ulong r = ulong(gid.y);
+    if (low >= TILE || r >= args.rows) { return; }
+    ulong off = r << 13u;
+    device const ulong *in_row = src + off;
+    device ulong *out_row = dst + off;
+    ulong lo = ulong(low);
+    ulong v0 = in_row[lo];
+    ulong v1 = in_row[2048UL + lo];
+    ulong v2 = in_row[4096UL + lo];
+    ulong v3 = in_row[6144UL + lo];
+    uint sh13 = args.max_log - 13u;
+    dif_bf(v0, v2, tw_i[lo << sh13]);
+    dif_bf(v1, v3, tw_i[(2048UL + lo) << sh13]);
+    ulong w12 = tw_i[lo << (args.max_log - 12u)];
+    dif_bf(v0, v1, w12);
+    dif_bf(v2, v3, w12);
+    out_row[lo] = v0;
+    out_row[2048UL + lo] = v1;
+    out_row[4096UL + lo] = v2;
+    out_row[6144UL + lo] = v3;
+}
+
+// Pass 1 for log_n = 14 (S_top = 3, T = 8: DIF stages 14, 13, 12)
+kernel void k_inv_dif_top_3(device const ulong *src [[buffer(0)]],
+                            device ulong *dst [[buffer(1)]],
+                            device const ulong *tw_i [[buffer(2)]],
+                            constant DifTopArgs &args [[buffer(3)]],
+                            uint2 gid [[thread_position_in_grid]]) {
+    uint low = gid.x;
+    ulong r = ulong(gid.y);
+    if (low >= TILE || r >= args.rows) { return; }
+    ulong off = r << 14u;
+    device const ulong *in_row = src + off;
+    device ulong *out_row = dst + off;
+    ulong lo = ulong(low);
+    ulong v0 = in_row[lo];
+    ulong v1 = in_row[2048UL + lo];
+    ulong v2 = in_row[4096UL + lo];
+    ulong v3 = in_row[6144UL + lo];
+    ulong v4 = in_row[8192UL + lo];
+    ulong v5 = in_row[10240UL + lo];
+    ulong v6 = in_row[12288UL + lo];
+    ulong v7 = in_row[14336UL + lo];
+    uint sh14 = args.max_log - 14u;
+    dif_bf(v0, v4, tw_i[lo << sh14]);
+    dif_bf(v1, v5, tw_i[(2048UL + lo) << sh14]);
+    dif_bf(v2, v6, tw_i[(4096UL + lo) << sh14]);
+    dif_bf(v3, v7, tw_i[(6144UL + lo) << sh14]);
+    uint sh13 = args.max_log - 13u;
+    ulong w13_0 = tw_i[lo << sh13];
+    ulong w13_1 = tw_i[(2048UL + lo) << sh13];
+    dif_bf(v0, v2, w13_0);
+    dif_bf(v4, v6, w13_0);
+    dif_bf(v1, v3, w13_1);
+    dif_bf(v5, v7, w13_1);
+    ulong w12 = tw_i[lo << (args.max_log - 12u)];
+    dif_bf(v0, v1, w12);
+    dif_bf(v2, v3, w12);
+    dif_bf(v4, v5, w12);
+    dif_bf(v6, v7, w12);
+    out_row[lo] = v0;
+    out_row[2048UL + lo] = v1;
+    out_row[4096UL + lo] = v2;
+    out_row[6144UL + lo] = v3;
+    out_row[8192UL + lo] = v4;
+    out_row[10240UL + lo] = v5;
+    out_row[12288UL + lo] = v6;
+    out_row[14336UL + lo] = v7;
+}
+
+struct FusedRsArgs {
+    ulong rows;
+    uint log_n;
+    uint log_nn;
+    uint mode;
+    uint max_log;
+    ulong q;
+    ulong inv_n;
+    uint use_hw;
+    uint pow2;
+};
+
+inline ulong fused_tw_mul(uint s, uint k, ulong x, uint max_log, uint use_hw, uint pow2,
+                          device const ulong *hw, device const uint *hx, device const ulong *tw) {
+    if (s <= pow2) {
+        return gl_mul_pow2(x, hx[k << (6u - s)]);
+    }
+    ulong w = use_hw != 0u ? hw[ulong(k) << (TILE_LOG - s)] : tw[ulong(k) << (max_log - s)];
+    return gl_mul(x, w);
+}
+
+template <bool RATE4>
+kernel void k_inv_fwd_fused_t(device const ulong *t [[buffer(0)]],
+                              device const ulong *pads [[buffer(1)]],
+                              device const ulong *pows [[buffer(2)]],
+                              device ulong *e [[buffer(3)]],
+                              device const ulong *tw_i [[buffer(4)]],
+                              device const ulong *tw_f [[buffer(5)]],
+                              device const ulong *hw_i [[buffer(6)]],
+                              device const ulong *hw_f [[buffer(7)]],
+                              device const uint *hx_i [[buffer(8)]],
+                              device const uint *hx_f [[buffer(9)]],
+                              constant FusedRsArgs &args [[buffer(10)]],
+                              uint2 tid2 [[thread_position_in_threadgroup]],
+                              uint2 tg [[threadgroup_position_in_grid]]) {
+    // Host dispatches exact 512-thread threadgroups, grid = (1 << (log_n - 11), rows, 1).
+    uint tid = tid2.x;
+    ulong r = ulong(tg.y);
+    ulong b_tile = ulong(tg.x);
+    ulong n = 1UL << args.log_n;
+    uint rate_log = RATE4 ? 2u : 1u;
+    uint n_sub = RATE4 ? 4u : 2u;
+    threadgroup ulong sh[TILE];
+
+    // 1. Coalesced load of DIF tile b_tile fused with DIF Stage 11 (half_len = 1024; pow2 <= 6 < 11).
+    device const ulong *tile_in = t + (r << args.log_n) + (b_tile << TILE_LOG);
+    uint sh11 = args.max_log - TILE_LOG;
+    for (uint k = tid; k < 1024u; k += 512u) {
+        ulong u = tile_in[k];
+        ulong v = tile_in[k + 1024u];
+        ulong w11_i = args.use_hw != 0u ? hw_i[k] : tw_i[ulong(k) << sh11];
+        sh[k] = gl_add(u, v);
+        sh[k + 1024u] = gl_mul(gl_sub(u, v), w11_i);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    // 2. DIF inverse stages (10,9), (8,7), (6,5), (4,3) in radix-4 pairs (1 quad per thread).
+    for (uint s = 9u; s >= 3u; s -= 2u) {
+        uint hh = 1u << (s - 1u);
+        uint grp = tid >> (s - 1u);
+        uint k = tid & (hh - 1u);
+        uint i0 = (grp << (s + 1u)) + k;
+        ulong x0 = sh[i0], x1 = sh[i0 + hh], x2 = sh[i0 + 2u * hh], x3 = sh[i0 + 3u * hh];
+        ulong y0 = gl_add(x0, x2);
+        ulong y2 = fused_tw_mul(s + 1u, k, gl_sub(x0, x2), args.max_log, args.use_hw, args.pow2, hw_i, hx_i, tw_i);
+        ulong y1 = gl_add(x1, x3);
+        ulong y3 = fused_tw_mul(s + 1u, k + hh, gl_sub(x1, x3), args.max_log, args.use_hw, args.pow2, hw_i, hx_i, tw_i);
+        ulong d01 = gl_sub(y0, y1);
+        ulong d23 = gl_sub(y2, y3);
+        ulong z1, z3;
+        if (s <= args.pow2) {
+            uint e_s = hx_i[k << (6u - s)];
+            z1 = gl_mul_pow2(d01, e_s);
+            z3 = gl_mul_pow2(d23, e_s);
+        } else {
+            ulong w_s = args.use_hw != 0u ? hw_i[ulong(k) << (TILE_LOG - s)] : tw_i[ulong(k) << (args.max_log - s)];
+            z1 = gl_mul(d01, w_s);
+            z3 = gl_mul(d23, w_s);
+        }
+        sh[i0] = gl_add(y0, y1);
+        sh[i0 + hh] = z1;
+        sh[i0 + 2u * hh] = gl_add(y2, y3);
+        sh[i0 + 3u * hh] = z3;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+
+    // 3. DIF inverse stages (2, 1) + 1/n scaling -> sh[m] = c[rev_{log_n}(b_tile*2048 + m)].
+    {
+        uint i0 = 4u * tid;
+        ulong x0 = sh[i0], x1 = sh[i0 + 1u], x2 = sh[i0 + 2u], x3 = sh[i0 + 3u];
+        ulong y0 = gl_add(x0, x2);
+        ulong y2 = gl_sub(x0, x2);
+        ulong y1 = gl_add(x1, x3);
+        ulong y3 = fused_tw_mul(2u, 1u, gl_sub(x1, x3), args.max_log, args.use_hw, args.pow2, hw_i, hx_i, tw_i);
+        sh[i0] = gl_mul(gl_add(y0, y1), args.inv_n);
+        sh[i0 + 1u] = gl_mul(gl_sub(y0, y1), args.inv_n);
+        sh[i0 + 2u] = gl_mul(gl_add(y2, y3), args.inv_n);
+        sh[i0 + 3u] = gl_mul(gl_sub(y2, y3), args.inv_n);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    // 4. Stash the 2048 coefficients in registers across all 512 threads so every thread
+    //    is active on every forward sub-tile h = 0..n_sub-1.
+    ulong reg0, reg1, reg2, reg3;
+    if (!RATE4) {
+        reg0 = sh[2u * tid];
+        reg1 = sh[2u * tid + 1u];
+        reg2 = sh[1024u + 2u * tid];
+        reg3 = sh[1024u + 2u * tid + 1u];
+    } else {
+        reg0 = sh[tid];
+        reg1 = sh[512u + tid];
+        reg2 = sh[1024u + tid];
+        reg3 = sh[1536u + tid];
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    // 5. Expand each sub-tile h into forward DIT tile (b_tile * n_sub + h), run forward
+    //    DIT stages 1..11, and write contiguously to e.
+    device const ulong *pad = pads + r * args.q;
+    ulong p_base = b_tile << TILE_LOG;
+    bool use_pow2_s2 = (2u <= args.pow2);
+    uint e_s2_f = use_pow2_s2 ? hx_f[16u] : 0u;
+    ulong w_s2_f = use_pow2_s2 ? 0UL : (args.use_hw != 0u ? hw_f[512u] : tw_f[1UL << (args.max_log - 2u)]);
+
+    for (uint h = 0u; h < n_sub; h++) {
+        uint i0 = 4u * tid;
+        if (!RATE4) {
+            ulong ca = (h == 0u) ? reg0 : reg2;
+            ulong cb = (h == 0u) ? reg1 : reg3;
+            ulong a1, b1, c1, d1;
+            if (args.mode == 1u) {
+                a1 = ca; b1 = ca;
+                c1 = cb; d1 = cb;
+            } else {
+                ulong p0 = p_base + (ulong(h) << 10u) + ulong(2u * tid);
+                ulong idx0 = rev_bits(p0, args.log_n);
+                ulong idx1 = idx0 + (n >> 1u); // rev_bits(p0 + 1, log_n), since p0 is even
+                if (idx0 < args.q) {
+                    ulong pa = pad[idx0];
+                    ulong x0 = gl_mul(gl_sub(ca, pa), pows[idx0]);
+                    ulong x1 = gl_mul(pa, pows[n + idx0]);
+                    a1 = gl_add(x0, x1);
+                    b1 = gl_sub(x0, x1);
+                } else {
+                    ulong x0 = gl_mul(ca, pows[idx0]);
+                    a1 = x0;
+                    b1 = x0;
+                }
+                if (idx1 < args.q) {
+                    ulong pb = pad[idx1];
+                    ulong x2 = gl_mul(gl_sub(cb, pb), pows[idx1]);
+                    ulong x3 = gl_mul(pb, pows[n + idx1]);
+                    c1 = gl_add(x2, x3);
+                    d1 = gl_sub(x2, x3);
+                } else {
+                    ulong x2 = gl_mul(cb, pows[idx1]);
+                    c1 = x2;
+                    d1 = x2;
+                }
+            }
+            ulong t4 = use_pow2_s2 ? gl_mul_pow2(d1, e_s2_f) : gl_mul(d1, w_s2_f);
+            sh[i0] = gl_add(a1, c1);
+            sh[i0 + 2u] = gl_sub(a1, c1);
+            sh[i0 + 1u] = gl_add(b1, t4);
+            sh[i0 + 3u] = gl_sub(b1, t4);
+        } else {
+            ulong ca = (h == 0u) ? reg0 : ((h == 1u) ? reg1 : ((h == 2u) ? reg2 : reg3));
+            if (args.mode == 1u) {
+                sh[i0] = ca;
+                sh[i0 + 1u] = ca;
+                sh[i0 + 2u] = ca;
+                sh[i0 + 3u] = ca;
+            } else {
+                ulong p0 = p_base + (ulong(h) << 9u) + ulong(tid);
+                ulong idx0 = rev_bits(p0, args.log_n);
+                if (idx0 < args.q) {
+                    ulong pa = pad[idx0];
+                    ulong a = gl_mul(gl_sub(ca, pa), pows[idx0]);
+                    ulong cc = gl_mul(pa, pows[n + idx0]);
+                    ulong t4 = use_pow2_s2 ? gl_mul_pow2(cc, e_s2_f) : gl_mul(cc, w_s2_f);
+                    sh[i0] = gl_add(a, cc);
+                    sh[i0 + 2u] = gl_sub(a, cc);
+                    sh[i0 + 1u] = gl_add(a, t4);
+                    sh[i0 + 3u] = gl_sub(a, t4);
+                } else {
+                    ulong a = gl_mul(ca, pows[idx0]);
+                    sh[i0] = a;
+                    sh[i0 + 1u] = a;
+                    sh[i0 + 2u] = a;
+                    sh[i0 + 3u] = a;
+                }
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+
+        // Forward DIT stages (3,4), (5,6), (7,8), (9,10) in radix-4 pairs.
+        for (uint s0 = 3u; s0 <= 9u; s0 += 2u) {
+            uint hh = 1u << (s0 - 1u);
+            uint grp = tid >> (s0 - 1u);
+            uint k = tid & (hh - 1u);
+            uint j0 = (grp << (s0 + 1u)) + k;
+            ulong a = sh[j0], bb = sh[j0 + hh], cc = sh[j0 + 2u * hh], dd = sh[j0 + 3u * hh];
+            ulong t1, t2;
+            if (s0 <= args.pow2) {
+                uint e0 = hx_f[k << (6u - s0)];
+                t1 = gl_mul_pow2(bb, e0);
+                t2 = gl_mul_pow2(dd, e0);
+            } else {
+                ulong w0 = args.use_hw != 0u ? hw_f[ulong(k) << (TILE_LOG - s0)] : tw_f[ulong(k) << (args.max_log - s0)];
+                t1 = gl_mul(bb, w0);
+                t2 = gl_mul(dd, w0);
+            }
+            ulong a1 = gl_add(a, t1), b1 = gl_sub(a, t1);
+            ulong c1 = gl_add(cc, t2), d1 = gl_sub(cc, t2);
+            ulong t3 = fused_tw_mul(s0 + 1u, k, c1, args.max_log, args.use_hw, args.pow2, hw_f, hx_f, tw_f);
+            ulong t4 = fused_tw_mul(s0 + 1u, k + hh, d1, args.max_log, args.use_hw, args.pow2, hw_f, hx_f, tw_f);
+            sh[j0] = gl_add(a1, t3);
+            sh[j0 + 2u * hh] = gl_sub(a1, t3);
+            sh[j0 + hh] = gl_add(b1, t4);
+            sh[j0 + 3u * hh] = gl_sub(b1, t4);
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+
+        // Forward DIT stage 11 fused with coalesced write to e (pow2 <= 6 < 11).
+        ulong out_tile = (b_tile << rate_log) + ulong(h);
+        device ulong *tile_out = e + (r << args.log_nn) + (out_tile << TILE_LOG);
+        for (uint k = tid; k < 1024u; k += 512u) {
+            ulong u = sh[k];
+            ulong w11_f = args.use_hw != 0u ? hw_f[k] : tw_f[ulong(k) << sh11];
+            ulong v = gl_mul(sh[k + 1024u], w11_f);
+            tile_out[k] = gl_add(u, v);
+            tile_out[k + 1024u] = gl_sub(u, v);
+        }
+        if (h + 1u < n_sub) {
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+    }
+}
+
+template [[host_name("k_inv_fwd_fused_r1")]] kernel void k_inv_fwd_fused_t<false>(
+    device const ulong *t [[buffer(0)]], device const ulong *pads [[buffer(1)]], device const ulong *pows [[buffer(2)]],
+    device ulong *e [[buffer(3)]], device const ulong *tw_i [[buffer(4)]], device const ulong *tw_f [[buffer(5)]],
+    device const ulong *hw_i [[buffer(6)]], device const ulong *hw_f [[buffer(7)]], device const uint *hx_i [[buffer(8)]],
+    device const uint *hx_f [[buffer(9)]], constant FusedRsArgs &args [[buffer(10)]],
+    uint2 tid2 [[thread_position_in_threadgroup]], uint2 tg [[threadgroup_position_in_grid]]);
+template [[host_name("k_inv_fwd_fused_r2")]] kernel void k_inv_fwd_fused_t<true>(
+    device const ulong *t [[buffer(0)]], device const ulong *pads [[buffer(1)]], device const ulong *pows [[buffer(2)]],
+    device ulong *e [[buffer(3)]], device const ulong *tw_i [[buffer(4)]], device const ulong *tw_f [[buffer(5)]],
+    device const ulong *hw_i [[buffer(6)]], device const ulong *hw_f [[buffer(7)]], device const uint *hx_i [[buffer(8)]],
+    device const uint *hx_f [[buffer(9)]], constant FusedRsArgs &args [[buffer(10)]],
+    uint2 tid2 [[thread_position_in_threadgroup]], uint2 tg [[threadgroup_position_in_grid]]);
+
 // --------------------------------------------------------------- row folds
 // out[g][j] = sum_i rho_g[i] * src[i * nn + j * ir]  over Fp2 (rho in Fp2,
 // src in Fp): zkp-core pcs.rs fold_rows_host. Fp2 values are (c0, c1) pairs of

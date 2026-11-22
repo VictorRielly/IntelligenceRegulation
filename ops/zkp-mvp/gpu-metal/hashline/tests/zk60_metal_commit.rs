@@ -38,6 +38,22 @@ mod device {
 
     const P: u64 = 0xFFFF_FFFF_0000_0001;
 
+    /// Serializes every Metal device test in this file so process-wide test
+    /// overrides (`set_fused_rs_for_test`) and exact `FUSED_RS_CALLS` deltas
+    /// cannot race across parallel test threads.
+    static METAL_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    struct FusedRsGuard(Option<bool>);
+    impl Drop for FusedRsGuard {
+        fn drop(&mut self) {
+            hashline::gpu::set_fused_rs_for_test(self.0);
+        }
+    }
+
+    fn lock_device() -> std::sync::MutexGuard<'static, ()> {
+        METAL_TEST_LOCK.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
     fn rnd(seed: u64, len: usize) -> Vec<Fp> {
         let mut s = seed ^ 0x9E37_79B9_7F4A_7C15;
         (0..len)
@@ -67,6 +83,7 @@ mod device {
 
     #[test]
     fn m0_field_ops_match_the_cpu_on_edges_and_random_values() {
+        let _lock = lock_device();
         require_device();
         let edges = [0u64, 1, 2, P - 1, P - 2, 1 << 32, (1 << 32) - 1, (1 << 32) + 1, 1 << 63, (1 << 63) + 5, 0xFFFF_FFFF, P >> 1];
         let mut a = Vec::new();
@@ -98,6 +115,7 @@ mod device {
 
     #[test]
     fn m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu() {
+        let _lock = lock_device();
         require_device();
         let ntt = NttTables::new(16);
         for (si, &(log_cols, ir, rows)) in SHAPES.iter().enumerate() {
@@ -155,6 +173,7 @@ mod device {
     }
 
     fn zk_pair(tag: Option<&HashTag>) {
+        let _lock = lock_device();
         require_device();
         let ntt = NttTables::new(16);
         let backend = hashline::gpu::backend();
@@ -218,6 +237,300 @@ mod device {
         zk_pair(Some(&HashTag::for_profile("hashline-zk-mr1/metal-test/1")));
     }
 
+    /// [OPT-NEXT-1] Fused DIF-INTT -> DIT-FWD zero-gather coset RS encoder
+    /// (`HL_METAL_FUSED_RS=1`) matches BOTH the reference 4-pass Metal path and
+    /// zkp-core's CPU oracle word-for-word (leaves, roots, sampled encoded
+    /// columns, row folds, and complete `OpeningZk` bytes) across:
+    ///   * `(log_n=14, inv_rate=2, q=280)` (W16R2 A/H),
+    ///   * `(log_n=14, inv_rate=4, q=256)` (R13/B),
+    ///   * `(log_n=12, inv_rate=4, q=256)` (Stage A/H, multi-chunk BLAKE3),
+    ///   * `(log_n=12/13, inv_rate=2/4)` + high-`q` (`n/2 < q <= n`),
+    ///   * `(log_n=14, inv_rate=2, q=0)` (and other plain RS geometries),
+    ///   * plus clean fallback on `log_n < 12` and `q > n`.
+    #[test]
+    fn m1_fused_rs_matches_reference_and_cpu_byte_for_byte() {
+        let _lock = lock_device();
+        require_device();
+        let _guard = FusedRsGuard(hashline::gpu::set_fused_rs_for_test(Some(false)));
+        assert!(!hashline::gpu::fused_rs_for_test(), "frs0 override did not disable fused RS");
+        assert_eq!(hashline::gpu::set_fused_rs_for_test(Some(true)), Some(false));
+        assert!(hashline::gpu::fused_rs_for_test(), "frs1 override did not enable fused RS");
+        assert_eq!(hashline::gpu::set_fused_rs_for_test(Some(false)), Some(true));
+
+        let ntt16 = NttTables::new(16);
+        let ntt18 = NttTables::new(18);
+        let backend = hashline::gpu::backend();
+        let tag = HashTag::for_profile("hashline-zk-mr1/metal-test/1");
+        let raw_key = [0x5Au8; 32];
+
+        // (log_cols, inv_rate, q, rows, use_ntt18, expect_fused)
+        let zk_shapes: [(u32, usize, usize, usize, bool, bool); 14] = [
+            (14, 2, 280, 6, true, true),     // W16R2 A/H (k_inv_dif_top_3 + k_inv_fwd_fused_r1, max_log > log_nn)
+            (14, 4, 256, 5, false, true),    // R13/B (k_inv_dif_top_3 + k_inv_fwd_fused_r2, max_log == log_nn)
+            (12, 4, 256, 130, false, true),  // Stage A/H + multi-chunk BLAKE3 (k_inv_dif_top_1 + k_inv_fwd_fused_r2)
+            (12, 2, 256, 5, false, true),    // Stage rate-1/2 (k_inv_dif_top_1 + k_inv_fwd_fused_r1)
+            (12, 2, 2500, 4, false, true),   // High-q (n/2 < q <= n): exercises both idx0 < q and idx1 < q
+            (12, 2, 4096, 4, false, true),   // Exact boundary q == n (rate-1/2)
+            (12, 4, 4096, 4, false, true),   // Exact gate boundary q == n (rate-1/4, exercises k_inv_fwd_fused_r2)
+            (13, 2, 280, 5, false, true),    // Mid rate-1/2 (k_inv_dif_top_2 + k_inv_fwd_fused_r1)
+            (13, 4, 256, 5, true, true),     // Mid rate-1/4 (k_inv_dif_top_2 + k_inv_fwd_fused_r2)
+            (10, 4, 8, 5, false, false),     // Fallback: log_n < 12
+            (3, 4, 12, 5, false, false),     // Fallback: log_n < 12 and q > n
+            (12, 4, 4097, 4, false, false),  // Fallback: log_n == 12 but q > n
+            (15, 2, 256, 4, true, false),    // Fallback: log_n > 14
+            (12, 8, 256, 4, false, false),   // Fallback: rate_log == 3 (inv_rate == 8)
+        ];
+
+        for (si, &(log_cols, ir, q, rows, use18, expect_fused)) in zk_shapes.iter().enumerate() {
+            let ntt = if use18 { &ntt18 } else { &ntt16 };
+            let p = params(log_cols, ir);
+            let (n, nn) = (p.cols(), p.enc_cols());
+            let zk = ZkOpts { q_pad: q, coset: Fp::new(7) };
+            let data = rnd(7000 + si as u64, rows * n);
+            let pads = rnd(8000 + si as u64, rows * q);
+            let pows = pcs::coset_powers(zk.coset, nn);
+            let idx: Vec<usize> = [0, 1, 2, 3, 2047 % nn, 2048 % nn, nn / 2, nn - 1, (nn / 3) | 1].into_iter().map(|j| j % nn).collect();
+            let rhos = vec![rnd2(9100 + si as u64, rows), rnd2(9200 + si as u64, rows)];
+            let want_delta = u64::from(expect_fused);
+
+            // 1. Direct metal_commit_zk: frs0 vs frs1 (leaves, raw encoded columns, folds), unkeyed and keyed.
+            for key in [None, Some(&raw_key)] {
+                hashline::gpu::set_fused_rs_for_test(Some(false));
+                let c0_before = hashline::gpu::fused_rs_calls_for_test();
+                let (mc0, leaves0) = hashline::gpu::metal_commit_zk(&p, &data, &pads, &pows, ntt, key).expect("metal_commit_zk frs0");
+                assert_eq!(hashline::gpu::fused_rs_calls_for_test() - c0_before, 0, "zk shape {si}: frs0 must not dispatch fused RS");
+                hashline::gpu::set_fused_rs_for_test(Some(true));
+                let c1_before = hashline::gpu::fused_rs_calls_for_test();
+                let (mc1, leaves1) = hashline::gpu::metal_commit_zk(&p, &data, &pads, &pows, ntt, key).expect("metal_commit_zk frs1");
+                assert_eq!(
+                    hashline::gpu::fused_rs_calls_for_test() - c1_before,
+                    want_delta,
+                    "zk shape {si}: direct metal_commit_zk fused RS delta"
+                );
+                assert_eq!(leaves1, leaves0, "zk shape {si} (log_n={log_cols}, ir={ir}, q={q}, keyed={}): leaves", key.is_some());
+                assert_eq!(mc1.columns(&idx).expect("cols1"), mc0.columns(&idx).expect("cols0"), "zk shape {si}: encoded columns");
+                assert_eq!(mc1.fold_rows(&rhos).expect("fold1"), mc0.fold_rows(&rhos).expect("fold0"), "zk shape {si}: folds");
+            }
+
+            // 2. Full commit_zk + open_zk: CPU oracle vs Metal frs0 vs Metal frs1, unkeyed and tagged.
+            for maybe_tag in [None, Some(&tag)] {
+                let mut r_cpu = ZkRng::new(4200 + si as u64, b"metal-frs-test");
+                let mut cpu = match maybe_tag {
+                    None => pcs::commit_zk_owned_with(&Cpu, &p, data.clone(), ntt, &zk, &mut r_cpu),
+                    Some(t) => pcs::commit_zk_owned_with_tag(&Cpu, &p, data.clone(), ntt, &zk, &mut r_cpu, t),
+                };
+                hashline::gpu::set_fused_rs_for_test(Some(false));
+                let c0_open = hashline::gpu::fused_rs_calls_for_test();
+                let mut r_dev0 = ZkRng::new(4200 + si as u64, b"metal-frs-test");
+                let mut dev0 = match maybe_tag {
+                    None => pcs::commit_zk_owned_with(&backend, &p, data.clone(), ntt, &zk, &mut r_dev0),
+                    Some(t) => pcs::commit_zk_owned_with_tag(&backend, &p, data.clone(), ntt, &zk, &mut r_dev0, t),
+                };
+                assert_eq!(hashline::gpu::fused_rs_calls_for_test() - c0_open, 0, "zk shape {si}: commit_zk frs0 must not dispatch fused RS");
+                hashline::gpu::set_fused_rs_for_test(Some(true));
+                let c1_open = hashline::gpu::fused_rs_calls_for_test();
+                let mut r_dev1 = ZkRng::new(4200 + si as u64, b"metal-frs-test");
+                let mut dev1 = match maybe_tag {
+                    None => pcs::commit_zk_owned_with(&backend, &p, data.clone(), ntt, &zk, &mut r_dev1),
+                    Some(t) => pcs::commit_zk_owned_with_tag(&backend, &p, data.clone(), ntt, &zk, &mut r_dev1, t),
+                };
+                assert_eq!(
+                    hashline::gpu::fused_rs_calls_for_test() - c1_open,
+                    want_delta,
+                    "zk shape {si}: commit_zk frs1 fused RS delta"
+                );
+                assert!(matches!(dev0.cm.store, Store::Device(_)), "zk shape {si}: frs0 declined");
+                assert!(matches!(dev1.cm.store, Store::Device(_)), "zk shape {si}: frs1 declined");
+                assert_eq!(dev1.commitment().root, cpu.commitment().root, "zk shape {si}: frs1 vs CPU salted root");
+                assert_eq!(dev1.commitment().root, dev0.commitment().root, "zk shape {si}: frs1 vs frs0 salted root");
+
+                for mr in [&mut cpu.mask_rows, &mut dev0.mask_rows, &mut dev1.mask_rows] {
+                    *mr = vec![rows - 3, rows - 2];
+                }
+                cpu.prox_mask_row = Some(rows - 1);
+                dev0.prox_mask_row = Some(rows - 1);
+                dev1.prox_mask_row = Some(rows - 1);
+                let cl = claims(rows, log_cols, 9500 + si as u64);
+                let (mut tc, mut t0, mut t1) = (Transcript::new(b"metal-frs-open"), Transcript::new(b"metal-frs-open"), Transcript::new(b"metal-frs-open"));
+                let oc = pcs::open_zk(&cpu, &cl, &mut tc);
+                let o0 = pcs::open_zk(&dev0, &cl, &mut t0);
+                let o1 = pcs::open_zk(&dev1, &cl, &mut t1);
+                let (mut bc, mut b0, mut b1) = (Vec::new(), Vec::new(), Vec::new());
+                oc.write_bytes(&mut bc);
+                o0.write_bytes(&mut b0);
+                o1.write_bytes(&mut b1);
+                assert_eq!(b1, bc, "zk shape {si} (log_n={log_cols}, ir={ir}, q={q}): frs1 vs CPU OpeningZk bytes");
+                assert_eq!(b1, b0, "zk shape {si} (log_n={log_cols}, ir={ir}, q={q}): frs1 vs frs0 OpeningZk bytes");
+                assert_eq!(t1.challenge_fp2(), tc.challenge_fp2(), "zk shape {si}: transcript after opening");
+            }
+        }
+
+        // 3. Plain RS (q = 0): (log_n=14, inv_rate=2, q=0) and sibling geometries vs CPU and frs0.
+        let plain_shapes: [(u32, usize, usize, bool); 4] = [
+            (14, 2, 6, true),
+            (14, 4, 5, false),
+            (13, 2, 5, false),
+            (12, 4, 5, false),
+        ];
+        for (si, &(log_cols, ir, rows, use18)) in plain_shapes.iter().enumerate() {
+            let ntt = if use18 { &ntt18 } else { &ntt16 };
+            let p = params(log_cols, ir);
+            let (n, nn) = (p.cols(), p.enc_cols());
+            let data = rnd(12000 + si as u64, rows * n);
+            let cpu = pcs::commit(&p, &data, ntt);
+            let encoded = match &cpu.store {
+                Store::Host { encoded } => encoded.clone(),
+                Store::Device(never) => match *never {},
+            };
+            let cpu_leaves = pcs::hash_columns(&encoded, rows, nn);
+
+            hashline::gpu::set_fused_rs_for_test(Some(false));
+            let c0_before = hashline::gpu::fused_rs_calls_for_test();
+            let (mc0, leaves0) = hashline::gpu::metal_commit(&p, &data, ntt).expect("metal_commit frs0");
+            assert_eq!(hashline::gpu::fused_rs_calls_for_test() - c0_before, 0, "plain shape {si}: frs0 must not dispatch fused RS");
+            hashline::gpu::set_fused_rs_for_test(Some(true));
+            let c1_before = hashline::gpu::fused_rs_calls_for_test();
+            let (mc1, leaves1) = hashline::gpu::metal_commit(&p, &data, ntt).expect("metal_commit frs1");
+            assert_eq!(hashline::gpu::fused_rs_calls_for_test() - c1_before, 1, "plain shape {si}: expected exact 1 fused RS dispatch");
+
+            assert_eq!(leaves1, cpu_leaves, "plain shape {si} (log_n={log_cols}, ir={ir}, q=0): frs1 vs CPU leaves");
+            assert_eq!(leaves1, leaves0, "plain shape {si} (log_n={log_cols}, ir={ir}, q=0): frs1 vs frs0 leaves");
+            assert_eq!(MerkleTree::build(leaves1).root(), cpu.tree.root(), "plain shape {si}: root");
+
+            let idx: Vec<usize> = [0, 1, 2047 % nn, 2048 % nn, nn / 2, nn - 1, (nn / 3) | 1].into_iter().map(|j| j % nn).collect();
+            let cols0 = mc0.columns(&idx).expect("plain cols0");
+            let cols1 = mc1.columns(&idx).expect("plain cols1");
+            assert_eq!(cols1, cols0, "plain shape {si}: frs1 vs frs0 columns");
+            for (c, &j) in cols1.iter().zip(&idx) {
+                let want: Vec<Fp> = (0..rows).map(|i| encoded[i * nn + j]).collect();
+                assert_eq!(*c, want, "plain shape {si}: column {j}");
+            }
+            let rhos = vec![rnd2(13000 + si as u64, rows), rnd2(13100 + si as u64, rows)];
+            assert_eq!(mc1.fold_rows(&rhos).expect("plain fold1"), mc0.fold_rows(&rhos).expect("plain fold0"), "plain shape {si}: folds");
+        }
+
+        println!(
+            "ZK60_METAL_SUMMARY {{\"case\":\"m1-fused-rs\",\"zk_shapes\":{},\"plain_shapes\":{}}}",
+            zk_shapes.len(),
+            plain_shapes.len()
+        );
+    }
+
+    /// [OPT-NEXT-1] Exact installed W16R2 Shieldstral classifier commitment
+    /// geometries: A (2,504 rows, log_n=14, inv_rate=2, q=280, keyed),
+    /// H (2,606 rows, log_n=14, inv_rate=2, q=280, keyed), traced W16R2
+    /// boundary (38 rows, log_n=14, inv_rate=2, q=280, keyed), and R13
+    /// boundary (38 rows, log_n=14, inv_rate=4, q=256, keyed). Checks frs1
+    /// against BOTH CPU oracle and Metal frs0 on roots, leaves, sampled encoded
+    /// columns, row folds, complete `OpeningZk` bytes, and post-opening
+    /// transcript challenge, with exact `FUSED_RS_CALLS` delta anti-vacuity.
+    #[test]
+    fn m1_fused_rs_classifier_exact_shapes() {
+        let _lock = lock_device();
+        require_device();
+        let _guard = FusedRsGuard(hashline::gpu::set_fused_rs_for_test(Some(false)));
+
+        let ntt18 = NttTables::new(18);
+        let backend = hashline::gpu::backend();
+        let tag = HashTag::for_profile("hashline-zk-mr1/metal-test/1");
+        let raw_key = tag.node_key().expect("keyed tag");
+
+        // (label, log_cols, inv_rate, q, rows)
+        let cls_shapes: [(&str, u32, usize, usize, usize); 4] = [
+            ("w16r2_block_a", 14, 2, 280, 2504),
+            ("w16r2_block_h", 14, 2, 280, 2606),
+            ("w16r2_boundary_traced", 14, 2, 280, 38),
+            ("r13_boundary", 14, 4, 256, 38),
+        ];
+
+        for (si, &(label, log_cols, ir, q, rows)) in cls_shapes.iter().enumerate() {
+            let p = params(log_cols, ir);
+            let (n, nn) = (p.cols(), p.enc_cols());
+            let zk = ZkOpts { q_pad: q, coset: Fp::new(7) };
+            let data = rnd(21000 + si as u64, rows * n);
+            let pads = rnd(22000 + si as u64, rows * q);
+            let pows = pcs::coset_powers(zk.coset, nn);
+            let idx: Vec<usize> = [0, 1, 2, 2047, 2048, nn / 2, nn - 1, (nn / 3) | 1]
+                .into_iter()
+                .map(|j| j % nn)
+                .collect();
+            let rhos = vec![rnd2(23000 + si as u64, rows), rnd2(23100 + si as u64, rows)];
+
+            // 1. Direct keyed metal_commit_zk: frs0 vs frs1 (leaves, columns, row folds) + exact delta.
+            hashline::gpu::set_fused_rs_for_test(Some(false));
+            let c0_before = hashline::gpu::fused_rs_calls_for_test();
+            let (mc0, leaves0) = hashline::gpu::metal_commit_zk(&p, &data, &pads, &pows, &ntt18, Some(&raw_key))
+                .expect("metal_commit_zk frs0");
+            assert_eq!(hashline::gpu::fused_rs_calls_for_test() - c0_before, 0, "{label}: frs0 dispatched fused RS");
+
+            hashline::gpu::set_fused_rs_for_test(Some(true));
+            let c1_before = hashline::gpu::fused_rs_calls_for_test();
+            let (mc1, leaves1) = hashline::gpu::metal_commit_zk(&p, &data, &pads, &pows, &ntt18, Some(&raw_key))
+                .expect("metal_commit_zk frs1");
+            assert_eq!(
+                hashline::gpu::fused_rs_calls_for_test() - c1_before,
+                1,
+                "{label}: expected exact 1 fused RS dispatch"
+            );
+            assert_eq!(leaves1, leaves0, "{label}: frs1 vs frs0 leaves");
+            assert_eq!(mc1.columns(&idx).expect("cols1"), mc0.columns(&idx).expect("cols0"), "{label}: columns");
+            assert_eq!(mc1.fold_rows(&rhos).expect("fold1"), mc0.fold_rows(&rhos).expect("fold0"), "{label}: folds");
+            drop((mc0, mc1, leaves0, leaves1));
+
+            // 2. Full tagged commit_zk + open_zk: CPU oracle vs Metal frs0 vs Metal frs1.
+            let mut r_cpu = ZkRng::new(24000 + si as u64, b"metal-frs-cls");
+            let mut cpu = pcs::commit_zk_owned_with_tag(&Cpu, &p, data.clone(), &ntt18, &zk, &mut r_cpu, &tag);
+
+            hashline::gpu::set_fused_rs_for_test(Some(false));
+            let c0_open = hashline::gpu::fused_rs_calls_for_test();
+            let mut r_dev0 = ZkRng::new(24000 + si as u64, b"metal-frs-cls");
+            let mut dev0 = pcs::commit_zk_owned_with_tag(&backend, &p, data.clone(), &ntt18, &zk, &mut r_dev0, &tag);
+            assert_eq!(hashline::gpu::fused_rs_calls_for_test() - c0_open, 0, "{label}: commit_zk frs0 dispatched fused RS");
+
+            hashline::gpu::set_fused_rs_for_test(Some(true));
+            let c1_open = hashline::gpu::fused_rs_calls_for_test();
+            let mut r_dev1 = ZkRng::new(24000 + si as u64, b"metal-frs-cls");
+            let mut dev1 = pcs::commit_zk_owned_with_tag(&backend, &p, data, &ntt18, &zk, &mut r_dev1, &tag);
+            assert_eq!(
+                hashline::gpu::fused_rs_calls_for_test() - c1_open,
+                1,
+                "{label}: commit_zk_owned_with_tag expected exact 1 fused RS dispatch"
+            );
+            assert!(matches!(dev0.cm.store, Store::Device(_)), "{label}: frs0 declined");
+            assert!(matches!(dev1.cm.store, Store::Device(_)), "{label}: frs1 declined");
+            assert_eq!(dev1.commitment().root, cpu.commitment().root, "{label}: frs1 vs CPU salted root");
+            assert_eq!(dev1.commitment().root, dev0.commitment().root, "{label}: frs1 vs frs0 salted root");
+
+            for mr in [&mut cpu.mask_rows, &mut dev0.mask_rows, &mut dev1.mask_rows] {
+                *mr = vec![rows - 3, rows - 2];
+            }
+            cpu.prox_mask_row = Some(rows - 1);
+            dev0.prox_mask_row = Some(rows - 1);
+            dev1.prox_mask_row = Some(rows - 1);
+            let cl = claims(rows, log_cols, 25000 + si as u64);
+            let (mut tc, mut t0, mut t1) = (
+                Transcript::new(b"metal-frs-cls-open"),
+                Transcript::new(b"metal-frs-cls-open"),
+                Transcript::new(b"metal-frs-cls-open"),
+            );
+            let oc = pcs::open_zk(&cpu, &cl, &mut tc);
+            let o0 = pcs::open_zk(&dev0, &cl, &mut t0);
+            let o1 = pcs::open_zk(&dev1, &cl, &mut t1);
+            let (mut bc, mut b0, mut b1) = (Vec::new(), Vec::new(), Vec::new());
+            oc.write_bytes(&mut bc);
+            o0.write_bytes(&mut b0);
+            o1.write_bytes(&mut b1);
+            assert_eq!(b1, bc, "{label}: frs1 vs CPU OpeningZk bytes");
+            assert_eq!(b1, b0, "{label}: frs1 vs frs0 OpeningZk bytes");
+            assert_eq!(t1.challenge_fp2(), tc.challenge_fp2(), "{label}: transcript after opening");
+        }
+
+        println!(
+            "ZK60_METAL_SUMMARY {{\"case\":\"m1-fused-rs-classifier\",\"shapes\":{}}}",
+            cls_shapes.len()
+        );
+    }
+
     /// [ZK60-METAL M2] The keyed hiding commitment at model-block sizes, CPU
     /// against Metal, roots compared, wall clocks printed. A diagnostic, not a
     /// receipt: one run each on a shared box. Shapes: Shieldstral-3B T128's A
@@ -226,6 +539,7 @@ mod device {
     #[test]
     #[ignore = "heavy: multi-GB commitments; run through the resource guard"]
     fn m2_keyed_commit_timing_at_block_sizes() {
+        let _lock = lock_device();
         require_device();
         let ntt = NttTables::new(18);
         let tag = HashTag::for_profile("hashline-zk-mr1/metal-bench/1");

@@ -19,7 +19,7 @@ use crate::field::{Fp, Fp2};
 use crate::merkle::Digest;
 use crate::ntt::NttTables;
 use metal::{
-    Buffer, CommandQueue, CompileOptions, ComputePipelineState, Device, MTLCommandBufferStatus, MTLResourceOptions, MTLSize,
+    Buffer, CommandQueue, CompileOptions, ComputePipelineState, Device, Library, MTLCommandBufferStatus, MTLResourceOptions, MTLSize,
 };
 use rayon::prelude::*;
 use std::collections::HashMap;
@@ -57,12 +57,26 @@ const KERNELS: [&str; 23] = [
 /// threadgroup tile of the fused NTT (TILE_LOG in the MSL source)
 const TILE_LOG: u32 = 11;
 
+/// [OPT-NEXT-1] Lazily compiled fused RS encoder pipelines; untouched when
+/// `HL_METAL_FUSED_RS` is off so startup and failure modes stay unchanged.
+struct FusedRsPipes {
+    dif_top_1: ComputePipelineState,
+    dif_top_2: ComputePipelineState,
+    dif_top_3: ComputePipelineState,
+    fused_r1: ComputePipelineState,
+    fused_r2: ComputePipelineState,
+}
+
 struct Ctx {
     device: Device,
+    /// compiled kernel library, retained for lazy opt-in pipeline creation
+    lib: Library,
     /// the process-wide queue (the default, `HL_METAL_QUEUES=shared`; [A7] the
     /// opt-in `thread` gives each thread its own, `OWN_QUEUE`)
     queue: CommandQueue,
     pipes: HashMap<&'static str, ComputePipelineState>,
+    /// [OPT-NEXT-1] lazy fused-RS pipelines (created on first enabled dispatch)
+    fused_rs_pipes: OnceLock<Result<FusedRsPipes, String>>,
     /// (forward, inverse) twiddle buffers per NttTables::max_log
     twiddles: Mutex<HashMap<u32, (Buffer, Buffer)>>,
     /// [M12] the compact head twiddles (forward, inverse) per max_log: the
@@ -87,11 +101,40 @@ fn ctx() -> Result<&'static Ctx, String> {
                 pipes.insert(k, p);
             }
             let queue = device.new_command_queue();
-            Ok(Ctx { device, queue, pipes, twiddles: Mutex::new(HashMap::new()), head_tw: Mutex::new(HashMap::new()), sc_pipes: Mutex::new(HashMap::new()) })
+            Ok(Ctx {
+                device,
+                lib,
+                queue,
+                pipes,
+                fused_rs_pipes: OnceLock::new(),
+                twiddles: Mutex::new(HashMap::new()),
+                head_tw: Mutex::new(HashMap::new()),
+                sc_pipes: Mutex::new(HashMap::new()),
+            })
         })
     })
     .as_ref()
     .map_err(|e| e.clone())
+}
+
+fn fused_rs_pipes(c: &Ctx) -> Result<&FusedRsPipes, &String> {
+    c.fused_rs_pipes
+        .get_or_init(|| {
+            objc::rc::autoreleasepool(|| {
+                let make = |k: &str| -> Result<ComputePipelineState, String> {
+                    let f = c.lib.get_function(k, None).map_err(|e| format!("metal function {k}: {e}"))?;
+                    c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal pipeline {k}: {e}"))
+                };
+                Ok(FusedRsPipes {
+                    dif_top_1: make("k_inv_dif_top_1")?,
+                    dif_top_2: make("k_inv_dif_top_2")?,
+                    dif_top_3: make("k_inv_dif_top_3")?,
+                    fused_r1: make("k_inv_fwd_fused_r1")?,
+                    fused_r2: make("k_inv_fwd_fused_r2")?,
+                })
+            })
+        })
+        .as_ref()
 }
 
 /// `HL_GPU=1` and a Metal device whose kernels compiled.
@@ -135,6 +178,12 @@ pub fn label() -> String {
 static SECS_COMMIT_NS: AtomicU64 = AtomicU64::new(0);
 static N_COMMITS: AtomicU64 = AtomicU64::new(0);
 static BYTES_ENCODED: AtomicU64 = AtomicU64::new(0);
+static FUSED_RS_CALLS: AtomicU64 = AtomicU64::new(0);
+
+/// [OPT-NEXT-1] Total commitments that executed the fused DIF-INTT -> DIT-FWD path (anti-vacuity counter for tests).
+pub fn fused_rs_calls_for_test() -> u64 {
+    FUSED_RS_CALLS.load(Ordering::Relaxed)
+}
 
 /// (commitments made on the device, their summed wall seconds, encoded bytes)
 pub fn stats() -> (u64, f64, u64) {
@@ -206,6 +255,61 @@ struct TailArgs {
     apply_scale: u32,
     /// [A27] 1: two stages per pass (radix 4 in registers, [`ntt_r4_on`])
     r4: u32,
+}
+#[repr(C)]
+struct DifTopArgs {
+    rows: u64,
+    log_n: u32,
+    max_log: u32,
+}
+#[repr(C)]
+struct FusedRsArgs {
+    rows: u64,
+    log_n: u32,
+    log_nn: u32,
+    mode: u32,
+    max_log: u32,
+    q: u64,
+    inv_n: u64,
+    use_hw: u32,
+    pow2: u32,
+}
+
+/// [OPT-NEXT-1] tests: 0 lets `HL_METAL_FUSED_RS=1` decide (default off), 1 forces off, 2 forces on.
+static FUSED_RS_TEST: AtomicUsize = AtomicUsize::new(0);
+
+/// **[OPT-NEXT-1] `HL_METAL_FUSED_RS=1`** (default off): fused DIF-INTT -> DIT-FWD
+/// zero-gather coset RS encoder for `log_n in 12..=14`, `inv_rate in {2, 4}`, `q <= n`.
+/// Computes the exact same canonical Goldilocks words, leaves and openings as the 4-pass path.
+fn fused_rs_on() -> bool {
+    match FUSED_RS_TEST.load(Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => {
+            static ENV: OnceLock<bool> = OnceLock::new();
+            *ENV.get_or_init(|| std::env::var("HL_METAL_FUSED_RS").map(|v| v == "1").unwrap_or(false))
+        }
+    }
+}
+
+/// [OPT-NEXT-1] in-process test override for `HL_METAL_FUSED_RS` (`Some(true)` forces on,
+/// `Some(false)` forces off, `None` restores the environment setting); returns the previous override.
+pub fn set_fused_rs_for_test(on: Option<bool>) -> Option<bool> {
+    let v = match on {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    match FUSED_RS_TEST.swap(v, Ordering::Relaxed) {
+        1 => Some(false),
+        2 => Some(true),
+        _ => None,
+    }
+}
+
+/// [OPT-NEXT-1] whether the fused DIF-INTT -> DIT-FWD RS encoder is currently active.
+pub fn fused_rs_for_test() -> bool {
+    fused_rs_on()
 }
 
 /// **[A27] `HL_A27_NTT4`** (default on; `0`: one radix-2 stage per pass, as before): the
@@ -329,6 +433,76 @@ fn encode_fused(
         let th = ((1u64 << TILE_LOG) / per).min(tail.max_total_threads_per_threadgroup());
         enc.dispatch_thread_groups(MTLSize::new(1u64 << (log_n - TILE_LOG), rows, 1), MTLSize::new(th, 1, 1));
     }
+}
+
+/// [OPT-NEXT-1] whether the fused DIF-INTT -> DIT-FWD path can serve this geometry;
+/// lazily builds the five fused-RS pipelines only when the switch is on.
+fn can_encode_fused_rs(c: &Ctx, log_n: u32, log_nn: u32, q: usize) -> Option<&FusedRsPipes> {
+    if !fused_rs_on() || !(12..=14).contains(&log_n) {
+        return None;
+    }
+    let rate_log = log_nn.saturating_sub(log_n);
+    if rate_log != 1 && rate_log != 2 {
+        return None;
+    }
+    if q > (1usize << log_n) {
+        return None;
+    }
+    let fp = fused_rs_pipes(c).ok()?;
+    let fused = if rate_log == 1 { &fp.fused_r1 } else { &fp.fused_r2 };
+    (fused.max_total_threads_per_threadgroup() >= 512).then_some(fp)
+}
+
+/// [OPT-NEXT-1] 3-pass zero-gather DIF-INTT -> DIT-FWD coset RS encoder:
+/// Pass 1 (`k_inv_dif_top_{1,2,3}`), Pass 2 (`k_inv_fwd_fused_r{1,2}`),
+/// Pass 3 (existing `k_ntt_tail`, stages 12..=log_nn).
+#[allow(clippy::too_many_arguments)]
+fn encode_fused_rs(
+    c: &Ctx, fp: &FusedRsPipes, enc: &metal::ComputeCommandEncoderRef, d: &Buffer, t: &Buffer, pads: Option<&Buffer>, pows: Option<&Buffer>, e: &Buffer,
+    tw_i: &Buffer, tw_f: &Buffer, hw: Option<&(Buffer, Buffer)>, hx: Option<&(Buffer, Buffer)>,
+    rows: u64, log_n: u32, log_nn: u32, mode: u32, q: u64, max_log: u32, inv_n: u64,
+) {
+    let dif_top = match log_n {
+        12 => &fp.dif_top_1,
+        13 => &fp.dif_top_2,
+        14 => &fp.dif_top_3,
+        _ => unreachable!("encode_fused_rs: log_n must be in 12..=14"),
+    };
+    enc.set_buffer(0, Some(d), 0);
+    enc.set_buffer(1, Some(t), 0);
+    enc.set_buffer(2, Some(tw_i), 0);
+    set_args(enc, 3, &DifTopArgs { rows, log_n, max_log });
+    dispatch_2d_pipe(enc, dif_top, 1u64 << TILE_LOG, rows);
+
+    let rate_log = log_nn - log_n;
+    let fused = if rate_log == 1 { &fp.fused_r1 } else { &fp.fused_r2 };
+    enc.set_compute_pipeline_state(fused);
+    enc.set_buffer(0, Some(t), 0);
+    enc.set_buffer(1, Some(pads.unwrap_or(d)), 0);
+    enc.set_buffer(2, Some(pows.unwrap_or(d)), 0);
+    enc.set_buffer(3, Some(e), 0);
+    enc.set_buffer(4, Some(tw_i), 0);
+    enc.set_buffer(5, Some(tw_f), 0);
+    enc.set_buffer(6, Some(hw.map(|h| &h.1).unwrap_or(tw_i)), 0);
+    enc.set_buffer(7, Some(hw.map(|h| &h.0).unwrap_or(tw_f)), 0);
+    enc.set_buffer(8, Some(hx.map(|x| &x.1).unwrap_or(tw_i)), 0);
+    enc.set_buffer(9, Some(hx.map(|x| &x.0).unwrap_or(tw_f)), 0);
+    let pow2 = if hx.is_some() { 6 } else { 0 };
+    set_args(
+        enc,
+        10,
+        &FusedRsArgs { rows, log_n, log_nn, mode, max_log, q, inv_n, use_hw: hw.is_some() as u32, pow2 },
+    );
+    enc.dispatch_thread_groups(MTLSize::new(1u64 << (log_n - TILE_LOG), rows, 1), MTLSize::new(512, 1, 1));
+
+    let tail = &c.pipes["k_ntt_tail"];
+    enc.set_compute_pipeline_state(tail);
+    enc.set_buffer(0, Some(e), 0);
+    enc.set_buffer(1, Some(tw_f), 0);
+    set_args(enc, 2, &TailArgs { rows, log_n: log_nn, max_log, scale: 1, apply_scale: 0, r4: ntt_r4_on() as u32 });
+    let per = if ntt_r4_on() { 4 } else { 2 };
+    let th = ((1u64 << TILE_LOG) / per).min(tail.max_total_threads_per_threadgroup());
+    enc.dispatch_thread_groups(MTLSize::new(1u64 << (log_nn - TILE_LOG), rows, 1), MTLSize::new(th, 1, 1));
 }
 
 #[repr(C)]
@@ -1217,11 +1391,14 @@ fn set_args<T>(enc: &metal::ComputeCommandEncoderRef, index: u64, args: &T) {
     enc.set_bytes(index, std::mem::size_of::<T>() as u64, args as *const T as *const c_void);
 }
 
-fn dispatch_2d(c: &Ctx, enc: &metal::ComputeCommandEncoderRef, kernel: &str, w: u64, h: u64) {
-    let p = &c.pipes[kernel];
+fn dispatch_2d_pipe(enc: &metal::ComputeCommandEncoderRef, p: &ComputePipelineState, w: u64, h: u64) {
     enc.set_compute_pipeline_state(p);
     let tg = p.max_total_threads_per_threadgroup().min(256).min(w.max(1));
     enc.dispatch_threads(MTLSize::new(w, h, 1), MTLSize::new(tg, 1, 1));
+}
+
+fn dispatch_2d(c: &Ctx, enc: &metal::ComputeCommandEncoderRef, kernel: &str, w: u64, h: u64) {
+    dispatch_2d_pipe(enc, &c.pipes[kernel], w, h);
 }
 
 /// The NTT stages of `ntt.rs::transform` on `a` (rows rows of 2^log_n),
@@ -2093,15 +2270,40 @@ fn commit_impl(
             }
         }
         let staged = std::env::var("HL_METAL_STAGED").map(|v| v == "1").unwrap_or(false);
-        trace_detail(|| format!("rows={rows} log_n={log_n} log_nn={log_nn} zk={} keyed={}", zk_bufs.as_ref().map(|z| z.2).unwrap_or(0), key.is_some() as u8));
+        let fused_rs_fp = if !staged {
+            can_encode_fused_rs(c, log_n, log_nn, zk_bufs.as_ref().map(|z| z.2).unwrap_or(0))
+        } else {
+            None
+        };
+        if fused_rs_fp.is_some() {
+            FUSED_RS_CALLS.fetch_add(1, Ordering::Relaxed);
+        }
+        trace_detail(|| {
+            format!(
+                "rows={rows} log_n={log_n} log_nn={log_nn} zk={} keyed={}{}",
+                zk_bufs.as_ref().map(|z| z.2).unwrap_or(0),
+                key.is_some() as u8,
+                if fused_rs_fp.is_some() { " frs=1" } else { "" }
+            )
+        });
         run_tagged(c, "commit", |enc| {
             if !staged {
-                // M2: two fused passes per transform (see metal_kernels.metal)
-                encode_fused(c, enc, &d, None, None, &t, &tw_i, hw_i, rows64, log_n, log_n, MODE_COPY, 0, ntt.max_log, Some(ninv.0));
-                match &zk_bufs {
-                    None => encode_fused(c, enc, &t, None, None, &e, &tw_f, hw_f, rows64, log_nn, log_n, MODE_PLAIN, 0, ntt.max_log, None),
-                    Some((pb, wb, q)) => {
-                        encode_fused(c, enc, &t, Some(pb), Some(wb), &e, &tw_f, hw_f, rows64, log_nn, log_n, MODE_ZK, *q as u64, ntt.max_log, None)
+                if let Some(fp) = fused_rs_fp {
+                    // [OPT-NEXT-1] 3-pass zero-gather DIF-INTT -> DIT-FWD coset RS encoder
+                    match &zk_bufs {
+                        None => encode_fused_rs(c, fp, enc, &d, &t, None, None, &e, &tw_i, &tw_f, hw.as_ref(), hx.as_ref(), rows64, log_n, log_nn, MODE_PLAIN, 0, ntt.max_log, ninv.0),
+                        Some((pb, wb, q)) => {
+                            encode_fused_rs(c, fp, enc, &d, &t, Some(pb), Some(wb), &e, &tw_i, &tw_f, hw.as_ref(), hx.as_ref(), rows64, log_n, log_nn, MODE_ZK, *q as u64, ntt.max_log, ninv.0)
+                        }
+                    }
+                } else {
+                    // M2: two fused passes per transform (see metal_kernels.metal)
+                    encode_fused(c, enc, &d, None, None, &t, &tw_i, hw_i, rows64, log_n, log_n, MODE_COPY, 0, ntt.max_log, Some(ninv.0));
+                    match &zk_bufs {
+                        None => encode_fused(c, enc, &t, None, None, &e, &tw_f, hw_f, rows64, log_nn, log_n, MODE_PLAIN, 0, ntt.max_log, None),
+                        Some((pb, wb, q)) => {
+                            encode_fused(c, enc, &t, Some(pb), Some(wb), &e, &tw_f, hw_f, rows64, log_nn, log_n, MODE_ZK, *q as u64, ntt.max_log, None)
+                        }
                     }
                 }
                 // [A28] the leaves in two passes (HL_A28_HASH; `k_hash_cols` with it off or one chunk a column)
@@ -2159,23 +2361,40 @@ fn commit_impl(
                 })?;
                 Ok(s.elapsed().as_secs_f64())
             };
-            let inv = part(&|enc| {
-                encode_fused(c, enc, &d, None, None, &t2, &tw_i, hw_i, rows64, log_n, log_n, MODE_COPY, 0, ntt.max_log, Some(ninv.0));
-            })?;
-            let init = 0.0f64; // fused into the forward head on the default path
-            let fwd = part(&|enc| {
-                encode_fused(c, enc, &t2, None, None, &e2, &tw_f, hw_f, rows64, log_nn, log_n, MODE_PLAIN, 0, ntt.max_log, None);
-            })?;
-            let hash = part(&|enc| {
-                enc.set_buffer(0, Some(&e2), 0);
-                enc.set_buffer(1, Some(&l2), 0);
-                set_args(enc, 2, &HashArgs { rows: rows64, nn: nn as u64, keyed: key.is_some() as u32, pad0: 0, key: kw });
-                dispatch_2d(c, enc, "k_hash_cols", nn as u64, 1);
-            })?;
-            eprintln!(
-                "[ZK60-METAL] commit {rows} x 2^{log_n} -> 2^{log_nn}: setup {t_setup:.3} s, gpu total {:.3} s (inverse {inv:.3}, init {init:.3}, forward {fwd:.3}, hash {hash:.3})",
-                t_gpu - t_setup
-            );
+            if let Some(fp) = fused_rs_fp {
+                let frs = part(&|enc| match &zk_bufs {
+                    None => encode_fused_rs(c, fp, enc, &d, &t2, None, None, &e2, &tw_i, &tw_f, hw.as_ref(), hx.as_ref(), rows64, log_n, log_nn, MODE_PLAIN, 0, ntt.max_log, ninv.0),
+                    Some((pb, wb, q)) => {
+                        encode_fused_rs(c, fp, enc, &d, &t2, Some(pb), Some(wb), &e2, &tw_i, &tw_f, hw.as_ref(), hx.as_ref(), rows64, log_n, log_nn, MODE_ZK, *q as u64, ntt.max_log, ninv.0)
+                    }
+                })?;
+                let hash = part(&|enc| {
+                    let ha = HashArgs { rows: rows64, nn: nn as u64, keyed: key.is_some() as u32, pad0: 0, key: kw };
+                    encode_hash(c, enc, &e2, &l2, cvs.as_deref(), &ha);
+                })?;
+                eprintln!(
+                    "[ZK60-METAL] commit {rows} x 2^{log_n} -> 2^{log_nn} (fused_rs): setup {t_setup:.3} s, gpu total {:.3} s (fused_rs {frs:.3}, hash {hash:.3})",
+                    t_gpu - t_setup
+                );
+            } else {
+                let inv = part(&|enc| {
+                    encode_fused(c, enc, &d, None, None, &t2, &tw_i, hw_i, rows64, log_n, log_n, MODE_COPY, 0, ntt.max_log, Some(ninv.0));
+                })?;
+                let init = 0.0f64; // fused into the forward head on the default path
+                let fwd = part(&|enc| {
+                    encode_fused(c, enc, &t2, None, None, &e2, &tw_f, hw_f, rows64, log_nn, log_n, MODE_PLAIN, 0, ntt.max_log, None);
+                })?;
+                let hash = part(&|enc| {
+                    enc.set_buffer(0, Some(&e2), 0);
+                    enc.set_buffer(1, Some(&l2), 0);
+                    set_args(enc, 2, &HashArgs { rows: rows64, nn: nn as u64, keyed: key.is_some() as u32, pad0: 0, key: kw });
+                    dispatch_2d(c, enc, "k_hash_cols", nn as u64, 1);
+                })?;
+                eprintln!(
+                    "[ZK60-METAL] commit {rows} x 2^{log_n} -> 2^{log_nn}: setup {t_setup:.3} s, gpu total {:.3} s (inverse {inv:.3}, init {init:.3}, forward {fwd:.3}, hash {hash:.3})",
+                    t_gpu - t_setup
+                );
+            }
         }
         // SAFETY: nn * 32 bytes, completed command buffer
         let raw = unsafe { std::slice::from_raw_parts(leaves_buf.contents() as *const u8, nn * 32) };
