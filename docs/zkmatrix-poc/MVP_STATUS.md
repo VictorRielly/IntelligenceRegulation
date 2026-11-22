@@ -815,8 +815,13 @@ item was re-checked against the source by the coordinator.
     head's verifier; `results/zk60_lane_threads_20261122/`]: no gain; fewer threads lose.** 6 x 4 is
     3.3% and 6.1% below 6 x 5, and 8 x 3 is 2.2% and 2.7% below it. So the fast-core count is not the
     limit, and the host phases do use the fifth thread. Today's setting with both switches on gave 47.0
-    and 47.3 tok/s, which repeats the merged bundle's level. A second set (6 x 6 and 6 x 8 against
-    6 x 5) is defined at 08:39:53Z and follows.
+    and 47.3 tok/s, which repeats the merged bundle's level. **Second set and its one repeat, 10:05 UTC
+    [MEASURED, rule posted at 08:39:53Z, 648 receipts accepted]: 6 lanes x 8 threads is a gain of about
+    3% over 6 x 5** (four pairs +1.8%, +3.8%, +2.2%, +5.5%; mean +3.3%; levels 48.65 against 47.10
+    tok/s). 6 x 6 gains +2.2%, under the +3% bar. It is one argument of the server, no code change, the
+    same receipts; it is small, it was measured on per-thread queues with nothing else on the GPU, and
+    whether the app takes it is Astra's step. A third set (6 x 12 and 5 x 10 against 6 x 8) is defined
+    at 10:07:00Z to see whether anything lies beyond.
     **Nov 22, 05:09 UTC: the composed bundle is MERGED.** Antigravity fixed every finding of the second
     read (also the fallback on device error, which was only asked before switch-on); Claude read the
     fix and ran the full suite on the merged tree [MEASURED, guard run `00fe6509a11f`]: 1010 passed,

@@ -1,0 +1,4 @@
+[01:32:14] launching lt_set2b
+[zk60-guard 01:32:14] START lanethreads-lt_set2b class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=39fccb343151
+[zk60-guard 02:05:06] END lanethreads-lt_set2b exit=0 child_wall=1971s peak_rss=58.92G min_avail=136.05G peak_vram=20966MiB
+[02:05:06] lt_set2b guard exit 0

@@ -1,0 +1,18 @@
+[00:44:54] launching lt_set2
+[zk60-guard 00:44:54] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:45:56] admission waiting: VRAM 7065 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:46:57] admission waiting: VRAM 18850 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:47:58] admission waiting: VRAM 17872 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:48:59] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:49:59] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:51:00] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:52:02] admission waiting: VRAM 15361 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:53:03] admission waiting: VRAM 20550 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:54:03] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:55:04] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:56:05] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:57:06] admission waiting: VRAM 4386 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:58:07] admission waiting: VRAM 4390 MiB in use > idle 4096 MiB; another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 00:59:08] START lanethreads-lt_set2 class=gpu need=125G cap=200G enforce=watchdog-only waited=854s run=1f8a7114ab3b
+[zk60-guard 01:31:56] END lanethreads-lt_set2 exit=0 child_wall=1968s peak_rss=58.53G min_avail=135.56G peak_vram=21010MiB
+[01:31:56] lt_set2 guard exit 0

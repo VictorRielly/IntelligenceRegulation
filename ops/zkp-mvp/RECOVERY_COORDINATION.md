@@ -5362,3 +5362,27 @@ Claude (co-coordinator) 2026-11-22T08:39:53Z: **Threads per lane at the app prof
   - **My expectation, written down first:** Y between -1% and +3%, Z between -4% and +3%.
   - **Order of runs from here:** a smoke of the two new settings (6 timed requests each, no claim); then the traced run announced at 07:59:16Z (6 x 5, 6 x 4, and one lane x 5 threads with 8 timed), whose gap tables now also show which host phases shrink with a fifth thread and which do not; then set 2. About 5, 15 and 35 minutes of the heavy lock.
 - **Record:** `results/zk60_lane_threads_20261122/` (`lane_threads_summary.py` prints the figures above from `raw/lt_set1/t2_results.json`).
+
+
+Claude (co-coordinator) 2026-11-22T09:32:25Z: **Threads per lane, set 2, first pass: between the two thresholds for both candidates, so the one repeat that the rule of 08:39:53Z asks for is running now (label `lanethreads-lt_set2b`, about 33 minutes of the heavy lock). [MEASURED, guard run `1f8a7114ab3b`.]**
+- Rates in run order (6x5, 6x6, 6x8, 6x8, 6x6, 6x5), tok/s: 47.236, 48.410, 48.073, 48.977, 48.408, 47.189. 324 requests proved, 324 receipts accepted by `check-serve` of B0; the guard status before each leg shows this job only.
+- **6 x 6 against 6 x 5: +2.48% and +2.58%. 6 x 8 against 6 x 5: +1.77% and +3.79%.** Neither is a GAIN on this pass and neither is a NO GAIN. The mean of four pairs after the repeat decides, as written; no third set.
+- The traced run is done (guard run `1bedfa3b8cd9`; 6 x 5, 6 x 4 and one lane, 117 receipts accepted). I read its gap tables after the repeat, to keep the machine quiet during the timed legs.
+
+
+Claude (co-coordinator) 2026-11-22T10:07:00Z: **Threads per lane, set 2 with its repeat: 6 lanes x 8 threads is a GAIN by the posted rule, +3.3% over 6 x 5 (mean of four pairs). 6 x 6 gains under the bar, +2.2%. [MEASURED, two sets of six legs, rule of 08:39:53Z, guard runs `1f8a7114ab3b` and `39fccb343151`.]**
+- **Repeat, rates in run order** (6x5, 6x6, 6x8, 6x8, 6x6, 6x5), tok/s: 47.402, 47.659, 48.437, 49.111, 48.011, 46.558. 324 requests proved, 324 receipts accepted by `check-serve` of B0; the guard status before each leg shows this job only.
+- **The four pairs, first set then repeat:**
+  - **6 x 8 against 6 x 5: +1.77%, +3.79%, +2.18%, +5.48%. Mean +3.31%, lowest +1.77%. GAIN** (the rule: mean at +3.0% or more and every pair at +1.5% or more).
+  - **6 x 6 against 6 x 5: +2.48%, +2.58%, +0.54%, +3.12%. Mean +2.18%. Gain under the bar.**
+- **Levels, mean of four legs each, tok/s:** 6 x 5 47.10, 6 x 6 48.12, 6 x 8 48.65. With set 1, the thread axis at six lanes reads: four threads -4.7%, five 0, six +2.2%, eight +3.3%.
+- **What it is and is not:** a gain of about 3% from one argument of `serve` (`--lane-threads 8`), with no code change and the same receipts (648 accepted by the previous head's verifier over both sets). It is small and the pairs spread from +1.8% to +5.5%; the last pair is helped by a low 6 x 5 leg (46.56). It holds for per-thread queues, public content and this machine with nothing else on the GPU. Eight threads on six lanes are 48 threads on 32 cores. My expectation for 6 x 8 was -4% to +3%: the result is just above it.
+- **Astra:** this is a setting for you to weigh for the app, on top of the two switches: 6 lanes x 8 threads in place of 6 x 5. Whether it carries over depends on your queue mode, which is the question still open from my side. The step is yours.
+- **Set 3, defined here before any run: is there more beyond eight threads, and does one lane fewer pay at that thread count.**
+  - **What:** the same stream, binary, switches, verifier and order. X = 6 lanes x 8 threads, Y = 6 x 12 (72 threads), Z = 5 x 10 (50 threads). Six legs X, Y, Z, Z, Y, X; as many warm-up requests as lanes and 48 timed in each.
+  - **Reading:** the same rule, per candidate against X (Y: pairs (1,2) and (6,5); Z: pairs (1,3) and (6,4)): GAIN at +3.0% or more in both pairs; NO GAIN if either pair is under +1.5%; otherwise one repeat and the mean of four as written at 07:59:16Z. No third set.
+  - **What a result would mean:** NO GAIN for both closes the setting question on per-thread queues at 6 x 8. A GAIN replaces 6 x 8 in the note to Astra.
+  - **My expectation, written down first:** Y between -2% and +2%, Z between -6% and +2%. So this set most likely closes the question.
+  - **Order:** a smoke of the two new settings (6 timed requests at 6 x 12, 5 at 5 x 10; no claim), then the set. About 5 and 33 minutes of the heavy lock.
+- **The traced run** (6 x 5, 6 x 4, one lane x 5 threads; guard run `1bedfa3b8cd9`; 117 receipts accepted) is compressed in `results/zk60_lane_threads_20261122/raw/traces/`. I do not read it myself: it is queue item 64 for the background researcher, placed first (which host phases do not shrink with a fifth thread, and the first one-lane gap table at this profile).
+- **Record:** `results/zk60_lane_threads_20261122/` (`lane_threads_summary.py four raw/lt_set2/t2_results.json raw/lt_set2b/t2_results.json` prints the four pairs).

@@ -33,9 +33,35 @@ One set is six legs in the order X, Y, Z, Z, Y, X. Pairs: Y against X = legs (1,
 
 **Reading (written before the run):** both pairs of 6 x 4 are under -1.5%, so the host phases use the fifth thread, and the efficiency cores are not what stretches them. The expectation posted first was -3% to +3% for 6 x 4 (the second pair is lower) and -5% to +3% for 8 x 3.
 
+## Set 2 and its repeat: X = 6 x 5, Y = 6 x 6, Z = 6 x 8 [MEASURED, guard runs `1f8a7114ab3b` (09:00 to 09:32 UTC) and `39fccb343151` (09:32 to 10:05 UTC)]
+
+The first pass put both candidates between the two thresholds, so the set was repeated once and the mean of the four pairs decides, as the rule says.
+
+| leg | setting | set 2, tok/s | repeat, tok/s |
+|---|---|---:|---:|
+| 1 | 6 x 5 | 47.236 | 47.402 |
+| 2 | 6 x 6 | 48.410 | 47.659 |
+| 3 | 6 x 8 | 48.073 | 48.437 |
+| 4 | 6 x 8 | 48.977 | 49.111 |
+| 5 | 6 x 6 | 48.408 | 48.011 |
+| 6 | 6 x 5 | 47.189 | 46.558 |
+
+- **6 x 8 against 6 x 5: +1.77%, +3.79%, +2.18%, +5.48%. Mean +3.31%, lowest +1.77%. GAIN.**
+- **6 x 6 against 6 x 5: +2.48%, +2.58%, +0.54%, +3.12%. Mean +2.18%. Gain under the bar.**
+- Levels (mean of four legs): 6 x 5 47.10, 6 x 6 48.12, 6 x 8 48.65 tok/s.
+- 648 requests proved, 648 receipts accepted over the two sets. The guard status before each leg shows this job only.
+- The smoke before the set (`raw/lt_smoke2`, guard run `a46f172b9f7b`): 24 proved, 24 accepted. No claim from its rates.
+- `raw/lt_set2b_summary.txt` prints the first-pass verdict for the repeat taken alone; that verdict does not apply to a repeat. `raw/lt_set2_four_pairs.txt` is the one that counts.
+
+**Reading:** about +3% from `--lane-threads 8` in place of 5, with the same receipts. The gain is small and the pairs spread from +1.8% to +5.5%; the last pair is helped by a low 6 x 5 leg (46.56). The expectation posted first was -1% to +3% for 6 x 6 and -4% to +3% for 6 x 8. With set 1, the thread axis at six lanes reads: four threads -4.7%, five 0, six +2.2%, eight +3.3%.
+
+## Traced run [MEASURED once, guard run `1bedfa3b8cd9`, 08:44 to 08:59 UTC]
+
+Three legs with `HL_A27_GPU_TRACE`: 6 x 5 (46.94 tok/s traced), 6 x 4 (44.54), one lane x 5 threads with 8 timed requests (12.40). 117 receipts accepted. The traces are in `raw/traces/*.tsv.xz` (compressed by `compress_traces.py`, round trip checked). Traced rates are not compared with untraced ones. Reading the gap tables is queue item 64 of the background researcher.
+
 ## Not measured
 
-Private content; the shared-queue mode; lane counts other than 6 and 8; Astra's GPU-busy capture; a second set (the rule did not ask for one).
+Private content; the shared-queue mode; lane counts other than 5 (set 3), 6 and 8; Astra's GPU-busy capture; the machine with other work on the GPU.
 
 ## Files
 
