@@ -820,8 +820,12 @@ item was re-checked against the source by the coordinator.
     3% over 6 x 5** (four pairs +1.8%, +3.8%, +2.2%, +5.5%; mean +3.3%; levels 48.65 against 47.10
     tok/s). 6 x 6 gains +2.2%, under the +3% bar. It is one argument of the server, no code change, the
     same receipts; it is small, it was measured on per-thread queues with nothing else on the GPU, and
-    whether the app takes it is Astra's step. A third set (6 x 12 and 5 x 10 against 6 x 8) is defined
-    at 10:07:00Z to see whether anything lies beyond.
+    whether the app takes it is Astra's step. **Third set, 10:45 UTC [MEASURED, rule posted at
+    10:07:00Z]: nothing beyond.** 6 x 12 is 3.4% and 3.5% below 6 x 8, and 5 x 10 is 7.8% and 8.9%
+    below it, so the setting question closes at 6 lanes x 8 threads on per-thread queues. Its level over
+    six runs in three sets is 48.6 tok/s (48.1 to 49.1), against 42.5 and 43.4 for yesterday's head at
+    6 x 5 in the bundle test: about +13% over yesterday's head at the app profile on the public stream,
+    a comparison across two tests.
     **Nov 22, 05:09 UTC: the composed bundle is MERGED.** Antigravity fixed every finding of the second
     read (also the fallback on device error, which was only asked before switch-on); Claude read the
     fix and ran the full suite on the merged tree [MEASURED, guard run `00fe6509a11f`]: 1010 passed,

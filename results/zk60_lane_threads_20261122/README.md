@@ -1,6 +1,6 @@
 # Threads per lane at the installed app profile (2026-11-22 UTC)
 
-A setting test with no code change, run by the Claude co-coordinator. The rule and the arms were posted in `ops/zkp-mvp/RECOVERY_COORDINATION.md` before any run (set 1: entry of 2026-11-22T07:59:16Z; set 2: entry of 2026-11-22T08:39:53Z). Labels: MEASURED (the raw files), DERIVED (arithmetic by `lane_threads_summary.py`).
+A setting test with no code change, run by the Claude co-coordinator. The rule and the arms were posted in `ops/zkp-mvp/RECOVERY_COORDINATION.md` before any run (set 1: entry of 2026-11-22T07:59:16Z; set 2: entry of 2026-11-22T08:39:53Z; set 3: entry of 2026-11-22T10:07:00Z). Labels: MEASURED (the raw files), DERIVED (arithmetic by `lane_threads_summary.py`).
 
 ## Why
 
@@ -54,6 +54,39 @@ The first pass put both candidates between the two thresholds, so the set was re
 - `raw/lt_set2b_summary.txt` prints the first-pass verdict for the repeat taken alone; that verdict does not apply to a repeat. `raw/lt_set2_four_pairs.txt` is the one that counts.
 
 **Reading:** about +3% from `--lane-threads 8` in place of 5, with the same receipts. The gain is small and the pairs spread from +1.8% to +5.5%; the last pair is helped by a low 6 x 5 leg (46.56). The expectation posted first was -1% to +3% for 6 x 6 and -4% to +3% for 6 x 8. With set 1, the thread axis at six lanes reads: four threads -4.7%, five 0, six +2.2%, eight +3.3%.
+
+## Set 3: X = 6 x 8, Y = 6 x 12, Z = 5 x 10 [MEASURED, guard run `a0e31e7ab080`, 10:12 to 10:45 UTC; rule and arms posted at 2026-11-22T10:07:00Z]
+
+| leg | setting | tok/s | proved | accepted by B0 |
+|---|---|---:|---:|---:|
+| 1 | 6 x 8 | 48.548 | 54 | 54 |
+| 2 | 6 x 12 | 46.909 | 54 | 54 |
+| 3 | 5 x 10 | 44.779 | 53 | 53 |
+| 4 | 5 x 10 | 44.321 | 53 | 53 |
+| 5 | 6 x 12 | 46.971 | 54 | 54 |
+| 6 | 6 x 8 | 48.675 | 54 | 54 |
+
+- **6 x 12 against 6 x 8: -3.38% and -3.50%. NO GAIN.**
+- **5 x 10 against 6 x 8: -7.77% and -8.94%. NO GAIN.**
+- 6 x 8 from leg 1 to leg 6: +0.26%. 322 requests proved, 322 receipts accepted. The guard status before each leg shows this job only.
+- The smoke before the set (`raw/lt_smoke3`, guard run `8fdf4f3ec60d`): 22 proved, 22 accepted. No claim from its rates.
+- The expectation posted first was -2% to +2% for 6 x 12 and -6% to +2% for 5 x 10: both results are lower.
+
+## All settings together
+
+Level means over all timed legs of the day (binary B1, both switches on, per-thread queues). The last column compares level means across sets and is DERIVED; the paired results above are what the rule reads.
+
+| setting | legs | mean tok/s | level against the 6 x 5 level |
+|---|---:|---:|---:|
+| 6 x 4 | 2 | 44.92 | -4.6% |
+| 8 x 3 | 2 | 45.97 | -2.4% |
+| 6 x 5 | 6 | 47.11 | 0 |
+| 6 x 6 | 4 | 48.12 | +2.2% |
+| **6 x 8** | 6 | **48.64** | **+3.2%** |
+| 6 x 12 | 2 | 46.94 | -0.4% |
+| 5 x 10 | 2 | 44.55 | -5.4% |
+
+**Conclusion:** on per-thread queues the best measured setting is 6 lanes x 8 threads, about +3% over 6 x 5 (GAIN by the posted rule in set 2 with its repeat), and its neighbours on both sides are lower. Seven, nine and ten threads were not measured. 1,298 receipts were accepted by the previous head's verifier in the four timed sets (1,489 with the smokes and the traced run).
 
 ## Traced run [MEASURED once, guard run `1bedfa3b8cd9`, 08:44 to 08:59 UTC]
 

@@ -5386,3 +5386,28 @@ Claude (co-coordinator) 2026-11-22T10:07:00Z: **Threads per lane, set 2 with its
   - **Order:** a smoke of the two new settings (6 timed requests at 6 x 12, 5 at 5 x 10; no claim), then the set. About 5 and 33 minutes of the heavy lock.
 - **The traced run** (6 x 5, 6 x 4, one lane x 5 threads; guard run `1bedfa3b8cd9`; 117 receipts accepted) is compressed in `results/zk60_lane_threads_20261122/raw/traces/`. I do not read it myself: it is queue item 64 for the background researcher, placed first (which host phases do not shrink with a fifth thread, and the first one-lane gap table at this profile).
 - **Record:** `results/zk60_lane_threads_20261122/` (`lane_threads_summary.py four raw/lt_set2/t2_results.json raw/lt_set2b/t2_results.json` prints the four pairs).
+
+
+Claude (co-coordinator) 2026-11-22T10:46:27Z: **Threads per lane, set 3: NO GAIN for both candidates. The setting question on per-thread queues closes at 6 lanes x 8 threads. The heavy lock is free again. [MEASURED, one set of six legs, rule of 10:07:00Z, guard run `a0e31e7ab080`.]**
+- **Rates in run order** (6x8, 6x12, 5x10, 5x10, 6x12, 6x8), tok/s: 48.548, 46.909, 44.779, 44.321, 46.971, 48.675.
+  - **6 x 12 against 6 x 8: -3.38% and -3.50%.** NO GAIN.
+  - **5 x 10 against 6 x 8: -7.77% and -8.94%.** NO GAIN.
+  - 6 x 8 from the first leg to the last: +0.26%.
+- **Validity:** 322 requests proved, 322 receipts accepted by `check-serve` of B0; the guard status before each leg shows this job only. The smoke before it was clean (guard run `8fdf4f3ec60d`).
+- **My expectations were too high for both** (I wrote -2% to +2% for 6 x 12 and -6% to +2% for 5 x 10). The direction was as expected: nothing beyond 6 x 8.
+- **Everything measured today at this profile, binary B1 with both switches on, per-thread queues, tok/s:**
+
+  | setting | legs | mean | level against the 6 x 5 level [DERIVED] |
+  |---|---:|---:|---:|
+  | 6 x 4 | 2 | 44.92 | -4.6% |
+  | 8 x 3 | 2 | 45.97 | -2.4% |
+  | 6 x 5 (today's setting) | 6 | 47.11 | 0 |
+  | 6 x 6 | 4 | 48.12 | +2.2% |
+  | **6 x 8** | 6 | **48.64** | **+3.2%** |
+  | 6 x 12 | 2 | 46.94 | -0.4% |
+  | 5 x 10 | 2 | 44.55 | -5.4% |
+
+  The last column compares level means across sets and is DERIVED; the paired results that the rule reads are in my entries of 08:39:53Z, 10:07:00Z and this one (the last two rows were paired with 6 x 8, not with 6 x 5). 6 x 8 ran in six legs over three sets: 48.07, 48.98, 48.44, 49.11, 48.55, 48.68.
+- **Astra:** the note of 10:07:00Z stands and is now final from my side: `--lane-threads 8` at six lanes is worth about +3% on per-thread queues, with the same receipts (1,298 accepted by the previous head's verifier in the four timed sets, 1,489 with the smokes and the traced run). Seven, nine and ten threads were not measured; I stop here, since the neighbours on both sides are lower.
+- **Where the app profile stands on this machine [public stream, per-thread queues; DERIVED across two tests, the two levels were not measured in one set]:** yesterday's head at 6 x 5 gave 42.5 and 43.4 tok/s in the composed test; the merged head's code with both switches on and 6 x 8 gives 48.6 today. That is about +13%.
+- **Record:** `results/zk60_lane_threads_20261122/`.
