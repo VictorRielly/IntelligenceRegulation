@@ -4015,8 +4015,9 @@ fn sparse_fold_device_equals_per_term_fold_word_for_word() {
         (src, pads, rhos)
     };
 
-    // All 9 A8 shapes plus explicit multi-block, k = 1/2/10/37/64, and non-multiple-of-32 shapes
-    let shapes: [(usize, usize, usize, usize, usize, Option<usize>, bool, &str); 15] = [
+    // All 9 A8 shapes + explicit multi-block, k = 1/2/10/37/64, non-multiple-of-32 shapes,
+    // AND all 7 installed W16R2 Shieldstral classifier commitment shapes (M5).
+    let shapes: [(usize, usize, usize, usize, usize, Option<usize>, bool, &str); 22] = [
         (1, 1, 1, 1, 1, None, false, "a8-0"),
         (37, 300, 300, 1, 3, Some(7), false, "a8-1"),
         (64, 513, 2052, 4, 2, None, false, "a8-2 (strided ir=4)"),
@@ -4032,6 +4033,14 @@ fn sparse_fold_device_equals_per_term_fold_word_for_word() {
         (160, 65, 65, 1, 64, Some(7), false, "k=64 exact 32KiB TG cap"),
         (16, 64, 64, 1, 0, Some(7), false, "k=0 with pads"),
         (18, 97, 97, 1, 4, Some(0), false, "explicit q=0"),
+        // Installed W16R2 Shieldstral classifier shapes (M5)
+        (2504, 16384, 16384, 1, 37, Some(280), true, "installed-A (2504 x 2^14, q=280, k=37)"),
+        (2606, 16384, 16384, 1, 11, Some(280), true, "installed-H (2606 x 2^14, q=280, k=11)"),
+        (38, 16384, 16384, 1, 3, Some(280), false, "installed-B (38 x 2^14, q=280, k=3)"),
+        (76, 4096, 4096, 1, 16, Some(256), true, "installed-log12-76 (76 x 2^12, q=256, k=16)"),
+        (41, 4096, 4096, 1, 9, Some(256), false, "installed-log12-41 (41 x 2^12, q=256, k=9)"),
+        (38, 4096, 4096, 1, 8, Some(256), false, "installed-log12-38 (38 x 2^12, q=256, k=8)"),
+        (6, 256, 256, 1, 3, Some(256), false, "installed-log8-6 (6 x 2^8, q=256, k=3)"),
     ];
 
     let mut checked = 0usize;
@@ -4040,10 +4049,15 @@ fn sparse_fold_device_equals_per_term_fold_word_for_word() {
         let pads_arg = pads.as_ref().map(|v| (v.as_slice(), q.unwrap()));
         let pads_ref = pads_arg.filter(|&(_, qv)| qv > 0);
         let want = a8_reference(&src, rows, n, nn, ir, &rhos, pads_ref);
+        let calls_before = crate::gpu::metal_sparse_fold_calls_for_test();
+        let fb_before = crate::gpu::metal_sparse_fold_fallbacks_for_test();
         let got = crate::gpu::metal_fold_rows_sparse_for_test(&src, rows, n, nn, ir, &rhos, pads_arg)
             .unwrap_or_else(|e| panic!("{label}: sparse fold errored: {e}"))
             .unwrap_or_else(|| panic!("{label}: sparse fold unexpectedly fell back to None"));
         assert_eq!(got, want, "{label}: sparse GPU fold differs from per-term host fold");
+        let expected_calls = if k > 0 && rows > 0 && rhos.iter().any(|r| r.iter().any(|v| !v.is_zero())) { 1 } else { 0 };
+        assert_eq!(crate::gpu::metal_sparse_fold_calls_for_test() - calls_before, expected_calls, "{label}: SPARSE_FOLD_CALLS delta");
+        assert_eq!(crate::gpu::metal_sparse_fold_fallbacks_for_test() - fb_before, 0, "{label}: unexpected sparse fold fallback");
         checked += 1;
     }
 
@@ -4073,36 +4087,43 @@ fn sparse_fold_device_equals_per_term_fold_word_for_word() {
         checked += 1;
     }
 
-    // Edge case: k == 65 MUST cleanly fall back (`Ok(None)`)
+    // Edge case: k == 65 MUST cleanly fall back (`Ok(None)`) and bump SPARSE_FOLD_FALLBACKS by 1
     {
         let (rows, n, k, q) = (32, 64, 65, 7);
         let (src, pads, rhos) = make_case(rows, n, n, 1, k, Some(q), false, &mut seed);
         let pads_arg = pads.as_ref().map(|v| (v.as_slice(), q));
+        let calls_before = crate::gpu::metal_sparse_fold_calls_for_test();
+        let fb_before = crate::gpu::metal_sparse_fold_fallbacks_for_test();
         let res = crate::gpu::metal_fold_rows_sparse_for_test(&src, rows, n, n, 1, &rhos, pads_arg)
             .expect("k=65 fallback errored");
         assert!(res.is_none(), "k=65 must fall back cleanly with Ok(None)");
+        assert_eq!(crate::gpu::metal_sparse_fold_calls_for_test() - calls_before, 0, "k=65 must not bump SPARSE_FOLD_CALLS");
+        assert_eq!(crate::gpu::metal_sparse_fold_fallbacks_for_test() - fb_before, 1, "k=65 must bump SPARSE_FOLD_FALLBACKS by 1");
         checked += 1;
     }
 
-    eprintln!("OPT1-SPARSE-FOLD-EQUAL: {checked} shapes/edge cases verified word-for-word against per-term fold (incl. k=64 cap & k=65 fallback)");
+    eprintln!("OPT1-SPARSE-FOLD-EQUAL: {checked} shapes/edge cases verified word-for-word against per-term fold (incl. all 7 installed shapes, k=64 cap & k=65 fallback)");
 }
 
-/// **[Opt 1] W16R2 rung golden digest under `HL_METAL_SPARSE_FOLD=1`** in both
-/// `shared` and `thread` Metal queue modes, verifying bit-for-bit equality to
-/// the CPU proof and `W16R2_RUNG_GOLDEN` (`96e4f0b6`), with a drop guard so
-/// panics never poison process-wide test hooks.
+/// **[Opt 1 + OPT-NEXT-1] W16R2 rung golden digest under `HL_METAL_SPARSE_FOLD=1`**
+/// (both `frs0+sf1` and composed `frs1+sf1`) in both `shared` and `thread` Metal
+/// queue modes, verifying bit-for-bit equality to CPU and `W16R2_RUNG_GOLDEN`
+/// (`96e4f0b6`), exact `SPARSE_FOLD_CALLS`, `SPARSE_FOLD_FALLBACKS`, and
+/// `FUSED_RS_CALLS` anti-vacuity deltas, with a drop guard so panics never poison hooks.
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
 #[test]
-#[ignore = "Opt 1: toggles HL_GPU, Metal queues, and sparse-fold in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+#[ignore = "Opt 1: toggles HL_GPU, Metal queues, sparse-fold, and fused-rs in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
 fn sparse_fold_w16r2_rung_golden() {
     struct Reset {
         prev_sf: Option<bool>,
+        prev_frs: Option<bool>,
         prev_q: bool,
         prev_gpu: Option<String>,
     }
     impl Drop for Reset {
         fn drop(&mut self) {
             crate::gpu::metal_set_sparse_fold_for_test(self.prev_sf);
+            crate::gpu::set_fused_rs_for_test(self.prev_frs);
             crate::gpu::metal_set_queues_for_test(self.prev_q);
             crate::gpu::metal_fold_capture_for_test(false);
             match &self.prev_gpu {
@@ -4113,6 +4134,7 @@ fn sparse_fold_w16r2_rung_golden() {
     }
     let _guard = Reset {
         prev_sf: crate::gpu::metal_set_sparse_fold_for_test(None),
+        prev_frs: crate::gpu::set_fused_rs_for_test(None),
         prev_q: crate::gpu::metal_set_queues_for_test(false),
         prev_gpu: std::env::var("HL_GPU").ok(),
     };
@@ -4123,26 +4145,42 @@ fn sparse_fold_w16r2_rung_golden() {
 
     std::env::set_var("HL_GPU", "1");
     crate::gpu::metal_set_sparse_fold_for_test(Some(true));
-    for (per_thread, qname) in [(false, "shared"), (true, "thread")] {
-        crate::gpu::metal_set_queues_for_test(per_thread);
-        let before = crate::gpu::metal_sumcheck_stats().1;
-        crate::gpu::metal_fold_capture_for_test(true);
-        let d = seeded_digest(&sh, &blk, copy(&w));
-        let caps = crate::gpu::metal_fold_capture_for_test(false);
-        let ran = crate::gpu::metal_sumcheck_stats().1 - before;
-        assert_eq!(d, cpu, "Metal W16R2 rung digest under sparse fold ({qname}) differs from CPU");
-        assert!(d.starts_with(W16R2_RUNG_GOLDEN), "Metal W16R2 rung digest ({qname}) != golden: {d}");
-        assert!(ran > 0.0, "no sumcheck round ran on Metal ({qname})");
-        assert!(!caps.is_empty(), "no store fold was captured ({qname})");
-        for (ci, c) in caps.iter().enumerate() {
-            let pads = c.pads.as_ref().map(|(p, q)| (p.as_slice(), *q));
-            let want = a8_reference(&c.src, c.rows, c.n, c.nn, c.ir, &c.rhos, pads);
-            let got = crate::gpu::metal_fold_rows_sparse_for_test(&c.src, c.rows, c.n, c.nn, c.ir, &c.rhos, pads)
-                .unwrap_or_else(|e| panic!("rung fold {ci} ({qname}) errored: {e}"))
-                .unwrap_or_else(|| panic!("rung fold {ci} ({qname}) fell back unexpectedly"));
-            assert_eq!(got, want, "rung fold {ci} ({qname}) sparse GPU != per-term reference");
+    for (frs_on, arm) in [(false, "frs0+sf1"), (true, "frs1+sf1")] {
+        crate::gpu::set_fused_rs_for_test(Some(frs_on));
+        for (per_thread, qname) in [(false, "shared"), (true, "thread")] {
+            crate::gpu::metal_set_queues_for_test(per_thread);
+            let before = crate::gpu::metal_sumcheck_stats().1;
+            let sf_before = crate::gpu::metal_sparse_fold_calls_for_test();
+            let fb_before = crate::gpu::metal_sparse_fold_fallbacks_for_test();
+            let frs_before = crate::gpu::fused_rs_calls_for_test();
+            crate::gpu::metal_fold_capture_for_test(true);
+            let d = seeded_digest(&sh, &blk, copy(&w));
+            let caps = crate::gpu::metal_fold_capture_for_test(false);
+            let ran = crate::gpu::metal_sumcheck_stats().1 - before;
+            let sf_delta = crate::gpu::metal_sparse_fold_calls_for_test() - sf_before;
+            let fb_delta = crate::gpu::metal_sparse_fold_fallbacks_for_test() - fb_before;
+            let frs_delta = crate::gpu::fused_rs_calls_for_test() - frs_before;
+            assert_eq!(d, cpu, "Metal W16R2 rung digest under {arm} ({qname}) differs from CPU");
+            assert!(d.starts_with(W16R2_RUNG_GOLDEN), "Metal W16R2 rung digest {arm} ({qname}) != golden: {d}");
+            assert!(ran > 0.0, "no sumcheck round ran on Metal {arm} ({qname})");
+            assert!(!caps.is_empty(), "no store fold was captured {arm} ({qname})");
+            assert_eq!(sf_delta, caps.len() as u64, "{arm} ({qname}): expected every captured fold to execute sparse GPU kernel");
+            assert_eq!(fb_delta, 0, "{arm} ({qname}): unexpected sparse fold fallback inside rung proof");
+            if frs_on {
+                assert!(frs_delta > 0, "{arm} ({qname}): expected fused RS dispatches inside rung proof");
+            } else {
+                assert_eq!(frs_delta, 0, "{arm} ({qname}): frs0 must not dispatch fused RS");
+            }
+            for (ci, c) in caps.iter().enumerate() {
+                let pads = c.pads.as_ref().map(|(p, q)| (p.as_slice(), *q));
+                let want = a8_reference(&c.src, c.rows, c.n, c.nn, c.ir, &c.rhos, pads);
+                let got = crate::gpu::metal_fold_rows_sparse_for_test(&c.src, c.rows, c.n, c.nn, c.ir, &c.rhos, pads)
+                    .unwrap_or_else(|e| panic!("rung fold {ci} {arm} ({qname}) errored: {e}"))
+                    .unwrap_or_else(|| panic!("rung fold {ci} {arm} ({qname}) fell back unexpectedly"));
+                assert_eq!(got, want, "rung fold {ci} {arm} ({qname}) sparse GPU != per-term reference");
+            }
+            eprintln!("OPT1-RUNG {} arm={arm} queues={qname}: digest {} (golden); {sf_delta} sparse folds (0 fallbacks), {frs_delta} fused RS", sh.name, &d[..8]);
         }
-        eprintln!("OPT1-RUNG {} queues={qname}: digest {} (golden); {} folds verified word-for-word", sh.name, &d[..8], caps.len());
     }
 }
 

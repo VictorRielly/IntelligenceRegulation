@@ -29,7 +29,7 @@ use std::sync::{Mutex, OnceLock};
 use zkp_core::pcs::PcsParams;
 
 const SRC: &str = include_str!("metal_kernels.metal");
-const KERNELS: [&str; 25] = [
+const KERNELS: [&str; 23] = [
     "k_ntt_head_pruned",
     "k_hash_chunk",
     "k_hash_merge",
@@ -43,8 +43,6 @@ const KERNELS: [&str; 25] = [
     "k_gather_cols",
     "k_fold_partial",
     "k_fold_reduce",
-    "k_fold_sparse_partial",
-    "k_fold_sparse_reduce",
     "k_gl_probe",
     "k_bitrev_copy",
     "k_ntt_stage",
@@ -69,6 +67,13 @@ struct FusedRsPipes {
     fused_r2: ComputePipelineState,
 }
 
+/// [Opt 1] Lazily compiled sparse-fold pipelines; untouched when
+/// `HL_METAL_SPARSE_FOLD` is off so startup and failure modes stay unchanged.
+struct SparseFoldPipes {
+    partial: ComputePipelineState,
+    reduce: ComputePipelineState,
+}
+
 struct Ctx {
     device: Device,
     /// compiled kernel library, retained for lazy opt-in pipeline creation
@@ -79,6 +84,8 @@ struct Ctx {
     pipes: HashMap<&'static str, ComputePipelineState>,
     /// [OPT-NEXT-1] lazy fused-RS pipelines (created on first enabled dispatch)
     fused_rs_pipes: OnceLock<Result<FusedRsPipes, String>>,
+    /// [Opt 1] lazy sparse-fold pipelines (created on first enabled dispatch)
+    sparse_fold_pipes: OnceLock<Result<SparseFoldPipes, String>>,
     /// (forward, inverse) twiddle buffers per NttTables::max_log
     twiddles: Mutex<HashMap<u32, (Buffer, Buffer)>>,
     /// [M12] the compact head twiddles (forward, inverse) per max_log: the
@@ -109,6 +116,7 @@ fn ctx() -> Result<&'static Ctx, String> {
                 queue,
                 pipes,
                 fused_rs_pipes: OnceLock::new(),
+                sparse_fold_pipes: OnceLock::new(),
                 twiddles: Mutex::new(HashMap::new()),
                 head_tw: Mutex::new(HashMap::new()),
                 sc_pipes: Mutex::new(HashMap::new()),
@@ -133,6 +141,23 @@ fn fused_rs_pipes(c: &Ctx) -> Result<&FusedRsPipes, &String> {
                     dif_top_3: make("k_inv_dif_top_3")?,
                     fused_r1: make("k_inv_fwd_fused_r1")?,
                     fused_r2: make("k_inv_fwd_fused_r2")?,
+                })
+            })
+        })
+        .as_ref()
+}
+
+fn sparse_fold_pipes(c: &Ctx) -> Result<&SparseFoldPipes, &String> {
+    c.sparse_fold_pipes
+        .get_or_init(|| {
+            objc::rc::autoreleasepool(|| {
+                let make = |k: &str| -> Result<ComputePipelineState, String> {
+                    let f = c.lib.get_function(k, None).map_err(|e| format!("metal function {k}: {e}"))?;
+                    c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal pipeline {k}: {e}"))
+                };
+                Ok(SparseFoldPipes {
+                    partial: make("k_fold_sparse_partial")?,
+                    reduce: make("k_fold_sparse_reduce")?,
                 })
             })
         })
@@ -181,10 +206,22 @@ static SECS_COMMIT_NS: AtomicU64 = AtomicU64::new(0);
 static N_COMMITS: AtomicU64 = AtomicU64::new(0);
 static BYTES_ENCODED: AtomicU64 = AtomicU64::new(0);
 static FUSED_RS_CALLS: AtomicU64 = AtomicU64::new(0);
+static SPARSE_FOLD_CALLS: AtomicU64 = AtomicU64::new(0);
+static SPARSE_FOLD_FALLBACKS: AtomicU64 = AtomicU64::new(0);
 
 /// [OPT-NEXT-1] Total commitments that executed the fused DIF-INTT -> DIT-FWD path (anti-vacuity counter for tests).
 pub fn fused_rs_calls_for_test() -> u64 {
     FUSED_RS_CALLS.load(Ordering::Relaxed)
+}
+
+/// [Opt 1] Total opening folds that executed the sparse GPU kernel path (anti-vacuity counter for tests).
+pub fn sparse_fold_calls_for_test() -> u64 {
+    SPARSE_FOLD_CALLS.load(Ordering::Relaxed)
+}
+
+/// [Opt 1] Total opening folds that declined/errored on the sparse GPU path and fell back to host.
+pub fn sparse_fold_fallbacks_for_test() -> u64 {
+    SPARSE_FOLD_FALLBACKS.load(Ordering::Relaxed)
 }
 
 /// (commitments made on the device, their summed wall seconds, encoded bytes)
@@ -1482,11 +1519,17 @@ impl MetalCommit {
             c.push(FoldCapture { rows: self.rows, n: self.n, nn, ir, src: src.to_vec(), rhos: rhos.to_vec(), pads: None });
         }
         if sparse_fold_on() {
-            if let Some(out) = fold_rows_sparse_device(buf, self.rows, self.n, nn, ir, rhos, &[], 0)? {
-                if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
-                    eprintln!("[ZK60-METAL] store fold (sparse-gpu): {} rho x {} rows x {} cols ({}) in {:.4} s", rhos.len(), self.rows, self.n, if self.data.is_some() { "zk data" } else { "systematic" }, t.elapsed().as_secs_f64());
+            match fold_rows_sparse_device(buf, self.rows, self.n, nn, ir, rhos, &[], 0) {
+                Ok(Some(out)) => {
+                    if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+                        eprintln!("[ZK60-METAL] store fold (sparse-gpu): {} rho x {} rows x {} cols ({}) in {:.4} s", rhos.len(), self.rows, self.n, if self.data.is_some() { "zk data" } else { "systematic" }, t.elapsed().as_secs_f64());
+                    }
+                    return Ok(out);
                 }
-                return Ok(out);
+                Ok(None) => {}
+                Err(_) => {
+                    SPARSE_FOLD_FALLBACKS.fetch_add(1, Ordering::Relaxed);
+                }
             }
         }
         let out = fold_rows_host_by_form(src, self.rows, self.n, nn, ir, rhos);
@@ -1537,7 +1580,9 @@ impl MetalCommit {
                     return Some(Ok(out));
                 }
                 Ok(None) => {}
-                Err(e) => return Some(Err(e)),
+                Err(_) => {
+                    SPARSE_FOLD_FALLBACKS.fetch_add(1, Ordering::Relaxed);
+                }
             }
         }
         let segs = [A8Seg { src, n: self.n, nn: self.n, ir: 1 }, A8Seg { src: pw, n: q, nn: q, ir: 1 }];
@@ -1700,17 +1745,20 @@ const SPARSE_FOLD_MAX_K: usize = 64;
 /// [Opt 1, tests] 0 lets `HL_METAL_SPARSE_FOLD=1` decide, 1 forces off, 2 forces on
 static SPARSE_FOLD_TEST: AtomicUsize = AtomicUsize::new(0);
 
-/// [Opt 1] `HL_METAL_SPARSE_FOLD=1` (default OFF): 1-CB row-sparse GPU opening fold
+/// [Opt 1] `HL_METAL_SPARSE_FOLD=1` (default OFF): 1-CB row-sparse GPU opening fold.
+/// Environment read is cached in a `OnceLock` (like `fused_rs_on`), with an atomic test override.
 fn sparse_fold_on() -> bool {
     match SPARSE_FOLD_TEST.load(Ordering::Relaxed) {
         1 => false,
         2 => true,
-        _ => std::env::var("HL_METAL_SPARSE_FOLD").map(|v| v == "1").unwrap_or(false),
+        _ => {
+            static ENV: OnceLock<bool> = OnceLock::new();
+            *ENV.get_or_init(|| std::env::var("HL_METAL_SPARSE_FOLD").map(|v| v == "1").unwrap_or(false))
+        }
     }
 }
 
-/// [Opt 1, tests] override `HL_METAL_SPARSE_FOLD` in-process (`None`: env); returns previous override
-#[cfg(test)]
+/// [Opt 1] in-process test override for `HL_METAL_SPARSE_FOLD` (`None`: env); returns previous override
 pub fn set_sparse_fold_for_test(on: Option<bool>) -> Option<bool> {
     let v = match on {
         None => 0,
@@ -1724,8 +1772,7 @@ pub fn set_sparse_fold_for_test(on: Option<bool>) -> Option<bool> {
     }
 }
 
-/// [Opt 1, tests] whether the sparse GPU opening fold is currently active
-#[cfg(test)]
+/// [Opt 1] whether the sparse GPU opening fold is currently active
 pub fn sparse_fold_for_test() -> bool {
     sparse_fold_on()
 }
@@ -1761,6 +1808,7 @@ fn fold_rows_sparse_device(
         return Ok(Some(vec![vec![Fp2::ZERO; total_cols]; k]));
     }
     if k > SPARSE_FOLD_MAX_K || rows > u32::MAX as usize {
+        SPARSE_FOLD_FALLBACKS.fetch_add(1, Ordering::Relaxed);
         return Ok(None);
     }
     if pads.len() != rows * q {
@@ -1768,7 +1816,14 @@ fn fold_rows_sparse_device(
     }
 
     let c = ctx()?;
-    let p_part = &c.pipes["k_fold_sparse_partial"];
+    let sp = match sparse_fold_pipes(c) {
+        Ok(p) => p,
+        Err(_) => {
+            SPARSE_FOLD_FALLBACKS.fetch_add(1, Ordering::Relaxed);
+            return Ok(None);
+        }
+    };
+    let p_part = &sp.partial;
     let tg_bytes = (k * 32 * 16) as u64;
     let max_tg = c
         .device
@@ -1776,6 +1831,7 @@ fn fold_rows_sparse_device(
         .saturating_sub(p_part.static_threadgroup_memory_length())
         .min(32 * 1024);
     if tg_bytes > max_tg || p_part.max_total_threads_per_threadgroup() < 32 {
+        SPARSE_FOLD_FALLBACKS.fetch_add(1, Ordering::Relaxed);
         return Ok(None);
     }
 
@@ -1797,6 +1853,7 @@ fn fold_rows_sparse_device(
         }
         if term_g.len() > before {
             if term_g.len() > u32::MAX as usize {
+                SPARSE_FOLD_FALLBACKS.fetch_add(1, Ordering::Relaxed);
                 return Ok(None);
             }
             row_idx.push(i as u32);
@@ -1903,10 +1960,11 @@ fn fold_rows_sparse_device(
                 enc.set_buffer(0, Some(part), 0);
                 enc.set_buffer(1, Some(&out_buf), 0);
                 set_args(enc, 2, &args);
-                dispatch_2d(c, enc, "k_fold_sparse_reduce", total_cols as u64, k as u64);
+                dispatch_2d_pipe(enc, &sp.reduce, total_cols as u64, k as u64);
             }
             Ok(())
         })?;
+        SPARSE_FOLD_CALLS.fetch_add(1, Ordering::Relaxed);
         let o = as_u64s(&out_buf, k * total_cols * 2);
         let out: Vec<Vec<Fp2>> = if k > 1 && k * total_cols >= 65_536 {
             (0..k)

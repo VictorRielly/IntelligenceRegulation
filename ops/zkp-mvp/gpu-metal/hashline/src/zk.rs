@@ -398,7 +398,10 @@ pub struct MaskCommit {
     pub masks: Vec<CfsMask>,
     /// the a-rows' committed messages (512 each; 2 per mask: re, im), as coefficients of their G_512 interpolants
     pub a_coefs: Vec<Vec<Fp>>,
-    /// base rows x 4096, row-major (2 per mask, then b_re, b_im, u_re, u_im)
+    /// base rows x 4096, row-major (2 per mask, then b_re, b_im, u_re, u_im).
+    /// Invariant: for each a-row `r < 2 * masks.len()`, `encoded[r * 4096 + i]` MUST equal the
+    /// coset-7 evaluation of `a_coefs[r]` at `7 * omega_4096^i` (`mask_open` reads stride-4
+    /// entries directly from `encoded`, matching all `mask_commit*` constructors).
     pub encoded: Vec<Fp>,
     /// b and u as 1024 coefficients each (re, im)
     pub b: (Vec<Fp>, Vec<Fp>),
@@ -675,6 +678,16 @@ pub fn mask_open(mc: &MaskCommit, functionals: &[MaskFunctional], ntt: &NttTable
         ntt.forward(&mut w_im);
         let enc_re = &mc.encoded[(2 * s) * dom..(2 * s + 1) * dom];
         let enc_im = &mc.encoded[(2 * s + 1) * dom..(2 * s + 2) * dom];
+        debug_assert_eq!(
+            enc_re[0],
+            mc.a_coefs[2 * s].iter().enumerate().fold(Fp::ZERO, |acc, (i, &c)| acc.add(c.mul(pows[i]))),
+            "MaskCommit invariant violated: encoded a_re row does not match coset-7 eval of a_coefs at j=0"
+        );
+        debug_assert_eq!(
+            enc_im[0],
+            mc.a_coefs[2 * s + 1].iter().enumerate().fold(Fp::ZERO, |acc, (i, &c)| acc.add(c.mul(pows[i]))),
+            "MaskCommit invariant violated: encoded a_im row does not match coset-7 eval of a_coefs at j=0"
+        );
         for j in 0..m2 {
             let ar = enc_re[4 * j];
             let ai = enc_im[4 * j];
