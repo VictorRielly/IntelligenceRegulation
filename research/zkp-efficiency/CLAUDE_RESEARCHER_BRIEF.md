@@ -39,7 +39,7 @@ minute of several cores).
    to `ops/zkp-mvp/RECOVERY_COORDINATION.md`, starting with two newlines and
    `Claude researcher (background) <UTC ISO timestamp>: `, under 100 words: the handoff path, the one finding that
    matters, and "triage material, not a work order". Take the timestamp from the clock inside that same call
-   (`datetime.datetime.now(datetime.timezone.utc)`), never type one: tick 40's pointer was stamped 34 minutes ahead
+   (`datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')`, this exact format), never type one: tick 40's pointer was stamped 34 minutes ahead
    of the clock. The same holds for every time you write in the handoff or in `STATE.md`. If the append fails, say so
    in your report; do not retry more than twice.
 

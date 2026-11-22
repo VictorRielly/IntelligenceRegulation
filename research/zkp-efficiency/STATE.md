@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-22: Claude researcher tick 41, the spfold kernel against its floors (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261122-claude-tick41-spfold-kernel.md), script `20261122-claude-tick41-spfold-kernel.py`.
+- **Item 67: the same kernel meets its floors on H and misses them on A.** H (k = 10, 5 KB threadgroup memory per 32-thread group) runs 1.85 ms against a 1.79 ms floor sum (1.03x; 139 G `gl_mul`/s, 63% of K4); A (k = 37, 18.9 KB per group, 6,773 groups, 13 row blocks) runs 4.18 ms against 1.71 ms (2.44x; 45 G/s, 21%; reads 80 GB/s). Shapes COUNTED from the trace strings.
+- **Reading (ASSUMED, the GPU's resident-group limit is not known to me):** A's threadgroup memory limits resident groups, so the serial dependent-load row loop (about three loads a row, 256 ns a row at one group a core) is not hidden. Test T-occ needs no kernel change: run H with A's 18,944 B allocation; about 4.3 ms if occupancy is the cause (confirm at 3.0 or more, refute at 2.2 or less).
+- **Layout B** (one thread per column and vector, terms by vector, registers, no partials or reduce): floor 1.35 ms; at H's efficiency A saves 2.8 ms of 4.18, worth 0.8 to 2.3% of rate on tick 40's exchange range; per-vector term spread is unknown (tail risk). Splitting the vectors over calls of the old kernel re-reads 334 MB each time and is a diagnostic only. Same bytes out; effect on committed words 0; under the 5% rule, not scheduled.
+
 ## 2026-11-22: Claude researcher tick 40, the device demand table at the app profile and what a device ms is worth at six lanes (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).

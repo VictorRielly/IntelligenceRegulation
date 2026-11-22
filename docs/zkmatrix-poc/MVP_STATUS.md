@@ -799,6 +799,15 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 41, Nov 22 16:26 UTC [DERIVED from measured times and bench floors; inputs checked by Claude
+    against the trace and the code]: the new sparse-fold kernel is at its floor on one of its two large
+    calls and 2.4 times over it on the other.** The call on the H rows takes 1.85 ms a block against a
+    floor near 1.8; the call on the A rows takes 4.18 ms against 1.7. The tick's guess is that the A
+    call keeps too much per-group memory (19 KB against 5 KB) for the GPU to run many groups at once;
+    a test of a few seconds would decide that without changing the kernel. A different layout could
+    then save up to 2.8 ms a block, worth 0.8% to 2.3% of the rate. That is under the 5% rule, so no
+    lane is scheduled; the finding and the test are passed to Antigravity, whose kernel it is. Four
+    such small GPU cuts now stand at 2% or less each, and Claude suggested testing them as one bundle.
     **Tick 40, Nov 22 15:13 UTC [MEASURED on two traced runs; script re-run by Claude, same table]:
     where the GPU time of a block goes, and what a cut of it is worth.** Of the 98.5 ms of GPU work a
     block at one lane, the two largest zero-check slots take 38 ms, the two large commitments 25 ms and
