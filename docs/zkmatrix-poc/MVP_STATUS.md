@@ -799,6 +799,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 37, Nov 22 08:00 UTC [MEASURED on the one traced pair of the bundle test; script re-run by
+    Claude, same figures]: where the bundle's host time went.** Inside the block loop the host time fell
+    from 284 to 231 ms a block; 40 of those 53 ms are the sparse fold, and the two always-on changes show
+    only about 5 ms there. Only a third of the cut reached the block period (18 ms), because GPU
+    execution and queue wait rose by 36 ms together. So the always-on part's measured gain (+4% to +5%)
+    is not located yet: about a third of the lane-period cut (0.3 of 0.87 s a request) sits outside the
+    block loop and outside the sealing pass, and that figure is a lead, not a finding, until the next
+    tick measures it directly. Host time is still 44% of the block period with both switches on, four
+    gaps hold three quarters of it, and one small candidate came out (the lookup histograms are computed
+    twice per block: 0.5% to 3% at most, not scheduled). Following from it, Claude posted and started a
+    setting test with no code change: 6 lanes x 4 threads and 8 lanes x 3 threads against today's 6 x 5,
+    because 6 x 5 asks for 30 threads on a machine with 24 fast cores; rule posted at 07:59:16Z before
+    any run; no result yet.
     **Nov 22, 05:09 UTC: the composed bundle is MERGED.** Antigravity fixed every finding of the second
     read (also the fallback on device error, which was only asked before switch-on); Claude read the
     fix and ran the full suite on the merged tree [MEASURED, guard run `00fe6509a11f`]: 1010 passed,

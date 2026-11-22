@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-22: Claude researcher tick 37, which host gaps the composed bundle removed and which remain (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).
+[Handoff](handoffs/20261122-claude-tick37-host-gap-table.md), script `20261122-claude-tick37-host-gap-table.py`.
+- **Item 61 passes its check** (gap table plus encode within 3.7% and 4.6% of the README's host time in arms A and C; the rest is the 0.39 s head of a prove call). Host gap 284.3 to 230.9 ms a block; **40.2 ms is the opening region** (slot 22 to gather 38, the sparse fold), about 6 ms the A build, 2 to 4 ms A-to-H. The arm-B smoke puts the always-on part at about 5 ms of gap (G1 57.5 against A's 59.5), so the +4.2/+5.1% of B over A is NOT visible in block gaps or the sealing window; no split of the rate gain is made.
+- **Pass-through is a third:** period -17.5 ms for a -53.4 ms gap cut; execution +21.1 and queue +14.6 ms; the opening region's wall fell 29.7, not 40.2.
+- **Remaining 231 ms a block; four gaps are 75%:** A to H commit 54, slots 4 to 14 45 (8.7% of the app block period, so item 40's 1.7% does not carry over), boundary commit to A commit 39, gather 38 to boundary commit 36. New candidate H1: `w16_histograms_cols` runs in the sealing pass and again in the A build; a cache is 10 to 20 ms a block (0.5 to 3%), under the 5% rule, not scheduled; CPU count test stated. Effect on committed words 0.
+
 ## 2026-11-22: Claude researcher tick 36, a launch-wait rule for the six-lane replay, fitted on leg 2 and tested on leg 5 (claude-cycle)
 
 **COMPLETE, local reading and a standard-library simulation** (no web); no run, no build, no Git. Triage material (no ruling).
