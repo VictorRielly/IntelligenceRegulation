@@ -1,0 +1,4 @@
+[02:48:11] launching cm_trace3
+[zk60-guard 02:48:11] START composed-cm_trace3 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=9648fc19327e
+[zk60-guard 03:02:46] END composed-cm_trace3 exit=0 child_wall=875s peak_rss=58.74G min_avail=134.88G peak_vram=21138MiB
+[03:02:46] cm_trace3 guard exit 0

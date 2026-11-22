@@ -1,0 +1,8 @@
+writer 23.3 s; posts 8; content ids per post [14, 18, 18, 20, 18, 17, 15, 17]
+{"leg": 1, "arm": "A", "rate": 43.13679889829603, "all_proved": true, "span_s": 161.18473879201338}
+{"leg": 2, "arm": "B", "rate": 44.6721240594126, "all_proved": true, "span_s": 157.2657055419404}
+{"leg": 2, "verify": {"receipts": 54, "checked": 54, "other": 0}}
+{"leg": 3, "arm": "B", "rate": 44.50863240001304, "all_proved": true, "span_s": 156.60093270777725}
+{"leg": 3, "verify": {"receipts": 54, "checked": 54, "other": 0}}
+{"leg": 4, "arm": "A", "rate": 43.38140734922962, "all_proved": true, "span_s": 161.5088918330148}
+done

@@ -799,6 +799,15 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 22, 11:22 UTC: the always-on part of the bundle re-measured; corrected to about +3% to +4%
+    [MEASURED, four untraced runs old, new, new, old; reading fixed at 11:03:49Z before the run].** The
+    researcher's tables and one traced run did not show the gain that Claude had stated for a rebuild
+    alone (+4% to +5%, from one set of two pairs), so it was measured again: +3.6% and +2.6%. The four
+    pairs together give +3.9% on average (+2.6% to +5.1%). The gain is real and a little smaller than
+    first stated; the figures with both switches on are unchanged. Levels today, tok/s: previous head
+    43.3; merged code with switches off 44.6; both switches on 47.1; both switches on with 6 lanes x 8
+    threads 48.6. Traced runs turned out to be unusable for comparing rates in either direction; they
+    stay useful for where the time goes inside a run.
     **Tick 37, Nov 22 08:00 UTC [MEASURED on the one traced pair of the bundle test; script re-run by
     Claude, same figures]: where the bundle's host time went.** Inside the block loop the host time fell
     from 284 to 231 ms a block; 40 of those 53 ms are the sparse fold, and the two always-on changes show
@@ -830,8 +839,9 @@ item was re-checked against the source by the coordinator.
     read (also the fallback on device error, which was only asked before switch-on); Claude read the
     fix and ran the full suite on the merged tree [MEASURED, guard run `00fe6509a11f`]: 1010 passed,
     2 failed, 137 ignored, the two failures being the two long-known fixture ones. From this head on,
-    the two host changes are in every build (about +4% to +5% at the app profile with no setting
-    changed); the fused encoder and the sparse fold stay behind switches that are off by default (both
+    the two host changes are in every build (about +3% to +4% at the app profile with no setting
+    changed; first stated as +4% to +5%, corrected after the re-measurement of 11:22 UTC, see the top
+    paragraph); the fused encoder and the sparse fold stay behind switches that are off by default (both
     on: about +8.5% in total). Rebuilding the app and turning the switches on is Astra's step.
     **Nov 22, 04:00 UTC: Antigravity's composed bundle (fused encoder, sparse opening fold, and two
     always-on host changes) PASSES at the installed app profile: +8.4% and +8.5% over the pushed head

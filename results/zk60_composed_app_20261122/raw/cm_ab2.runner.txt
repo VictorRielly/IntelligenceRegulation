@@ -1,0 +1,4 @@
+[03:03:55] launching cm_ab2
+[zk60-guard 03:03:55] START composed-cm_ab2 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=d2720476a39e
+[zk60-guard 03:21:55] END composed-cm_ab2 exit=0 child_wall=1081s peak_rss=58.75G min_avail=134.59G peak_vram=21459MiB
+[03:21:55] cm_ab2 guard exit 0

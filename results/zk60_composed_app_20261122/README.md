@@ -67,3 +67,28 @@ A second set (not needed by the rule); other lane counts or queue modes; the GPU
 | `cm_trace_leg2.95710.tsv.xz` (arm C) | 8,340,132 | 726,872 | `df2c10b5efcd7e8ecaadd3c2a24dfcafc23d729daee249bde6f0cff9d033fd13` |
 
 No receipts and no binaries are kept. For the scan: the helper scripts name the venv and export paths under the home directory's artifact folder (`t1_driver.py`, `composed_launch.py`), and the run logs and results JSON carry the session scratch paths; nothing private (the content is public; nothing under the owner-private directory was read).
+
+## Addendum, 2026-11-22 10:48 to 11:22 UTC (co-coordinator): three full traced arms, and a second look at the always-on part
+
+Both runs use the same driver, binaries, stream and setting (6 lanes x 5 threads). The definitions were posted in `ops/zkp-mvp/RECOVERY_COORDINATION.md` before each run (entries of 10:48:05Z and 11:03:49Z).
+
+**Traced run of the three arms [MEASURED once, `raw/cm_trace3`, guard run `9648fc19327e`].** One full leg of each arm, 48 timed requests, with `HL_A27_GPU_TRACE`; 108 receipts of B1 accepted by B0. Diagnostic only: it is the data for research queue item 63 (block gaps, sealing window and after-run tail in A, B and C). Traced rates: A 44.33, B 43.92, C 47.47 tok/s. They decide nothing: traced A is above all four untraced A legs, so a traced leg does not simply read low, and traced pairs are not usable for rate comparisons in either direction.
+
+| file | uncompressed bytes | compressed bytes | SHA-256 of the `.xz` |
+|---|---|---|---|
+| `cm_trace3_leg1.93705.tsv.xz` (arm A) | 7,668,762 | 649,876 | `2384eea443be20ea96675f43d454cd9e87facae7a91295d701d9bad4727191e6` |
+| `cm_trace3_leg2.95100.tsv.xz` (arm B) | 7,637,133 | 646,636 | `2657905c51d4e637f9e0a862b1fe9cc17c1dbc2be24144ed495646818e0782db` |
+| `cm_trace3_leg3.97509.tsv.xz` (arm C) | 8,349,635 | 728,108 | `a0656d0d31ffdd26cee760f9e08c88043c4169d8879a6e815956f2a1d2624e3f` |
+
+**Confirmation set for the always-on part [MEASURED, `raw/cm_ab2`, guard run `d2720476a39e`].** Research tick 37 found only about 5 ms a block from the always-on changes in the gap table, and the traced leg above has B below A, so the untraced B-over-A gain of the first set (+4.17% and +5.08%) was measured again. Four untraced legs in the order A, B, B, A; reading fixed beforehand: CONFIRMED if both new pairs are at +3.0% or more, NOT REPRODUCED if both are under +1.5%, else REPRODUCED IN PART and the gain is stated from the four pairs together.
+
+| leg | arm | tok/s | proved | accepted by B0 |
+|---|---|---:|---:|---:|
+| 1 | A | 43.137 | 54 | not checked (arm A) |
+| 2 | B | 44.672 | 54 | 54 |
+| 3 | B | 44.509 | 54 | 54 |
+| 4 | A | 43.381 | 54 | not checked (arm A) |
+
+- **B over A: +3.56% and +2.60%. REPRODUCED IN PART.**
+- **The four pairs together: +4.17%, +5.08%, +3.56%, +2.60%. Mean +3.85%, range +2.6% to +5.1%.** So the always-on part alone is worth about +3% to +4% at this profile, a little less than the first set said. Where that gain sits in the request is still not located (item 63).
+- The guard status before each leg shows this job only (`raw/cm_ab2/guard_status_leg*`).
