@@ -1808,6 +1808,7 @@ kernel void k_sc_fs_step_v3(device const ulong *part [[buffer(0)]],
         if (lane < d1) {
             ulong rec = 4UL + ulong(d1) + ulong(a.j) * 2UL * ulong(2u + d1 + (d1 - 1u));
             fq2 c = q2_at(mk, 0UL), ap = q2_at(mk, 2UL);
+            // [L2] host pushes real base-field scale Fp2::from_u64(1 << (n - 1 - j)); debug-asserted in metal.rs
             ulong scale0 = mk[rec];
             fq2 base = q2_add(q2_at(mk, rec + 2UL), q2(fs[21], fs[22]));
             fq2 app = sc_q2_mul_k(ap, q2(fs[23], fs[24]));
@@ -1821,7 +1822,8 @@ kernel void k_sc_fs_step_v3(device const ulong *part [[buffer(0)]],
             out[o + 2UL * ulong(d1 + lane)]       = mi.c0;
             out[o + 2UL * ulong(d1 + lane) + 1UL] = mi.c1;
         }
-        simdgroup_barrier(mem_flags::mem_threadgroup);
+        // [L3] order both device reads of fs[19..25] and threadgroup writes of sm[0..31] before Phase 3/4 writes fs
+        simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
     }
 
     // Phase 3: Pure-scalar-register BLAKE3 on lane 0 (zero other values live across b3)

@@ -249,14 +249,24 @@ pub fn sc_chain_fast_fallbacks_for_test() -> u64 {
     SC_CHAIN_FAST_FALLBACKS.load(Ordering::Relaxed)
 }
 
+/// [M4e / K9 M1] requested threadgroup size for sumcheck round kernels (`HL_METAL_SC_TG`, clamped `32..=1024`)
+fn sc_tg_env() -> u64 {
+    std::env::var("HL_METAL_SC_TG").ok().and_then(|v| v.parse().ok()).unwrap_or(64).clamp(32, 1024)
+}
+
 /// [K9] whether a sumcheck of `degree` can use the fast chain (pipelines compiled,
-/// `tgw >= 256`, and 32-lane SIMD execution width matching `simd_shuffle_down` / `>> 5`)
+/// `tgw >= 256`, `HL_METAL_SC_TG` a multiple of 32, and 32-lane SIMD execution width
+/// matching `simd_shuffle_down` / `>> 5`)
 fn sc_chain_fast_ready(c: &Ctx, degree: usize) -> bool {
     if !sc_chain_fast_on() {
         return false;
     }
     if degree == 0 || degree + 1 > FS_MAX_POINTS {
         record_sc_chain_fast_fallback("degree outside 1..=7");
+        return false;
+    }
+    if sc_tg_env() % 32 != 0 {
+        record_sc_chain_fast_fallback("HL_METAL_SC_TG not a multiple of 32");
         return false;
     }
     match sc_chain_fast_pipes(c) {
@@ -3304,9 +3314,13 @@ fn slot_label(kernel_src: &str) -> String {
 /// when its imaginary part is zero (a base-field table's first fold). The same
 /// canonical words (`metal_kernels.metal`; `a27_` tests). Returns (the host-challenge
 /// fold, the device-challenge fold).
-fn fold_kernels() -> (&'static str, &'static str) {
+fn a27_fold_on() -> bool {
     static ON: OnceLock<bool> = OnceLock::new();
-    if *ON.get_or_init(|| std::env::var("HL_A27_FOLD").map(|v| v != "0").unwrap_or(true)) {
+    *ON.get_or_init(|| std::env::var("HL_A27_FOLD").map(|v| v != "0").unwrap_or(true))
+}
+
+fn fold_kernels() -> (&'static str, &'static str) {
+    if a27_fold_on() {
         ("k_fold_tables3", "k_fold_tables_dev3")
     } else {
         ("k_fold_tables", "k_fold_tables_dev")
@@ -3394,7 +3408,7 @@ fn rounds_parts(c: &Ctx, cap: usize, degree: usize, coefs: &[Fp2], sc_fast: bool
     // on slot 14's later rounds; HL_METAL_SC_THREADS / _PER / _TG override)
     let cap_log: u32 = std::env::var("HL_METAL_SC_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(17).clamp(8, 22);
     let per: usize = std::env::var("HL_METAL_SC_PER").ok().and_then(|v| v.parse().ok()).unwrap_or(1).max(1);
-    let tg: u64 = std::env::var("HL_METAL_SC_TG").ok().and_then(|v| v.parse().ok()).unwrap_or(64).clamp(32, 1024);
+    let tg: u64 = sc_tg_env();
     let t0n = sc_threads(cap / 2, per, cap_log);
     let entries = if sc_fast { t0n.div_ceil(32) } else { t0n };
     let part = shared_buffer(c, (entries * (degree + 1) * 16) as u64)?;
@@ -4708,7 +4722,9 @@ impl MetalRounds {
             mk.push(den.inv().0);
         }
         for j in 0..nd {
-            push(&mut mk, Fp2::from_u64(1u64 << (n - 1 - j)));
+            let scale = Fp2::from_u64(1u64 << (n - 1 - j));
+            debug_assert_eq!(scale.c1.0, 0, "k_sc_fs_step_v3 assumes real base-field scale");
+            push(&mut mk, scale);
             push(&mut mk, mask.coeffs[0].add(suffix[j + 1]));
             for x in 0..d1 {
                 push(&mut mk, u(j, Fp2::from_u64(x as u64)));
@@ -4768,8 +4784,8 @@ impl MetalRounds {
                         // the fold of round j - 1 by the device's challenge
                         let hprev = (self.len >> (j - 1)) / 2;
                         let roff = ((j - 1) * rec + 4 * d1) as u64;
-                        if let Some(fp) = fast_pipes {
-                            // [K9 C1] fused tabs + xtabs fold in one dispatch (all 1..=nd so xtabs stays consistent)
+                        if let Some(fp) = fast_pipes.filter(|_| a27_fold_on()) {
+                            // [K9 C1 / M2 / L4] fused tabs + xtabs fold in one dispatch (all 1..=nd so xtabs stays consistent; respects HL_A27_FOLD=0)
                             if let Some(x) = self.xtabs.as_ref() {
                                 enc.set_buffer(0, Some(&self.tabs), 0);
                                 enc.set_buffer(1, Some(x), 0);
@@ -5680,7 +5696,13 @@ mod sc_chain_fast_tests {
 
         for d1 in 2..=FS_MAX_POINTS {
             let deg = d1 - 1;
-            let des: Vec<usize> = if deg >= 2 { vec![deg, deg - 1] } else { vec![deg] };
+            let mut des: Vec<usize> = vec![deg];
+            if deg >= 2 {
+                des.push(deg - 1);
+            }
+            if deg >= 3 {
+                des.push(1);
+            }
             for &de in &des {
                 let mut xw: Vec<Fp> = extrapolation_weights(de, deg).into_iter().flatten().collect();
                 if xw.is_empty() {
@@ -5703,6 +5725,7 @@ mod sc_chain_fast_tests {
                 for &(cnt, init_e1, rec_one, keyed) in &[
                     (4096usize, 0u32, 1u32, 1u32),
                     (128, 1, 1, 1),
+                    (64, 0, 1, 0),
                     (32, 1, 0, 0),
                     (1, 0, 1, 1),
                 ] {
