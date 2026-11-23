@@ -133,7 +133,7 @@ fn qzc(slot:usize,ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,S
     let mu=tr.challenge_fp2_vec(4+n_help+usize::from(pad_on));let nu=nonzero(tr.challenge_fp2_vec(2))?;
     let zeta=if pad_on {nonzero(tr.challenge_fp2_vec(1))?[0]} else {Fp2::ZERO};
     b.eq(&tr.challenge_fp2_vec(log),0);b.eq(if q {&pts.pq} else {&pts.pk},0);b.eq(if q {&pts.p_o} else {&pts.pv},0);
-    let(ct,st)=rope_tables_at(sh,ctx.public,dom);let ic=b.public(ct);let is=b.public(st);
+    let(ic,is)=b.rope_tables(sh,ctx.public,dom);
     let range=ids.domain_range(dom)?;let idx=b.a_range(range.start,range.end-1)?;
     let(source,rotated,rr,lword,lrword,other,lother,rsource,rother,s1,s2)=if q {
         (A_Q8,A_QR8,L::Rqr,L::Q,L::Qr,A_O8,L::O,L::Rq,L::Ro,precision.q,precision.pv)
@@ -541,7 +541,7 @@ fn qzc_w16(slot:usize,ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotD
     let mu=tr.challenge_fp2_vec(1+n_help+usize::from(pad_on));let nu=nonzero(tr.challenge_fp2_vec(2))?;
     let zeta=if pad_on {nonzero(tr.challenge_fp2_vec(1))?[0]} else {Fp2::ZERO};
     b.eq(&tr.challenge_fp2_vec(log),0);b.eq(if q {&pts.pq} else {&pts.pk},0);b.eq(if q {&pts.p_o} else {&pts.pv},0);
-    let(ct,st)=rope_tables_at(sh,ctx.public,dom);let ic=b.public(ct);let is=b.public(st);
+    let(ic,is)=b.rope_tables(sh,ctx.public,dom);
     let range=ids.domain_range(dom)?;let idx=b.a_range(range.start,range.end-1)?;
     let(source,rotated,rr,other,rsource,rother,s1,s2)=if q {
         (A_Q8,A_QR8,L::Rqr,A_O8,L::Rq,L::Ro,precision.q,precision.pv)

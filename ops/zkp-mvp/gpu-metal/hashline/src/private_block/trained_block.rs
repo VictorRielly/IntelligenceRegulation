@@ -2161,6 +2161,8 @@ struct SealedChain {
     outs: Vec<Vec<i16>>,
     /// the witnesses kept from the sealing pass (within the budget)
     kept: Vec<Option<Witness>>,
+    /// [W2-2] sealing histograms collected alongside kept witnesses (`HL_HOST_FAST_W2=1`)
+    sealed_hists: Vec<Option<super::protocol::SealedHistograms>>,
     kept_bytes: u64,
     first: Vec<i16>,
     last: Vec<i16>,
@@ -2982,6 +2984,7 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
     let mut digests = Vec::with_capacity(l);
     let mut outs: Vec<Vec<i16>> = Vec::with_capacity(l);
     let mut kept: Vec<Option<Witness>> = Vec::with_capacity(l);
+    let mut sealed_hists: Vec<Option<super::protocol::SealedHistograms>> = Vec::with_capacity(l);
     let (mut kept_bytes, mut load_s, mut witness_s) = (0u64, 0.0f64, 0.0f64);
     // [A19] the witnesses handed to a D55 run's window, and the bytes counted for them
     let (mut handed, mut part_bytes) = (0usize, 0u64);
@@ -3051,12 +3054,20 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
         // `ssh` with its gate shift set to the data's. So the shapes are equal exactly when `ssh`
         // already carries the data's gate shift; any other block or shape takes the full check.
         let build_checked = cur.blk.accuracy().is_some_and(|d| d.folds().gate.shift == ssh.accuracy_gate_shift);
-        let misses = if build_checked {
-            super::protocol::check_lookup_misses_after_public_check(&ssh, lay, &cur.blk, &w)
+        let hist_opt = if crate::zk::host_fast_w2_on() {
+            Some(
+                super::protocol::check_lookup_misses_collecting(&ssh, lay, &cur.blk, &w, build_checked)
+                    .map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?,
+            )
         } else {
-            super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w)
+            let misses = if build_checked {
+                super::protocol::check_lookup_misses_after_public_check(&ssh, lay, &cur.blk, &w)
+            } else {
+                super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w)
+            };
+            misses.map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?;
+            None
         };
-        misses.map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?;
         // [A19] what a fork's before-challenge part holds beyond the witness: `A`'s
         // host rows and its encoding (the device's copy on Metal), an estimate
         let part_extra = 8 * (lay.a_rows * lay.n()) as u64 * (1 + ssh.inv_rate as u64);
@@ -3093,8 +3104,12 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
             Some(w) if kept_bytes + part_bytes + wb <= budget_bytes => {
                 kept_bytes += wb;
                 kept.push(Some(w));
+                sealed_hists.push(hist_opt);
             }
-            _ => kept.push(None),
+            _ => {
+                kept.push(None);
+                sealed_hists.push(None);
+            }
         }
         outs.push(out);
         shapes.push(ssh);
@@ -3104,7 +3119,7 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
         return Err("trained stack: the builder's block-0 input plane is not the export's x_in (before the run header)".into());
     }
     let last = outs[l - 1].clone();
-    let chain = SealedChain { x_in0, shapes, outs, kept, kept_bytes, first, last, rebuilt: 0, handed, part_bytes };
+    let chain = SealedChain { x_in0, shapes, outs, kept, sealed_hists, kept_bytes, first, last, rebuilt: 0, handed, part_bytes };
     Ok((metas, digests, chain, SealTimes { wall_s: 0.0, load_s, witness_s, pool_threads: pool.threads(), loads_ahead: ahead.n, load_wait_s }))
     })
 }
@@ -3476,7 +3491,7 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
             a19_after_the_sealing_pass();
             Ok(r)
         },
-        |(metas, digests, chain, mut seal), planned| {
+        |(metas, digests, mut chain, mut seal), planned| {
             let st = m.statement_of_records(metas.iter().map(|m| m.record.clone()).collect())?;
             seal.wall_s = t0.elapsed().as_secs_f64();
             let (kept_n, kept_bytes) = (chain.kept.iter().filter(|w| w.is_some()).count(), chain.kept_bytes);
@@ -3518,6 +3533,11 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
             // [A19] the plan the parts were made under is this fork run's (before
             // the run directory exists)
             planned.check(&fr)?;
+            let sealed_hists = if shared && crate::zk::host_fast_w2_on() {
+                std::mem::take(&mut chain.sealed_hists)
+            } else {
+                Vec::new()
+            };
             let mut src = StackSource::new(sh, if shared { StackBlocks::Sealed(&blocks) } else { StackBlocks::Model(m, &digests) }, l, chain, None)?;
             // [A22] a stream: this request's sealing side is done (the next request's
             // sealing pass may start); wait for its turn at the prover, before anything
@@ -3546,9 +3566,16 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
                     reloaded = v;
                     (&reloaded as &dyn run::fork::ForkBlocks, s)
                 };
-                let proof = match run.turn {
-                    Some(turn) if bounds_ahead => planned.prove_at_turn(&fr, b, &mut src, owners, run.workers, Some(&|| turn.at_prover())),
-                    _ => planned.prove(&fr, b, &mut src, owners, run.workers),
+                let proof = if !sealed_hists.is_empty() {
+                    match run.turn {
+                        Some(turn) if bounds_ahead => planned.prove_at_turn_with_hists(&fr, b, &mut src, owners, run.workers, Some(&|| turn.at_prover()), &sealed_hists),
+                        _ => planned.prove_at_turn_with_hists(&fr, b, &mut src, owners, run.workers, None, &sealed_hists),
+                    }
+                } else {
+                    match run.turn {
+                        Some(turn) if bounds_ahead => planned.prove_at_turn(&fr, b, &mut src, owners, run.workers, Some(&|| turn.at_prover())),
+                        _ => planned.prove(&fr, b, &mut src, owners, run.workers),
+                    }
                 };
                 // [A22] a stream: the prover is free for the next request, whatever the
                 // prove call returned (this run's receipt is written outside the turn)

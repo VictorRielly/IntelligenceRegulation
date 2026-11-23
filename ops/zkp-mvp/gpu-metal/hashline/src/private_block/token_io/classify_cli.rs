@@ -506,25 +506,23 @@ struct CliSource<'a> {
 }
 
 /// [A24] a witness the sealing pass kept: the stage shape and the input plane it was built
-/// from (the builder is a function of the block, the shape and the plane), and the witness
-type KeptWitness = (Shape, Vec<i16>, Witness);
+/// from (the builder is a function of the block, the shape and the plane), the witness, and
+/// ([W2-2]) optional sealing histograms collected under `HL_HOST_FAST_W2=1`
+type KeptWitness = (Shape, Vec<i16>, Witness, Option<super::super::protocol::SealedHistograms>);
 
 /// [A24] a witness's plane words, in bytes (the server's per-request budget)
 fn witness_bytes(w: &Witness) -> u64 {
     w.planes.iter().map(|p| 8 * p.len() as u64).sum()
 }
 
-impl ClassifyRunSource for CliSource<'_> {
-    fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String> {
-        self.stage_in.take().ok_or_else(|| "classifier run: stage IN-C asked twice".to_string())
-    }
-    fn witness(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<Witness, String> {
+impl CliSource<'_> {
+    fn witness_inner(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<(Witness, Option<super::super::protocol::SealedHistograms>), String> {
         let sh = &self.p.sh;
         // ROUND 16: the block's own builder (R13 accuracy data at the stage's G); [A24] the
         // sealing pass's own witness when it kept the one this stage would build
-        let w = match self.kept.get_mut(k).and_then(Option::take) {
-            Some((ks, kx, kw)) if ks == *ssh && kx == self.x => kw,
-            _ => super::super::witness::build_for_block(ssh, blk, &self.x)?,
+        let (w, hists) = match self.kept.get_mut(k).and_then(Option::take) {
+            Some((ks, kx, kw, kh)) if ks == *ssh && kx == self.x => (kw, kh),
+            _ => (super::super::witness::build_for_block(ssh, blk, &self.x)?, None),
         };
         // ROUND 16: the stage shape's own plane ids (an R13 stage is the run
         // seed at its layer's gate denominator; the plane list is the same)
@@ -539,7 +537,19 @@ impl ClassifyRunSource for CliSource<'_> {
         }
         self.parity += 1;
         self.x = next;
-        Ok(w)
+        Ok((w, hists))
+    }
+}
+
+impl ClassifyRunSource for CliSource<'_> {
+    fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String> {
+        self.stage_in.take().ok_or_else(|| "classifier run: stage IN-C asked twice".to_string())
+    }
+    fn witness(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<Witness, String> {
+        self.witness_inner(k, blk, ssh).map(|(w, _)| w)
+    }
+    fn witness_with_hists(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<(Witness, Option<super::super::protocol::SealedHistograms>), String> {
+        self.witness_inner(k, blk, ssh)
     }
     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
         Ok(pad_plane(&self.p.sh, &self.seq.load(&self.p.ex, &self.p.sh, self.p.layers[k])?.1))
@@ -570,6 +580,7 @@ fn seal_chain(p: &ExportPublic, seq: &SeqIn, blocks: &mut dyn TokenBlocks, x_in0
 /// check, in its order and with its string, is `seal_chain`'s.
 fn seal_chain_keeping(p: &ExportPublic, seq: &SeqIn, blocks: &mut dyn TokenBlocks, x_in0: Vec<i16>, budget: u64) -> Result<(Vec<i16>, Vec<Option<KeptWitness>>), String> {
     let sh = &p.sh;
+    let is_resident = blocks.resident();
     let mut x = x_in0;
     let mut kept: Vec<Option<KeptWitness>> = Vec::with_capacity(if budget > 0 { p.model.layers.len() } else { 0 });
     let mut used = 0u64;
@@ -588,13 +599,23 @@ fn seal_chain_keeping(p: &ExportPublic, seq: &SeqIn, blocks: &mut dyn TokenBlock
         if next != seq.load(&p.ex, sh, p.layers[k])?.1 {
             return Err(format!("block {k}: the builder's output is not the export's x_out_L{:02} (parity, in the sealing pass, before any header)", p.layers[k]));
         }
-        super::super::protocol::check_lookup_misses(&ssh, &lay, &blk, &w).map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?;
+        let wb = if budget > 0 { witness_bytes(&w) } else { 0 };
+        let keep_this = budget > 0 && used.saturating_add(wb) <= budget;
+        let hist_opt = if keep_this && is_resident && crate::zk::host_fast_w2_on() {
+            Some(
+                super::super::protocol::check_lookup_misses_collecting(&ssh, &lay, &blk, &w, false)
+                    .map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?,
+            )
+        } else {
+            super::super::protocol::check_lookup_misses(&ssh, &lay, &blk, &w)
+                .map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?;
+            None
+        };
         let x_in = std::mem::replace(&mut x, next);
         if budget > 0 {
-            let wb = witness_bytes(&w);
-            if used.saturating_add(wb) <= budget {
+            if keep_this {
                 used += wb;
-                kept.push(Some((ssh, x_in, w)));
+                kept.push(Some((ssh, x_in, w, hist_opt)));
             } else {
                 kept.push(None);
             }

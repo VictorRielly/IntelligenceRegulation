@@ -224,6 +224,159 @@ pub fn host_fast_fallbacks_for_test() -> [u64; 5] {
     std::array::from_fn(|i| HOST_FAST_FALLBACKS[i].load(Ordering::Relaxed))
 }
 
+/// [HOST-FAST-W2] Opt-in Wave 2 core host-gap acceleration switch (`HL_HOST_FAST_W2=1`, default OFF):
+/// W2-2 sealing histogram reuse + zero-alloc `TwoTerm` + on-the-fly `exp_deltas`,
+/// W2-3 flat zero-copy `write_helpers_w16_cols` + optional bounded async `munmap` (`HL_HOST_FAST_ASYNC_DROP`),
+/// W2-4 structural `SlotPipeKey` cache + skip CPU-slot IR/MSL + `PUB_GEN_ROPE`/`SC_ZS`,
+/// W2-6 4-row L1-tiled NEON `accuracy_fold` + `CheckedPublic` zero-pad skip + `SC_SCORE`/`SC_PV` fast fold,
+/// W2-7 reuse `MetalCommit.pads` GPU buf + parallel `mask_open` + parallel `gather` readback,
+/// W2-8 fused 2-row `mask_eval_eq` + drop tiny rayon barriers.
+/// Changes zero proof bytes, zero RNG draw order, and zero refusal semantics.
+static HOST_FAST_W2_TEST: AtomicUsize = AtomicUsize::new(0);
+static HOST_FAST_ASYNC_DROP_TEST: AtomicUsize = AtomicUsize::new(0);
+
+/// Per-component Wave 2 anti-vacuity hit counters:
+/// [0: W2_2_SEAL_HIST, 1: W2_2_TWOTERM_EXP, 2: W2_3_FLAT_W16, 3: W2_3_ASYNC_DROP,
+///  4: W2_4_PIPE_CACHE, 5: W2_4_PUB_GEN_ROPE, 6: W2_6_FOLD_TILED, 7: W2_7_PADS_REUSE,
+///  8: W2_7_PAR_OPEN, 9: W2_8_MASK_EVAL]
+static HOST_FAST_W2_HITS: [AtomicU64; 10] = [
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+];
+/// Per-component Wave 2 fallback counters when `HL_HOST_FAST_W2=1` is active:
+/// [0: W2_FB_SEAL_HIST, 1: W2_FB_FLAT_W16, 2: W2_FB_PIPE_CACHE, 3: W2_FB_ROPE_GEN, 4: W2_FB_PADS_REUSE]
+static HOST_FAST_W2_FALLBACKS: [AtomicU64; 5] = [
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+];
+static HOST_FAST_W2_FB_LOGGED: [AtomicBool; 5] = [
+    AtomicBool::new(false),
+    AtomicBool::new(false),
+    AtomicBool::new(false),
+    AtomicBool::new(false),
+    AtomicBool::new(false),
+];
+
+pub const HF_W2_SEAL_HIST: usize = 0;
+pub const HF_W2_TWOTERM_EXP: usize = 1;
+pub const HF_W2_FLAT_W16: usize = 2;
+pub const HF_W2_ASYNC_DROP: usize = 3;
+pub const HF_W2_PIPE_CACHE: usize = 4;
+pub const HF_W2_PUB_GEN_ROPE: usize = 5;
+pub const HF_W2_FOLD_TILED: usize = 6;
+pub const HF_W2_PADS_REUSE: usize = 7;
+pub const HF_W2_PAR_OPEN: usize = 8;
+pub const HF_W2_MASK_EVAL: usize = 9;
+
+pub const HF_W2_FB_SEAL_HIST: usize = 0;
+pub const HF_W2_FB_FLAT_W16: usize = 1;
+pub const HF_W2_FB_PIPE_CACHE: usize = 2;
+pub const HF_W2_FB_ROPE_GEN: usize = 3;
+pub const HF_W2_FB_PADS_REUSE: usize = 4;
+
+pub fn host_fast_w2_on() -> bool {
+    match HOST_FAST_W2_TEST.load(Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => {
+            static ENV: OnceLock<bool> = OnceLock::new();
+            *ENV.get_or_init(|| std::env::var("HL_HOST_FAST_W2").map(|v| v == "1").unwrap_or(false))
+        }
+    }
+}
+
+#[cfg(test)]
+pub fn set_host_fast_w2_for_test(on: Option<bool>) -> Option<bool> {
+    let v = match on {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    match HOST_FAST_W2_TEST.swap(v, Ordering::Relaxed) {
+        1 => Some(false),
+        2 => Some(true),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+pub fn host_fast_w2_for_test() -> bool {
+    host_fast_w2_on()
+}
+
+/// Optional async `munmap` sub-switch (`HL_HOST_FAST_ASYNC_DROP`): defaults to `host_fast_w2_on()`
+/// unless explicitly forced `0` or `1` via env or `set_host_fast_async_drop_for_test`.
+pub fn host_fast_async_drop_on() -> bool {
+    if !host_fast_w2_on() {
+        return false;
+    }
+    match HOST_FAST_ASYNC_DROP_TEST.load(Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => {
+            static ENV: OnceLock<Option<bool>> = OnceLock::new();
+            match *ENV.get_or_init(|| match std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() {
+                Ok("1") => Some(true),
+                Ok("0") => Some(false),
+                _ => None,
+            }) {
+                Some(b) => b,
+                None => host_fast_w2_on(),
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+pub fn set_host_fast_async_drop_for_test(on: Option<bool>) -> Option<bool> {
+    let v = match on {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    match HOST_FAST_ASYNC_DROP_TEST.swap(v, Ordering::Relaxed) {
+        1 => Some(false),
+        2 => Some(true),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+pub fn host_fast_async_drop_for_test() -> bool {
+    host_fast_async_drop_on()
+}
+
+#[inline]
+pub fn record_host_fast_w2_hit(idx: usize) {
+    HOST_FAST_W2_HITS[idx].fetch_add(1, Ordering::Relaxed);
+}
+
+pub fn record_host_fast_w2_fallback(idx: usize, reason: &str) {
+    HOST_FAST_W2_FALLBACKS[idx].fetch_add(1, Ordering::Relaxed);
+    if !HOST_FAST_W2_FB_LOGGED[idx].swap(true, Ordering::Relaxed) {
+        eprintln!("[ZK60-HOST-FAST-W2] fallback ({reason})");
+    }
+}
+
+pub fn host_fast_w2_hits_for_test() -> [u64; 10] {
+    std::array::from_fn(|i| HOST_FAST_W2_HITS[i].load(Ordering::Relaxed))
+}
+
+pub fn host_fast_w2_fallbacks_for_test() -> [u64; 5] {
+    std::array::from_fn(|i| HOST_FAST_W2_FALLBACKS[i].load(Ordering::Relaxed))
+}
+
 // ===========================================================================
 // [UPERF3-AM] THE STATEMENT HEADER: WHICH PRIVACY CLAIM, AND WHAT IS CLAIMED
 // ABOUT THE OUTPUT.
@@ -803,12 +956,118 @@ pub fn mask_open(mc: &MaskCommit, functionals: &[MaskFunctional], ntt: &NttTable
     // evaluation domain (2S + 2 size-1024 NTTs instead of 12S), then run two 1024-IFFTs
     // and unscale by (7^-1)^i: exact and bit-identical to summing poly_mul_512 term-by-term.
     let (pows, inv_pows) = mask_coset_tables();
+    let seven = Fp::new(7);
+    if host_fast_w2_on() && mc.masks.len() > 1 {
+        record_host_fast_w2_hit(HF_W2_PAR_OPEN);
+        let active: Vec<usize> = (0..mc.masks.len())
+            .filter(|&s| ws[s].iter().any(|w| w.c0.0 != 0 || w.c1.0 != 0))
+            .collect();
+        let q: Vec<Fp2> = if !active.is_empty() {
+            let terms: Vec<(Vec<Fp>, Vec<Fp>)> = active
+                .par_iter()
+                .map(|&s| {
+                    let mut w_re = vec![Fp::ZERO; m2];
+                    let mut w_im = vec![Fp::ZERO; m2];
+                    for (i, w) in ws[s].iter().enumerate() {
+                        w_re[i] = w.c0;
+                        w_im[i] = w.c1;
+                    }
+                    ntt.inverse(&mut w_re[..m]);
+                    ntt.inverse(&mut w_im[..m]);
+                    for i in 0..m {
+                        let p = pows[i];
+                        w_re[i] = w_re[i].mul(p);
+                        w_im[i] = w_im[i].mul(p);
+                    }
+                    ntt.forward(&mut w_re);
+                    ntt.forward(&mut w_im);
+                    let enc_re = &mc.encoded[(2 * s) * dom..(2 * s + 1) * dom];
+                    let enc_im = &mc.encoded[(2 * s + 1) * dom..(2 * s + 2) * dom];
+                    debug_assert_eq!(
+                        enc_re[0],
+                        mc.a_coefs[2 * s].iter().enumerate().fold(Fp::ZERO, |acc, (i, &c)| acc.add(c.mul(pows[i]))),
+                        "MaskCommit invariant violated: encoded a_re row does not match coset-7 eval of a_coefs at j=0"
+                    );
+                    debug_assert_eq!(
+                        enc_im[0],
+                        mc.a_coefs[2 * s + 1].iter().enumerate().fold(Fp::ZERO, |acc, (i, &c)| acc.add(c.mul(pows[i]))),
+                        "MaskCommit invariant violated: encoded a_im row does not match coset-7 eval of a_coefs at j=0"
+                    );
+                    for j in 0..m2 {
+                        let ar = enc_re[4 * j];
+                        let ai = enc_im[4 * j];
+                        let wr = w_re[j];
+                        let wi = w_im[j];
+                        w_re[j] = ar.mul(wr).add(ai.mul(wi).mul(seven));
+                        w_im[j] = ar.mul(wi).add(ai.mul(wr));
+                    }
+                    (w_re, w_im)
+                })
+                .collect();
+            let mut acc_re = vec![Fp::ZERO; m2];
+            let mut acc_im = vec![Fp::ZERO; m2];
+            for (tr_re, tr_im) in &terms {
+                for j in 0..m2 {
+                    acc_re[j] = acc_re[j].add(tr_re[j]);
+                    acc_im[j] = acc_im[j].add(tr_im[j]);
+                }
+            }
+            rayon::join(|| ntt.inverse(&mut acc_re), || ntt.inverse(&mut acc_im));
+            (0..m2)
+                .map(|i| {
+                    let ip = inv_pows[i];
+                    Fp2::new(acc_re[i].mul(ip).add(mc.b.0[i]), acc_im[i].mul(ip).add(mc.b.1[i]))
+                })
+                .collect()
+        } else {
+            (0..m2).map(|i| Fp2::new(mc.b.0[i], mc.b.1[i])).collect()
+        };
+        tr.absorb_fp2(b"mask-q", &q);
+        // the proximity combination: sum_rows r_row p_row + u (Fp2), 1024 coefficients
+        let n_a = 2 * mc.masks.len();
+        let n_rows = n_a + 2;
+        let rs = tr.challenge_fp2_vec(n_rows);
+        let rb0 = rs[n_a];
+        let rb1 = rs[n_a + 1];
+        let mut prox: Vec<Fp2> = (0..m2).map(|i| Fp2::new(mc.u.0[i], mc.u.1[i])).collect();
+        prox.par_chunks_mut(64).enumerate().for_each(|(ci, chunk)| {
+            let base = ci * 64;
+            for (row, r) in rs[..n_a].iter().enumerate() {
+                let coeffs = &mc.a_coefs[row];
+                let a_end = (base + chunk.len()).min(coeffs.len());
+                if base < a_end {
+                    for k in 0..(a_end - base) {
+                        chunk[k] = chunk[k].add(r.mul_base(coeffs[base + k]));
+                    }
+                }
+            }
+            for (k, p) in chunk.iter_mut().enumerate() {
+                let i = base + k;
+                if i < mc.b.0.len() {
+                    *p = p.add(rb0.mul_base(mc.b.0[i]));
+                }
+                if i < mc.b.1.len() {
+                    *p = p.add(rb1.mul_base(mc.b.1[i]));
+                }
+            }
+        });
+        tr.absorb_fp2(b"mask-prox", &prox);
+        let idx = tr.challenge_indices(MASK_Q, dom);
+        let n_base = 2 * mc.masks.len() + 4;
+        let columns = idx
+            .par_iter()
+            .map(|&j| {
+                let col: Vec<Fp> = (0..n_base).map(|r| mc.encoded[r * dom + j]).collect();
+                (j, col, mc.salts[j], mc.tree.path(j))
+            })
+            .collect();
+        return MaskOpening { q, prox, columns };
+    }
     let mut acc_re = vec![Fp::ZERO; m2];
     let mut acc_im = vec![Fp::ZERO; m2];
     let mut w_re = vec![Fp::ZERO; m2];
     let mut w_im = vec![Fp::ZERO; m2];
     let mut any_nonzero = false;
-    let seven = Fp::new(7);
     for s in 0..mc.masks.len() {
         if ws[s].iter().all(|w| w.c0.0 == 0 && w.c1.0 == 0) {
             continue;
@@ -2319,7 +2578,80 @@ mod tests {
         }
     }
 
+    #[test]
+    fn host_fast_w2_par_mask_open_matches_baseline() {
+        let _lock = host_fast_test_lock();
+        struct Reset(Option<bool>);
+        impl Drop for Reset {
+            fn drop(&mut self) {
+                set_host_fast_w2_for_test(self.0);
+            }
+        }
+        let _guard = Reset(set_host_fast_w2_for_test(Some(false)));
 
+        let ntt = NttTables::new(MASK_LOG_DOM);
+        // 23 masks matching private-block scale, with a mix of active, multi-term, and unused masks
+        let specs: Vec<(usize, usize)> = (0..23).map(|i| (10 + (i % 6), 2 + (i % 3))).collect();
+        let mut rng = ZkRng::new(20261123, b"host-fast-w2-par-mask-open");
+        let mc = mask_commit(&specs, &ntt, &mut rng);
+
+        // Build functionals covering active masks (some appearing in multiple functionals) while leaving
+        // mask indices 3 and 17 zero-weighted to exercise the active/skipped filter.
+        let mut functionals = Vec::new();
+        for (s, &(nv, deg)) in specs.iter().enumerate() {
+            if s == 3 || s == 17 {
+                continue;
+            }
+            let len = CfsMask::len(nv, deg);
+            let w: Vec<Fp2> = (0..len)
+                .map(|j| Fp2::new(Fp::new(((s * 997 + j * 31 + 7) as u64) % 100_003), Fp::new(((s * 571 + j * 19 + 3) as u64) % 100_003)))
+                .collect();
+            let val = mc.masks[s]
+                .coeffs
+                .iter()
+                .zip(w.iter())
+                .fold(Fp2::ZERO, |acc, (c, x)| acc.add(c.mul(*x)));
+            functionals.push(MaskFunctional { terms: vec![(s, w)], value: val });
+        }
+        // Add a two-term Gamma-style functional spanning masks 0 and 1
+        {
+            let w0: Vec<Fp2> = (0..CfsMask::len(specs[0].0, specs[0].1))
+                .map(|j| Fp2::new(Fp::new((j as u64) + 11), Fp::new((j as u64) + 29)))
+                .collect();
+            let w1: Vec<Fp2> = (0..CfsMask::len(specs[1].0, specs[1].1))
+                .map(|j| Fp2::new(Fp::new((j as u64) + 43), Fp::new((j as u64) + 59)))
+                .collect();
+            let v0 = mc.masks[0].coeffs.iter().zip(&w0).fold(Fp2::ZERO, |a, (c, x)| a.add(c.mul(*x)));
+            let v1 = mc.masks[1].coeffs.iter().zip(&w1).fold(Fp2::ZERO, |a, (c, x)| a.add(c.mul(*x)));
+            functionals.push(MaskFunctional { terms: vec![(0, w0), (1, w1)], value: v0.add(v1) });
+        }
+
+        for case in [&functionals[..], &[][..]] {
+            set_host_fast_w2_for_test(Some(false));
+            let mut tr0 = Transcript::new(b"w2-par-mask-open");
+            let op0 = mask_open(&mc, case, &ntt, &mut tr0);
+            let mut b0 = Vec::new();
+            op0.write_bytes(&mut b0);
+
+            set_host_fast_w2_for_test(Some(true));
+            let hb = host_fast_w2_hits_for_test();
+            let mut tr1 = Transcript::new(b"w2-par-mask-open");
+            let op1 = mask_open(&mc, case, &ntt, &mut tr1);
+            let ha = host_fast_w2_hits_for_test();
+            let mut b1 = Vec::new();
+            op1.write_bytes(&mut b1);
+
+            assert!(ha[HF_W2_PAR_OPEN] > hb[HF_W2_PAR_OPEN], "expected HF_W2_PAR_OPEN hit");
+            assert_eq!(op1.q, op0.q, "mask_open q mismatch");
+            assert_eq!(op1.prox, op0.prox, "mask_open prox mismatch");
+            assert_eq!(op1.columns, op0.columns, "mask_open columns mismatch");
+            assert_eq!(b1, b0, "mask_open serialized bytes mismatch");
+            assert_eq!(tr1.state(), tr0.state(), "mask_open transcript state mismatch");
+
+            let mut tv = Transcript::new(b"w2-par-mask-open");
+            mask_verify(&mc.tree.root(), &specs, case, &op1, &ntt, &mut tv).expect("mask_verify failed on parallel mask_open");
+        }
+    }
 }
 
 

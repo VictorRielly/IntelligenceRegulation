@@ -3763,7 +3763,7 @@ fn a18_check_direct(fix: &A18Fix) -> String {
     let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { &eout.data[..] } else { bounds[k].data() }).collect();
     let blocks = RepeatBlock::new(&fix.blk, l);
     let checked = preflight(&st, &blocks, true).expect("the preflight passes");
-    let late = ForkCtx { stages: Stages::Run(&fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr: &fr, checked: &checked, roots: &roots, in_data, out_data, binding }) };
+    let late = ForkCtx { stages: Stages::Run(&fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr: &fr, checked: &checked, roots: &roots, in_data, out_data, binding, sealed_hists: &[] }) };
     let early = ForkCtx { stages: Stages::Run(&fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
     let whole: Vec<ForkOut> = (0..l).map(|k| a18_whole_out(late.prove_one(k, fix.witness(k)).unwrap())).collect();
     let mut sizes = Vec::new();
@@ -3824,7 +3824,7 @@ fn a18_recompute_interior(fr: &ForkRun, fix: &A18Fix, rc: &ForkReceipt, parked_i
     let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { none } else { bounds[k].data() }).collect();
     let blocks = RepeatBlock::new(&fix.blk, l);
     let checked = preflight(fr.st, &blocks, true).expect("the preflight passes");
-    let late = ForkCtx { stages: Stages::Run(fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr: fr, checked: &checked, roots: &roots, in_data, out_data, binding }) };
+    let late = ForkCtx { stages: Stages::Run(fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr: fr, checked: &checked, roots: &roots, in_data, out_data, binding, sealed_hists: &[] }) };
     let early = ForkCtx { stages: Stages::Run(fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
     let p3 = a18_pool(3);
     for k in 1..l - 1 {
@@ -4027,7 +4027,7 @@ fn a19_interior_forks_whole(fr: &ForkRun, blocks: &dyn ForkBlocks, planes: &[Vec
     let in_data: Vec<&[Fp]> = (0..l).map(|k| if k == 0 { none } else { bounds[k - 1].data() }).collect();
     let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { none } else { bounds[k].data() }).collect();
     let checked = preflight(fr.st, blocks, true).expect("the preflight passes");
-    let late = ForkCtx { stages: Stages::Run(fr), blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr, checked: &checked, roots: &roots, in_data, out_data, binding }) };
+    let late = ForkCtx { stages: Stages::Run(fr), blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr, checked: &checked, roots: &roots, in_data, out_data, binding, sealed_hists: &[] }) };
     for k in 1..l - 1 {
         let o = a18_whole_out(late.prove_one(k, witness(k)).unwrap());
         assert!(o.bytes == rc.forks[k], "fork {k} of the receipt is not that fork proved whole");
@@ -6861,6 +6861,14 @@ mod a22 {
         /// [HOST-FAST] `hf0` / `hf1`: opt-in same-words host-gap path (`HL_HOST_FAST`);
         /// default OFF: `hf1` turns it on, `hf0` forces it off
         hf: Option<bool>,
+        /// [HOST-FAST-W2] `hw0` / `hw1`: Wave 2 opt-in same-words host-gap path (`HL_HOST_FAST_W2`);
+        /// default OFF: `hw1` turns it on, `hw0` forces it off
+        hw: Option<bool>,
+        /// [HOST-FAST-W2] `ad0` / `ad1`: optional async `munmap` dropper (`HL_HOST_FAST_ASYNC_DROP`);
+        /// defaults to `host_fast_w2_on()`: `ad1` forces it on, `ad0` forces it off
+        ad: Option<bool>,
+        /// [A7] `q0` / `q1`: Metal command queue mode (`HL_METAL_QUEUES`): `q0` shared, `q1` per-thread
+        q: Option<bool>,
     }
 
     #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
@@ -6874,7 +6882,23 @@ mod a22 {
         } else {
             panic!("HL_A22_AB: an arm starts with serve<R> or harness<R>, not {first:?}")
         };
-        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None, a23: A23Set::default(), seal: None, ba: None, frs: None, sf: None, sc: None, hf: None };
+        let mut a = A22Arm {
+            harness,
+            r: r.max(1),
+            a18: A18Arm::default(),
+            dig: None,
+            lanes: None,
+            a23: A23Set::default(),
+            seal: None,
+            ba: None,
+            frs: None,
+            sf: None,
+            sc: None,
+            hf: None,
+            hw: None,
+            ad: None,
+            q: None,
+        };
         for w in words {
             match w {
                 "ba0" => a.ba = Some(false),
@@ -6887,6 +6911,12 @@ mod a22 {
                 "sc1" => a.sc = Some(true),
                 "hf0" => a.hf = Some(false),
                 "hf1" => a.hf = Some(true),
+                "hw0" => a.hw = Some(false),
+                "hw1" => a.hw = Some(true),
+                "ad0" => a.ad = Some(false),
+                "ad1" => a.ad = Some(true),
+                "q0" => a.q = Some(false),
+                "q1" => a.q = Some(true),
                 "dig0" => a.dig = Some(false),
                 "dig1" => a.dig = Some(true),
                 "share0" => a.a23.share = Some(false),
@@ -6916,7 +6946,16 @@ mod a22 {
         assert_eq!(a22_arm("serve4").hf, None);
         assert_eq!(a22_arm("serve4+hf0").hf, Some(false));
         assert_eq!(a22_arm("serve4+hf1").hf, Some(true));
-        let combined = a22_arm("harness4+ba1+frs1+sf1+sc1+hf1");
+        assert_eq!(a22_arm("serve4").hw, None);
+        assert_eq!(a22_arm("serve4+hw0").hw, Some(false));
+        assert_eq!(a22_arm("serve4+hw1").hw, Some(true));
+        assert_eq!(a22_arm("serve4").ad, None);
+        assert_eq!(a22_arm("serve4+ad0").ad, Some(false));
+        assert_eq!(a22_arm("serve4+ad1").ad, Some(true));
+        assert_eq!(a22_arm("serve4").q, None);
+        assert_eq!(a22_arm("serve4+q0").q, Some(false));
+        assert_eq!(a22_arm("serve4+q1").q, Some(true));
+        let combined = a22_arm("harness4+ba1+frs1+sf1+sc1+hf1+hw1+ad0+q1");
         assert!(combined.harness);
         assert_eq!(combined.r, 4);
         assert_eq!(combined.ba, Some(true));
@@ -6924,6 +6963,9 @@ mod a22 {
         assert_eq!(combined.sf, Some(true));
         assert_eq!(combined.sc, Some(true));
         assert_eq!(combined.hf, Some(true));
+        assert_eq!(combined.hw, Some(true));
+        assert_eq!(combined.ad, Some(false));
+        assert_eq!(combined.q, Some(true));
     }
 
     /// [A22] one stream's clocks: each request's completion and latency (from its arrival
@@ -7091,6 +7133,8 @@ mod a22 {
             A22Stream { done, lat_arrival: lat.clone(), lat_sealing: lat, mem, usage }
         };
         let _hf_lock = crate::zk::host_fast_test_lock();
+        let own_q = crate::gpu::metal_set_queues_for_test(false);
+        crate::gpu::metal_set_queues_for_test(own_q);
         let apply = |a: &A22Arm| {
             a18_apply(&a.a18);
             set_a22_digest_ahead_for_test(a.dig);
@@ -7102,6 +7146,9 @@ mod a22 {
             crate::gpu::metal_set_sparse_fold_for_test(a.sf);
             crate::gpu::metal_set_sc_chain_fast_for_test(a.sc);
             crate::zk::set_host_fast_for_test(a.hf);
+            crate::zk::set_host_fast_w2_for_test(a.hw);
+            crate::zk::set_host_fast_async_drop_for_test(a.ad);
+            crate::gpu::metal_set_queues_for_test(a.q.unwrap_or(own_q));
         };
         let reset = || {
             a18_apply(&A18Arm::default());
@@ -7114,6 +7161,9 @@ mod a22 {
             crate::gpu::metal_set_sparse_fold_for_test(None);
             crate::gpu::metal_set_sc_chain_fast_for_test(None);
             crate::zk::set_host_fast_for_test(None);
+            crate::zk::set_host_fast_w2_for_test(None);
+            crate::zk::set_host_fast_async_drop_for_test(None);
+            crate::gpu::metal_set_queues_for_test(own_q);
         };
         // one cold request through the server (kernel compiles), verified
         let cold = serve("serve1 (cold)", 1, None, true);
@@ -7125,7 +7175,7 @@ mod a22 {
                 let (a, label) = (&arms[ai], &labels[ai]);
                 apply(a);
                 let settings = format!(
-                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}, bounds ahead {}, fused rs {}, sparse fold {}, sc chain fast {}, host fast {}",
+                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}, bounds ahead {}, fused rs {}, sparse fold {}, sc chain fast {}, host fast {}, host fast w2 {}, async drop {}, queues {}",
                     run::fork::ahead_window(),
                     a22_digest_ahead(),
                     a22_lanes(),
@@ -7136,7 +7186,10 @@ mod a22 {
                     crate::gpu::fused_rs_for_test(),
                     crate::gpu::metal_sparse_fold_for_test(),
                     crate::gpu::metal_sc_chain_fast_for_test(),
-                    crate::zk::host_fast_for_test()
+                    crate::zk::host_fast_for_test(),
+                    crate::zk::host_fast_w2_for_test(),
+                    crate::zk::host_fast_async_drop_for_test(),
+                    crate::gpu::metal_queues_for_test()
                 );
                 let s = if a.harness { harness(label, a.r, p == 0) } else { serve(label, a.r, Some(p), p == 0) };
                 reset();

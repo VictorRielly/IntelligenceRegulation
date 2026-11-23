@@ -1407,6 +1407,8 @@ struct ForkLate<'c> {
     fr: &'c ForkRun<'c>,
     /// [A17] the preflight's record of each block's passed public checks
     checked: &'c [protocol::CheckedPublic<'c>],
+    /// [W2-2] optional sealing histograms kept alongside each kept witness (`HL_HOST_FAST_W2=1`)
+    sealed_hists: &'c [Option<protocol::SealedHistograms>],
     roots: &'c [Digest],
     in_data: Vec<&'c [Fp]>,
     out_data: Vec<&'c [Fp]>,
@@ -1516,7 +1518,10 @@ impl ForkCtx<'_> {
         // [A17] the preflight's record for block `k`, used only if it is for this
         // very block object at this shape. [A18] During the sealing pass there is
         // none yet (the preflight has not run): such a part checks its block itself.
-        let hints = protocol::CoreHints { checked: self.late.as_ref().and_then(|late| late.checked.get(k)) };
+        let hints = protocol::CoreHints {
+            checked: self.late.as_ref().and_then(|late| late.checked.get(k)),
+            sealed_hists: self.late.as_ref().and_then(|late| late.sealed_hists.get(k).and_then(Option::as_ref)),
+        };
         let t = Instant::now();
         let ahead = protocol::prove_core_before_with(&ssh, &lay, blk, wit, self.ntt, &mut rng, &mut ph, &mut phases, &mut tick, hints)?;
         let p = Parked {
@@ -1569,7 +1574,7 @@ impl ForkCtx<'_> {
         let (mut ph_before, mut ph) = if sealing { (Some(ph), timing::Phases::start()) } else { (None, ph) };
         let (mut phases, mut tick) = (Vec::new(), Instant::now());
         // [A17] the preflight's record (read by the rest's registry form, [A18])
-        let hints = protocol::CoreHints { checked: late.checked.get(k) };
+        let hints = protocol::CoreHints { checked: late.checked.get(k), sealed_hists: None };
         #[cfg(test)]
         let cpu0 = thread_cpu_s();
         let t = Instant::now();
@@ -1615,14 +1620,14 @@ impl ForkCtx<'_> {
 /// `stack-prove` reaches the same prover through [`Planned::prove`].)
 #[cfg_attr(not(test), allow(dead_code))]
 pub(crate) fn prove_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize) -> Result<(ForkReceipt, ForkStats), String> {
-    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), None, None)
+    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), None, None, &[])
 }
 
 /// **A CHEATING FORK-RUN PROVER** for the D55 controls (`tamper`, and whether
 /// it forges the honest position tags where it can). Test builds only.
 #[cfg(test)]
 pub(crate) fn prove_run_with_forks_tampered(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, tamper: ForkTamper, forge_tags: bool) -> Result<(ForkReceipt, ForkStats), String> {
-    prove_forks_inner(fr, blocks, src, externals, workers, Cheat { t: Some((tamper, forge_tags)) }, None, None)
+    prove_forks_inner(fr, blocks, src, externals, workers, Cheat { t: Some((tamper, forge_tags)) }, None, None, &[])
 }
 
 /// [A13] the work one fork worker is handed: a witness (the whole fork), a
@@ -1634,7 +1639,7 @@ enum Job {
 }
 
 #[allow(clippy::too_many_arguments)]
-fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, cheat: Cheat, ahead: Option<&Slots>, at_prover: Option<&dyn Fn()>) -> Result<(ForkReceipt, ForkStats), String> {
+fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, cheat: Cheat, ahead: Option<&Slots>, at_prover: Option<&dyn Fn()>, sealed_hists: &[Option<protocol::SealedHistograms>]) -> Result<(ForkReceipt, ForkStats), String> {
     let t_all = Instant::now();
     let st = fr.st;
     let (sh, l) = (&st.rs.sh, st.rs.l);
@@ -1701,7 +1706,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     let mut outs: Vec<ForkOut> = {
         let in_data: Vec<&[Fp]> = (0..l).map(|k| if k == 0 { &ein.data[..] } else { bounds[k - 1].1.data() }).collect();
         let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { &eout.data[..] } else { bounds[k].1.data() }).collect();
-        let ctx = ForkCtx { stages: Stages::Run(fr), blocks, ntt: &ntt, cheat, late: Some(ForkLate { fr, checked: &checked, roots: &roots, in_data, out_data, binding }) };
+        let ctx = ForkCtx { stages: Stages::Run(fr), blocks, ntt: &ntt, cheat, late: Some(ForkLate { fr, checked: &checked, sealed_hists, roots: &roots, in_data, out_data, binding }) };
         let (tx, rx) = mpsc::sync_channel::<(usize, Job)>(0);
         let rx = Mutex::new(rx);
         // [A11] each worker's own rayon pool, or the global one (the default)
@@ -2300,7 +2305,7 @@ pub(crate) fn prove_run_with_forks_ahead(fr: &ForkRun, blocks: &dyn ForkBlocks, 
     if ahead.binding != fr.transcript()?.state() || ahead.blocks_at != blocks_addr(blocks) {
         return Err("D55: the before-challenge parts were made for another fork run or another blocks object".into());
     }
-    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), Some(&ahead.slots), None)
+    prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), Some(&ahead.slots), None, &[])
 }
 
 /// **[A13] ONE REQUEST: the sealing pass, each fork's before-challenge part
@@ -2334,7 +2339,7 @@ pub(crate) fn prove_run_with_forks_sealing<S: RunWitnessSource>(fr: &ForkRun, bl
             g.sealed = true;
             g.stop = failed;
         });
-        let r = sealed.and_then(|mut src| prove_forks_inner(fr, blocks, &mut src, externals, workers, Cheat::default(), Some(&slots), None));
+        let r = sealed.and_then(|mut src| prove_forks_inner(fr, blocks, &mut src, externals, workers, Cheat::default(), Some(&slots), None, &[]));
         slots.set(|g| g.stop = true);
         r
     })
@@ -2675,11 +2680,18 @@ impl Planned<'_> {
     /// (18:32Z) and Antigravity (22:16Z), `=0` or the arm word `ba0` turns it off; see the F4
     /// note above `commit_seed_domain`)
     pub(crate) fn prove_at_turn(&self, fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, at_prover: Option<&dyn Fn()>) -> Result<(ForkReceipt, ForkStats), String> {
+        self.prove_at_turn_with_hists(fr, blocks, src, externals, workers, at_prover, &[])
+    }
+
+    /// [W2-2] as [`Planned::prove_at_turn`], passing optional sealing histograms collected under
+    /// `HL_HOST_FAST_W2=1` alongside kept witnesses (reused only when `SealedHistograms::matches`).
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn prove_at_turn_with_hists(&self, fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, at_prover: Option<&dyn Fn()>, sealed_hists: &[Option<protocol::SealedHistograms>]) -> Result<(ForkReceipt, ForkStats), String> {
         self.check(fr)?;
         if self.handed() > 0 && blocks_addr(blocks) != blocks_addr(self.blocks) {
             return Err("D55: the before-challenge parts were made against another blocks object".into());
         }
-        prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), self.plan.map(|_| self.slots), at_prover)
+        prove_forks_inner(fr, blocks, src, externals, workers, Cheat::default(), self.plan.map(|_| self.slots), at_prover, sealed_hists)
     }
 }
 

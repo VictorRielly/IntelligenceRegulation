@@ -158,9 +158,168 @@ pub(super) enum Mat {
 /// products together; a bare reference to a node already materialized not counted).
 /// The A27 kernel bench (`results/zk60_a27_app_20261107/README.md`): slot 14's later
 /// rounds 43 -> 16 ms, slot 18's 31 -> 17 ms on the real Shieldstral kernels.
-pub(super) fn lin_plan(ir: &SlotIr) -> Vec<(usize, Mat)> {
+fn a27_lin_on() -> bool {
     static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-    if !*ON.get_or_init(|| std::env::var("HL_A27_LIN").map(|v| v != "0").unwrap_or(true)) {
+    *ON.get_or_init(|| std::env::var("HL_A27_LIN").map(|v| v != "0").unwrap_or(true))
+}
+
+fn a27_deg_on() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_A27_DEGREE").map(|v| v != "0").unwrap_or(true))
+}
+
+#[inline]
+fn push_coef(c: &Coef, cf: &mut Vec<Fp2>) {
+    if !matches!(c.prov, CoefProv::One) {
+        cf.push(c.value);
+    }
+}
+
+#[inline]
+fn push_product_coef(c: &Coef, cf: &mut Vec<Fp2>) {
+    if !matches!(c.prov, CoefProv::One | CoefProv::NegOne) {
+        cf.push(c.value);
+    }
+}
+
+/// **[HOST-FAST-W2 W2-4]** Zero-`String` extraction of the `cf` coefficient
+/// buffer in the exact push order of [`msl_round_kernels`] / [`node_pass`].
+#[cfg_attr(feature = "gpu-cuda", allow(dead_code))]
+pub(super) fn extract_coefs(ir: &SlotIr) -> Vec<Fp2> {
+    let mut cf = Vec::new();
+    for n in &ir.nodes {
+        match &n.body {
+            NodeBody::Affine { konst, terms } => {
+                push_coef(konst, &mut cf);
+                for (c, _) in terms {
+                    push_product_coef(c, &mut cf);
+                }
+            }
+            NodeBody::Sum { subterms } => {
+                for st in subterms {
+                    push_product_coef(&st.coef, &mut cf);
+                }
+            }
+        }
+    }
+    for t in &ir.terms {
+        push_product_coef(&t.coef, &mut cf);
+    }
+    cf
+}
+
+/// **[HOST-FAST-W2 W2-4]** Zero-allocation structural fingerprint of `ir`'s
+/// exact MSL-generating topology: `(degree, pad_on, a27_lin, a27_deg,
+/// table base-field flags, every node's id/body/coef-class/c1_is_zero/factors,
+/// every term's coef-class/c1_is_zero/wrapper/inner)`. Two `SlotIr`s with equal
+/// **[HOST-FAST-W2 W2-4]** Lossless canonical structural key of a slot's IR
+/// topology (`degree`, `pad_on`, `a27_lin_on`, `a27_deg_on`, table base-field
+/// kinds, node graph, term structure, and coefficient class / `c1.is_zero()`
+/// flags — NOT challenge values). Two slots with equal keys produce
+/// byte-for-byte identical round & materialization MSL kernels (modulo the
+/// header comment line) and equal `cf.len()`, with zero hash collisions and no
+/// protocol hash call sites.
+#[cfg_attr(feature = "gpu-cuda", allow(dead_code))]
+pub(super) fn slot_topo_key(ir: &SlotIr) -> Vec<u8> {
+    struct KeyBuf(Vec<u8>);
+    impl KeyBuf {
+        fn new() -> Self {
+            let mut v = Vec::with_capacity(256);
+            v.extend_from_slice(b"HL-W2-SLOT-TOPO-V1");
+            Self(v)
+        }
+        #[inline]
+        fn u8(&mut self, v: u8) {
+            self.0.push(v);
+        }
+        #[inline]
+        fn u16(&mut self, v: u16) {
+            self.0.extend_from_slice(&v.to_le_bytes());
+        }
+        #[inline]
+        fn u32(&mut self, v: u32) {
+            self.0.extend_from_slice(&v.to_le_bytes());
+        }
+        #[inline]
+        fn coef(&mut self, c: &Coef) {
+            let class: u8 = match c.prov {
+                CoefProv::One => 0,
+                CoefProv::NegOne => 1,
+                CoefProv::Base(_) => 2,
+                _ => 3,
+            };
+            self.u8((class << 1) | u8::from(c.value.c1.is_zero()));
+        }
+        #[inline]
+        fn factor(&mut self, f: &Factor) {
+            match *f {
+                Factor::Table(t) => {
+                    self.u8(0);
+                    self.u16(t);
+                }
+                Factor::Node(n) => {
+                    self.u8(1);
+                    self.u16(n);
+                }
+            }
+        }
+        fn finalize(self) -> Vec<u8> {
+            self.0
+        }
+    }
+
+    let mut bh = KeyBuf::new();
+    bh.u32(ir.degree as u32);
+    bh.u8(u8::from(ir.pad_on));
+    bh.u8(u8::from(a27_lin_on()));
+    bh.u8(u8::from(a27_deg_on()));
+    bh.u32(ir.tables.len() as u32);
+    for t in &ir.tables {
+        bh.u8(u8::from(t.field() == FieldKind::Base));
+    }
+    bh.u32(ir.nodes.len() as u32);
+    for n in &ir.nodes {
+        bh.u16(n.id);
+        match &n.body {
+            NodeBody::Affine { konst, terms } => {
+                bh.u8(0);
+                bh.coef(konst);
+                bh.u32(terms.len() as u32);
+                for (c, tid) in terms {
+                    bh.coef(c);
+                    bh.u16(*tid);
+                }
+            }
+            NodeBody::Sum { subterms } => {
+                bh.u8(1);
+                bh.u32(subterms.len() as u32);
+                for st in subterms {
+                    bh.coef(&st.coef);
+                    bh.u32(st.factors.len() as u32);
+                    for f in &st.factors {
+                        bh.factor(f);
+                    }
+                }
+            }
+        }
+    }
+    bh.u32(ir.terms.len() as u32);
+    for t in &ir.terms {
+        bh.coef(&t.coef);
+        bh.u32(t.wrapper.len() as u32);
+        for &w in &t.wrapper {
+            bh.u16(w);
+        }
+        bh.u32(t.inner.len() as u32);
+        for f in &t.inner {
+            bh.factor(f);
+        }
+    }
+    bh.finalize()
+}
+
+pub(super) fn lin_plan(ir: &SlotIr) -> Vec<(usize, Mat)> {
+    if !a27_lin_on() {
         return Vec::new();
     }
     let deg = ir.recompute_degrees();
@@ -240,8 +399,7 @@ pub(super) fn lin_plan(ir: &SlotIr) -> Vec<(usize, Mat)> {
 /// points. A6's census: slot 18 (and slot 14 at the rung) attains 4 of a declared
 /// 5 (`results/zk60_effplan_20261105/a7/README.md` §6). `None`: evaluate all.
 pub(super) fn evaluated_degree(ir: &SlotIr) -> Option<usize> {
-    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
-    if !*ON.get_or_init(|| std::env::var("HL_A27_DEGREE").map(|v| v != "0").unwrap_or(true)) {
+    if !a27_deg_on() {
         return None;
     }
     let attained = ir.max_term_degree();
