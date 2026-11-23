@@ -11,7 +11,11 @@
 
 The header (the `section BlkIOTop` variables and notations) is copied from RunStgShieldTopBx.lean (the private
 `bx_zero_lt_26_blk` renamed `bl_zero_lt_26_blk`).
+2026-11-22 (leg 21, ruling L63-15): `shd_hdinX_blk_zg` (the lemma at any zero-knowledge error function `εzk`) is
+written before `shd_hdinX_blk`, which becomes its instance (helper l63_zg.py).
 Usage: l63_mk_topl.py <worktree root> [--check]"""
+import importlib.util
+import os
 import sys
 
 WT = sys.argv[1]
@@ -416,7 +420,8 @@ pre = ("/-\nD63 lane L63 (2026-11-18), part 65: **the concrete top with `hLI_stg
        "  two premises ruled L63-7 (`hV131072`) and L63-8 (`hEmb`, interim). The interim forms (`hLI_stg` replaced by the\n"
        "  sum facts `hSum`, or by SIC_ZS's zero sum alone) were built on the way (iter105, iter108) and are not kept: the\n"
        "  direct proof superseded them.\n"
-       "* `shd_hdinX_blk` (not a top): `hdinX` PROVED on `decodeIn`'s existence branch (part 76).\n"
+       "* `shd_hdinX_blk` (not a top): `hdinX` PROVED on `decodeIn`'s existence branch (part 76); since ruling L63-15\n"
+       "  the instance at `refErr RunK.kinds` of `shd_hdinX_blk_zg` (the same at any zero-knowledge error function).\n"
        "* `sshC_productionReadyL_epP_blkIOd`: INTERIM (finding L63-11): blkIOl with `hdinX` narrowed to `hdinOff`\n"
        "  (the same doom off `decodeIn`'s existence branch).\n\n"
        "Only `propext`, `Classical.choice`, `Quot.sound`.\n-/\n"
@@ -424,8 +429,18 @@ pre = ("/-\nD63 lane L63 (2026-11-18), part 65: **the concrete top with `hLI_stg
        "set_option autoImplicit false\nset_option linter.constructorNameAsVariable false\n\n"
        "namespace ZK60.ProtocolClassify\n\n"
        + OPENS + "\n")
+# 2026-11-22 (leg 21, ruling L63-15): `shd_hdinX_blk_zg`, the lemma at any `εzk` (its proof reads only `O.inPub`, so
+# no premise is added), and `shd_hdinX_blk` its instance at `refErr RunK.kinds` (statement unchanged); the generic
+# `_cl` top `sshC_productionReadyL_epP_blkCl_zg` applies the generic lemma.
+_s = importlib.util.spec_from_file_location("l63_zg", os.path.join(os.path.dirname(os.path.abspath(__file__)), "l63_zg.py"))
+ZG = importlib.util.module_from_spec(_s)
+_s.loader.exec_module(ZG)
+stmtXg = ZG.generic_stmt(stmtX + "\n", "shd_hdinX_blk", hzkb=False)[:-1]
+bodyXi = ("  exact shd_hdinX_blk_zg (εzk := ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds) (hR := hR) (site := site)\n"
+          "    (kOf := kOf) (δOf := δOf) (O := O) (E0b := E0b) (hV131072 := hV131072) (hEmb := hEmb)\n")
 text = (pre + header + BASEN + "\n" + docL + stmtL + " := by\n" + bodyL
-        + "\nvariable {" + SECV + "}\n\n" + docX + stmtX + " := by\n" + bodyX
+        + "\nvariable {" + SECV + "}\n\n" + ZG.lead_generic(docX, "shd_hdinX_blk", hzkb=False) + stmtXg + " := by\n"
+        + bodyX + "\n" + ZG.lead_inst(docX, "shd_hdinX_blk", hzkb=False) + stmtX + " := by\n" + bodyXi
         + "\nvariable (" + SECV + ")\n\n" + docD + stmtD + " := by\n" + bodyD
         + "\nend BlkIOlTop\n\nend ZK60.ProtocolClassify\n")
 dst = F + "RunStgShieldTopL.lean"

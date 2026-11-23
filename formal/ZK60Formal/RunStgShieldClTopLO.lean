@@ -8,6 +8,12 @@ D63 lane L63 (2026-11-19), L63 leg 13: **THE TOP WITH `hLO_stg` DISCHARGED**. GE
   `H_out` opening's LogUp sum claim, no doomed `opA` entrant) and the zero-sum row by `shd_zsO_run` (OUTC-07 ZS from
   its slot start state, no doomed slot / `M` / `opA` entrant; the IO claims part by `ssh_trOIO_run`).
 
+Ruling L63-15 (2026-11-22, leg 21; written by `results/zk60_lean_l63_20261116/l63_zg.py`):
+`sshC_productionReadyL_epP_blkLO_zg`
+GENERIC in the zero-knowledge
+error function (`O` at any implicit `εzk`, one added premise `hzkB`, the range bound); the old names are their instances
+at `refErr RunK.kinds`, `shdP_hzk`, statements unchanged.
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunStgShieldClTopL
@@ -171,18 +177,23 @@ include hL64 in
 /-- **THE CONCRETE TOP WITH `hLO_stg` DISCHARGED** (D63 lane L63, L63 leg 13): `sshC_productionReadyL_epP_blkCl`'s
 statement with the premise `hLO_stg` REMOVED; every other binder and the conclusion are blkCl's, term for term.
 `hLO_stg` is `shd_hLO_runRN` with `OutCSum` (`shd_outcSum_run`) and the zero-sum row (`shd_zsO_run`, its IO claims by
-`ssh_trOIO_run`). Remaining lane premise: `hdoutC`; plus `hEmb` (L63-8, interim) and `hV131072` (L63-7). -/
-theorem sshC_productionReadyL_epP_blkLO
+`ssh_trOIO_run`). Remaining lane premise: `hdoutC`; plus `hEmb` (L63-8, interim) and `hV131072` (L63-7).
+**Generic in the zero-knowledge error function** (ruling L63-15): the binder `O` at any implicit `εzk`,
+with the one added premise `hzkB` (`εzk q R' ≤ εzkTarget q R'` for `q, R' ≤ 2^64`);
+`sshC_productionReadyL_epP_blkLO` is its instance at `refErr RunK.kinds`, `shdP_hzk`. -/
+theorem sshC_productionReadyL_epP_blkLO_zg
     {ι : Type}
     [Fintype ι]
     (site : (shieldS0.Tok → ℕ) → ι → Site (QB Lq) Coins shdP_K)
     (kOf : ι → ℕ)
     (δOf : ι → ℝ≥0∞)
+    {εzk : ℕ → ℕ → ℝ≥0∞}
     (O : ClassifyOpenP Rp Lq
       (shdP_runV tag key DomB hw preA preB Rp embDigest embFold bInRow wDigest bOutRow
         Pk0B check0 paths digest bndCheck)
       P (shdP_cin Hdr tag) (le64_of_le20 hL20) (shdP_hr tag hL20)
-      (shdP_honestIn tag epBase) shdP_U site kOf δOf (ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds))
+      (shdP_honestIn tag epBase) shdP_U site kOf δOf εzk)
+    (hzkB : ∀ q R', q ≤ 2 ^ 64 → R' ≤ 2 ^ 64 → εzk q R' ≤ εzkTarget q R')
     (E0b : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt shieldS0 (EpxSalt 6))
     (hV131072 : Rp.inp.V = 131072)
     (hEmb : ∀ rEmb : List Fp2, rEmb.length = 12 → (∀ a ∈ rEmb, a.Canon) → ∀ v : Fin Rp.inp.V,
@@ -206,7 +217,7 @@ theorem sshC_productionReadyL_epP_blkLO
     :
     ProductionReadyL (classifyModelP Rp) (classifyArithP Rp) ProtoUnclampedB
       (classifyLeakP Rp) εcTarget εsTarget εsTarget εzkTarget := by
-  exact sshC_productionReadyL_epP_blkCl
+  exact sshC_productionReadyL_epP_blkCl_zg (hzkB := hzkB)
     (Hdr := Hdr) (Coins := Coins) (tag := tag) (Lq := Lq) (hL20 := hL20) (hL64 := hL64) (key := key) (Rp := Rp)
     (hR := hR) (hw := hw) (hhdrFit := hhdrFit) (preA := preA) (preB := preB) (check0 := check0) (paths := paths)
     (digest := digest) (bndCheck := bndCheck) (ioIn := ioIn) (ioOut := ioOut) (checkOpening := checkOpening)
@@ -385,6 +396,50 @@ theorem sshC_productionReadyL_epP_blkLO
           hout_logs.1 hout_logs.2.1 hout_logs.2.2.1 (by show 12 ≤ 12; omega) (by show 0 < 12; omega)
           G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) hW.2 hR0
           (fun hdr core ch rs hrd => ⟨hOS, hZS hdr core ch rs hrd⟩))
+
+include hL64 in
+/-- **`sshC_productionReadyL_epP_blkLO` at the reference error function** (ruling L63-15):
+`sshC_productionReadyL_epP_blkLO_zg` at `εzk := refErr RunK.kinds`, `hzkB := shdP_hzk`; the statement is unchanged, binder for binder. -/
+theorem sshC_productionReadyL_epP_blkLO
+    {ι : Type}
+    [Fintype ι]
+    (site : (shieldS0.Tok → ℕ) → ι → Site (QB Lq) Coins shdP_K)
+    (kOf : ι → ℕ)
+    (δOf : ι → ℝ≥0∞)
+    (O : ClassifyOpenP Rp Lq
+      (shdP_runV tag key DomB hw preA preB Rp embDigest embFold bInRow wDigest bOutRow
+        Pk0B check0 paths digest bndCheck)
+      P (shdP_cin Hdr tag) (le64_of_le20 hL20) (shdP_hr tag hL20)
+      (shdP_honestIn tag epBase) shdP_U site kOf δOf (ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds))
+    (E0b : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt shieldS0 (EpxSalt 6))
+    (hV131072 : Rp.inp.V = 131072)
+    (hEmb : ∀ rEmb : List Fp2, rEmb.length = 12 → (∀ a ∈ rEmb, a.Canon) → ∀ v : Fin Rp.inp.V,
+      ((embFold rEmb).getD v Fp2.zero).toK shdP_U
+        = mleAt (fun c => algebraMap GF shdP_K (shdEpad Rp.inp v c))
+          (fun c : Fin 12 => (rEmb.getD c Fp2.zero).toK shdP_U))
+    (hdoutC : ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+      (ProtoClampedB).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ BadEvB A G →
+      ¬ OutCSat Rp.out ((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).xC
+        (A.runLog G).1.1.verdict →
+      StgDoomAtV shdP_U key DomB P0outB (fun _ => (FoB (A.run G).1.verdict).bp) 2 ((RnB).pf.off 27 + 2) OutcV.bga
+        (stgHostOut P0outB) AbsB
+        (stgFstO shdP_U shdP_hbij tag (le64_of_le20 hL20) P0outB (vdWout FoB)
+          ((RnB).pf.off 27 + (rcOutcPart (FoB 0) 256 256 1).pre) ((RnB).pf.off 27 + 2)
+          ogStage.lc ogStage.h ogStage.Q ogStage.e (OoutB).pA.rows (OoutB).pH.rows (rcOutcPart (FoB 0) 256 256 1).S (CsIOOB))
+        (sshΦO shdP_U shdP_hbij tag (le64_of_le20 hL20) P0outB FoB
+          ((RnB).pf.off 27 + (rcOutcPart (FoB 0) 256 256 1).pre) ((RnB).pf.off 27 + 2)
+          ogStage.lc ogStage.h ogStage.Q ogStage.e (OoutB).pA.rows (OoutB).pH.rows (CsIOOB))
+        sshDgO shdP_eO (ΛOcB) G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)))
+    :
+    ProductionReadyL (classifyModelP Rp) (classifyArithP Rp) ProtoUnclampedB
+      (classifyLeakP Rp) εcTarget εsTarget εsTarget εzkTarget := by
+  exact sshC_productionReadyL_epP_blkLO_zg (εzk := ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds) (hzkB := shdP_hzk)
+    (Hdr := Hdr) (Coins := Coins) (tag := tag) (Lq := Lq) (hL20 := hL20) (hL64 := hL64) (key := key) (Rp := Rp)
+    (hR := hR) (hw := hw) (hhdrFit := hhdrFit) (preA := preA) (preB := preB) (check0 := check0) (paths := paths) (digest := digest)
+    (bndCheck := bndCheck) (ioIn := ioIn) (ioOut := ioOut) (checkOpening := checkOpening) (embDigest := embDigest) (embFold := embFold) (bInRow := bInRow) (wDigest := wDigest)
+    (bOutRow := bOutRow) (P := P) (epBase := epBase) (site := site) (kOf := kOf) (δOf := δOf) (O := O) (E0b := E0b)
+    (hV131072 := hV131072) (hEmb := hEmb) (hdoutC := hdoutC)
 
 variable {tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths digest bndCheck ioIn ioOut checkOpening embDigest embFold bInRow wDigest bOutRow P epBase E0}
 

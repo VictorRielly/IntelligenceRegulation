@@ -154,6 +154,9 @@ for g in l63_mk_c.py l63_mk_defc.py l63_mk_cchain.py l63_mk_topsc.py l63_mk_topk
   echo "$g --check rc $r"
   [ $r -ne 0 ] && gch=$r
 done
+echo "== ruling L63-15: the old statements unchanged against a3588070 (l63_cmp_zg.py) =="
+python3 -I "$OUT/l63_cmp_zg.py" "$WT" a3588070
+zg=$?
 echo "== name clashes (RunStgShield*, every worktree) =="
 python3 -I "$OUT/l63_nameclash.py" "$WT" /Users/victorrielly/IntelligenceRegulation RunStgShield
 ncl=$?
@@ -192,8 +195,12 @@ echo "root: every lane and Antigravity module imported, diff exactly the $nnew n
 # 2026-11-22 (leg 20): PERF=a32421f9 (the working head the lane was fast-forwarded to; no formal/ change since
 # 0bcbda88). The coordinator's task (a) for finding L68c-1 permits two edits: CircuitBlock.lean (the new field
 # BlockPublic.Valid.act0) and RunShapeShield.lean (zeroPub_valid gains act0 := rfl); both listed in ALLOWED_MOD.
-PERF=a32421f9
-ALLOWED_MOD="formal/ZK60Formal/RunShieldBlkInst.lean formal/ZK60Formal/HonestClassifyBlock.lean formal/ZK60Formal/HonestClassifyRun.lean formal/ZK60Formal/HonestRunBlock.lean formal/ZK60Formal/HonestRunStageIn.lean formal/ZK60Formal/HonestRunStageOut.lean formal/ZK60Formal/StageVerifyExecComplete.lean formal/ZK60Formal/RunCoverStage.lean formal/ZK60Formal/CircuitBlock.lean formal/ZK60Formal/RunShapeShield.lean"
+# 2026-11-22 (leg 21): PERF=a3588070 (the working head the lane was fast-forwarded to; no formal/ change since
+# f1dace2d). Ruling L63-15 (the chain generic in the zero-knowledge error function) rewrites seven of the lane's own
+# generated files (each old top now an instance of its `_zg` version, statement unchanged): listed in ALLOWED_MOD;
+# l63_cmp_zg.py checks the old statements, include lines, variable blocks and notations against a3588070.
+PERF=a3588070
+ALLOWED_MOD="formal/ZK60Formal/RunStgShieldTopL.lean formal/ZK60Formal/RunStgShieldClBlkLu.lean formal/ZK60Formal/RunStgShieldClBx.lean formal/ZK60Formal/RunStgShieldClTopL.lean formal/ZK60Formal/RunStgShieldClTopLO.lean formal/ZK60Formal/RunStgShieldClTopOC.lean formal/ZK60Formal/RunStgShieldClTopEF.lean formal/ZK60Formal/RunShieldBlkInst.lean formal/ZK60Formal/HonestClassifyBlock.lean formal/ZK60Formal/HonestClassifyRun.lean formal/ZK60Formal/HonestRunBlock.lean formal/ZK60Formal/HonestRunStageIn.lean formal/ZK60Formal/HonestRunStageOut.lean formal/ZK60Formal/StageVerifyExecComplete.lean formal/ZK60Formal/RunCoverStage.lean formal/ZK60Formal/CircuitBlock.lean formal/ZK60Formal/RunShapeShield.lean"
 fromperf=$(git -C "$WT" diff --name-only --diff-filter=MDR $BASE $PERF -- formal ops src | grep -v '^formal/ZK60Formal.lean$')
 echo "existing files under formal/, ops/, src/ modified by the working branch between $BASE and $PERF (from the merge; root excluded): $(echo $fromperf | wc -w | tr -d ' ')"
 for f in $fromperf; do echo "  merged: $f"; done
@@ -296,13 +303,13 @@ gab=1
 grep -q '^RunAbsCheck: 29 checks, 0 failed$' "$OUT/abs_regression.log" && gab=0
 echo "earlier corpus checkers: rc $cbi/$cba/$crh/$ccg/$cab verdicts $gbi/$gba/$grh/$gcg/$gab (BlockInst 82, BlockAlg 56, R13HostExport 210, CloseBGeo 24, Abs 29; 0 = the committed count with 0 failed)"
 echo "total $(( $(date +%s) - start )) s"
-echo "VERDICT inputs: rootbuild rc $rrc, root warnings $rbw, root error lines $rbe, module builds rc $brc, module warnings $nwp, axioms rc $arc, audited $na of $ng, sorryAx $nsa, ofReduceBool $nrb, other axioms $oth, non-report lines $nel, blkAlive rc $abrc reports $nba of $nbx non-report $nbal other axioms $oba, L62 top rc $a62rc reports $n62 non-report $n62l other axioms $o62, source scan $scan, generators $gch, name clashes $ncl, Statements/unchanged $unch, root diff ok $rootok, modified existing files $nmod, regressions rc $c6/$c5/$c11/$c1/$cic verdicts $g6/$g5/$g11/$g1/$gic, earlier corpus checkers rc $cbi/$cba/$crh/$ccg/$cab verdicts $gbi/$gba/$grh/$gcg/$gab"
+echo "VERDICT inputs: rootbuild rc $rrc, root warnings $rbw, root error lines $rbe, module builds rc $brc, module warnings $nwp, axioms rc $arc, audited $na of $ng, sorryAx $nsa, ofReduceBool $nrb, other axioms $oth, non-report lines $nel, blkAlive rc $abrc reports $nba of $nbx non-report $nbal other axioms $oba, L62 top rc $a62rc reports $n62 non-report $n62l other axioms $o62, source scan $scan, generators $gch, old statements $zg, name clashes $ncl, Statements/unchanged $unch, root diff ok $rootok, modified existing files $nmod, regressions rc $c6/$c5/$c11/$c1/$cic verdicts $g6/$g5/$g11/$g1/$gic, earlier corpus checkers rc $cbi/$cba/$crh/$ccg/$cab verdicts $gbi/$gba/$grh/$gcg/$gab"
 [ $rrc -eq 0 ] && [ "$rbw" -eq 0 ] && [ "$rbe" -eq 0 ] \
   && [ $brc -eq 0 ] && [ "$nwp" -eq 0 ] && [ $arc -eq 0 ] && [ "$na" -eq "$ng" ] && [ "$nsa" -eq 0 ] \
   && [ "$nrb" -eq 0 ] && [ "$oth" -eq 0 ] && [ "$nel" -eq 0 ] \
   && [ $abrc -eq 0 ] && [ "$nba" -eq "$nbx" ] && [ "$nbal" -eq 0 ] && [ "$oba" -eq 0 ] \
   && [ $a62rc -eq 0 ] && [ "$n62" -eq 1 ] && [ "$n62l" -eq 0 ] && [ "$o62" -eq 0 ] \
-  && [ $scan -eq 0 ] && [ $gch -eq 0 ] && [ $ncl -eq 0 ] \
+  && [ $scan -eq 0 ] && [ $gch -eq 0 ] && [ $zg -eq 0 ] && [ $ncl -eq 0 ] \
   && [ $unch -eq 0 ] && [ $rootok -eq 0 ] && [ "$nmod" -eq 0 ] \
   && [ $c6 -eq 0 ] && [ $c5 -eq 0 ] && [ $c11 -eq 0 ] && [ $c1 -eq 0 ] && [ $cic -eq 0 ] \
   && [ $g6 -eq 0 ] && [ $g5 -eq 0 ] && [ $g11 -eq 0 ] && [ $g1 -eq 0 ] && [ $gic -eq 0 ] \

@@ -7,8 +7,17 @@ never edited): the section of `sshC_productionReadyL_epP_blkCl` (variables, nota
 `hLO_stg` REMOVED (nothing else changed, same order, same conclusion), proved by blkCl with `hLO_stg` given by
 `shd_hLO_runRN` (RunStgShieldOutAtN), the sum facts `shd_outcSum_run` (RunStgShieldOutSum) and `shd_zsO_run`
 (RunStgShieldOutZSRun, its IO claims part by `ssh_trOIO_run`).
+2026-11-22 (leg 21, ruling L63-15): the source theorem is read from its instance (statement unchanged) and the
+written theorem becomes `X_zg` (generic in the zero-knowledge error function, one added premise `hzkB`) plus `X`,
+its instance at `refErr RunK.kinds` (helper l63_zg.py).
 Usage: l63_mk_lo.py <worktree root> [--check]"""
+import importlib.util
+import os
 import sys
+
+_s = importlib.util.spec_from_file_location("l63_zg", os.path.join(os.path.dirname(os.path.abspath(__file__)), "l63_zg.py"))
+ZG = importlib.util.module_from_spec(_s)
+_s.loader.exec_module(ZG)
 
 WT = sys.argv[1]
 CHECK = "--check" in sys.argv
@@ -212,7 +221,8 @@ def gen():
     sect = src[s0:d0].replace("section BlkIOlTop\n", "section BlkLOTop\n")
     # the theorem statement
     t0 = one(src, "theorem " + OLD + "\n")
-    t1 = src.find("  exact sshC_productionReadyL_epP_blkIOv_cl\n", t0)
+    t1 = src.find("  exact " + OLD + ZG.SUF + " (εzk := ", t0)
+    assert t1 > t0
     stmt = src[t0:t1]
     stmt = stmt.replace("theorem " + OLD + "\n", "theorem " + NEW + "\n")
     h0 = one(stmt, "    (hLO_stg :")
@@ -249,7 +259,8 @@ def gen():
            "lane premise: `hdoutC`; plus `hEmb` (L63-8, interim) and `hV131072` (L63-7). -/\n")
     out = HEADER + prelude + sect + doc + stmt + proof + tail
     out = out.replace(PRIV_OLD, PRIV_NEW)
-    return out
+    out = ZG.apply(out, NEW, [("  exact " + OLD + "\n", "  exact " + OLD + ZG.SUF + " (hzkB := hzkB)\n")])
+    return ZG.header_note(out, [NEW])
 
 
 def main():

@@ -8,9 +8,18 @@ the run-data parameter `embFold` (a section variable of blkOC) is no longer a va
 replaced by the concrete fold `embFoldL Rp.inp` (RunStgShieldEmbFold: `mle::eval_mle_base` of each padded embedding
 row against `eq_table_msb(r)`), and the binder `hEmb` is REMOVED; nothing else changes (same order, same conclusion
 text). `hEmb` is `embFoldL_hEmb shdP_U shdP_hU Rp.inp O.inPub`.
+2026-11-22 (leg 21, ruling L63-15): the source theorem is read from its instance (statement unchanged) and the
+written theorem becomes `X_zg` (generic in the zero-knowledge error function, one added premise `hzkB`) plus `X`,
+its instance at `refErr RunK.kinds` (helper l63_zg.py).
 Usage: l63_mk_ef.py <worktree root> [--check]"""
 import re
+import importlib.util
+import os
 import sys
+
+_s = importlib.util.spec_from_file_location("l63_zg", os.path.join(os.path.dirname(os.path.abspath(__file__)), "l63_zg.py"))
+ZG = importlib.util.module_from_spec(_s)
+_s.loader.exec_module(ZG)
 
 WT = sys.argv[1]
 CHECK = "--check" in sys.argv
@@ -77,7 +86,8 @@ def gen():
     sect = subst_fold(sect.replace(VARDECL, ""))
     # the theorem statement
     t0 = one(src, "theorem " + OLD + "\n")
-    t1 = src.find("  exact sshC_productionReadyL_epP_blkLO\n", t0)
+    t1 = src.find("  exact " + OLD + ZG.SUF + " (εzk := ", t0)
+    assert t1 > t0
     stmt = src[t0:t1]
     stmt = stmt.replace("theorem " + OLD + "\n", "theorem " + NEW + "\n")
     h0 = one(stmt, "    (hEmb :")
@@ -114,7 +124,8 @@ def gen():
            "`hV131072` (L63-7); no lane premise is left. -/\n")
     out = HEADER + prelude + sect + doc + stmt + proof + tail
     out = out.replace(PRIV_OLD, PRIV_NEW)
-    return out
+    out = ZG.apply(out, NEW, [("  exact " + OLD + "\n", "  exact " + OLD + ZG.SUF + " (hzkB := hzkB)\n")])
+    return ZG.header_note(out, [NEW])
 
 
 def main():

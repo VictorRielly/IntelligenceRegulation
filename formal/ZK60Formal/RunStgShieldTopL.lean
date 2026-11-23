@@ -8,7 +8,8 @@ its `section BlkIOTop` variables and notations are copied (the private `bx_zero_
   two premises ruled L63-7 (`hV131072`) and L63-8 (`hEmb`, interim). The interim forms (`hLI_stg` replaced by the
   sum facts `hSum`, or by SIC_ZS's zero sum alone) were built on the way (iter105, iter108) and are not kept: the
   direct proof superseded them.
-* `shd_hdinX_blk` (not a top): `hdinX` PROVED on `decodeIn`'s existence branch (part 76).
+* `shd_hdinX_blk` (not a top): `hdinX` PROVED on `decodeIn`'s existence branch (part 76); since ruling L63-15
+  the instance at `refErr RunK.kinds` of `shd_hdinX_blk_zg` (the same at any zero-knowledge error function).
 * `sshC_productionReadyL_epP_blkIOd`: INTERIM (finding L63-11): blkIOl with `hdinX` narrowed to `hdinOff`
   (the same doom off `decodeIn`'s existence branch).
 
@@ -418,18 +419,22 @@ plane `0` is stage IN-C's doom. At each reading with every drawing define state 
 INC-00 gives `A_TOK = epUxV = tokW` on the tokens (`shd_tok_rd`, `epUxV_tokW`), SIC_QZC the BOS / template facts
 (`shd_bt_rd`), the LogUp state `InGood` (`shd_inGood_of_lu`), joined by `shd_inSat_join` with the plane at the head
 view (`bndPlanes0_head`): `shd_hdinX_gen`. OFF the branch `decodeIn` is `0` and the stage facts say nothing about
-it (finding L63-11). -/
-theorem shd_hdinX_blk
+it (finding L63-11).
+**Generic in the zero-knowledge error function** (ruling L63-15): the binder `O` at any implicit `εzk`,
+(no added premise: the proof reads only `O.inPub`);
+`shd_hdinX_blk` is its instance at `refErr RunK.kinds`. -/
+theorem shd_hdinX_blk_zg
     {ι : Type}
     [Fintype ι]
     (site : (shieldS0.Tok → ℕ) → ι → Site (QB Lq) Coins shdP_K)
     (kOf : ι → ℕ)
     (δOf : ι → ℝ≥0∞)
+    {εzk : ℕ → ℕ → ℝ≥0∞}
     (O : ClassifyOpenP Rp Lq
       (shdP_runV tag key DomB hw preA preB Rp embDigest embFold bInRow wDigest bOutRow
         Pk0B check0 paths digest bndCheck)
       P (shdP_cin Hdr tag) (le64_of_le20 hL20) (shdP_hr tag hL20)
-      (shdP_honestIn tag epBase) shdP_U site kOf δOf (ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds))
+      (shdP_honestIn tag epBase) shdP_U site kOf δOf εzk)
     (E0b : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt shieldS0 (EpxSalt 6))
     (hV131072 : Rp.inp.V = 131072)
     (hEmb : ∀ rEmb : List Fp2, rEmb.length = 12 → (∀ a ∈ rEmb, a.Canon) → ∀ v : Fin Rp.inp.V,
@@ -503,6 +508,45 @@ theorem shd_hdinX_blk
       G (fun ch => (ViB).bp (incCtx (ViB).pub ch)) 15 ((RnB).pf.off 0 + 5) (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero))
       hdr core ch rs hrd (by omega) Rp.inp (ViB).pub (shdEpad Rp.inp) ((RnB).pf.off 0 + 5) p)
     hnot
+
+/-- **`shd_hdinX_blk` at the reference error function** (ruling L63-15):
+`shd_hdinX_blk_zg` at `εzk := refErr RunK.kinds`, no premise; the statement is unchanged, binder for binder. -/
+theorem shd_hdinX_blk
+    {ι : Type}
+    [Fintype ι]
+    (site : (shieldS0.Tok → ℕ) → ι → Site (QB Lq) Coins shdP_K)
+    (kOf : ι → ℕ)
+    (δOf : ι → ℝ≥0∞)
+    (O : ClassifyOpenP Rp Lq
+      (shdP_runV tag key DomB hw preA preB Rp embDigest embFold bInRow wDigest bOutRow
+        Pk0B check0 paths digest bndCheck)
+      P (shdP_cin Hdr tag) (le64_of_le20 hL20) (shdP_hr tag hL20)
+      (shdP_honestIn tag epBase) shdP_U site kOf δOf (ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds))
+    (E0b : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt shieldS0 (EpxSalt 6))
+    (hV131072 : Rp.inp.V = 131072)
+    (hEmb : ∀ rEmb : List Fp2, rEmb.length = 12 → (∀ a ∈ rEmb, a.Canon) → ∀ v : Fin Rp.inp.V,
+      ((embFold rEmb).getD v Fp2.zero).toK shdP_U
+        = mleAt (fun c => algebraMap GF shdP_K (shdEpad Rp.inp v c))
+          (fun c : Fin 12 => (rEmb.getD c Fp2.zero).toK shdP_U)) :
+    ∀ (A : OC (QB Lq) Dig (ClsStmt Hdr × ClsReceipt)) (G : QB Lq → Dig),
+      (ProtoClampedB).verify G () (A.runLog G).1.1 (A.runLog G).1.2 = true →
+      ¬ BadEvB A G →
+      (∃ (Mg : Fin 6 → Fin (2 ^ 8) → GF) (Pd : Fin 6 → Fin 256 → GF) (S : Finset (Fin (2 ^ 11))),
+        2 ^ 11 ≤ S.card + 768 ∧ ∀ j ∈ S, ∃ o, (OpsB) (A.runLog G).2 (A.runLog G).1.1 j = some o
+          ∧ o.col = (CinB).colOf Mg Pd j) →
+      ¬ InSat Rp.inp ((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).tokW
+        (((EXTB E0b) (A.runLog G).2 (A.runLog G).1.1 (A.runLog G).1.2).planes 0) →
+      StgDoomAtV shdP_U key DomB P0inB (fun ch => (ViB).bp (incCtx (ViB).pub ch)) 15
+        ((RnB).pf.off 0 + 5) (fun _ => (Fp2.zero, Fp2.zero, Fp2.zero)) stgHostIn AbsB
+        (stgFstIC shdP_U shdP_hbij tag (le64_of_le20 hL20) P0inB (vdWin ViB)
+          ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)
+          15 ogStage.lc ogStage.h ogStage.Q ogStage.e (IinB).pA.rows (IinB).pH.rows (rcIncPart ViB 256 256).S (CsIOIB))
+        (sshΦIC shdP_U shdP_hbij tag (le64_of_le20 hL20) P0inB ViB
+          ((RnB).pf.off 0 + (rcIncPart ViB 256 256).pre) ((RnB).pf.off 0 + 5)
+          15 ogStage.lc ogStage.h ogStage.Q ogStage.e (IinB).pA.rows (IinB).pH.rows (CsIOIB))
+        sshDgI shdP_eI (ΛIcB) G (A.runLog G).2 (rtTr key DomB Lq (RnB).pf (RnB).rd G (A.run G)) := by
+  exact shd_hdinX_blk_zg (εzk := ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds) (hR := hR) (site := site)
+    (kOf := kOf) (δOf := δOf) (O := O) (E0b := E0b) (hV131072 := hV131072) (hEmb := hEmb)
 
 variable (tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths digest bndCheck ioIn ioOut checkOpening embDigest embFold bInRow wDigest bOutRow P epBase E0)
 

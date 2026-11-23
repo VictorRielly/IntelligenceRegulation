@@ -1,0 +1,140 @@
+== plan /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/plan216.txt ==
+build ZK60Formal
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeZG_after.lean
+lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeZG_use.lean
+check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/check_l63merge.sh
+== lake build ZK60Formal ==
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+Build completed successfully (3987 jobs).
+build rc 0 (5 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeZG_after.lean ==
+written after
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeZG_after.lean (8 s)
+== lean /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeZG_use.lean ==
+/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeZG_use.lean:13:51: warning: Variable name `hR'` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hR'
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+fun tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths digest bndCheck ioIn ioOut checkOpening embDigest
+    bInRow wDigest bOutRow P epBase site kOf δOf O =>
+  ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkEF_zg tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths
+    digest bndCheck ioIn ioOut checkOpening embDigest bInRow wDigest bOutRow P epBase site kOf δOf O
+    mockErr_hzk : ∀ (tag : ZK60.Exec.MTag) (Lq : ℕ) (hL20 : 2 ^ 20 ≤ Lq) (hL64 : Lq < 2 ^ 64)
+  (key : Option ZK60.Exec.Dig) (Rp : ZK60.RunShape.ClassifyRunPublicP ZK60.RunShape.Shield.shieldS0)
+  (hR : ZK60.RunShape.Shield.ShieldRun Rp) (hw : ?m.1 → ZK60.ProtocolClassify.ClsHdrW)
+  (hhdrFit : ∀ (hd : ?m.1), 64 + ((hw hd).shape.length + (hw hd).params.length + (hw hd).chunk.length + 84) ≤ Lq)
+  (preA preB : ?m.1 → Except String Unit) (check0 : ZK60.ProtocolClassify.ClsStmt ?m.1 → ℕ → Except String Unit)
+  (paths : ZK60.ProtocolClassify.ClsStmt ?m.1 → ZK60.Exec.Block.Segment → Except String Unit)
+  (digest : ZK60.ProtocolClassify.ClsStmt ?m.1 → ℕ → ZK60.Exec.Dig)
+  (bndCheck : ZK60.ProtocolClassify.ClsStmt ?m.1 → ℕ → List ZK60.Exec.Block.ZClaim → ZK60.Exec.Tr → Except String Unit)
+  (ioIn ioOut : ℕ)
+  (checkOpening :
+    (ZK60.Exec.HIn → ZK60.Exec.Dig) →
+      ZK60.Exec.Block.Cm → List ZK60.Exec.Block.ZClaim → ZK60.Exec.Tr → Except String Unit)
+  (embDigest : ZK60.Exec.Dig) (bInRow : ℕ) (wDigest : ZK60.Exec.Dig) (bOutRow : ℕ)
+  (P : ZK60.ProtocolClassify.RunP ?m.1 (ZK60.RunShape.Shield.shieldS0.Tok → ℕ) ?m.2)
+  (epBase : ?m.2 → ZK60.ProtocolClassify.EpxSalt 6)
+  (site :
+    (ZK60.RunShape.Shield.shieldS0.Tok → ℕ) →
+      ?m.8 tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths digest bndCheck ioIn ioOut checkOpening
+          embDigest bInRow wDigest bOutRow P epBase →
+        ZK60.ProtocolClassify.Site (ZK60.Exec.QB Lq) ?m.2 ZK60.ProtocolClassify.shdP_K)
+  (kOf :
+    ?m.8 tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths digest bndCheck ioIn ioOut checkOpening embDigest
+        bInRow wDigest bOutRow P epBase →
+      ℕ)
+  (δOf :
+    ?m.8 tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths digest bndCheck ioIn ioOut checkOpening embDigest
+        bInRow wDigest bOutRow P epBase →
+      ℝ≥0∞),
+  ZK60.ProtocolClassify.RunShapeP.ClassifyOpenP Rp Lq
+      (ZK60.ProtocolClassify.shdP_runV tag key ZK60.ProtocolClassify.shdP_runDomain hw preA preB Rp embDigest
+        (ZK60.ProtocolClassify.embFoldL Rp.inp) bInRow wDigest bOutRow
+        (ZK60.ProtocolClassify.shdP_Pk0 tag ioIn ioOut checkOpening Rp) check0 paths digest bndCheck)
+      P (ZK60.ProtocolClassify.shdP_cin ?m.1 tag) ⋯ ⋯ (ZK60.ProtocolClassify.shdP_honestIn tag epBase)
+      ZK60.ProtocolClassify.shdP_U site kOf δOf mockErr →
+    ∀
+      (E0b :
+        List (ZK60.Exec.QB Lq × ZK60.Exec.Dig) →
+          ZK60.ProtocolClassify.ClsStmt ?m.1 →
+            ZK60.ProtocolClassify.ClsReceipt →
+              ZK60.ProtocolClassify.RunExt ZK60.RunShape.Shield.shieldS0 (ZK60.ProtocolClassify.EpxSalt 6)),
+      Rp.inp.V = 131072 →
+        ZK60.ProductionReadyL (ZK60.RunShape.classifyModelP Rp) (ZK60.RunShape.classifyArithP Rp)
+          (ZK60.ProtocolClassify.RunShapeP.classifyProtocolUExecP Rp Lq 26 preA preB
+            (ZK60.ProtocolClassify.clsStart ZK60.ProtocolClassify.shdP_runDomain key hw)
+            (fun x => ZK60.ProtocolClassify.shdP_incV tag Rp embDigest (ZK60.ProtocolClassify.embFoldL Rp.inp) bInRow)
+            (fun x =>
+              ZK60.ProtocolClassify.rcIncGeom
+                (ZK60.ProtocolClassify.shdP_incV tag Rp embDigest (ZK60.ProtocolClassify.embFoldL Rp.inp) bInRow) 28)
+            (ZK60.ProtocolClassify.d12aBlockProf (ZK60.ProtocolClassify.shdP_Pk0 tag ioIn ioOut checkOpening Rp)
+              (ZK60.ProtocolClassify.shdP_sgeom ?m.1 (ZK60.ProtocolClassify.shdP_Pk0 tag ioIn ioOut checkOpening Rp))
+              (ZK60.ProtocolClassify.vdChk check0) paths digest (fun x => 38) (fun x => 14) bndCheck
+              (ZK60.ProtocolClassify.cbBndOpen tag 38))
+            (fun x v => ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow v)
+            (fun x => ZK60.ProtocolClassify.rcOutcGeom (ZK60.ProtocolClassify.shdP_outcV tag Rp wDigest bOutRow 0) 28) P
+            (ZK60.Exec.epTokenCommit 6 1 ZK60.ProtocolClassify.shdP_epPos_injective ZK60.ProtocolClassify.shdP_epPlace
+              (ZK60.ProtocolClassify.epxMsg 6 1 ZK60.ProtocolClassify.shdP_epPlace ZK60.ProtocolClassify.shdP_epPos) ⋯
+              ZK60.ProtocolClassify.EpxSalt.pads ZK60.ProtocolClassify.EpxSalt.salts ZK60.ProtocolClassify.EpxSalt.paths
+              ZK60.ProtocolClassify.ClsStmt.inRoot tag)
+            ⋯ ⋯ (ZK60.ProtocolClassify.shdP_honestIn tag epBase).base 768)
+          (ZK60.ProtocolClassify.RunShapeP.classifyLeakP Rp) ZK60.εcTarget ZK60.εsTarget ZK60.εsTarget ZK60.εzkTarget
+'ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkEF_zg' depends on axioms: [propext, Classical.choice, Quot.sound]
+rc 0 for /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/probeZG_use.lean (11 s)
+== check /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a8b5788916259e1b2/results/zk60_lean_l63_20261116/check_l63merge.sh ==
+check rc 0 (541 s); its log is check.log
+permitted edit (ruling L63-9 / L63-10): 450	0	formal/ZK60Formal/RunStgShieldClTopLO.lean
+permitted edit (ruling L63-9 / L63-10): 307	0	formal/ZK60Formal/RunStgShieldClTopOC.lean
+permitted edit (ruling L63-9 / L63-10): 243	0	formal/ZK60Formal/RunStgShieldClTopEF.lean
+permitted edit (ruling L63-9 / L63-10): 8	4	formal/ZK60Formal/RunShieldBlkInst.lean
+permitted edit (ruling L63-9 / L63-10): 12	10	formal/ZK60Formal/HonestClassifyBlock.lean
+permitted edit (ruling L63-9 / L63-10): 1	1	formal/ZK60Formal/HonestClassifyRun.lean
+permitted edit (ruling L63-9 / L63-10): 1	1	formal/ZK60Formal/HonestRunBlock.lean
+permitted edit (ruling L63-9 / L63-10): 2	1	formal/ZK60Formal/HonestRunStageIn.lean
+permitted edit (ruling L63-9 / L63-10): 1	1	formal/ZK60Formal/HonestRunStageOut.lean
+permitted edit (ruling L63-9 / L63-10): 29	13	formal/ZK60Formal/StageVerifyExecComplete.lean
+permitted edit (ruling L63-9 / L63-10): 3	2	formal/ZK60Formal/RunCoverStage.lean
+permitted edit (ruling L63-9 / L63-10): 10	1	formal/ZK60Formal/CircuitBlock.lean
+permitted edit (ruling L63-9 / L63-10): 1	0	formal/ZK60Formal/RunShapeShield.lean
+existing files under formal/, ops/, src/ modified, deleted or renamed since 25e70c25 (excluding the root, the merge's and the rulings' permitted edits): 0; since a3588070 (excluding the root and the permitted edits): 0
+== regression: L6Check on the committed L6 corpus ==
+L6Check: 1206 checks, 0 failed
+== regression: L5Check on the committed L5 corpus ==
+L5Check: 5553 checks, 0 failed
+== regression: L11Check on L11's committed W16R2 rung corpus ==
+L11Check: 404 checks, 0 failed
+== regression: the fixture L1 check ==
+L1 TOTAL: 101956 checks, 0 failed
+== regression: RunStgShieldInstCheck on L17's shape corpus, L49's Shieldstral export, L17's segment corpus ==
+RunStgShieldInstCheck: 158 checks, 0 failed
+RunStgShieldInstCheck: rc 0, axiom reports 10 (expected 10), other axioms 0, error/warning lines 0
+source scan of RunStgShieldInstCheck.lean: none
+regression verdicts: L6 0, L5 0, L11 0, L1 0, InstCheck 0 (0 = the committed count with 0 failed)
+== regression: BlockInstCheck (L31) on L9's and L17's corpora ==
+BlockInstCheck: 82 checks, 0 failed
+== regression: BlockAlgCheck (L36) on L17's shape corpus ==
+BlockAlgCheck: 56 checks, 0 failed
+== regression: BlockR13HostExportCheck (L49) on the Shieldstral block export ==
+checks: 210 passed, 0 failed, 14 fold tables skipped (their weights are not in this corpus)
+== regression: RunCloseBGeoCheck (L55) on L29's corpus, L49's export and the code ==
+RunCloseBGeoCheck: 24 checks, 0 failed
+== regression: RunAbsCheck (L51) on L51's corpus and the code ==
+RunAbsCheck: 29 checks, 0 failed
+earlier corpus checkers: rc 0/0/0/0/0 verdicts 0/0/0/0/0 (BlockInst 82, BlockAlg 56, R13HostExport 210, CloseBGeo 24, Abs 29; 0 = the committed count with 0 failed)
+total 530 s
+VERDICT inputs: rootbuild rc 0, root warnings 0, root error lines 0, module builds rc 0, module warnings 0, axioms rc 0, audited 594 of 594, sorryAx 0, ofReduceBool 0, other axioms 0, non-report lines 0, blkAlive rc 0 reports 31 of 31 non-report 0 other axioms 0, L62 top rc 0 reports 1 non-report 0 other axioms 0, source scan 0, generators 0, old statements 0, name clashes 0, Statements/unchanged 0, root diff ok 0, modified existing files 0, regressions rc 0/0/0/0/0 verdicts 0/0/0/0/0, earlier corpus checkers rc 0/0/0/0/0 verdicts 0/0/0/0/0
+rc 0, 541 s

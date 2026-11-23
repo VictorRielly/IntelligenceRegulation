@@ -9,6 +9,12 @@ D63 lane L63 (2026-11-20), L63 leg 16: **THE TOP WITH `hEmb` DISCHARGED**. GENER
   `embFold` replaced by the concrete fold. `hEmb` is `embFoldL_hEmb` (the `i16` bound from the binder `O`'s field
   `inPub : Rp.inp.Valid`, `U ^ 2 = 7` from `shdP_hU`).
 
+Ruling L63-15 (2026-11-22, leg 21; written by `results/zk60_lean_l63_20261116/l63_zg.py`):
+`sshC_productionReadyL_epP_blkEF_zg`
+GENERIC in the zero-knowledge
+error function (`O` at any implicit `εzk`, one added premise `hzkB`, the range bound); the old names are their instances
+at `refErr RunK.kinds`, `shdP_hzk`, statements unchanged.
+
 Only `propext`, `Classical.choice`, `Quot.sound`.
 -/
 import ZK60Formal.RunStgShieldClTopOC
@@ -172,7 +178,40 @@ include hL64 hR hhdrFit in
 /-- **THE CONCRETE TOP WITH `hEmb` DISCHARGED** (D63 lane L63, L63 leg 16): `sshC_productionReadyL_epP_blkOC`'s
 statement at the concrete embedding fold `embFoldL Rp.inp` (the run-data parameter `embFold` instantiated) with
 the premise `hEmb` REMOVED; every other binder and the conclusion are blkOC's, term for term. `hEmb` is
-`embFoldL_hEmb`. Remaining interim premise: `hV131072` (L63-7); no lane premise is left. -/
+`embFoldL_hEmb`. Remaining interim premise: `hV131072` (L63-7); no lane premise is left.
+**Generic in the zero-knowledge error function** (ruling L63-15): the binder `O` at any implicit `εzk`,
+with the one added premise `hzkB` (`εzk q R' ≤ εzkTarget q R'` for `q, R' ≤ 2^64`);
+`sshC_productionReadyL_epP_blkEF` is its instance at `refErr RunK.kinds`, `shdP_hzk`. -/
+theorem sshC_productionReadyL_epP_blkEF_zg
+    {ι : Type}
+    [Fintype ι]
+    (site : (shieldS0.Tok → ℕ) → ι → Site (QB Lq) Coins shdP_K)
+    (kOf : ι → ℕ)
+    (δOf : ι → ℝ≥0∞)
+    {εzk : ℕ → ℕ → ℝ≥0∞}
+    (O : ClassifyOpenP Rp Lq
+      (shdP_runV tag key DomB hw preA preB Rp embDigest (embFoldL Rp.inp) bInRow wDigest bOutRow
+        Pk0B check0 paths digest bndCheck)
+      P (shdP_cin Hdr tag) (le64_of_le20 hL20) (shdP_hr tag hL20)
+      (shdP_honestIn tag epBase) shdP_U site kOf δOf εzk)
+    (hzkB : ∀ q R', q ≤ 2 ^ 64 → R' ≤ 2 ^ 64 → εzk q R' ≤ εzkTarget q R')
+    (E0b : List (QB Lq × Dig) → ClsStmt Hdr → ClsReceipt → RunExt shieldS0 (EpxSalt 6))
+    (hV131072 : Rp.inp.V = 131072)
+    :
+    ProductionReadyL (classifyModelP Rp) (classifyArithP Rp) ProtoUnclampedB
+      (classifyLeakP Rp) εcTarget εsTarget εsTarget εzkTarget := by
+  exact sshC_productionReadyL_epP_blkOC_zg (hzkB := hzkB)
+    (Hdr := Hdr) (Coins := Coins) (tag := tag) (Lq := Lq) (hL20 := hL20) (hL64 := hL64) (key := key) (Rp := Rp)
+    (hR := hR) (hw := hw) (hhdrFit := hhdrFit) (preA := preA) (preB := preB) (check0 := check0) (paths := paths)
+    (digest := digest) (bndCheck := bndCheck) (ioIn := ioIn) (ioOut := ioOut) (checkOpening := checkOpening)
+    (embDigest := embDigest) (embFold := embFoldL Rp.inp) (bInRow := bInRow) (wDigest := wDigest) (bOutRow := bOutRow) (P := P)
+    (epBase := epBase) (site := site) (kOf := kOf) (δOf := δOf) (O := O) (E0b := E0b)
+    (hV131072 := hV131072)
+    (hEmb := embFoldL_hEmb shdP_U shdP_hU Rp.inp O.inPub)
+
+include hL64 hR hhdrFit in
+/-- **`sshC_productionReadyL_epP_blkEF` at the reference error function** (ruling L63-15):
+`sshC_productionReadyL_epP_blkEF_zg` at `εzk := refErr RunK.kinds`, `hzkB := shdP_hzk`; the statement is unchanged, binder for binder. -/
 theorem sshC_productionReadyL_epP_blkEF
     {ι : Type}
     [Fintype ι]
@@ -189,14 +228,11 @@ theorem sshC_productionReadyL_epP_blkEF
     :
     ProductionReadyL (classifyModelP Rp) (classifyArithP Rp) ProtoUnclampedB
       (classifyLeakP Rp) εcTarget εsTarget εsTarget εzkTarget := by
-  exact sshC_productionReadyL_epP_blkOC
+  exact sshC_productionReadyL_epP_blkEF_zg (εzk := ZK60.ZKHonest.refErr ZK60.ZKCount.RunK.kinds) (hzkB := shdP_hzk)
     (Hdr := Hdr) (Coins := Coins) (tag := tag) (Lq := Lq) (hL20 := hL20) (hL64 := hL64) (key := key) (Rp := Rp)
-    (hR := hR) (hw := hw) (hhdrFit := hhdrFit) (preA := preA) (preB := preB) (check0 := check0) (paths := paths)
-    (digest := digest) (bndCheck := bndCheck) (ioIn := ioIn) (ioOut := ioOut) (checkOpening := checkOpening)
-    (embDigest := embDigest) (embFold := embFoldL Rp.inp) (bInRow := bInRow) (wDigest := wDigest) (bOutRow := bOutRow) (P := P)
-    (epBase := epBase) (site := site) (kOf := kOf) (δOf := δOf) (O := O) (E0b := E0b)
-    (hV131072 := hV131072)
-    (hEmb := embFoldL_hEmb shdP_U shdP_hU Rp.inp O.inPub)
+    (hR := hR) (hw := hw) (hhdrFit := hhdrFit) (preA := preA) (preB := preB) (check0 := check0) (paths := paths) (digest := digest)
+    (bndCheck := bndCheck) (ioIn := ioIn) (ioOut := ioOut) (checkOpening := checkOpening) (embDigest := embDigest) (bInRow := bInRow) (wDigest := wDigest) (bOutRow := bOutRow)
+    (P := P) (epBase := epBase) (site := site) (kOf := kOf) (δOf := δOf) (O := O) (E0b := E0b) (hV131072 := hV131072)
 
 variable {tag Lq hL20 hL64 key Rp hR hw hhdrFit preA preB check0 paths digest bndCheck ioIn ioOut checkOpening embDigest bInRow wDigest bOutRow P epBase E0}
 

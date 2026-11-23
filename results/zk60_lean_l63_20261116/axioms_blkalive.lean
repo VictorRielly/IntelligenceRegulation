@@ -22,3 +22,11 @@ import ZK60Formal
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLO
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkOC
 #print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkEF
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLu_cl_zg
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIO_cl_zg
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkIOv_cl_zg
+#print axioms ZK60.ProtocolClassify.shd_hdinX_blk_zg
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkCl_zg
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkLO_zg
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkOC_zg
+#print axioms ZK60.ProtocolClassify.sshC_productionReadyL_epP_blkEF_zg

@@ -9,8 +9,17 @@ binder `hdoutC` REMOVED (nothing else changed, same order, same conclusion), pro
 extractor's `xC` to `B_out`'s verdict row at every reading (`epxIO_xC_tau`: `epxIO_xC`, `bndPlanes_tau` at `j = 26`).
 The section variables `hR` and `hhdrFit` occur in blkLO's statement only inside `hdoutC`: they are kept as binders
 (`include`), as `hL64` was by l63_mk_lo.py.
+2026-11-22 (leg 21, ruling L63-15): the source theorem is read from its instance (statement unchanged) and the
+written theorem becomes `X_zg` (generic in the zero-knowledge error function, one added premise `hzkB`) plus `X`,
+its instance at `refErr RunK.kinds` (helper l63_zg.py).
 Usage: l63_mk_oc.py <worktree root> [--check]"""
+import importlib.util
+import os
 import sys
+
+_s = importlib.util.spec_from_file_location("l63_zg", os.path.join(os.path.dirname(os.path.abspath(__file__)), "l63_zg.py"))
+ZG = importlib.util.module_from_spec(_s)
+_s.loader.exec_module(ZG)
 
 WT = sys.argv[1]
 CHECK = "--check" in sys.argv
@@ -128,7 +137,8 @@ def gen():
     sect = src[s0:d0].replace("section BlkLOTop\n", "section BlkOCTop\n")
     # the theorem statement
     t0 = one(src, "theorem " + OLD + "\n")
-    t1 = src.find("  exact sshC_productionReadyL_epP_blkCl\n", t0)
+    t1 = src.find("  exact " + OLD + ZG.SUF + " (εzk := ", t0)
+    assert t1 > t0
     stmt = src[t0:t1]
     stmt = stmt.replace("theorem " + OLD + "\n", "theorem " + NEW + "\n")
     h0 = one(stmt, "    (hdoutC :")
@@ -163,7 +173,8 @@ def gen():
            "lane premise is left. -/\n")
     out = HEADER + prelude + sect + doc + stmt + proof + tail
     out = out.replace(PRIV_OLD, PRIV_NEW)
-    return out
+    out = ZG.apply(out, NEW, [("  exact " + OLD + "\n", "  exact " + OLD + ZG.SUF + " (hzkB := hzkB)\n")])
+    return ZG.header_note(out, [NEW])
 
 
 def main():

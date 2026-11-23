@@ -20,7 +20,13 @@ each a copy of the source's sections that hold a theorem of the chain from `sshC
   R5  a new top `sshC_productionReadyL_epP_blkCl` (RunStgShieldClTopL.lean): a copy of
       `sshC_productionReadyL_epP_blkIOl` with the binder `hdinX` REMOVED and discharged by `shd_hdinX_blk` and
       `cl_agree` (= `agree_of_closeIn` at the extracted columns).
+  R6  (2026-11-22, leg 21, ruling L63-15) blkLu_cl, blkIO_cl, blkIOv_cl and blkCl each become `X_zg` (generic in the
+      zero-knowledge error function: `O` at any implicit `εzk`, one added premise `hzkB`, the range bound) followed by
+      `X`, its instance at `refErr RunK.kinds`, `shdP_hzk` with the statement unchanged (helper l63_zg.py; blkCl_zg
+      applies `shd_hdinX_blk_zg`).
 Usage: l63_mk_cl.py <worktree root> [--check]"""
+import importlib.util
+import os
 import re
 import sys
 
@@ -411,6 +417,26 @@ def top_text(txt):
     return txt
 
 
+_s = importlib.util.spec_from_file_location("l63_zg", os.path.join(os.path.dirname(os.path.abspath(__file__)), "l63_zg.py"))
+ZG = importlib.util.module_from_spec(_s)
+_s.loader.exec_module(ZG)
+
+
+def _up(name):
+    """the call of the previous chain theorem, sent to its generic version"""
+    return ("  exact " + name + "\n", "  exact " + name + ZG.SUF + " (hzkB := hzkB)\n")
+
+
+# module -> [(theorem, substitutions in its proof)], ruling L63-15 (helper l63_zg.py)
+ZG_POST = {
+    "RunStgShieldClBlkLu": [("sshC_productionReadyL_epP_blkLu_cl", [("(hzk := shdP_hzk)", "(hzk := hzkB)")])],
+    "RunStgShieldClBx": [("sshC_productionReadyL_epP_blkIO_cl", [_up("sshC_productionReadyL_epP_blkLu_cl")]),
+                         ("sshC_productionReadyL_epP_blkIOv_cl", [_up("sshC_productionReadyL_epP_blkIO_cl")])],
+    TOP_MOD: [(TOP_NEW, [_up("sshC_productionReadyL_epP_blkIOv_cl"),
+                         ("exact shd_hdinX_blk (hR := hR)", "exact shd_hdinX_blk_zg (hR := hR)")])],
+}
+
+
 def main():
     outs = {}
     prev = None
@@ -425,6 +451,12 @@ def main():
     k = txt.find("\nsection ")
     txt = txt[:k] + "\n" + AGREE.rstrip("\n") + "\n" + txt[k:]
     outs[TOP_MOD] = txt
+    # 2026-11-22 (leg 21, ruling L63-15): each chain theorem below becomes `X_zg` (generic in the zero-knowledge error
+    # function, one added premise `hzkB`) followed by `X`, its instance at `refErr RunK.kinds` (statement unchanged)
+    for mod, names in ZG_POST.items():
+        for name, subs in names:
+            outs[mod] = ZG.apply(outs[mod], name, subs)
+        outs[mod] = ZG.header_note(outs[mod], [n for n, _ in names])
     bad = 0
     for mod, t in outs.items():
         p = F + mod + ".lean"
