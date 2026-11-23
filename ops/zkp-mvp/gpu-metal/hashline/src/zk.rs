@@ -232,7 +232,9 @@ pub fn host_fast_fallbacks_for_test() -> [u64; 5] {
 /// W2-7 reuse `MetalCommit.pads` GPU buf + parallel `mask_open` + parallel `gather` readback,
 /// W2-8 fused 2-row `mask_eval_eq` + drop tiny rayon barriers.
 /// Changes zero proof bytes, zero RNG draw order, and zero refusal semantics.
+#[cfg(test)]
 static HOST_FAST_W2_TEST: AtomicUsize = AtomicUsize::new(0);
+#[cfg(test)]
 static HOST_FAST_ASYNC_DROP_TEST: AtomicUsize = AtomicUsize::new(0);
 
 /// Per-component Wave 2 anti-vacuity hit counters:
@@ -286,14 +288,14 @@ pub const HF_W2_FB_ROPE_GEN: usize = 3;
 pub const HF_W2_FB_PADS_REUSE: usize = 4;
 
 pub fn host_fast_w2_on() -> bool {
+    #[cfg(test)]
     match HOST_FAST_W2_TEST.load(Ordering::Relaxed) {
-        1 => false,
-        2 => true,
-        _ => {
-            static ENV: OnceLock<bool> = OnceLock::new();
-            *ENV.get_or_init(|| std::env::var("HL_HOST_FAST_W2").map(|v| v == "1").unwrap_or(false))
-        }
+        1 => return false,
+        2 => return true,
+        _ => {}
     }
+    static ENV: OnceLock<bool> = OnceLock::new();
+    *ENV.get_or_init(|| std::env::var("HL_HOST_FAST_W2").map(|v| v == "1").unwrap_or(false))
 }
 
 #[cfg(test)]
@@ -321,20 +323,20 @@ pub fn host_fast_async_drop_on() -> bool {
     if !host_fast_w2_on() {
         return false;
     }
+    #[cfg(test)]
     match HOST_FAST_ASYNC_DROP_TEST.load(Ordering::Relaxed) {
-        1 => false,
-        2 => true,
-        _ => {
-            static ENV: OnceLock<Option<bool>> = OnceLock::new();
-            match *ENV.get_or_init(|| match std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() {
-                Ok("1") => Some(true),
-                Ok("0") => Some(false),
-                _ => None,
-            }) {
-                Some(b) => b,
-                None => host_fast_w2_on(),
-            }
-        }
+        1 => return false,
+        2 => return true,
+        _ => {}
+    }
+    static ENV: OnceLock<Option<bool>> = OnceLock::new();
+    match *ENV.get_or_init(|| match std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() {
+        Ok("1") => Some(true),
+        Ok("0") => Some(false),
+        _ => None,
+    }) {
+        Some(b) => b,
+        None => host_fast_w2_on(),
     }
 }
 
@@ -942,6 +944,126 @@ fn mask_coset_tables() -> &'static ([Fp; 1usize << MASK_LOG_MSG], [Fp; 2usize <<
     })
 }
 
+#[allow(clippy::too_many_arguments)]
+#[inline(never)]
+fn mask_open_w2(
+    mc: &MaskCommit,
+    ws: &[Vec<Fp2>],
+    ntt: &NttTables,
+    tr: &mut Transcript,
+    m: usize,
+    m2: usize,
+    dom: usize,
+    pows: &[Fp],
+    inv_pows: &[Fp],
+    seven: Fp,
+) -> MaskOpening {
+    record_host_fast_w2_hit(HF_W2_PAR_OPEN);
+    let active: Vec<usize> = (0..mc.masks.len())
+        .filter(|&s| ws[s].iter().any(|w| w.c0.0 != 0 || w.c1.0 != 0))
+        .collect();
+    let q: Vec<Fp2> = if !active.is_empty() {
+        let terms: Vec<(Vec<Fp>, Vec<Fp>)> = active
+            .par_iter()
+            .map(|&s| {
+                let mut w_re = vec![Fp::ZERO; m2];
+                let mut w_im = vec![Fp::ZERO; m2];
+                for (i, w) in ws[s].iter().enumerate() {
+                    w_re[i] = w.c0;
+                    w_im[i] = w.c1;
+                }
+                ntt.inverse(&mut w_re[..m]);
+                ntt.inverse(&mut w_im[..m]);
+                for i in 0..m {
+                    let p = pows[i];
+                    w_re[i] = w_re[i].mul(p);
+                    w_im[i] = w_im[i].mul(p);
+                }
+                ntt.forward(&mut w_re);
+                ntt.forward(&mut w_im);
+                let enc_re = &mc.encoded[(2 * s) * dom..(2 * s + 1) * dom];
+                let enc_im = &mc.encoded[(2 * s + 1) * dom..(2 * s + 2) * dom];
+                debug_assert_eq!(
+                    enc_re[0],
+                    mc.a_coefs[2 * s].iter().enumerate().fold(Fp::ZERO, |acc, (i, &c)| acc.add(c.mul(pows[i]))),
+                    "MaskCommit invariant violated: encoded a_re row does not match coset-7 eval of a_coefs at j=0"
+                );
+                debug_assert_eq!(
+                    enc_im[0],
+                    mc.a_coefs[2 * s + 1].iter().enumerate().fold(Fp::ZERO, |acc, (i, &c)| acc.add(c.mul(pows[i]))),
+                    "MaskCommit invariant violated: encoded a_im row does not match coset-7 eval of a_coefs at j=0"
+                );
+                for j in 0..m2 {
+                    let ar = enc_re[4 * j];
+                    let ai = enc_im[4 * j];
+                    let wr = w_re[j];
+                    let wi = w_im[j];
+                    w_re[j] = ar.mul(wr).add(ai.mul(wi).mul(seven));
+                    w_im[j] = ar.mul(wi).add(ai.mul(wr));
+                }
+                (w_re, w_im)
+            })
+            .collect();
+        let mut acc_re = vec![Fp::ZERO; m2];
+        let mut acc_im = vec![Fp::ZERO; m2];
+        for (tr_re, tr_im) in &terms {
+            for j in 0..m2 {
+                acc_re[j] = acc_re[j].add(tr_re[j]);
+                acc_im[j] = acc_im[j].add(tr_im[j]);
+            }
+        }
+        rayon::join(|| ntt.inverse(&mut acc_re), || ntt.inverse(&mut acc_im));
+        (0..m2)
+            .map(|i| {
+                let ip = inv_pows[i];
+                Fp2::new(acc_re[i].mul(ip).add(mc.b.0[i]), acc_im[i].mul(ip).add(mc.b.1[i]))
+            })
+            .collect()
+    } else {
+        (0..m2).map(|i| Fp2::new(mc.b.0[i], mc.b.1[i])).collect()
+    };
+    tr.absorb_fp2(b"mask-q", &q);
+    // the proximity combination: sum_rows r_row p_row + u (Fp2), 1024 coefficients
+    let n_a = 2 * mc.masks.len();
+    let n_rows = n_a + 2;
+    let rs = tr.challenge_fp2_vec(n_rows);
+    let rb0 = rs[n_a];
+    let rb1 = rs[n_a + 1];
+    let mut prox: Vec<Fp2> = (0..m2).map(|i| Fp2::new(mc.u.0[i], mc.u.1[i])).collect();
+    prox.par_chunks_mut(64).enumerate().for_each(|(ci, chunk)| {
+        let base = ci * 64;
+        for (row, r) in rs[..n_a].iter().enumerate() {
+            let coeffs = &mc.a_coefs[row];
+            let a_end = (base + chunk.len()).min(coeffs.len());
+            if base < a_end {
+                for k in 0..(a_end - base) {
+                    chunk[k] = chunk[k].add(r.mul_base(coeffs[base + k]));
+                }
+            }
+        }
+        for (k, p) in chunk.iter_mut().enumerate() {
+            let i = base + k;
+            if i < mc.b.0.len() {
+                *p = p.add(rb0.mul_base(mc.b.0[i]));
+            }
+            if i < mc.b.1.len() {
+                *p = p.add(rb1.mul_base(mc.b.1[i]));
+            }
+        }
+    });
+    tr.absorb_fp2(b"mask-prox", &prox);
+    let idx = tr.challenge_indices(MASK_Q, dom);
+    let n_base = 2 * mc.masks.len() + 4;
+    let columns = idx
+        .par_iter()
+        .map(|&j| {
+            let col: Vec<Fp> = (0..n_base).map(|r| mc.encoded[r * dom + j]).collect();
+            (j, col, mc.salts[j], mc.tree.path(j))
+        })
+        .collect();
+    MaskOpening { q, prox, columns }
+}
+
 pub fn mask_open(mc: &MaskCommit, functionals: &[MaskFunctional], ntt: &NttTables, tr: &mut Transcript) -> MaskOpening {
     let m = 1usize << MASK_LOG_MSG;
     let m2 = 2 * m;
@@ -958,110 +1080,7 @@ pub fn mask_open(mc: &MaskCommit, functionals: &[MaskFunctional], ntt: &NttTable
     let (pows, inv_pows) = mask_coset_tables();
     let seven = Fp::new(7);
     if host_fast_w2_on() && mc.masks.len() > 1 {
-        record_host_fast_w2_hit(HF_W2_PAR_OPEN);
-        let active: Vec<usize> = (0..mc.masks.len())
-            .filter(|&s| ws[s].iter().any(|w| w.c0.0 != 0 || w.c1.0 != 0))
-            .collect();
-        let q: Vec<Fp2> = if !active.is_empty() {
-            let terms: Vec<(Vec<Fp>, Vec<Fp>)> = active
-                .par_iter()
-                .map(|&s| {
-                    let mut w_re = vec![Fp::ZERO; m2];
-                    let mut w_im = vec![Fp::ZERO; m2];
-                    for (i, w) in ws[s].iter().enumerate() {
-                        w_re[i] = w.c0;
-                        w_im[i] = w.c1;
-                    }
-                    ntt.inverse(&mut w_re[..m]);
-                    ntt.inverse(&mut w_im[..m]);
-                    for i in 0..m {
-                        let p = pows[i];
-                        w_re[i] = w_re[i].mul(p);
-                        w_im[i] = w_im[i].mul(p);
-                    }
-                    ntt.forward(&mut w_re);
-                    ntt.forward(&mut w_im);
-                    let enc_re = &mc.encoded[(2 * s) * dom..(2 * s + 1) * dom];
-                    let enc_im = &mc.encoded[(2 * s + 1) * dom..(2 * s + 2) * dom];
-                    debug_assert_eq!(
-                        enc_re[0],
-                        mc.a_coefs[2 * s].iter().enumerate().fold(Fp::ZERO, |acc, (i, &c)| acc.add(c.mul(pows[i]))),
-                        "MaskCommit invariant violated: encoded a_re row does not match coset-7 eval of a_coefs at j=0"
-                    );
-                    debug_assert_eq!(
-                        enc_im[0],
-                        mc.a_coefs[2 * s + 1].iter().enumerate().fold(Fp::ZERO, |acc, (i, &c)| acc.add(c.mul(pows[i]))),
-                        "MaskCommit invariant violated: encoded a_im row does not match coset-7 eval of a_coefs at j=0"
-                    );
-                    for j in 0..m2 {
-                        let ar = enc_re[4 * j];
-                        let ai = enc_im[4 * j];
-                        let wr = w_re[j];
-                        let wi = w_im[j];
-                        w_re[j] = ar.mul(wr).add(ai.mul(wi).mul(seven));
-                        w_im[j] = ar.mul(wi).add(ai.mul(wr));
-                    }
-                    (w_re, w_im)
-                })
-                .collect();
-            let mut acc_re = vec![Fp::ZERO; m2];
-            let mut acc_im = vec![Fp::ZERO; m2];
-            for (tr_re, tr_im) in &terms {
-                for j in 0..m2 {
-                    acc_re[j] = acc_re[j].add(tr_re[j]);
-                    acc_im[j] = acc_im[j].add(tr_im[j]);
-                }
-            }
-            rayon::join(|| ntt.inverse(&mut acc_re), || ntt.inverse(&mut acc_im));
-            (0..m2)
-                .map(|i| {
-                    let ip = inv_pows[i];
-                    Fp2::new(acc_re[i].mul(ip).add(mc.b.0[i]), acc_im[i].mul(ip).add(mc.b.1[i]))
-                })
-                .collect()
-        } else {
-            (0..m2).map(|i| Fp2::new(mc.b.0[i], mc.b.1[i])).collect()
-        };
-        tr.absorb_fp2(b"mask-q", &q);
-        // the proximity combination: sum_rows r_row p_row + u (Fp2), 1024 coefficients
-        let n_a = 2 * mc.masks.len();
-        let n_rows = n_a + 2;
-        let rs = tr.challenge_fp2_vec(n_rows);
-        let rb0 = rs[n_a];
-        let rb1 = rs[n_a + 1];
-        let mut prox: Vec<Fp2> = (0..m2).map(|i| Fp2::new(mc.u.0[i], mc.u.1[i])).collect();
-        prox.par_chunks_mut(64).enumerate().for_each(|(ci, chunk)| {
-            let base = ci * 64;
-            for (row, r) in rs[..n_a].iter().enumerate() {
-                let coeffs = &mc.a_coefs[row];
-                let a_end = (base + chunk.len()).min(coeffs.len());
-                if base < a_end {
-                    for k in 0..(a_end - base) {
-                        chunk[k] = chunk[k].add(r.mul_base(coeffs[base + k]));
-                    }
-                }
-            }
-            for (k, p) in chunk.iter_mut().enumerate() {
-                let i = base + k;
-                if i < mc.b.0.len() {
-                    *p = p.add(rb0.mul_base(mc.b.0[i]));
-                }
-                if i < mc.b.1.len() {
-                    *p = p.add(rb1.mul_base(mc.b.1[i]));
-                }
-            }
-        });
-        tr.absorb_fp2(b"mask-prox", &prox);
-        let idx = tr.challenge_indices(MASK_Q, dom);
-        let n_base = 2 * mc.masks.len() + 4;
-        let columns = idx
-            .par_iter()
-            .map(|&j| {
-                let col: Vec<Fp> = (0..n_base).map(|r| mc.encoded[r * dom + j]).collect();
-                (j, col, mc.salts[j], mc.tree.path(j))
-            })
-            .collect();
-        return MaskOpening { q, prox, columns };
+        return mask_open_w2(mc, &ws, ntt, tr, m, m2, dom, pows, inv_pows, seven);
     }
     let mut acc_re = vec![Fp::ZERO; m2];
     let mut acc_im = vec![Fp::ZERO; m2];

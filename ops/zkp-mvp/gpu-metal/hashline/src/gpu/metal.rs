@@ -3177,6 +3177,7 @@ impl CachedSlotPipes {
 /// **[HOST-FAST-W2 W2-4]** Resolve `(p0, p1, p_mat, m, de, base)` from `Ctx::slot_pipe_cache`
 /// without generating MSL strings or locking `sc_pipes`. Returns `Ok(None)` when
 /// `HL_METAL_DUMP` is set so the caller takes the verbatim dump path.
+#[inline(never)]
 pub fn slot_pipes_get_or_compile(
     topo_key: Vec<u8>,
     k: usize,
@@ -3755,6 +3756,7 @@ pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs
 
 /// **[HOST-FAST-W2 W2-4]** [`metal_rounds`] using pre-resolved [`CachedSlotPipes`]
 /// (skipping MSL generation, `sc_pipes` Mutex, and 100 KB string hashing).
+#[inline(never)]
 pub fn metal_rounds_cached(cached: &CachedSlotPipes, label: String, tables: &[Vec<Fp2>], degree: usize, coefs: &[Fp2]) -> Result<Option<MetalRounds>, String> {
     let c = ctx()?;
     if tables.is_empty() || degree == 0 {
@@ -3815,6 +3817,7 @@ pub fn metal_rounds_cached(cached: &CachedSlotPipes, label: String, tables: &[Ve
 }
 
 /// **[HOST-FAST-W2 W2-4]** [`metal_rounds_owned`] using pre-resolved [`CachedSlotPipes`].
+#[inline(never)]
 pub fn metal_rounds_owned_cached(
     cached: &CachedSlotPipes,
     label: String,
@@ -4073,15 +4076,15 @@ kernel void k_tab_pub_gen(device ulong *tabs [[buffer(0)]],
         val = (h < ulong(a.aux_a) && (h % ulong(a.aux_b)) < ulong(a.cols_live) && t < ulong(a.rows_live) && j < ulong(a.rows_live)) ? 1UL : 0UL;
     } else if (a.kind == 7u) {
         ulong dh = ulong(a.row_stride);
-        ulong half = dh >> 1;
+        ulong half_d = dh >> 1;
         ulong heads = ulong(a.aux_a);
         ulong i = x % dh;
         ulong sl = (x / dh) % heads;
         ulong t = x / (dh * heads);
         if (t < ulong(a.rows_live) && (sl % ulong(a.aux_b)) < ulong(a.cols_live)) {
-            ulong at = t * half + (i % half);
+            ulong at = t * half_d + (i % half_d);
             ulong w = aux64[ulong(a.vals_off) + at];
-            val = (a.shift != 0u && i < half) ? ((w == 0UL) ? 0UL : (0xFFFFFFFF00000001UL - w)) : w;
+            val = (a.shift != 0u && i < half_d) ? ((w == 0UL) ? 0UL : (0xFFFFFFFF00000001UL - w)) : w;
         }
     } else if (a.kind == 8u) {
         val = 1UL;
@@ -4960,7 +4963,7 @@ impl MetalRounds {
             if let Some(tk) = self.topo_key.as_ref() {
                 let key = (Arc::clone(tk), self.n_vars);
                 if let Ok(c) = ctx() {
-                    if let Some(&pe) = c.tail_per_eval.read().ok().and_then(|g| g.get(&key).copied()) {
+                    if let Some(pe) = c.tail_per_eval.read().ok().and_then(|g| g.get(&key).copied()) {
                         pe
                     } else {
                         let pe = measure_per_eval(poly, k);

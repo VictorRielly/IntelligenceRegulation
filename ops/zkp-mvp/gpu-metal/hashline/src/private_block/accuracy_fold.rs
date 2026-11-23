@@ -312,12 +312,13 @@ fn accum_4rows_chunk_neon(
     k
 }
 
-fn fold_rows_fast(
+#[allow(clippy::too_many_arguments)]
+#[inline(never)]
+fn fold_rows_fast_w2(
     matrix: &[i8],
     rows: usize,
     cols: usize,
     weighted: &[Fp2],
-    w2_tiled: bool,
     skip_pad_i8_scan: bool,
 ) -> Result<Vec<Fp2>, String> {
     use rayon::prelude::*;
@@ -362,7 +363,7 @@ fn fold_rows_fast(
         let mut min_v = unsafe { core::arch::aarch64::vdupq_n_s8(0) };
 
         #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
-        let active_rem: &[(usize, i32, i32, i32, i32)] = if w2_tiled && len >= 16 {
+        let active_rem: &[(usize, i32, i32, i32, i32)] = if len >= 16 {
             let mut quads = active_rows.chunks_exact(4);
             for q in &mut quads {
                 let r0 = &matrix[q[0].0 * cols + c0..q[0].0 * cols + c0 + len];
@@ -402,10 +403,7 @@ fn fold_rows_fast(
             &active_rows
         };
         #[cfg(not(all(target_arch = "aarch64", target_feature = "neon")))]
-        let active_rem: &[(usize, i32, i32, i32, i32)] = {
-            let _ = w2_tiled;
-            &active_rows
-        };
+        let active_rem: &[(usize, i32, i32, i32, i32)] = &active_rows;
 
         for &(i, w0l, w0h, w1l, w1h) in active_rem {
             let row = &matrix[i * cols + c0..i * cols + c0 + len];
@@ -449,6 +447,130 @@ fn fold_rows_fast(
         }
         let mut saw_min = min_scalar == i8::MIN;
         if !skip_pad_i8_scan && !saw_min && !found_min.load(Ordering::Relaxed) {
+            for &i in &zero_rows {
+                let row = &matrix[i * cols + c0..i * cols + c0 + len];
+                if slice_has_i8_min(row) {
+                    saw_min = true;
+                    break;
+                }
+            }
+        }
+        if saw_min {
+            found_min.store(true, Ordering::Relaxed);
+            return;
+        }
+        for k in 0..len {
+            let s0 = (a0l[k] as i128) + ((a0h[k] as i128) << 32);
+            let s1 = (a1l[k] as i128) + ((a1h[k] as i128) << 32);
+            oc[k] = Fp2::new(reduce_i128(s0), reduce_i128(s1));
+        }
+    };
+
+    if matrix.len() < (1 << 15) {
+        for (ci, oc) in out.chunks_mut(chunk).enumerate() {
+            run_chunk(ci, oc);
+        }
+    } else {
+        out.par_chunks_mut(chunk)
+            .enumerate()
+            .for_each(|(ci, oc)| run_chunk(ci, oc));
+    }
+
+    if found_min.load(Ordering::Relaxed) {
+        return Err(FOLD_ERR.into());
+    }
+    Ok(out)
+}
+
+fn fold_rows_fast(
+    matrix: &[i8],
+    rows: usize,
+    cols: usize,
+    weighted: &[Fp2],
+) -> Result<Vec<Fp2>, String> {
+    use rayon::prelude::*;
+    use std::sync::atomic::{AtomicBool, Ordering};
+
+    let mut active_rows: Vec<(usize, i32, i32, i32, i32)> = Vec::with_capacity(rows);
+    let mut zero_rows: Vec<usize> = Vec::new();
+    for (i, &w) in weighted.iter().enumerate() {
+        if w.is_zero() {
+            zero_rows.push(i);
+        } else {
+            let (w0l, w0h) = split_signed_fp(w.c0);
+            let (w1l, w1h) = split_signed_fp(w.c1);
+            active_rows.push((i, w0l, w0h, w1l, w1h));
+        }
+    }
+    if active_rows.is_empty() {
+        if has_i8_min_fast(matrix) {
+            return Err(FOLD_ERR.into());
+        }
+        return Ok(vec![Fp2::ZERO; cols]);
+    }
+
+    let chunk = 256usize.min(cols);
+    let mut out = vec![Fp2::ZERO; cols];
+    let found_min = AtomicBool::new(false);
+
+    let run_chunk = |ci: usize, oc: &mut [Fp2]| {
+        if found_min.load(Ordering::Relaxed) {
+            return;
+        }
+        let c0 = ci * chunk;
+        let len = oc.len();
+        let mut a0l = [0i64; 256];
+        let mut a0h = [0i64; 256];
+        let mut a1l = [0i64; 256];
+        let mut a1h = [0i64; 256];
+        let mut min_scalar = 0i8;
+
+        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+        // SAFETY: `target_feature = "neon"` is enabled at compile time.
+        let mut min_v = unsafe { core::arch::aarch64::vdupq_n_s8(0) };
+
+        for &(i, w0l, w0h, w1l, w1h) in &active_rows {
+            let row = &matrix[i * cols + c0..i * cols + c0 + len];
+            #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+            let k = if len >= 16 {
+                accum_row_chunk_neon(
+                    row,
+                    w0l,
+                    w0h,
+                    w1l,
+                    w1h,
+                    &mut a0l[..len],
+                    &mut a0h[..len],
+                    &mut a1l[..len],
+                    &mut a1h[..len],
+                    &mut min_v,
+                )
+            } else {
+                0
+            };
+            #[cfg(not(all(target_arch = "aarch64", target_feature = "neon")))]
+            let k = 0usize;
+            if k < len {
+                let (w0l, w0h, w1l, w1h) = (w0l as i64, w0h as i64, w1l as i64, w1h as i64);
+                for j in k..len {
+                    let b = row[j];
+                    min_scalar = min_scalar.min(b);
+                    let v = b as i64;
+                    a0l[j] += v * w0l;
+                    a0h[j] += v * w0h;
+                    a1l[j] += v * w1l;
+                    a1h[j] += v * w1h;
+                }
+            }
+        }
+
+        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+        {
+            // SAFETY: `target_feature = "neon"` is enabled at compile time.
+            min_scalar = min_scalar.min(unsafe { core::arch::aarch64::vminvq_s8(min_v) });
+        }
+        let mut saw_min = min_scalar == i8::MIN;
+        if !saw_min && !found_min.load(Ordering::Relaxed) {
             for &i in &zero_rows {
                 let row = &matrix[i * cols + c0..i * cols + c0 + len];
                 if slice_has_i8_min(row) {
@@ -722,12 +844,12 @@ fn dot_4rows_tiled_neon(
     (out, min_scalar == i8::MIN)
 }
 
-fn fold_cols_fast(
+#[inline(never)]
+fn fold_cols_fast_w2(
     matrix: &[i8],
     rows: usize,
     cols: usize,
     weighted: &[Fp2],
-    w2_tiled: bool,
     skip_pad_i8_scan: bool,
 ) -> Result<Vec<Fp2>, String> {
     use rayon::prelude::*;
@@ -764,7 +886,7 @@ fn fold_cols_fast(
         let mut saw_min = false;
         let mut dr = 0usize;
         #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
-        if w2_tiled {
+        {
             while dr + 4 <= oc.len() {
                 let i0 = r0 + dr;
                 let row0 = &matrix[i0 * cols..(i0 + 1) * cols];
@@ -796,8 +918,6 @@ fn fold_cols_fast(
                 dr += 4;
             }
         }
-        #[cfg(not(all(target_arch = "aarch64", target_feature = "neon")))]
-        let _ = w2_tiled;
         if !saw_min {
             while dr < oc.len() {
                 let i = r0 + dr;
@@ -820,6 +940,83 @@ fn fold_cols_fast(
                 oc[dr] = val;
                 dr += 1;
             }
+        }
+        if saw_min {
+            found_min.store(true, Ordering::Relaxed);
+        }
+    };
+
+    if matrix.len() < (1 << 15) {
+        run_rows(0, &mut out);
+    } else {
+        let row_chunk = 16usize.min(rows);
+        out.par_chunks_mut(row_chunk)
+            .enumerate()
+            .for_each(|(ci, oc)| run_rows(ci * row_chunk, oc));
+    }
+
+    if found_min.load(Ordering::Relaxed) {
+        return Err(FOLD_ERR.into());
+    }
+    Ok(out)
+}
+
+fn fold_cols_fast(
+    matrix: &[i8],
+    rows: usize,
+    cols: usize,
+    weighted: &[Fp2],
+) -> Result<Vec<Fp2>, String> {
+    use rayon::prelude::*;
+    use std::sync::atomic::{AtomicBool, Ordering};
+
+    let Some(active_start) = weighted.iter().position(|w| !w.is_zero()) else {
+        if has_i8_min_fast(matrix) {
+            return Err(FOLD_ERR.into());
+        }
+        return Ok(vec![Fp2::ZERO; rows]);
+    };
+    let active_end = weighted.iter().rposition(|w| !w.is_zero()).expect("at least one nonzero weight") + 1;
+    let active_len = active_end - active_start;
+    let mut w0l = Vec::with_capacity(active_len);
+    let mut w0h = Vec::with_capacity(active_len);
+    let mut w1l = Vec::with_capacity(active_len);
+    let mut w1h = Vec::with_capacity(active_len);
+    for &w in &weighted[active_start..active_end] {
+        let (l0, h0) = split_signed_fp(w.c0);
+        let (l1, h1) = split_signed_fp(w.c1);
+        w0l.push(l0);
+        w0h.push(h0);
+        w1l.push(l1);
+        w1h.push(h1);
+    }
+
+    let mut out = vec![Fp2::ZERO; rows];
+    let found_min = AtomicBool::new(false);
+
+    let run_rows = |r0: usize, oc: &mut [Fp2]| {
+        if found_min.load(Ordering::Relaxed) {
+            return;
+        }
+        let mut saw_min = false;
+        for (dr, slot) in oc.iter_mut().enumerate() {
+            let i = r0 + dr;
+            let row = &matrix[i * cols..(i + 1) * cols];
+            let (val, active_min) = dot_active_slice(
+                &row[active_start..active_end],
+                &w0l,
+                &w0h,
+                &w1l,
+                &w1h,
+            );
+            if active_min
+                || (active_start > 0 && slice_has_i8_min(&row[..active_start]))
+                || (active_end < cols && slice_has_i8_min(&row[active_end..cols]))
+            {
+                saw_min = true;
+                break;
+            }
+            *slot = val;
         }
         if saw_min {
             found_min.store(true, Ordering::Relaxed);
@@ -869,9 +1066,16 @@ fn fold_with_opts(
             .zip(coefficients)
             .map(|(&e, &m)| e.mul_base(Fp2::from_i64(m as i64).c0))
             .collect();
-        return match axis {
-            Axis::Rows => fold_rows_fast(matrix, rows, cols, &weighted, w2_tiled, skip_pad_i8_scan),
-            Axis::Columns => fold_cols_fast(matrix, rows, cols, &weighted, w2_tiled, skip_pad_i8_scan),
+        return if w2_tiled {
+            match axis {
+                Axis::Rows => fold_rows_fast_w2(matrix, rows, cols, &weighted, skip_pad_i8_scan),
+                Axis::Columns => fold_cols_fast_w2(matrix, rows, cols, &weighted, skip_pad_i8_scan),
+            }
+        } else {
+            match axis {
+                Axis::Rows => fold_rows_fast(matrix, rows, cols, &weighted),
+                Axis::Columns => fold_cols_fast(matrix, rows, cols, &weighted),
+            }
         };
     }
     if has_i8_min(matrix) {

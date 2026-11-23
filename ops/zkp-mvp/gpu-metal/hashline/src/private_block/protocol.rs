@@ -625,6 +625,7 @@ fn dd_moved_multiplicity() -> Option<(usize, usize)> {
 /// `(A_S8, A_MX, A_E)` without allocating `deltas: Vec<i64>` or dividing per word.
 /// Returns exact integer counts and miss count identical to
 /// `exp_histogram(&exp_deltas(lay, wit), &wit.planes[ids.at(A_E)], &public.exp)`.
+#[inline(never)]
 fn exp_histogram_direct(lay: &Layout, wit: &Witness, public: &super::AttentionPublic) -> (Vec<u64>, usize) {
     let (sh, ids) = (lay.shape(), lay.ids());
     let tp = sh.t_pad;
@@ -730,6 +731,7 @@ pub(crate) fn check_lookup_misses_after_public_check(sh: &Shape, lay: &Layout, b
 /// [`check_lookup_misses`] (or [`check_lookup_misses_after_public_check`] when
 /// `public_checked` is true), returning the computed `(m_u8, m_rng, m_exp, m_act)`
 /// histograms for reuse in `prove_core_before_with` when `HL_HOST_FAST_W2=1`.
+#[inline(never)]
 pub(crate) fn check_lookup_misses_collecting(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness, public_checked: bool) -> Result<SealedHistograms, String> {
     lay.check_is_for_shape(sh)?;
     if !public_checked {
@@ -2533,6 +2535,7 @@ pub(super) fn range_table_helper(f: super::range16::Fam, s: usize, log_cols: usi
 /// [HOST-FAST-W2 W2-3] Flat `&[Fp2]` version of [`range_table_helper`] over a
 /// table from [`super::range16::denominator_inverses_flat`], where every entry
 /// in `0 .. 2^width` is already known invertible.
+#[inline(never)]
 fn range_table_helper_flat(f: super::range16::Fam, s: usize, log_cols: usize, tbl: &[Fp2], m: &[u64], base: usize, sup: usize) -> Option<Vec<Fp2>> {
     if tbl.len() < (1usize << f.width) {
         return None;
@@ -2835,8 +2838,9 @@ pub(crate) fn prove_core_before_with(
     tick: &mut std::time::Instant,
     hints: CoreHints<'_, '_>,
 ) -> Result<CoreAhead, String> {
-    let w2_hits_b0 = crate::zk::host_fast_w2_hits_for_test();
-    let w2_fb_b0 = crate::zk::host_fast_w2_fallbacks_for_test();
+    let w2_on_entry = crate::zk::host_fast_w2_on();
+    let w2_hits_b0 = if w2_on_entry { crate::zk::host_fast_w2_hits_for_test() } else { [0; 10] };
+    let w2_fb_b0 = if w2_on_entry { crate::zk::host_fast_w2_fallbacks_for_test() } else { [0; 5] };
     let (public, ff) = (blk.attention(), blk.feed_forward());
     // RULING CS-8, in the body every proving path shares: the shape is one
     // `Shape::new` builds and the layout the CALLER hands is the one
@@ -3042,10 +3046,16 @@ pub(crate) fn prove_core_before_with(
     // the same: `zk::mask_commit` is `hashline/src/zk.rs`, one enclosing call
     ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", lay.m_rows() as u64, "rows");
     lap(phases, tick, "commit M");
-    let w2_hits_b1 = crate::zk::host_fast_w2_hits_for_test();
-    let w2_fb_b1 = crate::zk::host_fast_w2_fallbacks_for_test();
-    let w2_before_hits: [u64; 10] = std::array::from_fn(|i| w2_hits_b1[i].saturating_sub(w2_hits_b0[i]));
-    let w2_before_fb: [u64; 5] = std::array::from_fn(|i| w2_fb_b1[i].saturating_sub(w2_fb_b0[i]));
+    let (w2_before_hits, w2_before_fb) = if w2_on_entry {
+        let w2_hits_b1 = crate::zk::host_fast_w2_hits_for_test();
+        let w2_fb_b1 = crate::zk::host_fast_w2_fallbacks_for_test();
+        (
+            std::array::from_fn(|i| w2_hits_b1[i].saturating_sub(w2_hits_b0[i])),
+            std::array::from_fn(|i| w2_fb_b1[i].saturating_sub(w2_fb_b0[i])),
+        )
+    } else {
+        ([0; 10], [0; 5])
+    };
     Ok(CoreAhead {
         sh: sh.clone(),
         rows: (lay.a_rows, lay.h_rows, n),
@@ -3360,6 +3370,61 @@ fn fill_act_helpers(
 /// returned for this very block object, shape and layout, with `rng` the
 /// generator it drew from (and nothing drawn from it since); any other state
 /// is refused before anything is absorbed.
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
+#[inline(never)]
+fn try_write_helpers_w16_flat(
+    sh: &Shape,
+    lay: &Layout,
+    views: &[(Dom, Vec<LookedCol<'_>>)],
+    w16_missed: usize,
+    alpha: Fp2,
+    g_u8: Fp2,
+    h_data: &mut [Fp],
+) -> Result<Option<(Vec<Fp2>, Vec<(u32, Fp2, Vec<Fp2>)>)>, String> {
+    if w16_missed != 0 {
+        crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_FLAT_W16, "W2-3 flat_w16: w16_missed > 0");
+        return Ok(None);
+    }
+    let Some(u8_f) = super::range16::denominator_inverses_flat(8, alpha, g_u8) else {
+        crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_FLAT_W16, "W2-3 flat_w16: zero u8 denominator");
+        return Ok(None);
+    };
+    let mut ftabs = Vec::with_capacity(sh.range_families().len());
+    for f in sh.range_families() {
+        let g = super::range16::g_range(g_u8, f.width);
+        match super::range16::denominator_inverses_flat(f.width, alpha, g) {
+            Some(inv) => ftabs.push((f.width, g, inv)),
+            None => {
+                crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_FLAT_W16, "W2-3 flat_w16: zero range denominator");
+                return Ok(None);
+            }
+        }
+    }
+    let mut fjobs: Vec<FlatHelperJobCols<'_>> = Vec::new();
+    for (dom, cols) in views {
+        let tags: Vec<LkTag> = lay.lookups(*dom).iter().map(|l| l.tag).collect();
+        let (first, count) = lay.helpers(*dom);
+        for k in 0..count {
+            let b = match cols.get(2 * k + 1) {
+                Some(c) => Some(flat_tagged_col(*c, tags[2 * k + 1], &u8_f, &ftabs)?),
+                None => None,
+            };
+            fjobs.push(FlatHelperJobCols {
+                off: lay.h_off[first + k],
+                a: flat_tagged_col(cols[2 * k], tags[2 * k], &u8_f, &ftabs)?,
+                b,
+            });
+        }
+    }
+    if write_helpers_w16_cols_flat(h_data, &fjobs)? {
+        crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_FLAT_W16);
+        Ok(Some((u8_f, ftabs)))
+    } else {
+        crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_FLAT_W16, "W2-3 flat_w16: out-of-range word");
+        Ok(None)
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn prove_core_after_with(
     sh: &Shape,
@@ -3444,51 +3509,10 @@ pub(crate) fn prove_core_after_with(
     let mut flat_tabs: Vec<(u32, Fp2, Vec<Fp2>)> = Vec::new();
     let mut w16_done_flat = false;
     if crate::zk::host_fast_w2_on() && sh.range16() && views_on {
-        if w16_missed != 0 {
-            crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_FLAT_W16, "W2-3 flat_w16: w16_missed > 0");
-        } else if let Some(u8_f) = super::range16::denominator_inverses_flat(8, alpha, g_u8) {
-            let mut all_ok = true;
-            let mut ftabs = Vec::with_capacity(sh.range_families().len());
-            for f in sh.range_families() {
-                let g = super::range16::g_range(g_u8, f.width);
-                match super::range16::denominator_inverses_flat(f.width, alpha, g) {
-                    Some(inv) => ftabs.push((f.width, g, inv)),
-                    None => {
-                        all_ok = false;
-                        break;
-                    }
-                }
-            }
-            if all_ok {
-                let mut fjobs: Vec<FlatHelperJobCols<'_>> = Vec::new();
-                for (dom, cols) in &views {
-                    let tags: Vec<LkTag> = lay.lookups(*dom).iter().map(|l| l.tag).collect();
-                    let (first, count) = lay.helpers(*dom);
-                    for k in 0..count {
-                        let b = match cols.get(2 * k + 1) {
-                            Some(c) => Some(flat_tagged_col(*c, tags[2 * k + 1], &u8_f, &ftabs)?),
-                            None => None,
-                        };
-                        fjobs.push(FlatHelperJobCols {
-                            off: lay.h_off[first + k],
-                            a: flat_tagged_col(cols[2 * k], tags[2 * k], &u8_f, &ftabs)?,
-                            b,
-                        });
-                    }
-                }
-                if write_helpers_w16_cols_flat(&mut h_data, &fjobs)? {
-                    flat_u8_inv = Some(u8_f);
-                    flat_tabs = ftabs;
-                    w16_done_flat = true;
-                    crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_FLAT_W16);
-                } else {
-                    crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_FLAT_W16, "W2-3 flat_w16: out-of-range word");
-                }
-            } else {
-                crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_FLAT_W16, "W2-3 flat_w16: zero range denominator");
-            }
-        } else {
-            crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_FLAT_W16, "W2-3 flat_w16: zero u8 denominator");
+        if let Some((u8_f, ftabs)) = try_write_helpers_w16_flat(sh, lay, &views, w16_missed, alpha, g_u8, &mut h_data)? {
+            flat_u8_inv = Some(u8_f);
+            flat_tabs = ftabs;
+            w16_done_flat = true;
         }
     }
     let tabs: Vec<(u32, Fp2, Vec<Option<Fp2>>)> = if !w16_done_flat {
