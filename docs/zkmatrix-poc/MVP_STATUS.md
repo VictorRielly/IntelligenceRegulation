@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 02:15 UTC, Lean [READ by a Claude reviewer, nothing built; four citations checked by
+    Claude]: zero knowledge of the full run is not proved yet, and the review says what is missing.**
+    The run's top theorem assumes zero knowledge at an error budget that is known to undercount the
+    28-segment run. Antigravity's four zero-knowledge modules (3,026 lines, branch `agy/lean-l68c`)
+    hold sound building blocks and a corrected budget that is proved to lie within the target. They
+    hold no theorem that the real prover is zero-knowledge at any budget: the nearest one assumes a
+    program for the whole run, its query counts, and the central fact that what the verifier sees
+    depends only on public data. Six steps remain and three of them are large. The first step lets
+    the top theorem accept any budget within the target instead of the undercounting one; it lies in
+    Claude's own Lean lane, needs no ruling, and started the same hour. A side module introduces an
+    assumption about the operating system's random numbers. No top theorem uses it, and it would
+    need Victor's ruling before one does. Review:
+    `results/zk60_claude_review_20261116/L68C_ZK_READ_20261123.md`.
     **Nov 23, 00:16 UTC [MEASURED by Claude, one run of six passes, rule and expectation posted before
     the run]: on the 8B shape the two merged GPU switches together make the stream 7.7% faster, to
     40.2 tok/s.** The fused encoder and the sparse opening fold had been timed on the synthetic 8B
