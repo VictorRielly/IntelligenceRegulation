@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-23: Claude researcher tick 44, cross-lane hand-off starts against the replay (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T03:51:12Z.
+[Handoff](handoffs/20261123-claude-tick44-handoff-starts.md), script `20261123-claude-tick44-handoff-starts.py`.
+- **Item 60, first rule met as written, with a control that shrinks it.** Prover starts 0 to 0.5 ms after another lane's end: 21.1% (leg 2, six lanes) and 32.6% (leg 5, eight) against 9.4% and 10.0% in tick 36's replay (x2.24, x3.27; pass at x2). The mirror (an end 0 to 0.5 ms after the start) is also x2.1 and x3.3 the replay's, so most of the raw gap is end density. The specific peak over the flat level at lags 0.5 to 3 ms is x1.75 and x1.94 measured, x1.00 in the replay: about 10% and 19% of starts are hand-offs beyond background (DERIVED).
+- **It is a property of waiting buffers:** 37.6% (six lanes) and 35.2% (eight) of prover buffers with a committed-to-start wait over 5 ms start at another lane's buffer end beyond background; none of the quick ones at six lanes. About 60% of the long waiters do not.
+- **Stage 2 fails, the replay line stops** (item 60's rule): releasing waiting buffers at buffer ends, no refit, leaves six-lane level 2 off by +8.0 points at best (levels off -2.4, +2.3, +8.0, -2.4) and eight lanes at rate +7%, empty -32%, variance -22%. The coupling is not shown to be an admission at buffer ends; host-side or join coupling remain, decided only by a measurement under one change (stagger test stated, not scheduled). Item 73 (what ends the other long waits) added. Nothing proposed for the prover; 0 committed words, no rate claim.
+
 ## 2026-11-22: Claude researcher tick 43, which host work fills the head's gaps and whether any of it repeats the sealing pass (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling).

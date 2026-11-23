@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 44, Nov 23 03:55 UTC [MEASURED on three retained traces; the researcher's figures re-run
+    by Claude]: the waits of GPU jobs are never a lane waiting for itself, and a small number of long
+    waits carry almost all of the waiting.** With six lanes, 15% of the prover's GPU jobs wait more
+    than 5 ms for their start and carry 81% of all waiting; with eight lanes 31% carry 92%. No job
+    was ever handed over while the same lane's previous job was still running, so every wait is
+    another lane's job or the GPU's own scheduling. About 35 to 40% of the long waiters start within
+    half a millisecond of another lane's job ending. The model that replays one lane's trace to
+    predict the six-lane stream still fails with that rule added, and that line of work stops here
+    after five ticks. Nothing to merge. The working guess for the next tick is a convoy: lanes queue
+    behind one long job, finish together, do their CPU work together while the GPU sits idle (it is
+    idle 22.7% of the time at six lanes), then queue again. Record:
+    `results/zk60_lanes_trace_20261121/README.md`; handoff
+    `research/zkp-efficiency/handoffs/20261123-claude-tick44-handoff-starts.md`.
     **Nov 23, 02:43 UTC, Lean [PROVED: green guarded build and full check, 594 of 594 declarations
     audited, standard axioms only]: the run's top theorem no longer depends on the undercounting
     zero-knowledge budget.** The chain of seven theorems up to the top now has a second form that

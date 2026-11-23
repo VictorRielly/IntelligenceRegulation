@@ -1,0 +1,15 @@
+tr_leg1_leg1.37969.tsv.xz: 1 prover queues, 3365 prover buffers, total wait 2.3 s; own-queue part 0.0 s (0%), after own queue 2.3 s (100%)
+                          n  share  wait sum   behind  own part | start within 0.5 ms after an end of:  own q   other P  sealing   none | a start of another queue in the 0.5 ms before
+  wait up to 0.5 ms     295   8.8%      0.0s     0.0%        0% |                                   1.4%      0.0%     0.0%  98.6% |   0.0%
+  0.5 to 5 ms          3055  90.8%      2.1s     0.0%        0% |                                   0.0%      0.0%     0.0% 100.0% |   0.0%
+  over 5 ms              15   0.4%      0.2s     0.0%        0% |                                   0.0%      0.0%     0.0% 100.0% |   0.0%
+tr_main_leg2.39067.tsv.xz: 6 prover queues, 26152 prover buffers, total wait 73.8 s; own-queue part 0.0 s (0%), after own queue 73.8 s (100%)
+                          n  share  wait sum   behind  own part | start within 0.5 ms after an end of:  own q   other P  sealing   none | a start of another queue in the 0.5 ms before
+  wait up to 0.5 ms   15653  59.9%      2.4s     0.0%        0% |                                   0.3%     17.1%     2.1%  80.8% |  17.5%
+  0.5 to 5 ms          6536  25.0%     11.3s     0.0%        0% |                                   0.0%     19.1%     7.0%  74.2% |  17.3%
+  over 5 ms            3963  15.2%     60.1s     0.0%        0% |                                   0.0%     41.8%     2.6%  55.8% |  25.9%
+tr_main_leg5.43522.tsv.xz: 8 prover queues, 27091 prover buffers, total wait 188.5 s; own-queue part 0.0 s (0%), after own queue 188.5 s (100%)
+                          n  share  wait sum   behind  own part | start within 0.5 ms after an end of:  own q   other P  sealing   none | a start of another queue in the 0.5 ms before
+  wait up to 0.5 ms   12101  44.7%      2.1s     0.0%        0% |                                   0.3%     30.7%     2.0%  67.3% |  29.5%
+  0.5 to 5 ms          6677  24.6%     12.3s     0.0%        0% |                                   0.0%     26.4%     6.1%  68.1% |  41.6%
+  over 5 ms            8313  30.7%    174.1s     0.0%        0% |                                   0.0%     39.7%     1.9%  58.5% |  49.7%
