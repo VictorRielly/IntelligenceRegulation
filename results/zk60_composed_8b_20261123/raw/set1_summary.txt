@@ -1,0 +1,26 @@
+arm serve8+lanes2                flags: window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8, bounds ahead true, fused rs false, sparse fold false
+arm serve8+lanes2+frs1+sf1       flags: window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, seal pool 8, bounds ahead true, fused rs true, sparse fold true
+arm serve9+lanes3                flags: window 0, digests ahead false, lanes 3, shared blocks true, startup checks true, seal pool 8, bounds ahead true, fused rs false, sparse fold false
+arm serve9+lanes3+frs1+sf1       flags: window 0, digests ahead false, lanes 3, shared blocks true, startup checks true, seal pool 8, bounds ahead true, fused rs true, sparse fold true
+
+serve8+lanes2                gap s by pass: 3.480 3.488 3.480 3.432 3.460 3.524 | median 3.480 s = 36.78 tok/s
+serve8+lanes2+frs1+sf1       gap s by pass: 3.194 3.194 3.232 3.200 3.230 3.216 | median 3.208 s = 39.90 tok/s
+serve9+lanes3                gap s by pass: 3.430 3.463 3.475 3.437 3.413 3.467 | median 3.450 s = 37.10 tok/s
+serve9+lanes3+frs1+sf1       gap s by pass: 3.215 3.188 3.202 3.183 3.215 3.163 | median 3.195 s = 40.06 tok/s
+
+pair serve8+lanes2+frs1+sf1 minus serve8+lanes2:
+  per pass (s): -0.286 -0.294 -0.248 -0.232 -0.230 -0.308
+  per pass (%): -8.22 -8.43 -7.13 -6.76 -6.65 -8.74
+  median -0.267 s (-7.67% of the off median); lower in 6 of 6 passes
+
+pair serve9+lanes3+frs1+sf1 minus serve9+lanes3:
+  per pass (s): -0.215 -0.275 -0.273 -0.253 -0.198 -0.303
+  per pass (%): -6.27 -7.94 -7.87 -7.37 -5.81 -8.75
+  median -0.263 s (-7.63% of the off median); lower in 6 of 6 passes
+
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve8+lanes2] | 6 passes | steady mean 37.15 tok/s (best 37.62) | amortized mean 34.06 tok/s (best 34.31) | mean latency 14.538 s (first request 5.950 s, best 5.841) | peak footprint 48.5 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve8+lanes2+frs1+sf1] | 6 passes | steady mean 40.21 tok/s (best 40.58) | amortized mean 36.66 tok/s (best 37.03) | mean latency 13.561 s (first request 5.652 s, best 5.536) | peak footprint 48.6 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve9+lanes3] | 6 passes | steady mean 37.35 tok/s (best 37.67) | amortized mean 34.46 tok/s (best 34.69) | mean latency 18.128 s (first request 6.016 s, best 5.931) | peak footprint 55.8 GiB
+A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve9+lanes3+frs1+sf1] | 6 passes | steady mean 40.36 tok/s (best 40.51) | amortized mean 37.10 tok/s (best 37.26) | mean latency 16.929 s (first request 5.682 s, best 5.589) | peak footprint 55.9 GiB
+A22-AB W16R2_8B_T128_H24 L32: total 807.7 s (startup 0.876 s)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1148 filtered out; finished in 807.69s
