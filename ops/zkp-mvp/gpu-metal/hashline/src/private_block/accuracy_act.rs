@@ -2,7 +2,7 @@
 use super::accuracy_public::{AccuracyPublic,Geometry};
 use super::layout::Dom;
 use super::shape::Shape;
-use crate::field::Fp2;
+use crate::field::{Fp,Fp2};
 
 pub(crate) struct ActTable {
     pub(crate) compressed:Vec<Fp2>,
@@ -114,6 +114,74 @@ pub(crate) fn denominators(sh:&Shape,a:&AccuracyPublic,gates:&[i64],outputs:&[i6
         }
     });
     Ok(out)
+}
+
+/// **[HOST-FAST H1]** Write `1 / (alpha - query_values(..)[i])` directly into
+/// `H`'s `(re, im)` slices from the pre-inverted active table `act_inv`
+/// (`act_inv[k] = 1 / (alpha - table.compressed[k])` for `k < table.entries`).
+///
+/// Precondition (enforced by caller): [`histogram`] returned `misses == 0` on
+/// the same `(sh, a, gates, outputs)`. That guarantees every `(t, j)` in
+/// `Dom::F` has `key = (gates[t * f_pad + j] + 2048)` in `0..4096`,
+/// `group = if t < tokens && j < hidden { group_ids[j] } else { 0 }`, and
+/// `outputs[t * f_pad + j] == scaled_tables[group][key]`, so
+/// `alpha - query_values(..)[i] == alpha - table.compressed[group * 4096 + key]`
+/// identically. All shape/context checks match [`denominators`].
+pub(crate) fn write_helpers_from_inv(
+    sh: &Shape,
+    a: &AccuracyPublic,
+    gates: &[i64],
+    outputs: &[i64],
+    act_inv: &[Fp2],
+    re: &mut [Fp],
+    im: &mut [Fp],
+) -> Result<(), String> {
+    use rayon::prelude::*;
+    query_context(sh, a, gates, outputs)?;
+    let fp = sh.f_pad;
+    let need = a.groups().len() * 4096;
+    if fp == 0
+        || gates.len() % fp != 0
+        || re.len() != gates.len()
+        || im.len() != gates.len()
+        || act_inv.len() < need
+    {
+        return Err("R13 ACT: query rows".into());
+    }
+    let live_cols = sh.hidden.min(fp);
+    let group_bases: Vec<usize> = a.group_ids()[..live_cols].iter().map(|&g| g * 4096).collect();
+    let fill_row = |t: usize, r: &mut [Fp], m: &mut [Fp], g: &[i64]| {
+        if t < sh.tokens {
+            for j in 0..live_cols {
+                let v = act_inv[group_bases[j] + (g[j] + 2048) as usize];
+                r[j] = v.c0;
+                m[j] = v.c1;
+            }
+            for j in live_cols..fp {
+                let v = act_inv[(g[j] + 2048) as usize];
+                r[j] = v.c0;
+                m[j] = v.c1;
+            }
+        } else {
+            for j in 0..fp {
+                let v = act_inv[(g[j] + 2048) as usize];
+                r[j] = v.c0;
+                m[j] = v.c1;
+            }
+        }
+    };
+    if gates.len() >= 1 << 14 {
+        re.par_chunks_mut(fp)
+            .zip(im.par_chunks_mut(fp))
+            .zip(gates.par_chunks(fp))
+            .enumerate()
+            .for_each(|(t, ((r, m), g))| fill_row(t, r, m, g));
+    } else {
+        for (t, ((r, m), g)) in re.chunks_mut(fp).zip(im.chunks_mut(fp)).zip(gates.chunks(fp)).enumerate() {
+            fill_row(t, r, m, g);
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -253,6 +321,52 @@ mod tests {
         }
         gates[0]=0;outputs[0]=1;
         assert_eq!(histogram(&sh,&a,&gates,&outputs).unwrap().1,1);
+    }
+
+    #[test]
+    fn h1_write_helpers_from_inv_matches_denominators_and_inverses() {
+        let (sh, a) = native_query_fixture();
+        {
+            let n = sh.size(Dom::F);
+            // Cover endpoints (-2048, 2047), arbitrary valid gates, and nonzero
+            // valid gates on padded rows/columns (t >= tokens or j >= hidden).
+            let gates: Vec<i64> = (0..n)
+                .map(|i| match i {
+                    0 => -2048,
+                    1 => 2047,
+                    _ => ((i * 73 + 19) % 4096) as i64 - 2048,
+                })
+                .collect();
+            let outputs: Vec<i64> = (0..n)
+                .map(|i| {
+                    let group = query_group(&sh, &a, i);
+                    a.scaled_tables()[group][(gates[i] + 2048) as usize]
+                })
+                .collect();
+            assert_eq!(histogram(&sh, &a, &gates, &outputs).unwrap().1, 0);
+            let alpha = Fp2::new(Fp::new(987_654_321_012_345), Fp::new(1_234_567));
+            let beta = Fp2::new(Fp::new(77), Fp::new(13));
+            let tag = Fp2::new(Fp::new(31), Fp::new(5));
+
+            let mut want = denominators(&sh, &a, &gates, &outputs, alpha, beta, tag).unwrap();
+            crate::field::batch_inverse2_checked(&mut want).unwrap();
+
+            let tbl = table(&a, sh.size(Dom::Tab), beta, tag).unwrap();
+            let mut act_inv: Vec<Fp2> = tbl.compressed[..tbl.entries].iter().map(|t| alpha.sub(*t)).collect();
+            crate::field::batch_inverse2_checked(&mut act_inv).unwrap();
+
+            let mut re = vec![Fp::ZERO; n];
+            let mut im = vec![Fp::ZERO; n];
+            write_helpers_from_inv(&sh, &a, &gates, &outputs, &act_inv, &mut re, &mut im).unwrap();
+            for i in 0..n {
+                assert_eq!(Fp2::new(re[i], im[i]), want[i], "mismatch at i={i}");
+            }
+
+            // Shape/slice length guards refuse cleanly.
+            let mut short = vec![Fp::ZERO; n - 1];
+            assert!(write_helpers_from_inv(&sh, &a, &gates, &outputs, &act_inv, &mut short, &mut im).is_err());
+            assert!(write_helpers_from_inv(&sh, &a, &gates, &outputs, &act_inv[..tbl.entries - 1], &mut re, &mut im).is_err());
+        }
     }
 
 }

@@ -108,6 +108,121 @@
 //! caveat class as the lattice line's lemmas Q4.7-Q4.9).
 
 use crate::field::{Fp, Fp2};
+use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
+use std::sync::OnceLock;
+
+/// [HOST-FAST] Opt-in host-gap acceleration switch (`HL_HOST_FAST=1`, default OFF):
+/// H1 table-lookup exp/act LogUp helpers, H2 parallel `mask_commit_tagged`,
+/// H3 parallel chunked `range16::denominator_inverses`, H4 fused SIMD `accuracy_fold::fold`,
+/// H5 tiled row-major `priv_table_fill` + `A_Y`/`A_YM` fold dedup,
+/// H6 device `Tab::PubGen` prelude + direct base-field claimed sum for `SC_SS`/`SC_SSM`/`SC_RS`.
+/// Changes zero proof bytes, zero RNG draw order, and zero refusal semantics.
+static HOST_FAST_TEST: AtomicUsize = AtomicUsize::new(0);
+/// Per-component anti-vacuity hit counters:
+/// [0: H1_inv_tbl, 1: H2_par_mask, 2: H3_par_rng16, 3: H4_acc_fold,
+///  4: H5_priv_fold, 5: H6_gpu_pub_gen, 6: H6_cpu_pub_gen, 7: H6_direct_total]
+static HOST_FAST_HITS: [AtomicU64; 8] = [
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+];
+/// Per-component fallback counters when `HL_HOST_FAST=1` is active:
+/// [0: H1_exp, 1: H1_act, 2: H4_dim, 3: H5_lazy_off, 4: H6_gpu_pub_gen]
+static HOST_FAST_FALLBACKS: [AtomicU64; 5] = [
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+];
+static HOST_FAST_FALLBACK_LOGGED: [AtomicBool; 5] = [
+    AtomicBool::new(false),
+    AtomicBool::new(false),
+    AtomicBool::new(false),
+    AtomicBool::new(false),
+    AtomicBool::new(false),
+];
+
+pub const HF_H1_INV_TBL: usize = 0;
+pub const HF_H2_PAR_MASK: usize = 1;
+pub const HF_H3_PAR_RNG16: usize = 2;
+pub const HF_H4_ACC_FOLD: usize = 3;
+pub const HF_H5_PRIV_FOLD: usize = 4;
+pub const HF_H6_GPU_PUB_GEN: usize = 5;
+pub const HF_H6_CPU_PUB_GEN: usize = 6;
+pub const HF_H6_DIRECT_TOTAL: usize = 7;
+
+pub const HF_FB_H1_EXP: usize = 0;
+pub const HF_FB_H1_ACT: usize = 1;
+pub const HF_FB_H4_DIM: usize = 2;
+pub const HF_FB_H5_LAZY_OFF: usize = 3;
+pub const HF_FB_H6_GPU_PUB_GEN: usize = 4;
+
+pub fn host_fast_on() -> bool {
+    match HOST_FAST_TEST.load(Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => {
+            static ENV: OnceLock<bool> = OnceLock::new();
+            *ENV.get_or_init(|| std::env::var("HL_HOST_FAST").map(|v| v == "1").unwrap_or(false))
+        }
+    }
+}
+
+#[cfg(test)]
+pub fn set_host_fast_for_test(on: Option<bool>) -> Option<bool> {
+    let v = match on {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    match HOST_FAST_TEST.swap(v, Ordering::Relaxed) {
+        1 => Some(false),
+        2 => Some(true),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+pub fn host_fast_for_test() -> bool {
+    host_fast_on()
+}
+
+#[cfg(test)]
+pub fn host_fast_test_lock() -> std::sync::MutexGuard<'static, ()> {
+    static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    LOCK.lock().unwrap_or_else(|e| e.into_inner())
+}
+
+#[inline]
+pub fn record_host_fast_hit(idx: usize) {
+    HOST_FAST_HITS[idx].fetch_add(1, Ordering::Relaxed);
+}
+
+pub fn record_host_fast_fallback(idx: usize, reason: &str) {
+    HOST_FAST_FALLBACKS[idx].fetch_add(1, Ordering::Relaxed);
+    if !HOST_FAST_FALLBACK_LOGGED[idx].swap(true, Ordering::Relaxed) {
+        eprintln!("[ZK60-HOST-FAST] fallback ({reason})");
+    }
+}
+
+pub fn host_fast_timing_on() -> bool {
+    static ON: OnceLock<bool> = OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false))
+}
+
+pub fn host_fast_hits_for_test() -> [u64; 8] {
+    std::array::from_fn(|i| HOST_FAST_HITS[i].load(Ordering::Relaxed))
+}
+
+pub fn host_fast_fallbacks_for_test() -> [u64; 5] {
+    std::array::from_fn(|i| HOST_FAST_FALLBACKS[i].load(Ordering::Relaxed))
+}
 
 // ===========================================================================
 // [UPERF3-AM] THE STATEMENT HEADER: WHICH PRIVACY CLAIM, AND WHAT IS CLAIMED
@@ -507,6 +622,44 @@ pub fn mask_commit_tagged(specs: &[(usize, usize)], ntt: &NttTables, rng: &mut Z
     let n_base = 2 * masks.len() + 4;
     let mut encoded = vec![Fp::ZERO; n_base * dom];
     let mut a_coefs = Vec::with_capacity(2 * masks.len());
+    if host_fast_on() {
+        record_host_fast_hit(HF_H2_PAR_MASK);
+        // [H2] Exact same sequential RNG draw order (masks -> per-row pads -> b -> u -> salts),
+        // then parallel independent row inverse-NTT + coset RS encoding across the ~50 rows.
+        for mk in &masks {
+            let re: Vec<Fp> = mk.coeffs.iter().map(|c| c.c0).collect();
+            let im: Vec<Fp> = mk.coeffs.iter().map(|c| c.c1).collect();
+            for part in [re, im] {
+                assert!(part.len() + MASK_Q <= m, "mask row: {} coefficients + {MASK_Q} pads > {m}", part.len());
+                let mut msg = vec![Fp::ZERO; m];
+                msg[..part.len()].copy_from_slice(&part);
+                let pads = rng.fp_vec(MASK_Q);
+                msg[part.len()..part.len() + MASK_Q].copy_from_slice(&pads);
+                a_coefs.push(msg);
+            }
+        }
+        let mut b_re = rng.fp_vec(2 * m);
+        let mut b_im = rng.fp_vec(2 * m);
+        b_re[m] = b_re[0].neg();
+        b_im[m] = b_im[0].neg();
+        let u_re = rng.fp_vec(2 * m);
+        let u_im = rng.fp_vec(2 * m);
+        let salts: Vec<[u8; 32]> = (0..dom).map(|_| rng.bytes32()).collect();
+        let base0 = 2 * masks.len();
+        let (enc_a, enc_bu) = encoded.split_at_mut(base0 * dom);
+        a_coefs.par_iter_mut().zip(enc_a.par_chunks_mut(dom)).for_each(|(msg, dst)| {
+            ntt.inverse(msg);
+            encode_coeffs_coset(ntt, msg, &pows, dst);
+        });
+        let bu_refs = [&b_re, &b_im, &u_re, &u_im];
+        bu_refs.par_iter().zip(enc_bu.par_chunks_mut(dom)).for_each(|(c, dst)| {
+            encode_coeffs_coset(ntt, c, &pows, dst);
+        });
+        let leaves = pcs::hash_columns_keyed(&encoded, n_base, dom, tag.column_key());
+        let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| pcs::salt_leaf_keyed(l, s, tag.leaf_key())).collect();
+        let tree = MerkleTree::build_keyed(salted, tag.node_key());
+        return MaskCommit { specs: specs.to_vec(), masks, a_coefs, encoded, b: (b_re, b_im), u: (u_re, u_im), salts, tree };
+    }
     for (s, mk) in masks.iter().enumerate() {
         let re: Vec<Fp> = mk.coeffs.iter().map(|c| c.c0).collect();
         let im: Vec<Fp> = mk.coeffs.iter().map(|c| c.c1).collect();
@@ -2109,6 +2262,61 @@ mod tests {
         let mut a = cfg.rng(b"layer-v3-0");
         let mut b = cfg.clone().rng(b"layer-v3-0");
         assert_ne!(a.bytes32(), b.bytes32());
+    }
+
+    #[test]
+    fn host_fast_m4_h2_mask_commit_tagged_edge_cases() {
+        let _lock = host_fast_test_lock();
+        struct Reset(Option<bool>);
+        impl Drop for Reset {
+            fn drop(&mut self) {
+                set_host_fast_for_test(self.0);
+            }
+        }
+        let _guard = Reset(set_host_fast_for_test(Some(false)));
+        let ntt = NttTables::new(MASK_LOG_DOM);
+        let tags = [
+            zkp_core::hashtag::HashTag::legacy(),
+            zkp_core::hashtag::HashTag::for_profile("host-fast-m4-h2-tag"),
+        ];
+        let cases: &[&[(usize, usize)]] = &[
+            &[],
+            &[(4, 2)],
+            &[(4, 2), (10, 4), (16, 5), (19, 3), (8, 6)],
+        ];
+        for (ti, tag) in tags.iter().enumerate() {
+            for (ci, &specs) in cases.iter().enumerate() {
+                let s = 0x2026_1123_0000_0000u64 ^ ((ti as u64) << 16) ^ (ci as u64);
+                set_host_fast_for_test(Some(false));
+                let mut rng0 = ZkRng::new(s, b"hf-m4-h2");
+                let mc0 = mask_commit_tagged(specs, &ntt, &mut rng0, tag);
+                let post_fp0 = rng0.fp();
+                let post_b0 = rng0.bytes32();
+
+                set_host_fast_for_test(Some(true));
+                let hb = host_fast_hits_for_test();
+                let mut rng1 = ZkRng::new(s, b"hf-m4-h2");
+                let mc1 = mask_commit_tagged(specs, &ntt, &mut rng1, tag);
+                let ha = host_fast_hits_for_test();
+                let post_fp1 = rng1.fp();
+                let post_b1 = rng1.bytes32();
+
+                assert!(ha[HF_H2_PAR_MASK] > hb[HF_H2_PAR_MASK], "expected H2 hit for case {ci} tag {ti}");
+                assert_eq!(mc1.specs, mc0.specs, "specs mismatch case {ci} tag {ti}");
+                assert_eq!(mc1.masks.len(), mc0.masks.len(), "masks len mismatch case {ci} tag {ti}");
+                for (m1, m0) in mc1.masks.iter().zip(&mc0.masks) {
+                    assert_eq!((m1.n_vars, m1.degree, &m1.coeffs), (m0.n_vars, m0.degree, &m0.coeffs));
+                }
+                assert_eq!(mc1.a_coefs, mc0.a_coefs, "a_coefs mismatch case {ci} tag {ti}");
+                assert_eq!(mc1.encoded, mc0.encoded, "encoded mismatch case {ci} tag {ti}");
+                assert_eq!(mc1.b, mc0.b, "b mismatch case {ci} tag {ti}");
+                assert_eq!(mc1.u, mc0.u, "u mismatch case {ci} tag {ti}");
+                assert_eq!(mc1.salts, mc0.salts, "salts mismatch case {ci} tag {ti}");
+                assert_eq!(mc1.tree.levels, mc0.tree.levels, "tree mismatch case {ci} tag {ti}");
+                assert_eq!(post_fp1, post_fp0, "post-call rng.fp() mismatch case {ci} tag {ti}");
+                assert_eq!(post_b1, post_b0, "post-call rng.bytes32() mismatch case {ci} tag {ti}");
+            }
+        }
     }
 
 

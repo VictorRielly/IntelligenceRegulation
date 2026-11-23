@@ -28,8 +28,8 @@ pub(super) fn define_changed(slot:usize,ctx:&Ctx<'_>,pts:&mut Points,tr:&mut Tra
             SC_QZC|SC_KVZC=>qzc_w16(slot,ctx,pts,tr).map(Some),
             SC_SZC if sh.dd_cap>0=>szc_dd_w16(ctx,pts,tr).map(Some),
             SC_SZC=>szc_w16(ctx,pts,tr).map(Some),
-            SC_DD=>dd_w16(ctx,tr).map(Some),
-            SC_TAB=>tab_w16(ctx,tr).map(Some),
+            SC_DD=>dd_w16(ctx,pts,tr).map(Some),
+            SC_TAB=>tab_w16(ctx,pts,tr).map(Some),
             _=>Ok(None),
         };
     }
@@ -39,21 +39,21 @@ pub(super) fn define_changed(slot:usize,ctx:&Ctx<'_>,pts:&mut Points,tr:&mut Tra
         SC_QZC|SC_KVZC=>qzc(slot,ctx,pts,tr).map(Some),
         SC_SZC if sh.dd_cap>0=>szc_dd(ctx,pts,tr).map(Some),
         SC_SZC=>szc(ctx,pts,tr).map(Some),
-        SC_DD=>dd(ctx,tr).map(Some),
-        SC_TAB=>tab(ctx,tr).map(Some),
+        SC_DD=>dd(ctx,pts,tr).map(Some),
+        SC_TAB=>tab(ctx,pts,tr).map(Some),
         _=>Ok(None),
     }
 }
 
 fn dzc(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());let low=ids.accuracy()?;
-    let precision=sh.accuracy_precision()?;let cube=sh.size(Dom::D);let mut b=B::new(lay,SC_DZC);
+    let precision=sh.accuracy_precision()?;let cube=sh.size(Dom::D);let mut b=B::new(lay,SC_DZC,pts.pub_gen_prove);
     let pad_on=!crate::private_block::pad::zero_rule_a_planes(sh,ids,Dom::D).is_empty();
     let n_help=sh.helpers(Dom::D);let mu=tr.challenge_fp2_vec(13+n_help+usize::from(pad_on));
     let nu=nonzero(tr.challenge_fp2_vec(2))?;let zeta=if pad_on {nonzero(tr.challenge_fp2_vec(1))?[0]} else {Fp2::ZERO};
     b.eq(&tr.challenge_fp2_vec(sh.log(Dom::D)),0);b.eq(&pts.p_a,0);b.eq(&pts.p_z,0);
-    let ig=b.public((0..cube).map(|i|k(ctx.public.gamma_a[i%sh.d_pad] as i64)).collect());
-    let igm=b.public((0..cube).map(|i|k(ctx.ff.gamma_m[i%sh.d_pad] as i64)).collect());
+    let ig=b.repeat_vals(cube,&ctx.public.gamma_a[..sh.d_pad]);
+    let igm=b.repeat_vals(cube,&ctx.ff.gamma_m[..sh.d_pad]);
     let range=ids.domain_range(Dom::D)?;let idx=b.a_range(range.start,range.end-1)?;
     let (nr,ns,mr,ms)=(role(&b,low,L::Nr)?,role(&b,low,L::Ns)?,role(&b,low,L::Mr)?,role(&b,low,L::Ms)?);
     let(xl,yl,al,ral,x1l,yml,zl,rdl,x2l)=(role(&b,low,L::X)?,role(&b,low,L::Y)?,role(&b,low,L::Ao)?,role(&b,low,L::Rao)?,
@@ -93,7 +93,7 @@ fn dzc(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
 fn fzc(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());let low=ids.accuracy()?;
     let data=ctx.accuracy.ok_or("R13 FFN requires public accuracy data")?;let precision=sh.accuracy_precision()?;
-    let cube=sh.size(Dom::F);let mut b=B::new(lay,SC_FZC);let pad_on=!crate::private_block::pad::zero_rule_a_planes(sh,ids,Dom::F).is_empty();
+    let cube=sh.size(Dom::F);let mut b=B::new(lay,SC_FZC,pts.pub_gen_prove);let pad_on=!crate::private_block::pad::zero_rule_a_planes(sh,ids,Dom::F).is_empty();
     let n_help=sh.helpers(Dom::F);let mu=tr.challenge_fp2_vec(4+n_help+usize::from(pad_on));let nu=nonzero(tr.challenge_fp2_vec(2))?;
     let zeta=if pad_on {nonzero(tr.challenge_fp2_vec(1))?[0]} else {Fp2::ZERO};
     b.eq(&tr.challenge_fp2_vec(sh.log(Dom::F)),0);b.eq(&pts.p_g,0);b.eq(&pts.p_u,0);
@@ -101,7 +101,7 @@ fn fzc(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let(rg,ul,ru,hl,rh)=(role(&b,low,L::Rg)?,role(&b,low,L::Up)?,role(&b,low,L::Ru)?,role(&b,low,L::H)?,role(&b,low,L::Rh)?);
     let h0=b.h(hids.first_helper(Dom::F))?;for j in 1..n_help {b.h(hids.helper(Dom::F,j))?;}
     let fact=b.h(hids.fact())?;let lks=lk_tables(lay,Dom::F,&b.shaped,ctx.g_u8);
-    let group=b.public(crate::private_block::accuracy_act::group_column(sh,data)?);
+    let group=b.group_col(sh,data)?;
     let gf=Gate(b.supp(Dom::F,cube)?);let mut pz=PadTerm::none();
     if pad_on {
         let planes:Vec<_>=crate::private_block::pad::zero_rule_a_planes(sh,ids,Dom::F).iter().map(|&p|b.tab(p)).collect();
@@ -128,7 +128,7 @@ fn fzc(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
 
 fn qzc(slot:usize,ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
-    let q=slot==SC_QZC;let dom=if q {Dom::Q} else {Dom::Kv};let cube=sh.size(dom);let log=sh.log(dom);let mut b=B::new(lay,slot);
+    let q=slot==SC_QZC;let dom=if q {Dom::Q} else {Dom::Kv};let cube=sh.size(dom);let log=sh.log(dom);let mut b=B::new(lay,slot,pts.pub_gen_prove);
     let pad_on=!crate::private_block::pad::zero_rule_a_planes(sh,ids,dom).is_empty();let n_help=sh.helpers(dom);
     let mu=tr.challenge_fp2_vec(4+n_help+usize::from(pad_on));let nu=nonzero(tr.challenge_fp2_vec(2))?;
     let zeta=if pad_on {nonzero(tr.challenge_fp2_vec(1))?[0]} else {Fp2::ZERO};
@@ -166,7 +166,7 @@ fn szc_dd(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
-    let mut b=B::new(lay,SC_SZC);
+    let mut b=B::new(lay,SC_SZC,pts.pub_gen_prove);
     let pad_on=ALL_DOMS.into_iter().any(|d|crate::private_block::pad::pad_zero_host(d)==SC_SZC && !crate::private_block::pad::zero_rule_a_planes(sh,ids,d).is_empty());
     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
 
@@ -181,7 +181,7 @@ fn szc_dd(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
             b.eq(&tau, 0);
             b.eq(&pts.p_ht, 0);
             b.eq(&pts.p_s, 0);
-            let im = b.public(causal_mask_at(sh));
+            let im = b.causal_mask(sh);
             let idx = b.a_range(ids.at(A_S8), ids.at(A_P))?;
             let lht = sh.log(Dom::Ht);
             let imx = b.a_slice(lay.a_off[ids.at(A_MX)], lht, rho(0..lht), 0)?;
@@ -226,7 +226,7 @@ fn szc(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
-    let mut b=B::new(lay,SC_SZC);
+    let mut b=B::new(lay,SC_SZC,pts.pub_gen_prove);
     let pad_on=ALL_DOMS.into_iter().any(|d|crate::private_block::pad::pad_zero_host(d)==SC_SZC && !crate::private_block::pad::zero_rule_a_planes(sh,ids,d).is_empty());
     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
 
@@ -239,7 +239,7 @@ fn szc(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
             b.eq(&tau, 0);
             b.eq(&pts.p_ht, 0);
             b.eq(&pts.p_s, 0);
-            let im = b.public(causal_mask_at(sh));
+            let im = b.causal_mask(sh);
             // the `Dom::S` block runs to the LAST `sigma_s` limb, which the toy
             // has no name for when `limbs_sigma_s` is three (S8)
             let idx = b.a_range(ids.at(A_S8), ids.sg(ls - 1))?;
@@ -346,12 +346,12 @@ fn szc(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
             Ok(def)
 }
 
-fn dd(ctx:&Ctx<'_>,tr:&mut Transcript)->Result<SlotDef,String> {
+fn dd(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());
     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
-    let mut b=B::new(lay,SC_DD);
+    let mut b=B::new(lay,SC_DD,pts.pub_gen_prove);
     let pad_on=ALL_DOMS.into_iter().any(|d|crate::private_block::pad::pad_zero_host(d)==SC_DD && !crate::private_block::pad::zero_rule_a_planes(sh,ids,d).is_empty());
     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
 
@@ -376,7 +376,7 @@ fn dd(ctx:&Ctx<'_>,tr:&mut Transcript)->Result<SlotDef,String> {
             // the public e column, constant in (h, t): slot k's value
             let ecol = ctx.public.dd_e_column(sh.dd_cap)?;
             let cap = sh.dd_cap;
-            let ie = b.public((0..(1usize << ldd)).map(|x| k(ecol[x % cap])).collect());
+            let ie = b.repeat_vals(1usize << ldd, &ecol[..cap]);
             let h0 = b.h(hids.first_helper(Dom::Dd))?;
             for j in 1..n_help {
                 b.h(hids.helper(Dom::Dd, j))?;
@@ -413,11 +413,11 @@ fn dd(ctx:&Ctx<'_>,tr:&mut Transcript)->Result<SlotDef,String> {
             b.finish(Box::new(poly), vec![])
 }
 
-fn tab(ctx:&Ctx<'_>,tr:&mut Transcript)->Result<SlotDef,String> {
+fn tab(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());
     let data=ctx.accuracy.ok_or("R13 table relation requires bound accuracy data")?;
     let(alpha,beta,g_u8,g_exp,g_act)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp,ctx.g_act);
-    let len=sh.size(Dom::Tab);let mut b=B::new(lay,SC_TAB);
+    let len=sh.size(Dom::Tab);let mut b=B::new(lay,SC_TAB,pts.pub_gen_prove);
     let pad_on=!crate::private_block::pad::zero_rule_a_planes(sh,ids,Dom::Tab).is_empty();
     let tau=tr.challenge_fp2_vec(sh.log(Dom::Tab));let mu=tr.challenge_fp2_vec(3+usize::from(pad_on));
     let zeta=if pad_on {nonzero(tr.challenge_fp2_vec(1))?[0]} else {Fp2::ZERO};let th=hids.table_helpers();
@@ -460,13 +460,13 @@ fn tab(ctx:&Ctx<'_>,tr:&mut Transcript)->Result<SlotDef,String> {
 
 fn dzc_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());let low=ids.accuracy()?;
-    let precision=sh.accuracy_precision()?;let cube=sh.size(Dom::D);let mut b=B::new(lay,SC_DZC);
+    let precision=sh.accuracy_precision()?;let cube=sh.size(Dom::D);let mut b=B::new(lay,SC_DZC,pts.pub_gen_prove);
     let pad_on=!crate::private_block::pad::zero_rule_a_planes(sh,ids,Dom::D).is_empty();
     let n_help=sh.helpers(Dom::D);let mu=tr.challenge_fp2_vec(6+n_help+usize::from(pad_on));
     let nu=nonzero(tr.challenge_fp2_vec(2))?;let zeta=if pad_on {nonzero(tr.challenge_fp2_vec(1))?[0]} else {Fp2::ZERO};
     b.eq(&tr.challenge_fp2_vec(sh.log(Dom::D)),0);b.eq(&pts.p_a,0);b.eq(&pts.p_z,0);
-    let ig=b.public((0..cube).map(|i|k(ctx.public.gamma_a[i%sh.d_pad] as i64)).collect());
-    let igm=b.public((0..cube).map(|i|k(ctx.ff.gamma_m[i%sh.d_pad] as i64)).collect());
+    let ig=b.repeat_vals(cube,&ctx.public.gamma_a[..sh.d_pad]);
+    let igm=b.repeat_vals(cube,&ctx.ff.gamma_m[..sh.d_pad]);
     let range=ids.domain_range(Dom::D)?;let idx=b.a_range(range.start,range.end-1)?;
     let (nr,ns,mr,ms)=(role(&b,low,L::Nr)?,role(&b,low,L::Ns)?,role(&b,low,L::Mr)?,role(&b,low,L::Ms)?);
     let (ral,rdl)=(role(&b,low,L::Rao)?,role(&b,low,L::Rd)?);
@@ -503,7 +503,7 @@ fn dzc_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> 
 fn fzc_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());let low=ids.accuracy()?;
     let data=ctx.accuracy.ok_or("W16 FFN requires public accuracy data")?;let precision=sh.accuracy_precision()?;
-    let cube=sh.size(Dom::F);let mut b=B::new(lay,SC_FZC);let pad_on=!crate::private_block::pad::zero_rule_a_planes(sh,ids,Dom::F).is_empty();
+    let cube=sh.size(Dom::F);let mut b=B::new(lay,SC_FZC,pts.pub_gen_prove);let pad_on=!crate::private_block::pad::zero_rule_a_planes(sh,ids,Dom::F).is_empty();
     let n_help=sh.helpers(Dom::F);let mu=tr.challenge_fp2_vec(2+n_help+usize::from(pad_on));let nu=nonzero(tr.challenge_fp2_vec(2))?;
     let zeta=if pad_on {nonzero(tr.challenge_fp2_vec(1))?[0]} else {Fp2::ZERO};
     b.eq(&tr.challenge_fp2_vec(sh.log(Dom::F)),0);b.eq(&pts.p_g,0);b.eq(&pts.p_u,0);
@@ -511,7 +511,7 @@ fn fzc_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> 
     let(rg,ru,rh)=(role(&b,low,L::Rg)?,role(&b,low,L::Ru)?,role(&b,low,L::Rh)?);
     let h0=b.h(hids.first_helper(Dom::F))?;for j in 1..n_help {b.h(hids.helper(Dom::F,j))?;}
     let fact=b.h(hids.fact())?;let lks=lk_tables(lay,Dom::F,&b.shaped,ctx.g_u8);
-    let group=b.public(crate::private_block::accuracy_act::group_column(sh,data)?);
+    let group=b.group_col(sh,data)?;
     let gf=Gate(b.supp(Dom::F,cube)?);let mut pz=PadTerm::none();
     if pad_on {
         let planes:Vec<_>=crate::private_block::pad::zero_rule_a_planes(sh,ids,Dom::F).iter().map(|&p|b.tab(p)).collect();
@@ -536,7 +536,7 @@ fn fzc_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> 
 
 fn qzc_w16(slot:usize,ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
-    let q=slot==SC_QZC;let dom=if q {Dom::Q} else {Dom::Kv};let cube=sh.size(dom);let log=sh.log(dom);let mut b=B::new(lay,slot);
+    let q=slot==SC_QZC;let dom=if q {Dom::Q} else {Dom::Kv};let cube=sh.size(dom);let log=sh.log(dom);let mut b=B::new(lay,slot,pts.pub_gen_prove);
     let pad_on=!crate::private_block::pad::zero_rule_a_planes(sh,ids,dom).is_empty();let n_help=sh.helpers(dom);
     let mu=tr.challenge_fp2_vec(1+n_help+usize::from(pad_on));let nu=nonzero(tr.challenge_fp2_vec(2))?;
     let zeta=if pad_on {nonzero(tr.challenge_fp2_vec(1))?[0]} else {Fp2::ZERO};
@@ -571,7 +571,7 @@ fn szc_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> 
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());
     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
     let(alpha,beta,g_exp)=(ctx.alpha,ctx.beta,ctx.g_exp);
-    let mut b=B::new(lay,SC_SZC);
+    let mut b=B::new(lay,SC_SZC,pts.pub_gen_prove);
     let pad_on=ALL_DOMS.into_iter().any(|d|crate::private_block::pad::pad_zero_host(d)==SC_SZC && !crate::private_block::pad::zero_rule_a_planes(sh,ids,d).is_empty());
     let n_pad=usize::from(pad_on);
     let tau=tr.challenge_fp2_vec(sh.log(Dom::S));
@@ -581,7 +581,7 @@ fn szc_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> 
     let zeta=if pad_on {nonzero(tr.challenge_fp2_vec(1))?[0]} else {Fp2::ZERO};
     let lam=pts.lam_z;
     b.eq(&tau,0);b.eq(&pts.p_ht,0);b.eq(&pts.p_s,0);
-    let im=b.public(causal_mask_at(sh));
+    let im=b.causal_mask(sh);
     let range=ids.domain_range(Dom::S)?;let idx=b.a_range(range.start,range.end-1)?;
     let(i_sr,i_sg,rsl_ix)=(role(&b,low,L::Sr)?,role(&b,low,L::Sg)?,role(&b,low,L::Rs)?);
     let lht=sh.log(Dom::Ht);
@@ -644,7 +644,7 @@ fn szc_dd_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,Strin
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());
     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
     let(alpha,beta,g_exp)=(ctx.alpha,ctx.beta,ctx.g_exp);
-    let mut b=B::new(lay,SC_SZC);
+    let mut b=B::new(lay,SC_SZC,pts.pub_gen_prove);
     let pad_on=ALL_DOMS.into_iter().any(|d|crate::private_block::pad::pad_zero_host(d)==SC_SZC && !crate::private_block::pad::zero_rule_a_planes(sh,ids,d).is_empty());
     if pad_on {
         return Err("private block: a DD profile's softmax zero-check would host a pad term; D30 here needs an unpadded score domain".into());
@@ -656,7 +656,7 @@ fn szc_dd_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,Strin
     let nu=nonzero(tr.challenge_fp2_vec(2))?;
     let lam=pts.lam_z;
     b.eq(&tau,0);b.eq(&pts.p_ht,0);b.eq(&pts.p_s,0);
-    let im=b.public(causal_mask_at(sh));
+    let im=b.causal_mask(sh);
     let idx=b.a_range(ids.at(A_S8),ids.at(A_P))?;
     let lht=sh.log(Dom::Ht);
     let imx=b.a_slice(lay.a_off[ids.at(A_MX)],lht,rho(0..lht),0)?;
@@ -693,10 +693,10 @@ fn szc_dd_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,Strin
     b.finish(Box::new(poly),hosted)
 }
 
-fn dd_w16(ctx:&Ctx<'_>,tr:&mut Transcript)->Result<SlotDef,String> {
+fn dd_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());
     let low=ids.accuracy()?;let(alpha,beta)=(ctx.alpha,ctx.beta);
-    let mut b=B::new(lay,SC_DD);
+    let mut b=B::new(lay,SC_DD,pts.pub_gen_prove);
     let pad_on=ALL_DOMS.into_iter().any(|d|crate::private_block::pad::pad_zero_host(d)==SC_DD && !crate::private_block::pad::zero_rule_a_planes(sh,ids,d).is_empty());
     if sh.dd_cap==0 {return Err("private block: the dictionary slot at a profile without a dictionary".into());}
     if pad_on {return Err("private block: a DD profile's dictionary would host a pad term; D30 here needs an unpadded dictionary".into());}
@@ -712,7 +712,7 @@ fn dd_w16(ctx:&Ctx<'_>,tr:&mut Transcript)->Result<SlotDef,String> {
     let isum=b.a_slice(lay.a_off[ids.at(A_SUM)],lht,rho(0..lht),0)?;
     let ecol=ctx.public.dd_e_column(sh.dd_cap)?;
     let cap=sh.dd_cap;
-    let ie=b.public((0..(1usize<<ldd)).map(|x|k(ecol[x%cap])).collect());
+    let ie=b.repeat_vals(1usize<<ldd,&ecol[..cap]);
     let h0=b.h(hids.first_helper(Dom::Dd))?;
     for j in 1..n_help {b.h(hids.helper(Dom::Dd,j))?;}
     let ig=b.h(hids.gdd())?;
@@ -735,12 +735,12 @@ fn dd_w16(ctx:&Ctx<'_>,tr:&mut Transcript)->Result<SlotDef,String> {
     b.finish(Box::new(poly),vec![])
 }
 
-fn tab_w16(ctx:&Ctx<'_>,tr:&mut Transcript)->Result<SlotDef,String> {
+fn tab_w16(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
     use crate::private_block::range16;
     let lay=ctx.lay;let(sh,ids,hids)=(lay.shape(),lay.ids(),lay.hids());
     let data=ctx.accuracy.ok_or("W16 table relation requires bound accuracy data")?;
     let(alpha,beta,g_u8,g_exp,g_act)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp,ctx.g_act);
-    let len=sh.size(Dom::Tab);let mut b=B::new(lay,SC_TAB);
+    let len=sh.size(Dom::Tab);let mut b=B::new(lay,SC_TAB,pts.pub_gen_prove);
     let rp=ids.accuracy()?.range_planes();let rh:Vec<usize>=hids.range_helpers().collect();
     if rp.len()!=rh.len() {return Err("W16: the range sub-planes and their table helpers differ in number".into());}
     let pad_on=!crate::private_block::pad::zero_rule_a_planes(sh,ids,Dom::Tab).is_empty();

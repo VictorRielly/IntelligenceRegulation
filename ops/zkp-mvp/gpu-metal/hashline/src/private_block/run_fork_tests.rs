@@ -3164,6 +3164,7 @@ fn d55_ab_one_request_serial_against_forks() {
     let mut ab_pipe_table: Vec<(String, Vec<(f64, f64)>)> = Vec::new();
     #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
     if !gpu_ab.is_empty() {
+        let _hf_lock = crate::zk::host_fast_test_lock();
         let own_q = crate::gpu::metal_set_queues_for_test(false);
         let own_w = crate::gpu::metal_set_wait_for_test(None);
         crate::gpu::metal_set_queues_for_test(own_q);
@@ -6857,6 +6858,9 @@ mod a22 {
         /// [K9] `sc0` / `sc1`: fast sumcheck dependent chain (`HL_METAL_SC_CHAIN_FAST`);
         /// default OFF: `sc1` turns it on, `sc0` forces it off
         sc: Option<bool>,
+        /// [HOST-FAST] `hf0` / `hf1`: opt-in same-words host-gap path (`HL_HOST_FAST`);
+        /// default OFF: `hf1` turns it on, `hf0` forces it off
+        hf: Option<bool>,
     }
 
     #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
@@ -6870,7 +6874,7 @@ mod a22 {
         } else {
             panic!("HL_A22_AB: an arm starts with serve<R> or harness<R>, not {first:?}")
         };
-        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None, a23: A23Set::default(), seal: None, ba: None, frs: None, sf: None, sc: None };
+        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None, a23: A23Set::default(), seal: None, ba: None, frs: None, sf: None, sc: None, hf: None };
         for w in words {
             match w {
                 "ba0" => a.ba = Some(false),
@@ -6881,6 +6885,8 @@ mod a22 {
                 "sf1" => a.sf = Some(true),
                 "sc0" => a.sc = Some(false),
                 "sc1" => a.sc = Some(true),
+                "hf0" => a.hf = Some(false),
+                "hf1" => a.hf = Some(true),
                 "dig0" => a.dig = Some(false),
                 "dig1" => a.dig = Some(true),
                 "share0" => a.a23.share = Some(false),
@@ -6907,13 +6913,17 @@ mod a22 {
         assert_eq!(a22_arm("serve4").sc, None);
         assert_eq!(a22_arm("serve4+sc0").sc, Some(false));
         assert_eq!(a22_arm("serve4+sc1").sc, Some(true));
-        let combined = a22_arm("harness4+ba1+frs1+sf1+sc1");
+        assert_eq!(a22_arm("serve4").hf, None);
+        assert_eq!(a22_arm("serve4+hf0").hf, Some(false));
+        assert_eq!(a22_arm("serve4+hf1").hf, Some(true));
+        let combined = a22_arm("harness4+ba1+frs1+sf1+sc1+hf1");
         assert!(combined.harness);
         assert_eq!(combined.r, 4);
         assert_eq!(combined.ba, Some(true));
         assert_eq!(combined.frs, Some(true));
         assert_eq!(combined.sf, Some(true));
         assert_eq!(combined.sc, Some(true));
+        assert_eq!(combined.hf, Some(true));
     }
 
     /// [A22] one stream's clocks: each request's completion and latency (from its arrival
@@ -7080,6 +7090,7 @@ mod a22 {
             }
             A22Stream { done, lat_arrival: lat.clone(), lat_sealing: lat, mem, usage }
         };
+        let _hf_lock = crate::zk::host_fast_test_lock();
         let apply = |a: &A22Arm| {
             a18_apply(&a.a18);
             set_a22_digest_ahead_for_test(a.dig);
@@ -7090,6 +7101,7 @@ mod a22 {
             crate::gpu::set_fused_rs_for_test(a.frs);
             crate::gpu::metal_set_sparse_fold_for_test(a.sf);
             crate::gpu::metal_set_sc_chain_fast_for_test(a.sc);
+            crate::zk::set_host_fast_for_test(a.hf);
         };
         let reset = || {
             a18_apply(&A18Arm::default());
@@ -7101,6 +7113,7 @@ mod a22 {
             crate::gpu::set_fused_rs_for_test(None);
             crate::gpu::metal_set_sparse_fold_for_test(None);
             crate::gpu::metal_set_sc_chain_fast_for_test(None);
+            crate::zk::set_host_fast_for_test(None);
         };
         // one cold request through the server (kernel compiles), verified
         let cold = serve("serve1 (cold)", 1, None, true);
@@ -7112,7 +7125,7 @@ mod a22 {
                 let (a, label) = (&arms[ai], &labels[ai]);
                 apply(a);
                 let settings = format!(
-                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}, bounds ahead {}, fused rs {}, sparse fold {}, sc chain fast {}",
+                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}, bounds ahead {}, fused rs {}, sparse fold {}, sc chain fast {}, host fast {}",
                     run::fork::ahead_window(),
                     a22_digest_ahead(),
                     a22_lanes(),
@@ -7122,7 +7135,8 @@ mod a22 {
                     crate::private_block::trained_block::a35_bounds_ahead(),
                     crate::gpu::fused_rs_for_test(),
                     crate::gpu::metal_sparse_fold_for_test(),
-                    crate::gpu::metal_sc_chain_fast_for_test()
+                    crate::gpu::metal_sc_chain_fast_for_test(),
+                    crate::zk::host_fast_for_test()
                 );
                 let s = if a.harness { harness(label, a.r, p == 0) } else { serve(label, a.r, Some(p), p == 0) };
                 reset();

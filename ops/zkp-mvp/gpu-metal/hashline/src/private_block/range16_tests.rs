@@ -1041,6 +1041,14 @@ fn a14_tables_equal_under_both_sums(profile: &'static str, private_only: bool) -
     use super::argument::{build_tables_at, define, set_lazy_for_test, Coord, Ctx, Points, ProverData, Tab, TABLES_PAR_MIN};
     use crate::field::Fp2;
     use crate::transcript::Transcript;
+    let _lock = crate::zk::host_fast_test_lock();
+    struct Reset;
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            set_lazy_for_test(None);
+        }
+    }
+    let _reset = Reset;
     let k = |v: i64| Fp2::from_i64(v);
     let (sh, data, public, ff) = case(built(profile), 3);
     let lay = Layout::for_shape(&sh).unwrap();

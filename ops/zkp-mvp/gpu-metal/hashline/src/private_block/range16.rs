@@ -245,6 +245,40 @@ pub(crate) fn support_column(f: Fam, log_cols: usize) -> Vec<Fp2> {
 /// denominator is zero (the prover then refuses, as the U8 table does)
 pub(crate) fn denominator_inverses(width: u32, alpha: Fp2, g: Fp2) -> Vec<Option<Fp2>> {
     let n = 1usize << width;
+    if crate::zk::host_fast_on() && n >= 2048 {
+        use rayon::prelude::*;
+        crate::zk::record_host_fast_hit(crate::zk::HF_H3_PAR_RNG16);
+        let base = alpha.sub(g);
+        let mut out = vec![None; n];
+        const CH: usize = 2048;
+        out.par_chunks_mut(CH).enumerate().for_each(|(ci, dst)| {
+            let v0 = ci * CH;
+            // Per-chunk stack scratch is ~80 KiB (CH=2048), well within rayon's 2 MiB default worker stack.
+            let mut nz_idx = [0usize; CH];
+            let mut nz_den = [Fp2::ZERO; CH];
+            let mut acc = [Fp2::ZERO; CH];
+            let mut count = 0usize;
+            let mut run = Fp2::ONE;
+            for i in 0..dst.len() {
+                let d = base.sub(Fp2::from_base(crate::field::Fp::new((v0 + i) as u64)));
+                if d != Fp2::ZERO {
+                    nz_idx[count] = i;
+                    nz_den[count] = d;
+                    acc[count] = run;
+                    run = run.mul(d);
+                    count += 1;
+                }
+            }
+            if count > 0 {
+                let mut inv = run.inv();
+                for j in (0..count).rev() {
+                    dst[nz_idx[j]] = Some(inv.mul(acc[j]));
+                    inv = inv.mul(nz_den[j]);
+                }
+            }
+        });
+        return out;
+    }
     let den: Vec<Fp2> = (0..n).map(|v| alpha.sub(Fp2::from_i64(v as i64).add(g))).collect();
     let mut out = vec![None; n];
     let nonzero: Vec<usize> = (0..n).filter(|&v| den[v] != Fp2::ZERO).collect();
@@ -313,5 +347,60 @@ mod tests {
         // a zero denominator is reported, not inverted
         let alpha0 = Fp2::from_i64(3).add(g);
         assert!(denominator_inverses(3, alpha0, g)[3].is_none());
+    }
+
+    #[test]
+    fn host_fast_m4_h3_denominator_inverses_zero_boundaries() {
+        let _lock = crate::zk::host_fast_test_lock();
+        struct Reset(Option<bool>);
+        impl Drop for Reset {
+            fn drop(&mut self) {
+                crate::zk::set_host_fast_for_test(self.0);
+            }
+        }
+        let _guard = Reset(crate::zk::set_host_fast_for_test(Some(false)));
+        let g = Fp2::new(Fp::new(12_345), Fp::new(67_890));
+        for width in [10u32, 11, 12, 16] {
+            let n = 1usize << width;
+            // Non-colliding alpha (all entries invertible)
+            let alpha_ok = Fp2::new(Fp::new(987_654_321), Fp::new(42));
+            crate::zk::set_host_fast_for_test(Some(false));
+            let ok0 = denominator_inverses(width, alpha_ok, g);
+            crate::zk::set_host_fast_for_test(Some(true));
+            let hb = crate::zk::host_fast_hits_for_test();
+            let ok1 = denominator_inverses(width, alpha_ok, g);
+            let ha = crate::zk::host_fast_hits_for_test();
+            assert_eq!(ok1, ok0, "non-colliding mismatch width={width}");
+            assert!(ok1.iter().all(Option::is_some));
+            if width >= 11 {
+                assert!(ha[crate::zk::HF_H3_PAR_RNG16] > hb[crate::zk::HF_H3_PAR_RNG16], "expected H3 hit width={width}");
+            }
+
+            // Constructed zero denominators at chunk boundaries and endpoints
+            let targets = [0usize, 2047, 2048, n - 1];
+            for &zv in &targets {
+                if zv >= n {
+                    continue;
+                }
+                let alpha = Fp2::from_i64(zv as i64).add(g);
+                crate::zk::set_host_fast_for_test(Some(false));
+                let inv0 = denominator_inverses(width, alpha, g);
+                crate::zk::set_host_fast_for_test(Some(true));
+                let hb = crate::zk::host_fast_hits_for_test();
+                let inv1 = denominator_inverses(width, alpha, g);
+                let ha = crate::zk::host_fast_hits_for_test();
+                assert_eq!(inv1, inv0, "zero-denom mismatch width={width} zv={zv}");
+                assert!(inv1[zv].is_none(), "expected None at zero denom width={width} zv={zv}");
+                if width >= 11 {
+                    assert!(ha[crate::zk::HF_H3_PAR_RNG16] > hb[crate::zk::HF_H3_PAR_RNG16], "expected H3 hit width={width} zv={zv}");
+                }
+                for check in [0usize, 1, 2047, 2048, n - 1] {
+                    if check < n && check != zv {
+                        let d = alpha.sub(Fp2::from_i64(check as i64).add(g));
+                        assert_eq!(inv1[check].expect("nonzero entry invertible").mul(d), Fp2::ONE);
+                    }
+                }
+            }
+        }
     }
 }
