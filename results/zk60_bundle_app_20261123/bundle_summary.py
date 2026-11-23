@@ -106,6 +106,9 @@ def traced(sub, title):
         return
     print(f'== {title} ({sub}), no verdict')
     for l in legs:
+        if not l.get('trace_prefix'):
+            print(f'leg {l["leg"]} arm {l["arm"]}: no GPU trace was taken in this leg')
+            continue
         N, T = l['N'], l['timed']
         recs = sorted(l['completions'], key=lambda x: x['t_abs'])
         lo, hi = recs[N - 1]['t_abs'], recs[N + T - 1]['t_abs']

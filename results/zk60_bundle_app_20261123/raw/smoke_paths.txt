@@ -1,0 +1,13 @@
+leg1_armA.prover.log.err: arm A
+       1008  store columns
+       1008  store fold with pads (sparse-gpu)
+    reg8 folds 0, older-kind folds 1008, host tiled gathers 0: as required for arm A
+leg2_armB.prover.log.err: arm B
+       1008  store columns
+       1008  store fold with pads (sparse-gpu)
+    reg8 folds 0, older-kind folds 1008, host tiled gathers 0: as required for arm B
+leg3_armC.prover.log.err: arm C
+       1008  store columns (host tiled)
+       1008  store fold with pads (sparse-gpu-reg8)
+    reg8 folds 1008, older-kind folds 0, host tiled gathers 1008: as required for arm C
+condition (a): MET

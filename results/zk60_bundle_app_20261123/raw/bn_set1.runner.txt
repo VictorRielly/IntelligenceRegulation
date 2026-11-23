@@ -1,0 +1,4 @@
+[03:19:21] launching bn_set1
+[zk60-guard 03:19:21] START bundle-bn_set1 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=c4ad7cec1e98
+[zk60-guard 03:47:51] END bundle-bn_set1 exit=0 child_wall=1710s peak_rss=66.56G min_avail=135.77G peak_vram=21013MiB
+[03:47:51] bn_set1 guard exit 0

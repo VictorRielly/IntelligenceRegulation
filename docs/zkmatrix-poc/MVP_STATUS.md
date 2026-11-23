@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 11:50 UTC, speed [MEASURED by Claude at the installed app profile, six lanes; rates
+    DERIVED from the raw completions; the kernel's code READ by a Claude reviewer]: the second
+    bundle does not pass at the app profile and is not merged.** Antigravity bundled the fast
+    opening with a rewritten sparse fold kernel. Each had shortened the 8B stream's gap in 6 of 6
+    passes (by 2.3% and 1.8%), and the kernel's code review found no blocking fault. At the
+    installed app profile the bundle with both switches on ran at 47.4 and 47.8 tok/s against 46.9
+    and 47.1 tok/s for the merged head: +0.93% and +1.47%. The rule posted before the run needs
+    +1.5% in each pair even to earn a repeat, so the verdict is "no transfer". All 216 receipts made
+    by the bundle were accepted by the merged head's verifier, and no other job ran beside the
+    measurement. The likely reason for the small gain [interpretation]: with six lanes a block
+    spends about 52 ms waiting for the GPU, so saving a few milliseconds of work mostly lengthens
+    the wait. The branch is kept. Whether such code may merge for the 8B stream alone, where it
+    does win, is a question put to Victor. Record: `results/zk60_bundle_app_20261123/README.md`.
     **Tick 46, Nov 23 11:02 UTC [READ from the kernel source and checked by Claude at the cited
     lines; the script's figures re-run with the same numbers; nothing measured]: the memory problem
     found in one GPU kernel is not present in the kernels that take most of the GPU time.**
