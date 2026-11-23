@@ -2,7 +2,7 @@
 
 Run 2026-11-23 16:36 to 18:07 UTC by the Claude co-coordinator. The definition, the rule and what each verdict would do were posted in `ops/zkp-mvp/RECOVERY_COORDINATION.md` at 2026-11-23T16:37:35Z and pushed (`bf789a4dc`) before any run; the binaries were recorded there at 17:37:52Z and pushed (`953c570ab`) before the first timed leg. Labels: MEASURED (the raw files), DERIVED (arithmetic by `hostfast_summary.py`; its output is `raw/hostfast_summary.txt`). Each timed rate was measured once (one set; it passed, so the rule's repeat was not run).
 
-**Result in one line.** With the switch on, the six-lane rate of the installed app profile was 50.8 and 49.2 tok/s against 46.9 tok/s for the merged head: PASS by the posted rule. One base leg ran low without a known cause, so the gain is quoted as +5 to +8 percent, not from the rule's two pair figures. The branch is not merged yet: the code reads come after this set (the order was announced with the definition), then the merge check.
+**Result in one line.** With the switch on, the six-lane rate of the installed app profile was 50.8 and 49.2 tok/s against 46.9 tok/s for the merged head: PASS by the posted rule. One base leg ran low without a known cause, so the gain is quoted as +5 to +8 percent, not from the rule's two pair figures. The code reads came after this set (the order was announced with the definition); their named changes were settled at `dab3fe762`, the merge check on the merged tree was green, and the branch was merged at `e0d7ccd1f` (19:26 UTC). At six lanes by eight threads the switch adds about 1 percent only (addendum below).
 
 ## What was tested
 
@@ -64,6 +64,25 @@ All 324 requests were proved; 216 B1 receipts were checked by B0 and accepted; n
 
 **Other jobs.** Between 17:42 and 18:02 UTC the tester ran two web searches and one page-fetch agent for an unrelated question of the owner (remote calls, no local computation); no research tick and no reader agent ran beside the set.
 
+## After the set: reads, fix commit, merge check (18:09 to 19:26 UTC)
+
+Two Opus reads at `6b68cb931` (`results/zk60_claude_review_20261116/HOST_FAST_READ_A_20261123.md`, `HOST_FAST_READ_B_20261123.md`): no High finding. Found sound: the mask commitment draws every random value on the calling thread in the old order before any parallel work; no verifier code reaches the new paths; the NEON fold cannot overflow at its size limit; the fold cache lives for one block on one side. Named changes (a default CPU parity test, an R13 byte-identity test, tighter guards on the direct sums, the verify arm restored with a refusal, an optional pipeline, test locks) were settled by Antigravity at `dab3fe762`; the co-coordinator read that diff. Smoke on `dab3fe762` (guard `e4a53364b4e5`, `raw/hf_smoke3`, `raw/smoke_paths_dab3fe762.txt`): condition (a) met, 12 of 12 receipts of arms B and C accepted by B0. B1 at `dab3fe762`: SHA-256 `b966e101f3df54e0a1919d86c4e3f35d55895a2d9dcf1027dd588da8d268fe3f` (guard build in `raw/build_b1_dab3fe762.*`). The six-leg set was not repeated: the fix commit adds guards, tests, a refusal on the verify side and a separately compiled pipeline, and does not change the work done inside a timed leg. Merge check on the merged tree: `results/zk60_hostfast_merge_20261123/` (guard `5a1dda38f49e`: full lib suite 1023 passed with the two known fixture failures only, the same with `HL_HOST_FAST=1` in the environment, the change's gates each in a fresh process, all green).
+
+## Addendum, 19:27 to 19:49 UTC: the switch at six lanes by eight threads (guard `215e95167b96`, exit 0; no verdict on the merge, which was already made)
+
+Defined in the coordination file at 18:59:43Z and pushed (`828886c16`) before the run: four legs X, Y, Y, X with the merged binary only (`b966e101...`), X = `frs1 sf1 sc1` at `--lanes 6 --lane-threads 8`, Y = the same plus `HL_HOST_FAST=1`, every receipt of both arms checked by B0.
+
+| leg | arm | rate, tok/s | receipts |
+|---|---|---|---|
+| 1 | X | 48.976 | 54 of 54 checked |
+| 2 | Y | 49.733 | 54 of 54 checked |
+| 3 | Y | 50.342 | 54 of 54 checked |
+| 4 | X | 50.068 | 54 of 54 checked |
+
+**Y over X (DERIVED): pair (1, 2) +1.55%, pair (4, 3) +0.55%.** By the reading fixed before the run ("holds at eight threads" if both are at least +3%, "does not hold" if either is under +1.5%) the label is **"does not hold at eight threads"**. All 216 requests proved, all 216 receipts accepted by B0, no other guarded job inside a leg. Raw: `raw/hf_lt8/`.
+
+So the switch is worth 5 to 8 percent at five threads a lane and about 1 percent at eight: the six parts cut CPU work, and eight threads a lane already hide most of it. With all four switches the stream ran at 49.2 and 50.8 tok/s at five threads and at 49.7 and 50.3 at eight (different sets, not paired): the same within the spread between legs.
+
 ## Reading (interpretation)
 
 This is a host-side cut, and it carries to six lanes at more than its 8B size (3.0% of the 8B gap, 8.7% less CPU time there). With six lanes by five threads the machine is asked for 30 threads on 24 performance cores, so CPU time saved in one lane is also time given back to the others; that fits, and it is not shown by this set. The first pair of B over A (+0.63%) says the new binary with the switch unset behaves as the base.
@@ -72,7 +91,7 @@ Two legs with the switch were 50.8 and 49.2 tok/s. Rates of different sets and d
 
 ## Not measured
 
-A second set (not needed by the rule); a traced pair; the six parts separately; six lanes by eight threads (planned as a four-leg addendum on the merged binary, after the reads and the merge check); the switch without the fast sumcheck chain; private content.
+A second six-leg set (not needed by the rule); a traced pair; the six parts separately; what limits the stream at about 50 tok/s with all four switches; the tail-round option together with the four switches; the switch without the fast sumcheck chain; private content.
 
 ## Files
 

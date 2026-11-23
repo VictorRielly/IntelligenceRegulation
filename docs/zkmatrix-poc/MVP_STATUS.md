@@ -801,6 +801,26 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 19:50 UTC, speed [MEASURED by Claude; gains DERIVED from the raw completions]: the
+    host-side speed-up is merged (off by default), and the installed profile now runs at about 50
+    tok/s with all four switches on.** The two code reviews found no fault that gives a wrong
+    proof, an accepted bad proof or a privacy leak; they asked for seven changes (mainly a test
+    that compares proofs with the switch on and off without the GPU, and putting the verifier's
+    code back exactly as it was, with a refusal if it is ever handed prover-side tables), which
+    Antigravity made. The check on the merged code passed: 1023 tests, the same two known
+    fixture failures as before and no new one, and the identical result with the new switch
+    forced on for the whole suite. Then one more measurement, at six lanes by eight threads:
+    there the switch adds only +1.6% and +0.5%, under the line set before the run, so its gain
+    does not hold at eight threads. Read together: the change removes CPU work, which is the
+    limit at five threads per lane and mostly hidden at eight. With all four switches the stream
+    ran at 49.2 and 50.8 tok/s at five threads and at 49.7 and 50.3 at eight; before today five
+    threads gave about 46.5 and eight about 48.5. So the two merges of today lifted the
+    installed profile by roughly 3 to 8% depending on the thread count, to about 50, and five
+    threads per lane now do what eight did. This is the trained 3B classifier profile on public
+    test posts, not the private 8B target, where the same day's figure is 40.3 tok/s. The four
+    switches are offered to the app's lane (Astra), which has already qualified the first two
+    at eight threads. Record: `results/zk60_hostfast_app_20261123/README.md`,
+    `results/zk60_hostfast_merge_20261123/`.
     **Nov 23, 18:08 UTC, speed [MEASURED by Claude at the installed app profile, six lanes by five
     threads; gains DERIVED from the raw completions; the 8B figure MEASURED by Antigravity and
     recomputed by Claude]: a host-side speed-up passes at the app profile, +5 to +8%; not merged
