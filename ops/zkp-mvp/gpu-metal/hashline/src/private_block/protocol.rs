@@ -2317,6 +2317,7 @@ pub(crate) struct CoreAhead {
     a_root: crate::merkle::Digest,
     mc: zk::MaskCommit,
     mask_root: crate::merkle::Digest,
+    hf_h2_delta: u64,
 }
 
 impl CoreAhead {
@@ -2508,7 +2509,9 @@ pub(crate) fn prove_core_before_with(
     lap(phases, tick, "witness planes + commit A");
 
     // ---- M: all twenty-three CFS masks, committed before any challenge ----
+    let hf_h2_before = crate::zk::host_fast_hits_for_test()[crate::zk::HF_H2_PAR_MASK];
     let mc = zk::mask_commit_tagged(&lay.mask_specs(), ntt, rng, &tag);
+    let hf_h2_delta = crate::zk::host_fast_hits_for_test()[crate::zk::HF_H2_PAR_MASK].saturating_sub(hf_h2_before);
     let mask_root = mc.tree.root();
     // the same: `zk::mask_commit` is `hashline/src/zk.rs`, one enclosing call
     ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", lay.m_rows() as u64, "rows");
@@ -2540,7 +2543,199 @@ pub(crate) fn prove_core_before_with(
         a_root,
         mc,
         mask_root,
+        hf_h2_delta,
     })
+}
+
+/// [HOST-FAST H1] Fill `sexp` helpers in `h_data` using pre-inverted 256-row
+/// exp table denominators when `HL_HOST_FAST=1` and `exp_missed == 0`,
+/// returning the cached table inverses for `gexp` reuse. Any miss, bounds
+/// mismatch, or zero table denominator falls back to the exact baseline path
+/// and increments `HF_FB_H1_EXP`.
+#[allow(clippy::too_many_arguments)]
+fn fill_exp_helpers(
+    h_data: &mut [Fp],
+    lay: &Layout,
+    public: &super::AttentionPublic,
+    deltas: &[i64],
+    a_e: &[i64],
+    exp_missed: usize,
+    alpha: Fp2,
+    beta: Fp2,
+    g_exp: Fp2,
+) -> Result<Option<Vec<Fp2>>, String> {
+    use rayon::prelude::*;
+    let hids = lay.hids();
+    let mut exp_inv_cached: Option<Vec<Fp2>> = None;
+    if crate::zk::host_fast_on() {
+        if exp_missed != 0 {
+            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_EXP, "H1 exp: exp_missed > 0");
+        } else if deltas.len() != a_e.len() {
+            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_EXP, "H1 exp: deltas/A_E length mismatch");
+        } else {
+            let tv_exp = table_values_exp(public, beta, g_exp);
+            match inverses(tv_exp.iter().map(|t| alpha.sub(*t)).collect()) {
+                Ok(exp_inv) => {
+                    let len = deltas.len();
+                    let off = lay.h_off[hids.sexp()];
+                    let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
+                    if lo + len <= hi && hi + len <= h_data.len() {
+                        let (head, tail) = h_data.split_at_mut(hi);
+                        let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
+                        let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
+                        if len >= WRITE_H_PAR_MIN {
+                            re.par_chunks_mut(HELPER_CHUNK)
+                                .zip(im.par_chunks_mut(HELPER_CHUNK))
+                                .zip(deltas.par_chunks(HELPER_CHUNK))
+                                .for_each(|((r, m), ds)| {
+                                    for ((r, m), &d) in r.iter_mut().zip(m.iter_mut()).zip(ds.iter()) {
+                                        let v = exp_inv[d as usize];
+                                        *r = v.c0;
+                                        *m = v.c1;
+                                    }
+                                });
+                        } else {
+                            for ((r, m), &d) in re.iter_mut().zip(im.iter_mut()).zip(deltas.iter()) {
+                                let v = exp_inv[d as usize];
+                                *r = v.c0;
+                                *m = v.c1;
+                            }
+                        }
+                        exp_inv_cached = Some(exp_inv);
+                        crate::zk::record_host_fast_hit(crate::zk::HF_H1_INV_TBL);
+                    } else {
+                        crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_EXP, "H1 exp: sexp slice bounds");
+                    }
+                }
+                Err(_) => {
+                    crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_EXP, "H1 exp: zero table denominator");
+                }
+            }
+        }
+    }
+    if exp_inv_cached.is_none() {
+        let exp_den = deltas
+            .par_iter()
+            .zip(a_e.par_iter())
+            .map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp)))
+            .collect();
+        write_h(h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
+    }
+    Ok(exp_inv_cached)
+}
+
+/// [HOST-FAST H1] Fill `fact` helpers in `h_data` using pre-inverted active
+/// ACT table denominators when `HL_HOST_FAST=1` and `act_missed == 0`,
+/// returning the cached table inverses for `gact` reuse. Any miss, error, or
+/// zero table denominator falls back to the exact baseline path and increments
+/// `HF_FB_H1_ACT`.
+#[allow(clippy::too_many_arguments)]
+fn fill_act_helpers(
+    sh: &Shape,
+    lay: &Layout,
+    blk: &BlockPublic,
+    gates: &[i64],
+    outputs: &[i64],
+    act_idx: &[i64],
+    act_missed: usize,
+    h_data: &mut [Fp],
+    alpha: Fp2,
+    beta: Fp2,
+    g_act: Fp2,
+) -> Result<Option<Vec<Fp2>>, String> {
+    use rayon::prelude::*;
+    let hids = lay.hids();
+    let ff = blk.feed_forward();
+    let mut act_inv_cached: Option<Vec<Fp2>> = None;
+    if crate::zk::host_fast_on() {
+        if act_missed != 0 {
+            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_ACT, "H1 act: act_missed > 0");
+        } else if let Some(data) = blk.accuracy() {
+            match super::accuracy_act::table(data, sh.size(Dom::Tab), beta, g_act) {
+                Ok(act_tbl) => match inverses(act_tbl.compressed[..act_tbl.entries].iter().map(|t| alpha.sub(*t)).collect()) {
+                    Ok(act_inv) => {
+                        let len = gates.len();
+                        let off = lay.h_off[hids.fact()];
+                        let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
+                        if lo + len <= hi && hi + len <= h_data.len() {
+                            let (head, tail) = h_data.split_at_mut(hi);
+                            let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
+                            let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
+                            if super::accuracy_act::write_helpers_from_inv(sh, data, gates, outputs, &act_inv, re, im).is_ok() {
+                                act_inv_cached = Some(act_inv);
+                                crate::zk::record_host_fast_hit(crate::zk::HF_H1_INV_TBL);
+                            } else {
+                                crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_ACT, "H1 act: write_helpers_from_inv err");
+                            }
+                        } else {
+                            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_ACT, "H1 act: fact slice bounds");
+                        }
+                    }
+                    Err(_) => {
+                        crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_ACT, "H1 act: zero table denominator");
+                    }
+                },
+                Err(_) => {
+                    crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_ACT, "H1 act: accuracy_act::table err");
+                }
+            }
+        } else if act_idx.len() == outputs.len() {
+            let tv_act = table_values_act(ff, beta, g_act);
+            match inverses(tv_act.iter().map(|t| alpha.sub(*t)).collect()) {
+                Ok(act_inv) => {
+                    let len = act_idx.len();
+                    let off = lay.h_off[hids.fact()];
+                    let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
+                    if lo + len <= hi && hi + len <= h_data.len() {
+                        let (head, tail) = h_data.split_at_mut(hi);
+                        let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
+                        let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
+                        if len >= WRITE_H_PAR_MIN {
+                            re.par_chunks_mut(HELPER_CHUNK)
+                                .zip(im.par_chunks_mut(HELPER_CHUNK))
+                                .zip(act_idx.par_chunks(HELPER_CHUNK))
+                                .for_each(|((r, m), idx)| {
+                                    for ((r, m), &k) in r.iter_mut().zip(m.iter_mut()).zip(idx.iter()) {
+                                        let v = act_inv[k as usize];
+                                        *r = v.c0;
+                                        *m = v.c1;
+                                    }
+                                });
+                        } else {
+                            for ((r, m), &k) in re.iter_mut().zip(im.iter_mut()).zip(act_idx.iter()) {
+                                let v = act_inv[k as usize];
+                                *r = v.c0;
+                                *m = v.c1;
+                            }
+                        }
+                        act_inv_cached = Some(act_inv);
+                        crate::zk::record_host_fast_hit(crate::zk::HF_H1_INV_TBL);
+                    } else {
+                        crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_ACT, "H1 act: legacy fact slice bounds");
+                    }
+                }
+                Err(_) => {
+                    crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_ACT, "H1 act: zero legacy table denominator");
+                }
+            }
+        } else {
+            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_ACT, "H1 act: act_idx/A_A16 length mismatch");
+        }
+    }
+    if act_inv_cached.is_none() {
+        let act_den = match blk.accuracy() {
+            // [ZK60-METAL M15] fused: one pass over the rows, no per-element
+            // divisions, no intermediate vector (`accuracy_act::denominators`)
+            Some(data) => super::accuracy_act::denominators(sh, data, gates, outputs, alpha, beta, g_act)?,
+            None => act_idx
+                .par_iter()
+                .zip(outputs.par_iter())
+                .map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act)))
+                .collect(),
+        };
+        write_h(h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
+    }
+    Ok(act_inv_cached)
 }
 
 /// **[A13] THE REST OF [`prove_core_with`], from its first transcript use.**
@@ -2565,13 +2760,15 @@ pub(crate) fn prove_core_after_with(
     tick: &mut std::time::Instant,
     hints: CoreHints<'_, '_>,
 ) -> Result<CoreProof, String> {
-    let CoreAhead { sh: made_for, rows, blk_at, views_on, params, zko, tag, wit, looked, built, lookup_words, m_u8, m_rng, m_exp, m_act, exp_missed, act_missed, deltas, act_idx, a, a_root, mc, mask_root } = ahead;
+    let CoreAhead { sh: made_for, rows, blk_at, views_on, params, zko, tag, wit, looked, built, lookup_words, m_u8, m_rng, m_exp, m_act, exp_missed, act_missed, deltas, act_idx, a, a_root, mc, mask_root, hf_h2_delta } = ahead;
     if made_for != *sh || rows != (lay.a_rows, lay.h_rows, lay.n()) {
         return Err("private block: the before-challenge state was made for another shape or layout".into());
     }
     if blk_at != block_at(blk) {
         return Err("private block: the before-challenge state was made for another block".into());
     }
+    let hf_hits_start = crate::zk::host_fast_hits_for_test();
+    let hf_fb_start = crate::zk::host_fast_fallbacks_for_test();
     let (public, ff) = (blk.attention(), blk.feed_forward());
     let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
     // [A17] the views again, over the same witness and built columns
@@ -2666,120 +2863,31 @@ pub(crate) fn prove_core_after_with(
     }
     drop(jobs);
     ph.mark_bytes(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words", 16 * lookup_words);
-    // [M4h] the denominators element by element on rayon: indexed iterators,
-    // so the same elements in the same order (zip stops at the shorter side,
-    // as the sequential zip did)
-    use rayon::prelude::*;
-    // [HOST-FAST H1] When `exp_missed == 0`, every `(d, e)` in `Dom::S` matches
-    // an entry of the 256-row exp table (`0 <= d < 256`, `e == public.exp[d]`).
-    // Invert the 256 table denominators once, scatter directly into `h_data`,
-    // and reuse `exp_inv` for `gexp` below. Any miss or zero table denominator
-    // falls back to the exact baseline path so refusal order/strings never move.
-    let mut exp_inv_cached: Option<Vec<Fp2>> = None;
-    if crate::zk::host_fast_on() && exp_missed == 0 && deltas.len() == wit.planes[ids.at(A_E)].len() {
-        let tv_exp = table_values_exp(public, beta, g_exp);
-        if let Ok(exp_inv) = inverses(tv_exp.iter().map(|t| alpha.sub(*t)).collect()) {
-            let len = deltas.len();
-            let off = lay.h_off[hids.sexp()];
-            let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
-            if lo + len <= hi && hi + len <= h_data.len() {
-                let (head, tail) = h_data.split_at_mut(hi);
-                let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
-                let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
-                if len >= WRITE_H_PAR_MIN {
-                    re.par_chunks_mut(HELPER_CHUNK)
-                        .zip(im.par_chunks_mut(HELPER_CHUNK))
-                        .zip(deltas.par_chunks(HELPER_CHUNK))
-                        .for_each(|((r, m), ds)| {
-                            for ((r, m), &d) in r.iter_mut().zip(m.iter_mut()).zip(ds.iter()) {
-                                let v = exp_inv[d as usize];
-                                *r = v.c0;
-                                *m = v.c1;
-                            }
-                        });
-                } else {
-                    for ((r, m), &d) in re.iter_mut().zip(im.iter_mut()).zip(deltas.iter()) {
-                        let v = exp_inv[d as usize];
-                        *r = v.c0;
-                        *m = v.c1;
-                    }
-                }
-                exp_inv_cached = Some(exp_inv);
-                crate::zk::record_host_fast_hit(crate::zk::HF_H1_EXP_ACT);
-            }
-        }
-    }
-    if exp_inv_cached.is_none() {
-        let exp_den = deltas.par_iter().zip(wit.planes[ids.at(A_E)].par_iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
-        write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
-    }
-    // [HOST-FAST H1] Same for `fact` / `gact` when `act_missed == 0`: invert the
-    // active ACT table once (<= 16,384 entries for ACT3, 256 for legacy), write
-    // `fact` straight into `h_data`, and reuse `act_inv` for `gact` below.
-    let mut act_inv_cached: Option<Vec<Fp2>> = None;
-    if crate::zk::host_fast_on() && act_missed == 0 {
-        if let Some(data) = blk.accuracy() {
-            if let Ok(act_tbl) = super::accuracy_act::table(data, sh.size(Dom::Tab), beta, g_act) {
-                if let Ok(act_inv) = inverses(act_tbl.compressed[..act_tbl.entries].iter().map(|t| alpha.sub(*t)).collect()) {
-                    let gates = &wit.planes[ids.at(A_G8)];
-                    let outputs = &wit.planes[ids.at(A_A16)];
-                    let len = gates.len();
-                    let off = lay.h_off[hids.fact()];
-                    let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
-                    if lo + len <= hi && hi + len <= h_data.len() {
-                        let (head, tail) = h_data.split_at_mut(hi);
-                        let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
-                        let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
-                        if super::accuracy_act::write_helpers_from_inv(sh, data, gates, outputs, &act_inv, re, im).is_ok() {
-                            act_inv_cached = Some(act_inv);
-                            crate::zk::record_host_fast_hit(crate::zk::HF_H1_EXP_ACT);
-                        }
-                    }
-                }
-            }
-        } else if act_idx.len() == wit.planes[ids.at(A_A16)].len() {
-            let tv_act = table_values_act(ff, beta, g_act);
-            if let Ok(act_inv) = inverses(tv_act.iter().map(|t| alpha.sub(*t)).collect()) {
-                let len = act_idx.len();
-                let off = lay.h_off[hids.fact()];
-                let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
-                if lo + len <= hi && hi + len <= h_data.len() {
-                    let (head, tail) = h_data.split_at_mut(hi);
-                    let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
-                    let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
-                    if len >= WRITE_H_PAR_MIN {
-                        re.par_chunks_mut(HELPER_CHUNK)
-                            .zip(im.par_chunks_mut(HELPER_CHUNK))
-                            .zip(act_idx.par_chunks(HELPER_CHUNK))
-                            .for_each(|((r, m), idx)| {
-                                for ((r, m), &k) in r.iter_mut().zip(m.iter_mut()).zip(idx.iter()) {
-                                    let v = act_inv[k as usize];
-                                    *r = v.c0;
-                                    *m = v.c1;
-                                }
-                            });
-                    } else {
-                        for ((r, m), &k) in re.iter_mut().zip(im.iter_mut()).zip(act_idx.iter()) {
-                            let v = act_inv[k as usize];
-                            *r = v.c0;
-                            *m = v.c1;
-                        }
-                    }
-                    act_inv_cached = Some(act_inv);
-                    crate::zk::record_host_fast_hit(crate::zk::HF_H1_EXP_ACT);
-                }
-            }
-        }
-    }
-    if act_inv_cached.is_none() {
-        let act_den = match blk.accuracy() {
-            // [ZK60-METAL M15] fused: one pass over the rows, no per-element
-            // divisions, no intermediate vector (`accuracy_act::denominators`)
-            Some(data)=>super::accuracy_act::denominators(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)],alpha,beta,g_act)?,
-            None=>act_idx.par_iter().zip(wit.planes[ids.at(A_A16)].par_iter()).map(|(i,a)|alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect(),
-        };
-        write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
-    }
+    // [M4h] / [HOST-FAST H1] exp and activation helpers
+    let exp_inv_cached = fill_exp_helpers(
+        &mut h_data,
+        lay,
+        public,
+        &deltas,
+        &wit.planes[ids.at(A_E)],
+        exp_missed,
+        alpha,
+        beta,
+        g_exp,
+    )?;
+    let act_inv_cached = fill_act_helpers(
+        sh,
+        lay,
+        blk,
+        &wit.planes[ids.at(A_G8)],
+        &wit.planes[ids.at(A_A16)],
+        &act_idx,
+        act_missed,
+        &mut h_data,
+        alpha,
+        beta,
+        g_act,
+    )?;
     ph.mark_bytes(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words", 16 * (sh.size(Dom::S) + sh.size(Dom::F)) as u64);
     // **NATIVE R9 (D30): the dictionary's two LogUp columns.** The score
     // entry's single tuple helper `1 / (alpha - (gamma TAG_DD + Sum + beta
@@ -2994,6 +3102,18 @@ pub(crate) fn prove_core_after_with(
     drop(h);
     ph.mark_bytes(Half::Open, "open H (schedule audit + pcs::open_zk)", (lay.h_rows * lay.n()) as u64, "words", 8 * (lay.h_rows * lay.n()) as u64);
     let _ = hc.len();
+    if crate::zk::host_fast_on() && crate::zk::host_fast_timing_on() {
+        let hf_hits_end = crate::zk::host_fast_hits_for_test();
+        let hf_fb_end = crate::zk::host_fast_fallbacks_for_test();
+        let mut hd: [u64; 8] = std::array::from_fn(|i| hf_hits_end[i].saturating_sub(hf_hits_start[i]));
+        hd[crate::zk::HF_H2_PAR_MASK] = hd[crate::zk::HF_H2_PAR_MASK].saturating_add(hf_h2_delta);
+        let fd: [u64; 5] = std::array::from_fn(|i| hf_fb_end[i].saturating_sub(hf_fb_start[i]));
+        eprintln!(
+            "[ZK60-HOST-FAST] block hits=h1:{},h2:{},h3:{},h4:{},h5:{},h6g:{},h6c:{},h6d:{} fallbacks=h1e:{},h1a:{},h4:{},h5:{},h6:{}",
+            hd[0], hd[1], hd[2], hd[3], hd[4], hd[5], hd[6], hd[7],
+            fd[0], fd[1], fd[2], fd[3], fd[4],
+        );
+    }
     Ok(CoreProof {
         a_root,
         h_root,
@@ -3210,4 +3330,272 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     #[cfg(test)]
     super::capture::publish(blk, expected, receipt);
     Ok(order)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn host_fast_m4_h1_fallback_refusal_parity() {
+        let _lock = crate::zk::host_fast_test_lock();
+        struct Reset(Option<bool>);
+        impl Drop for Reset {
+            fn drop(&mut self) {
+                crate::zk::set_host_fast_for_test(self.0);
+            }
+        }
+        let _guard = Reset(crate::zk::set_host_fast_for_test(Some(false)));
+
+        let beta = Fp2::new(Fp::new(17), Fp::new(23));
+        let g_exp = Fp2::new(Fp::new(31), Fp::new(41));
+        let g_act = Fp2::new(Fp::new(53), Fp::new(59));
+        let alpha_ok = Fp2::new(Fp::new(999_999), Fp::new(777));
+
+        // ---- Part 1: legacy toy shape (exp + legacy act) ----
+        let sh = Shape::toy();
+        let lay = Layout::for_shape(&sh).unwrap();
+        let (public, ff, _input) = super::super::grow_tests::tame_case(&sh);
+        let blk = BlockPublic::new(public, ff);
+        let h_len = lay.h_rows * lay.n();
+
+        // Controlled exp inputs: entry 0 used everywhere, entry 7 unused
+        let n_s = sh.size(Dom::S);
+        let deltas_sub = vec![0i64; n_s];
+        let a_e_sub = vec![blk.attention().exp[0]; n_s];
+        let mut m_exp_sub = vec![0u64; U8_LEN];
+        m_exp_sub[0] = n_s as u64;
+        let tv_exp = table_values_exp(blk.attention(), beta, g_exp);
+
+        // Exp happy path
+        {
+            let mut h0 = vec![Fp::ZERO; h_len];
+            let mut h1 = vec![Fp::ZERO; h_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let c0 = fill_exp_helpers(&mut h0, &lay, blk.attention(), &deltas_sub, &a_e_sub, 0, alpha_ok, beta, g_exp).unwrap();
+            assert!(c0.is_none());
+            crate::zk::set_host_fast_for_test(Some(true));
+            let hb = crate::zk::host_fast_hits_for_test();
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let c1 = fill_exp_helpers(&mut h1, &lay, blk.attention(), &deltas_sub, &a_e_sub, 0, alpha_ok, beta, g_exp).unwrap();
+            let ha = crate::zk::host_fast_hits_for_test();
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert_eq!(h1, h0, "H1 exp happy path h_data mismatch");
+            assert!(ha[crate::zk::HF_H1_INV_TBL] > hb[crate::zk::HF_H1_INV_TBL]);
+            assert_eq!(fba[crate::zk::HF_FB_H1_EXP], fbb[crate::zk::HF_FB_H1_EXP]);
+            let inv = c1.expect("H1 exp happy path caches inv");
+            let col_fast: Vec<Fp2> = inv.iter().zip(&m_exp_sub).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
+            let col_ref = table_helper(&tv_exp, &m_exp_sub, alpha_ok, true).unwrap();
+            assert_eq!(col_fast, col_ref, "H1 gexp table helper mismatch");
+        }
+
+        // Exp: alpha hits UNUSED table entry -> fill_exp_helpers succeeds identically, fallback incremented, table_helper refuses
+        {
+            let alpha_unused = tv_exp[7];
+            let mut h0 = vec![Fp::ZERO; h_len];
+            let mut h1 = vec![Fp::ZERO; h_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let c0 = fill_exp_helpers(&mut h0, &lay, blk.attention(), &deltas_sub, &a_e_sub, 0, alpha_unused, beta, g_exp).unwrap();
+            crate::zk::set_host_fast_for_test(Some(true));
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let c1 = fill_exp_helpers(&mut h1, &lay, blk.attention(), &deltas_sub, &a_e_sub, 0, alpha_unused, beta, g_exp).unwrap();
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert!(c0.is_none() && c1.is_none());
+            assert_eq!(h1, h0, "H1 exp unused-entry fallback h_data mismatch");
+            assert!(fba[crate::zk::HF_FB_H1_EXP] > fbb[crate::zk::HF_FB_H1_EXP]);
+            assert!(table_helper(&tv_exp, &m_exp_sub, alpha_unused, true).is_err());
+        }
+
+        // Exp: alpha hits USED table entry -> exact same Err string + fallback incremented
+        {
+            let alpha_used = tv_exp[0];
+            let mut h0 = vec![Fp::ZERO; h_len];
+            let mut h1 = vec![Fp::ZERO; h_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let r0 = fill_exp_helpers(&mut h0, &lay, blk.attention(), &deltas_sub, &a_e_sub, 0, alpha_used, beta, g_exp);
+            crate::zk::set_host_fast_for_test(Some(true));
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let r1 = fill_exp_helpers(&mut h1, &lay, blk.attention(), &deltas_sub, &a_e_sub, 0, alpha_used, beta, g_exp);
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert!(r0.is_err());
+            assert_eq!(r1, r0, "H1 exp used-entry refusal parity mismatch");
+            assert!(fba[crate::zk::HF_FB_H1_EXP] > fbb[crate::zk::HF_FB_H1_EXP]);
+        }
+
+        // Exp: exp_missed > 0 -> exact baseline parity + fallback incremented
+        {
+            let mut a_e_bad = a_e_sub.clone();
+            a_e_bad[0] += 1;
+            let mut h0 = vec![Fp::ZERO; h_len];
+            let mut h1 = vec![Fp::ZERO; h_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let c0 = fill_exp_helpers(&mut h0, &lay, blk.attention(), &deltas_sub, &a_e_bad, 1, alpha_ok, beta, g_exp).unwrap();
+            crate::zk::set_host_fast_for_test(Some(true));
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let c1 = fill_exp_helpers(&mut h1, &lay, blk.attention(), &deltas_sub, &a_e_bad, 1, alpha_ok, beta, g_exp).unwrap();
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert!(c0.is_none() && c1.is_none());
+            assert_eq!(h1, h0, "H1 exp_missed > 0 fallback h_data mismatch");
+            assert!(fba[crate::zk::HF_FB_H1_EXP] > fbb[crate::zk::HF_FB_H1_EXP]);
+        }
+
+        // Controlled legacy ACT inputs: entry 0 used everywhere, entry 5 unused
+        let n_f = sh.size(Dom::F);
+        let act_idx_sub = vec![0i64; n_f];
+        let a_a16_sub = vec![i64::from(blk.feed_forward().act[0]); n_f];
+        let mut m_act_sub = vec![0u64; U8_LEN];
+        m_act_sub[0] = n_f as u64;
+        let tv_act = table_values_act(blk.feed_forward(), beta, g_act);
+
+        // Legacy ACT happy path
+        {
+            let mut h0 = vec![Fp::ZERO; h_len];
+            let mut h1 = vec![Fp::ZERO; h_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let c0 = fill_act_helpers(&sh, &lay, &blk, &[], &a_a16_sub, &act_idx_sub, 0, &mut h0, alpha_ok, beta, g_act).unwrap();
+            assert!(c0.is_none());
+            crate::zk::set_host_fast_for_test(Some(true));
+            let hb = crate::zk::host_fast_hits_for_test();
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let c1 = fill_act_helpers(&sh, &lay, &blk, &[], &a_a16_sub, &act_idx_sub, 0, &mut h1, alpha_ok, beta, g_act).unwrap();
+            let ha = crate::zk::host_fast_hits_for_test();
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert_eq!(h1, h0, "H1 legacy act happy path mismatch");
+            assert!(ha[crate::zk::HF_H1_INV_TBL] > hb[crate::zk::HF_H1_INV_TBL]);
+            assert_eq!(fba[crate::zk::HF_FB_H1_ACT], fbb[crate::zk::HF_FB_H1_ACT]);
+            let inv = c1.expect("H1 legacy act happy path caches inv");
+            let col_fast: Vec<Fp2> = inv.iter().zip(&m_act_sub).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
+            let col_ref = table_helper(&tv_act, &m_act_sub, alpha_ok, true).unwrap();
+            assert_eq!(col_fast, col_ref, "H1 legacy gact table helper mismatch");
+        }
+
+        // Legacy ACT: unused entry, used entry, act_missed > 0
+        {
+            let alpha_unused = tv_act[5];
+            let mut h0 = vec![Fp::ZERO; h_len];
+            let mut h1 = vec![Fp::ZERO; h_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let c0 = fill_act_helpers(&sh, &lay, &blk, &[], &a_a16_sub, &act_idx_sub, 0, &mut h0, alpha_unused, beta, g_act).unwrap();
+            crate::zk::set_host_fast_for_test(Some(true));
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let c1 = fill_act_helpers(&sh, &lay, &blk, &[], &a_a16_sub, &act_idx_sub, 0, &mut h1, alpha_unused, beta, g_act).unwrap();
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert!(c0.is_none() && c1.is_none());
+            assert_eq!(h1, h0, "H1 legacy act unused-entry mismatch");
+            assert!(fba[crate::zk::HF_FB_H1_ACT] > fbb[crate::zk::HF_FB_H1_ACT]);
+            assert!(table_helper(&tv_act, &m_act_sub, alpha_unused, true).is_err());
+
+            let alpha_used = tv_act[0];
+            let mut h0 = vec![Fp::ZERO; h_len];
+            let mut h1 = vec![Fp::ZERO; h_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let r0 = fill_act_helpers(&sh, &lay, &blk, &[], &a_a16_sub, &act_idx_sub, 0, &mut h0, alpha_used, beta, g_act);
+            crate::zk::set_host_fast_for_test(Some(true));
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let r1 = fill_act_helpers(&sh, &lay, &blk, &[], &a_a16_sub, &act_idx_sub, 0, &mut h1, alpha_used, beta, g_act);
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert!(r0.is_err());
+            assert_eq!(r1, r0, "H1 legacy act used-entry refusal parity mismatch");
+            assert!(fba[crate::zk::HF_FB_H1_ACT] > fbb[crate::zk::HF_FB_H1_ACT]);
+
+            let mut a_bad = a_a16_sub.clone();
+            a_bad[0] += 1;
+            let mut h0 = vec![Fp::ZERO; h_len];
+            let mut h1 = vec![Fp::ZERO; h_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let c0 = fill_act_helpers(&sh, &lay, &blk, &[], &a_bad, &act_idx_sub, 1, &mut h0, alpha_ok, beta, g_act).unwrap();
+            crate::zk::set_host_fast_for_test(Some(true));
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let c1 = fill_act_helpers(&sh, &lay, &blk, &[], &a_bad, &act_idx_sub, 1, &mut h1, alpha_ok, beta, g_act).unwrap();
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert!(c0.is_none() && c1.is_none());
+            assert_eq!(h1, h0, "H1 legacy act_missed > 0 mismatch");
+            assert!(fba[crate::zk::HF_FB_H1_ACT] > fbb[crate::zk::HF_FB_H1_ACT]);
+        }
+
+        // ---- Part 2: ACT3 (W16R2_RUNG_H24) ----
+        let (sh_w, blk_w, _wit_w) = super::super::range16_tests::rung_case(super::super::shape::W16R2_RUNG_H24);
+        let lay_w = Layout::for_shape(&sh_w).unwrap();
+        let data_w = blk_w.accuracy().expect("W16R2 accuracy");
+        let hw_len = lay_w.h_rows * lay_w.n();
+        let gates_w = vec![0i64; sh_w.size(Dom::F)];
+        let mut outputs_w = vec![0i64; sh_w.size(Dom::F)];
+        for t in 0..sh_w.t_pad {
+            for j in 0..sh_w.f_pad {
+                let grp = if t < sh_w.tokens && j < sh_w.hidden { data_w.group_ids()[j] } else { 0 };
+                outputs_w[t * sh_w.f_pad + j] = data_w.scaled_tables()[grp][2048];
+            }
+        }
+        let (m_act_w, act_w_missed) = super::super::accuracy_act::histogram(&sh_w, data_w, &gates_w, &outputs_w).unwrap();
+        assert_eq!(act_w_missed, 0);
+        assert_eq!(m_act_w[2049], 0, "entry 2049 must be unused");
+        assert!(m_act_w[2048] > 0, "entry 2048 must be used");
+        let act_tbl = super::super::accuracy_act::table(data_w, sh_w.size(Dom::Tab), beta, g_act).unwrap();
+
+        // ACT3 happy path
+        {
+            let mut h0 = vec![Fp::ZERO; hw_len];
+            let mut h1 = vec![Fp::ZERO; hw_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let c0 = fill_act_helpers(&sh_w, &lay_w, &blk_w, &gates_w, &outputs_w, &[], 0, &mut h0, alpha_ok, beta, g_act).unwrap();
+            assert!(c0.is_none());
+            crate::zk::set_host_fast_for_test(Some(true));
+            let hb = crate::zk::host_fast_hits_for_test();
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let c1 = fill_act_helpers(&sh_w, &lay_w, &blk_w, &gates_w, &outputs_w, &[], 0, &mut h1, alpha_ok, beta, g_act).unwrap();
+            let ha = crate::zk::host_fast_hits_for_test();
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert_eq!(h1, h0, "H1 ACT3 happy path mismatch");
+            assert!(ha[crate::zk::HF_H1_INV_TBL] > hb[crate::zk::HF_H1_INV_TBL]);
+            assert_eq!(fba[crate::zk::HF_FB_H1_ACT], fbb[crate::zk::HF_FB_H1_ACT]);
+            let inv = c1.expect("H1 ACT3 happy path caches inv");
+            let col_fast: Vec<Fp2> = inv.iter().zip(&m_act_w).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
+            let col_ref = table_helper(&act_tbl.compressed[..act_tbl.entries], &m_act_w, alpha_ok, false).unwrap();
+            assert_eq!(col_fast, col_ref, "H1 ACT3 gact table helper mismatch");
+        }
+
+        // ACT3: unused table entry, used table entry, act_missed > 0
+        {
+            let alpha_unused = act_tbl.compressed[2049];
+            let mut h0 = vec![Fp::ZERO; hw_len];
+            let mut h1 = vec![Fp::ZERO; hw_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let c0 = fill_act_helpers(&sh_w, &lay_w, &blk_w, &gates_w, &outputs_w, &[], 0, &mut h0, alpha_unused, beta, g_act).unwrap();
+            crate::zk::set_host_fast_for_test(Some(true));
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let c1 = fill_act_helpers(&sh_w, &lay_w, &blk_w, &gates_w, &outputs_w, &[], 0, &mut h1, alpha_unused, beta, g_act).unwrap();
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert!(c0.is_none() && c1.is_none());
+            assert_eq!(h1, h0, "H1 ACT3 unused-entry mismatch");
+            assert!(fba[crate::zk::HF_FB_H1_ACT] > fbb[crate::zk::HF_FB_H1_ACT]);
+            assert!(table_helper(&act_tbl.compressed[..act_tbl.entries], &m_act_w, alpha_unused, false).is_err());
+
+            let alpha_used = act_tbl.compressed[2048];
+            let mut h0 = vec![Fp::ZERO; hw_len];
+            let mut h1 = vec![Fp::ZERO; hw_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let r0 = fill_act_helpers(&sh_w, &lay_w, &blk_w, &gates_w, &outputs_w, &[], 0, &mut h0, alpha_used, beta, g_act);
+            crate::zk::set_host_fast_for_test(Some(true));
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let r1 = fill_act_helpers(&sh_w, &lay_w, &blk_w, &gates_w, &outputs_w, &[], 0, &mut h1, alpha_used, beta, g_act);
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert!(r0.is_err());
+            assert_eq!(r1, r0, "H1 ACT3 used-entry refusal parity mismatch");
+            assert!(fba[crate::zk::HF_FB_H1_ACT] > fbb[crate::zk::HF_FB_H1_ACT]);
+
+            let mut out_bad = outputs_w.clone();
+            out_bad[0] += 1;
+            let mut h0 = vec![Fp::ZERO; hw_len];
+            let mut h1 = vec![Fp::ZERO; hw_len];
+            crate::zk::set_host_fast_for_test(Some(false));
+            let c0 = fill_act_helpers(&sh_w, &lay_w, &blk_w, &gates_w, &out_bad, &[], 1, &mut h0, alpha_ok, beta, g_act).unwrap();
+            crate::zk::set_host_fast_for_test(Some(true));
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
+            let c1 = fill_act_helpers(&sh_w, &lay_w, &blk_w, &gates_w, &out_bad, &[], 1, &mut h1, alpha_ok, beta, g_act).unwrap();
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            assert!(c0.is_none() && c1.is_none());
+            assert_eq!(h1, h0, "H1 ACT3 act_missed > 0 mismatch");
+            assert!(fba[crate::zk::HF_FB_H1_ACT] > fbb[crate::zk::HF_FB_H1_ACT]);
+        }
+    }
 }

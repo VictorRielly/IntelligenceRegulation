@@ -108,7 +108,35 @@ impl PubGen {
 
     pub(crate) fn materialize_into(&self, out: &mut [Fp2]) {
         assert_eq!(out.len(), self.len(), "private block: pub_gen table length");
-        crate::zk::record_host_fast_hit(crate::zk::HF_H6_PUB_GEN);
+        match self {
+            PubGen::BoxSupp { shift, row_stride, .. } => {
+                assert!(*row_stride > 0, "private block: pub_gen BoxSupp row_stride == 0");
+                assert!(*shift < usize::BITS, "private block: pub_gen BoxSupp shift out of range");
+            }
+            PubGen::HeadSupp { shift, mode, h_pad, per, stride, .. } => {
+                assert!(*shift < usize::BITS, "private block: pub_gen HeadSupp shift out of range");
+                assert!(*per > 0, "private block: pub_gen HeadSupp per == 0");
+                assert!(*stride > 0, "private block: pub_gen HeadSupp stride == 0");
+                if *mode == 0 {
+                    assert!(*h_pad > 0, "private block: pub_gen HeadSupp mode 0 h_pad == 0");
+                    assert!(h_pad.checked_mul(*stride).is_some_and(|v| v > 0), "private block: pub_gen HeadSupp q_pad overflow");
+                } else if *mode != 1 {
+                    assert!(stride.checked_mul(*stride).is_some_and(|v| v > 0), "private block: pub_gen HeadSupp stride^2 overflow");
+                }
+            }
+            PubGen::GroupCol { cols_live, row_stride, group_ids, .. } => {
+                assert!(*row_stride > 0, "private block: pub_gen GroupCol row_stride == 0");
+                assert!(group_ids.len() >= *cols_live, "private block: pub_gen GroupCol group_ids too short");
+            }
+            PubGen::CausalMask { t_pad, .. } => {
+                assert!(*t_pad > 0, "private block: pub_gen CausalMask t_pad == 0");
+            }
+            PubGen::GammaRepeat { vals, .. } => {
+                assert!(!vals.is_empty(), "private block: pub_gen GammaRepeat vals empty");
+                assert!(vals.iter().all(|&w| w < crate::field::P), "private block: pub_gen GammaRepeat non-canonical word");
+            }
+        }
+        crate::zk::record_host_fast_hit(crate::zk::HF_H6_CPU_PUB_GEN);
         const CH: usize = 1 << 14;
         let fill_chunk = |base: usize, ch: &mut [Fp2]| match self {
             PubGen::BoxSupp { shift, rows_live, cols_live, row_stride, .. } => {
@@ -526,7 +554,7 @@ fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed
     // slice read `&data[off + (z << n_vars) + x0 .. +len]` is sequential
     // instead of striding by 32-128 KiB (L1 set-aliasing thrash). Same terms
     // accumulated into `LazyDot` in the same `z` order => bit-for-bit identical.
-    if crate::zk::host_fast_on() && lazy_on() {
+    if crate::zk::host_fast_on() {
         if let Some(off) = one_slice {
             let nf = fixed.len();
             if nf > 0
@@ -535,30 +563,34 @@ fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed
                 && p.coords[..nf].iter().all(|c| matches!(c, Coord::Fixed(_)))
                 && p.coords[nf..].iter().enumerate().all(|(k, c)| matches!(c, Coord::Rho(r) if *r == k))
             {
-                crate::zk::record_host_fast_hit(crate::zk::HF_H5_PRIV_FOLD);
-                const TILE: usize = 256;
-                let run_tile = |(ti, ch): (usize, &mut [Fp2])| {
-                    let x0 = ti * TILE;
-                    let len = ch.len();
-                    let mut acc = [LazyDot::default(); TILE];
-                    for (z, &ez) in eqf.iter().enumerate() {
-                        let base = off + (z << n_vars) + x0;
-                        let row = &data[base..base + len];
-                        for (a, &v) in acc[..len].iter_mut().zip(row.iter()) {
-                            a.add(ez, v);
-                        }
-                    }
-                    for (o, a) in ch.iter_mut().zip(&acc[..len]) {
-                        *o = a.value();
-                    }
-                };
-                if (1usize << p.log) >= par_min && acc_par_on() {
-                    use rayon::prelude::*;
-                    out.par_chunks_mut(TILE).enumerate().for_each(run_tile);
+                if !lazy_on() {
+                    crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H5_LAZY_OFF, "H5 priv_fold: HL_ARG_LAZY=0");
                 } else {
-                    out.chunks_mut(TILE).enumerate().for_each(run_tile);
+                    crate::zk::record_host_fast_hit(crate::zk::HF_H5_PRIV_FOLD);
+                    const TILE: usize = 256;
+                    let run_tile = |(ti, ch): (usize, &mut [Fp2])| {
+                        let x0 = ti * TILE;
+                        let len = ch.len();
+                        let mut acc = [LazyDot::default(); TILE];
+                        for (z, &ez) in eqf.iter().enumerate() {
+                            let base = off + (z << n_vars) + x0;
+                            let row = &data[base..base + len];
+                            for (a, &v) in acc[..len].iter_mut().zip(row.iter()) {
+                                a.add(ez, v);
+                            }
+                        }
+                        for (o, a) in ch.iter_mut().zip(&acc[..len]) {
+                            *o = a.value();
+                        }
+                    };
+                    if (1usize << p.log) >= par_min && acc_par_on() {
+                        use rayon::prelude::*;
+                        out.par_chunks_mut(TILE).enumerate().for_each(run_tile);
+                    } else {
+                        out.chunks_mut(TILE).enumerate().for_each(run_tile);
+                    }
+                    return;
                 }
-                return;
             }
         }
     }
@@ -1207,7 +1239,7 @@ pub(super) fn plane_plan(p: &Priv, n_vars: usize) -> Option<(usize, usize, Vec<u
 /// take it (nothing written); `Err`: a device failure. Either way the caller
 /// builds every table on the host instead.
 #[cfg(feature = "gpu-metal")]
-fn plan_pub_gen_on(mt: &mut crate::gpu::MetalTables, t: usize, g: &PubGen) -> bool {
+pub(super) fn plan_pub_gen_on(mt: &mut crate::gpu::MetalTables, t: usize, g: &PubGen) -> bool {
     use crate::gpu::MetalTables;
     let u = |v: usize| u32::try_from(v).ok();
     match g {
@@ -1259,10 +1291,13 @@ pub(super) fn build_tables_device(tabs: &[Tab], n_vars: usize, pd: &ProverData, 
 #[cfg(feature = "gpu-metal")]
 #[allow(clippy::too_many_arguments)]
 fn build_tables_device_with(tabs: &[Tab], pub_gens: &[(usize, PubGen)], n_vars: usize, pd: &ProverData, mt: &mut crate::gpu::MetalTables, base: &[bool], defer: bool, views: bool) -> Result<bool, String> {
+    let mut planned_pub_gen = 0u64;
     for (t, tab) in tabs.iter().enumerate() {
         if let Some(g) = pub_gen_at(pub_gens, t) {
             if plan_pub_gen_on(mt, t, g) {
-                crate::zk::record_host_fast_hit(crate::zk::HF_H6_PUB_GEN);
+                planned_pub_gen += 1;
+            } else {
+                crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H6_GPU_PUB_GEN, "H6 pub_gen: plan_pub_gen_on declined");
             }
             continue;
         }
@@ -1281,10 +1316,16 @@ fn build_tables_device_with(tabs: &[Tab], pub_gens: &[(usize, PubGen)], n_vars: 
             _ => {}
         }
     }
-    mt.build_planned(pd.data, base, defer, views, |host| {
+    let taken = mt.build_planned(pd.data, base, defer, views, |host| {
         use rayon::prelude::*;
         host.into_par_iter().for_each(|(t, o)| table_into_with(&tabs[t], pub_gen_at(pub_gens, t), n_vars, pd, o, None));
-    })
+    })?;
+    if taken {
+        for _ in 0..planned_pub_gen {
+            crate::zk::record_host_fast_hit(crate::zk::HF_H6_GPU_PUB_GEN);
+        }
+    }
+    Ok(taken)
 }
 
 /// **[A12]** while the returned value lives (`protocol::prove_core`'s slots),
@@ -1663,7 +1704,7 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
                 SlotKind::Private => {
                     #[cfg(feature = "gpu-metal")]
                     let base_total = if dev_tables.is_some() {
-                        crate::zk::record_host_fast_hit(crate::zk::HF_H6_PUB_GEN);
+                        crate::zk::record_host_fast_hit(crate::zk::HF_H6_DIRECT_TOTAL);
                         (def.direct_total.as_ref().expect("direct private slot needs direct_total"))(pd)
                     } else {
                         total(&tables, &def.poly)
@@ -3645,4 +3686,194 @@ pub(crate) fn argument_with(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph:
         return Err("private block: functional count differs from the declared schedule".into());
     }
     Ok(acc)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn host_fast_m4_h5_priv_table_fill_and_fold_cache_edges() {
+        let _lock = crate::zk::host_fast_test_lock();
+        struct Reset(Option<bool>);
+        impl Drop for Reset {
+            fn drop(&mut self) {
+                crate::zk::set_host_fast_for_test(self.0);
+                set_lazy_for_test(None);
+            }
+        }
+        let _guard = Reset(crate::zk::set_host_fast_for_test(Some(false)));
+        set_lazy_for_test(Some(true));
+
+        // ---- Part A: priv_table_fill with partial tiles (n_vars = 0, 1, 4, 8, 9) and zeroed = false ----
+        let mut st = 0x2026_1123_5555_1234u64;
+        let mut next_u64 = || -> u64 {
+            st ^= st << 13;
+            st ^= st >> 7;
+            st ^= st << 17;
+            st
+        };
+        let sentinel = Fp2::new(Fp::new(0x1111_2222_3333_4444), Fp::new(0x5555_6666_7777_8888));
+        for &n_vars in &[0usize, 1, 4, 8, 9] {
+            for &nf in &[1usize, 3] {
+                let log = nf + n_vars;
+                let slice_off = 19usize;
+                let n_elem = 1usize << log;
+                let data: Vec<Fp> = (0..slice_off + n_elem + 11)
+                    .map(|i| {
+                        // Mix large near-P words to exercise LazyDot wraps
+                        if i % 7 == 0 {
+                            Fp(crate::field::P - 1 - (i as u64 % 5))
+                        } else {
+                            Fp::new(next_u64())
+                        }
+                    })
+                    .collect();
+                let mut coords: Vec<Coord> = (0..nf)
+                    .map(|_| Coord::Fixed(Fp2::new(Fp::new(next_u64()), Fp::new(next_u64()))))
+                    .collect();
+                for k in 0..n_vars {
+                    coords.push(Coord::Rho(k));
+                }
+                let p = Priv { cm: Cm::A, slices: vec![(slice_off, Fp2::ONE)], log, coords, mask_row: 0, ext_round: 0 };
+
+                for &par_min in &[1usize, usize::MAX] {
+                    let mut out0 = vec![sentinel; 1usize << n_vars];
+                    let mut out1 = vec![sentinel; 1usize << n_vars];
+                    crate::zk::set_host_fast_for_test(Some(false));
+                    priv_table_fill(&p, &data, n_vars, &mut out0, false, par_min);
+                    let ref_z = priv_table_at(&p, &data, n_vars, usize::MAX);
+                    assert_eq!(out0, ref_z, "baseline zeroed=false mismatch n_vars={n_vars} nf={nf} par_min={par_min}");
+
+                    crate::zk::set_host_fast_for_test(Some(true));
+                    let hb = crate::zk::host_fast_hits_for_test();
+                    priv_table_fill(&p, &data, n_vars, &mut out1, false, par_min);
+                    let ha = crate::zk::host_fast_hits_for_test();
+                    assert!(
+                        ha[crate::zk::HF_H5_PRIV_FOLD] > hb[crate::zk::HF_H5_PRIV_FOLD],
+                        "expected H5 hit n_vars={n_vars} nf={nf} par_min={par_min}"
+                    );
+                    assert_eq!(
+                        out1, out0,
+                        "H5 tiled priv_table_fill mismatch n_vars={n_vars} nf={nf} par_min={par_min}"
+                    );
+                }
+
+                // Also verify HL_ARG_LAZY=0 fallback counter + exact parity under hf1
+                set_lazy_for_test(Some(false));
+                let mut out_nl = vec![sentinel; 1usize << n_vars];
+                let fbb = crate::zk::host_fast_fallbacks_for_test();
+                priv_table_fill(&p, &data, n_vars, &mut out_nl, false, usize::MAX);
+                let fba = crate::zk::host_fast_fallbacks_for_test();
+                set_lazy_for_test(Some(true));
+                assert!(
+                    fba[crate::zk::HF_FB_H5_LAZY_OFF] > fbb[crate::zk::HF_FB_H5_LAZY_OFF],
+                    "expected H5 lazy-off fallback counter increment n_vars={n_vars} nf={nf}"
+                );
+                let ref_z = priv_table_at(&p, &data, n_vars, usize::MAX);
+                assert_eq!(out_nl, ref_z, "H5 lazy-off fallback mismatch n_vars={n_vars} nf={nf}");
+            }
+        }
+
+        // ---- Part B: FoldCache key discrimination & ineligible Coord rejection ----
+        let f0 = Fp2::new(Fp::new(11), Fp::new(22));
+        let f1 = Fp2::new(Fp::new(33), Fp::new(44));
+        let f2 = Fp2::new(Fp::new(55), Fp::new(66));
+        let mk_priv = |cm: Cm, slices: Vec<(usize, Fp2)>, log: usize, coords: Vec<Coord>| Priv {
+            cm,
+            slices,
+            log,
+            coords,
+            mask_row: 0,
+            ext_round: 0,
+        };
+        let base_coords = vec![Coord::Fixed(f0), Coord::Fixed(f1), Coord::Rho(0), Coord::Rho(1), Coord::Rho(2), Coord::Rho(3)];
+        let p_base = mk_priv(Cm::A, vec![(32, Fp2::ONE)], 6, base_coords.clone());
+        let p_cm = mk_priv(Cm::H, vec![(32, Fp2::ONE)], 6, base_coords.clone());
+        let p_off = mk_priv(Cm::A, vec![(33, Fp2::ONE)], 6, base_coords.clone());
+        let p_fix = mk_priv(
+            Cm::A,
+            vec![(32, Fp2::ONE)],
+            6,
+            vec![Coord::Fixed(f0), Coord::Fixed(f1.add(Fp2::ONE)), Coord::Rho(0), Coord::Rho(1), Coord::Rho(2), Coord::Rho(3)],
+        );
+        let p_nvars = mk_priv(
+            Cm::A,
+            vec![(32, Fp2::ONE)],
+            6,
+            vec![Coord::Fixed(f0), Coord::Fixed(f1), Coord::Fixed(f2), Coord::Rho(0), Coord::Rho(1), Coord::Rho(2)],
+        );
+
+        let k_base = fold_cache_key(&p_base, 4).expect("base key");
+        let k_cm = fold_cache_key(&p_cm, 4).expect("cm key");
+        let k_off = fold_cache_key(&p_off, 4).expect("off key");
+        let k_fix = fold_cache_key(&p_fix, 4).expect("fix key");
+        let k_nvars = fold_cache_key(&p_nvars, 3).expect("n_vars key");
+        let keys = [&k_base, &k_cm, &k_off, &k_fix, &k_nvars];
+        for i in 0..keys.len() {
+            for j in (i + 1)..keys.len() {
+                assert_ne!(keys[i], keys[j], "FoldCache keys {i} and {j} collided");
+            }
+        }
+
+        // Ineligible descriptors must return None (never cached / never aliased)
+        let p_flip = mk_priv(
+            Cm::A,
+            vec![(32, Fp2::ONE)],
+            6,
+            vec![Coord::Fixed(f0), Coord::Fixed(f1), Coord::Flip(0), Coord::Rho(1), Coord::Rho(2), Coord::Rho(3)],
+        );
+        let p_perm = mk_priv(
+            Cm::A,
+            vec![(32, Fp2::ONE)],
+            6,
+            vec![Coord::Fixed(f0), Coord::Fixed(f1), Coord::Rho(1), Coord::Rho(0), Coord::Rho(2), Coord::Rho(3)],
+        );
+        let p_interleaved = mk_priv(
+            Cm::A,
+            vec![(32, Fp2::ONE)],
+            6,
+            vec![Coord::Fixed(f0), Coord::Rho(0), Coord::Fixed(f1), Coord::Rho(1), Coord::Rho(2), Coord::Rho(3)],
+        );
+        let p_coef = mk_priv(Cm::A, vec![(32, Fp2::U)], 6, base_coords.clone());
+        let p_multi = mk_priv(Cm::A, vec![(32, Fp2::ONE), (96, Fp2::U)], 6, base_coords.clone());
+        let p_nofix = mk_priv(Cm::A, vec![(32, Fp2::ONE)], 4, vec![Coord::Rho(0), Coord::Rho(1), Coord::Rho(2), Coord::Rho(3)]);
+        assert!(fold_cache_key(&p_flip, 4).is_none(), "Coord::Flip must not be cached");
+        assert!(fold_cache_key(&p_perm, 4).is_none(), "permuted Coord::Rho must not be cached");
+        assert!(fold_cache_key(&p_interleaved, 4).is_none(), "interleaved Fixed must not be cached");
+        assert!(fold_cache_key(&p_coef, 4).is_none(), "non-ONE slice coeff must not be cached");
+        assert!(fold_cache_key(&p_multi, 4).is_none(), "multi-slice must not be cached");
+        assert!(fold_cache_key(&p_nofix, 4).is_none(), "zero fixed coords must not be cached");
+
+        // End-to-end FoldCache lookup discrimination + table_of_taking_with hit
+        let mut fc = FoldCache::default();
+        let v_base = vec![Fp2::from_i64(101); 16];
+        let v_cm = vec![Fp2::from_i64(202); 16];
+        let v_off = vec![Fp2::from_i64(303); 16];
+        let v_fix = vec![Fp2::from_i64(404); 16];
+        let v_nvars = vec![Fp2::from_i64(505); 8];
+        fc.insert(k_base.clone(), v_base.clone());
+        fc.insert(k_cm.clone(), v_cm.clone());
+        fc.insert(k_off.clone(), v_off.clone());
+        fc.insert(k_fix.clone(), v_fix.clone());
+        fc.insert(k_nvars.clone(), v_nvars.clone());
+        assert_eq!(fc.get(&k_base), Some(v_base.as_slice()));
+        assert_eq!(fc.get(&k_cm), Some(v_cm.as_slice()));
+        assert_eq!(fc.get(&k_off), Some(v_off.as_slice()));
+        assert_eq!(fc.get(&k_fix), Some(v_fix.as_slice()));
+        assert_eq!(fc.get(&k_nvars), Some(v_nvars.as_slice()));
+
+        let dummy_data = vec![Fp::new(7); 256];
+        let pd = ProverData { data: [&dummy_data, &dummy_data, &dummy_data, &dummy_data], masks: &[] };
+        let hb = crate::zk::host_fast_hits_for_test();
+        let mut tab_hit = Tab::Priv(p_base);
+        let got_hit = table_of_taking_with(&mut tab_hit, None, 4, &pd, Some(&fc));
+        let ha = crate::zk::host_fast_hits_for_test();
+        assert_eq!(got_hit, v_base, "FoldCache hit must return exact cached vector");
+        assert!(ha[crate::zk::HF_H5_PRIV_FOLD] > hb[crate::zk::HF_H5_PRIV_FOLD], "FoldCache hit must record H5 hit");
+
+        let mut tab_flip = Tab::Priv(p_flip);
+        let got_flip = table_of_taking_with(&mut tab_flip, None, 4, &pd, Some(&fc));
+        assert_ne!(got_flip, v_base, "Coord::Flip must bypass FoldCache");
+    }
 }

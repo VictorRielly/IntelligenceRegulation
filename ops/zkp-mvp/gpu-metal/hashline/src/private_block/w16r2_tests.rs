@@ -4703,18 +4703,19 @@ fn sc_chain_fast_all_call_sites_byte_identical() {
 }
 
 /// **[HOST-FAST] Opt-in same-words host-gap path (`HL_HOST_FAST=1`) W16R2 rung golden parity:**
-/// exercises `hf0`, `hf1`, and `frs1+sf1+hf1` in both `shared` and `thread` queue modes (plus CPU
-/// `hf1`), verifying bit-for-bit equality to CPU `hf0` and `W16R2_RUNG_GOLDEN` (`96e4f0b6`), and
-/// asserting per-component anti-vacuity hit counters (`H1..H6`: all `== 0` on `hf0`, all `> 0` on
-/// GPU `hf1`).
+/// exercises `hf0`, `hf1`, `frs1+sf1+hf1`, and full-stack `frs1+sf1+sc1+hf1` in both `shared` and
+/// `thread` queue modes (plus CPU `hf1`), verifying bit-for-bit equality to CPU `hf0` and
+/// `W16R2_RUNG_GOLDEN` (`96e4f0b6`), asserting per-component anti-vacuity hit counters
+/// (`H1..H6`: all `== 0` on `hf0`, `H1..H6_gpu + H6_cpu > 0` on GPU `hf1`) and zero fallbacks.
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
 #[test]
-#[ignore = "HOST-FAST: toggles HL_GPU, Metal queues, host-fast, sparse-fold, and fused-rs in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+#[ignore = "HOST-FAST: toggles HL_GPU, Metal queues, host-fast, sparse-fold, sc-chain-fast, and fused-rs in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
 fn host_fast_w16r2_rung_golden() {
     struct Reset {
         prev_hf: Option<bool>,
         prev_sf: Option<bool>,
         prev_frs: Option<bool>,
+        prev_sc: Option<bool>,
         prev_q: bool,
         prev_gpu: Option<String>,
     }
@@ -4723,6 +4724,7 @@ fn host_fast_w16r2_rung_golden() {
             crate::zk::set_host_fast_for_test(self.prev_hf);
             crate::gpu::metal_set_sparse_fold_for_test(self.prev_sf);
             crate::gpu::set_fused_rs_for_test(self.prev_frs);
+            crate::gpu::metal_set_sc_chain_fast_for_test(self.prev_sc);
             crate::gpu::metal_set_queues_for_test(self.prev_q);
             match &self.prev_gpu {
                 Some(v) => std::env::set_var("HL_GPU", v),
@@ -4734,6 +4736,7 @@ fn host_fast_w16r2_rung_golden() {
         prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
         prev_sf: crate::gpu::metal_set_sparse_fold_for_test(None),
         prev_frs: crate::gpu::set_fused_rs_for_test(None),
+        prev_sc: crate::gpu::metal_set_sc_chain_fast_for_test(None),
         prev_q: crate::gpu::metal_set_queues_for_test(false),
         prev_gpu: std::env::var("HL_GPU").ok(),
     };
@@ -4744,34 +4747,84 @@ fn host_fast_w16r2_rung_golden() {
 
     // Also verify pure-CPU hf1 path (exercises PubGen::materialize_into + H1..H5 on CPU!)
     crate::zk::set_host_fast_for_test(Some(true));
+    let cpu_hb = crate::zk::host_fast_hits_for_test();
+    let cpu_fbb = crate::zk::host_fast_fallbacks_for_test();
     let cpu1 = seeded_digest(&sh, &blk, copy(&w));
+    let cpu_ha = crate::zk::host_fast_hits_for_test();
+    let cpu_fba = crate::zk::host_fast_fallbacks_for_test();
+    let cpu_hd: [u64; 8] = std::array::from_fn(|i| cpu_ha[i] - cpu_hb[i]);
+    let cpu_fbd: [u64; 5] = std::array::from_fn(|i| cpu_fba[i] - cpu_fbb[i]);
     assert_eq!(cpu1, cpu0, "CPU W16R2 rung digest under hf1 differs from hf0");
+    assert_eq!(cpu_fbd, [0; 5], "CPU W16R2 rung hf1 unexpected fallbacks: {cpu_fbd:?}");
+    for i in [
+        crate::zk::HF_H1_INV_TBL,
+        crate::zk::HF_H2_PAR_MASK,
+        crate::zk::HF_H3_PAR_RNG16,
+        crate::zk::HF_H4_ACC_FOLD,
+        crate::zk::HF_H5_PRIV_FOLD,
+        crate::zk::HF_H6_CPU_PUB_GEN,
+    ] {
+        assert!(cpu_hd[i] > 0, "CPU W16R2 rung hf1 expected hit counter {i} > 0, got {cpu_hd:?}");
+    }
+    assert_eq!(cpu_hd[crate::zk::HF_H6_GPU_PUB_GEN], 0, "CPU hf1 must not record GPU pub_gen");
+    assert_eq!(cpu_hd[crate::zk::HF_H6_DIRECT_TOTAL], 0, "CPU hf1 must not record direct_total");
 
     std::env::set_var("HL_GPU", "1");
-    for (hf_on, frs_on, sf_on, arm) in [
-        (false, false, false, "hf0"),
-        (true, false, false, "hf1"),
-        (true, true, true, "frs1+sf1+hf1"),
+    for (hf_on, frs_on, sf_on, sc_on, arm) in [
+        (false, false, false, false, "hf0"),
+        (true, false, false, false, "hf1"),
+        (true, true, true, false, "frs1+sf1+hf1"),
+        (true, true, true, true, "frs1+sf1+sc1+hf1"),
     ] {
         crate::zk::set_host_fast_for_test(Some(hf_on));
         crate::gpu::set_fused_rs_for_test(Some(frs_on));
         crate::gpu::metal_set_sparse_fold_for_test(Some(sf_on));
+        crate::gpu::metal_set_sc_chain_fast_for_test(Some(sc_on));
         for (per_thread, qname) in [(false, "shared"), (true, "thread")] {
             crate::gpu::metal_set_queues_for_test(per_thread);
             let before = crate::zk::host_fast_hits_for_test();
+            let fb_before = crate::zk::host_fast_fallbacks_for_test();
+            let sc_before = crate::gpu::metal_sc_chain_fast_batches_for_test();
+            let sc_fb_before = crate::gpu::metal_sc_chain_fast_fallbacks_for_test();
             let d = seeded_digest(&sh, &blk, copy(&w));
             let after = crate::zk::host_fast_hits_for_test();
-            let delta: [u64; 6] = std::array::from_fn(|i| after[i] - before[i]);
+            let fb_after = crate::zk::host_fast_fallbacks_for_test();
+            let sc_delta = crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_before;
+            let sc_fb_delta = crate::gpu::metal_sc_chain_fast_fallbacks_for_test() - sc_fb_before;
+            let delta: [u64; 8] = std::array::from_fn(|i| after[i] - before[i]);
+            let fb_delta: [u64; 5] = std::array::from_fn(|i| fb_after[i] - fb_before[i]);
             assert_eq!(d, cpu0, "Metal W16R2 rung digest under {arm} ({qname}) differs from CPU");
             assert!(d.starts_with(W16R2_RUNG_GOLDEN), "Metal W16R2 rung digest {arm} ({qname}) != golden: {d}");
+            assert_eq!(fb_delta, [0; 5], "{arm} ({qname}): unexpected host-fast fallbacks {fb_delta:?}");
+            assert_eq!(sc_fb_delta, 0, "{arm} ({qname}): unexpected sc_chain_fast fallbacks {sc_fb_delta}");
+            if sc_on {
+                assert!(sc_delta > 0, "{arm} ({qname}): expected sc_chain_fast batches > 0");
+            } else {
+                assert_eq!(sc_delta, 0, "{arm} ({qname}): sc0 must not dispatch sc_chain_fast");
+            }
             if hf_on {
-                for (i, name) in ["H1_exp_act", "H2_mask", "H3_range16", "H4_acc_fold", "H5_priv_fold", "H6_pub_gen"].iter().enumerate() {
+                for (i, name) in [
+                    "H1_inv_tbl",
+                    "H2_par_mask",
+                    "H3_par_rng16",
+                    "H4_acc_fold",
+                    "H5_priv_fold",
+                    "H6_gpu_pub_gen",
+                    "H6_cpu_pub_gen",
+                ]
+                .iter()
+                .enumerate()
+                {
                     assert!(delta[i] > 0, "{arm} ({qname}): expected {name} hits > 0, got {delta:?}");
                 }
             } else {
-                assert_eq!(delta, [0; 6], "{arm} ({qname}): hf0 must not take any host-fast path, got {delta:?}");
+                assert_eq!(delta, [0; 8], "{arm} ({qname}): hf0 must not take any host-fast path, got {delta:?}");
             }
-            eprintln!("HOST-FAST-RUNG {} arm={arm} queues={qname}: digest {} (golden); hits={delta:?}", sh.name, &d[..8]);
+            eprintln!(
+                "HOST-FAST-RUNG {} arm={arm} queues={qname}: digest {} (golden); hits={delta:?} fallbacks={fb_delta:?} sc_batches={sc_delta}",
+                sh.name,
+                &d[..8]
+            );
         }
     }
 }
@@ -4838,9 +4891,10 @@ fn host_fast_all_call_sites_byte_identical() {
         .expect("rung_g prepare_endpoints");
         let [ein, eout] = protocol::check_endpoints(&sh, &exp_eq, owners_eq).expect("check_endpoints");
 
-        let run_single = |hf_on: bool| -> (Vec<u8>, [u8; 32], u64, [u64; 6]) {
+        let run_single = |hf_on: bool| -> (Vec<u8>, [u8; 32], u64, [u64; 8], [u64; 5]) {
             crate::zk::set_host_fast_for_test(Some(hf_on));
             let hb = crate::zk::host_fast_hits_for_test();
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
             let mut rng = ZkRng::new(0x4F01, b"hf-single");
             let mut tr = protocol::transcript(&blk, &exp_eq, &lay);
             let binding = tr.state();
@@ -4878,16 +4932,25 @@ fn host_fast_all_call_sites_byte_identical() {
             let bytes = wire::encode(&receipt, &binding, &lay).expect("wire::encode rung_g");
             protocol::verify_inner_at(&sh, &blk, &exp_eq, &receipt).expect("verify_inner_at rung_g");
             let ha = crate::zk::host_fast_hits_for_test();
-            (bytes, tr.state(), tr.counter(), std::array::from_fn(|i| ha[i] - hb[i]))
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            (
+                bytes,
+                tr.state(),
+                tr.counter(),
+                std::array::from_fn(|i| ha[i] - hb[i]),
+                std::array::from_fn(|i| fba[i] - fbb[i]),
+            )
         };
-        let (b0, s0, c0, h0) = run_single(false);
-        let (b1, s1, c1, h1) = run_single(true);
-        assert_eq!(h0, [0; 6], "single hf0 must not hit host-fast");
+        let (b0, s0, c0, h0, fb0) = run_single(false);
+        let (b1, s1, c1, h1, fb1) = run_single(true);
+        assert_eq!(h0, [0; 8], "single hf0 must not hit host-fast");
+        assert_eq!(fb0, [0; 5], "single hf0 unexpected fallbacks: {fb0:?}");
+        assert_eq!(fb1, [0; 5], "single hf1 unexpected fallbacks: {fb1:?}");
         assert!(h1.iter().sum::<u64>() > 0, "single hf1 expected host-fast hits > 0");
         assert_eq!(b1, b0, "single-block full wire Receipt bytes differ (hf1 vs hf0)");
         assert_eq!((s1, c1), (s0, c0), "single-block transcript state/counter differ (hf1 vs hf0)");
         drop((ein, eout));
-        eprintln!("HOST-FAST [single rung_g]: hf0 == hf1 ({} B, hits={h1:?})", b1.len());
+        eprintln!("HOST-FAST [single rung_g]: hf0 == hf1 ({} B, hits={h1:?}, fallbacks={fb1:?})", b1.len());
     }
 
     // ---- 2. Multi-block run_fork (L = 2, W16R2_RUNG_H24) live prove+verify ----
@@ -4899,13 +4962,17 @@ fn host_fast_all_call_sites_byte_identical() {
         let fr_live = ForkRun::new(&st_live, D55OptIn::unreviewed_prototype()).expect("ForkRun");
         crate::zk::set_host_fast_for_test(Some(true));
         let hb = crate::zk::host_fast_hits_for_test();
+        let fbb = crate::zk::host_fast_fallbacks_for_test();
         let (rc_live, _) = super::run::fork::prove_run_with_forks(&fr_live, &blocks_live, &mut src_live, owners_live, 2)
             .expect("prove_run_with_forks hf1");
         let ha = crate::zk::host_fast_hits_for_test();
-        let hd: [u64; 6] = std::array::from_fn(|i| ha[i] - hb[i]);
-        assert!(hd.iter().all(|&x| x > 0), "run_fork W16R2 L=2 hf1 expected all 6 H1..H6 hits > 0, got {hd:?}");
+        let fba = crate::zk::host_fast_fallbacks_for_test();
+        let hd: [u64; 8] = std::array::from_fn(|i| ha[i] - hb[i]);
+        let fbd: [u64; 5] = std::array::from_fn(|i| fba[i] - fbb[i]);
+        assert!(hd[..7].iter().all(|&x| x > 0), "run_fork W16R2 L=2 hf1 expected H1..H6_gpu + H6_cpu > 0, got {hd:?}");
+        assert_eq!(fbd, [0; 5], "run_fork W16R2 L=2 hf1 unexpected fallbacks: {fbd:?}");
         super::run::fork::verify_run_with_forks(&fr_live, &blocks_live, &rc_live, 2).expect("verify_run_with_forks hf1");
-        eprintln!("HOST-FAST [run_fork W16R2 L=2]: live verified (hits={hd:?})");
+        eprintln!("HOST-FAST [run_fork W16R2 L=2]: live verified (hits={hd:?}, fallbacks={fbd:?})");
     }
 
     // ---- 3. Full classifier run: stage_in_c + interior blocks + stage_out_c (Shape::rung_tc, L = 2) ----
@@ -5008,9 +5075,10 @@ fn host_fast_all_call_sites_byte_identical() {
         .expect("ClassifyRunStatement");
         let c_ntt = NttTables::new(c_st.ntt_log());
 
-        let run_classify = |hf_on: bool| -> (Vec<Vec<u8>>, [u8; 32], u64, [u64; 6]) {
+        let run_classify = |hf_on: bool| -> (Vec<Vec<u8>>, [u8; 32], u64, [u64; 8], [u64; 5]) {
             crate::zk::set_host_fast_for_test(Some(hf_on));
             let hb = crate::zk::host_fast_hits_for_test();
+            let fbb = crate::zk::host_fast_fallbacks_for_test();
             let mut rng = ZkRng::new(0xC1A7, b"hf-classify");
             let mut tr = c_st.transcript().expect("classify transcript");
             let binding = tr.state();
@@ -5118,21 +5186,473 @@ fn host_fast_all_call_sites_byte_identical() {
                     .expect("encode OUT-C"),
             );
             let ha = crate::zk::host_fast_hits_for_test();
-            (segs, tr.state(), tr.counter(), std::array::from_fn(|i| ha[i] - hb[i]))
+            let fba = crate::zk::host_fast_fallbacks_for_test();
+            (
+                segs,
+                tr.state(),
+                tr.counter(),
+                std::array::from_fn(|i| ha[i] - hb[i]),
+                std::array::from_fn(|i| fba[i] - fbb[i]),
+            )
         };
 
-        let (cs0, cst0, ccnt0, ch0) = run_classify(false);
-        let (cs1, cst1, ccnt1, ch1) = run_classify(true);
-        assert_eq!(ch0, [0; 6], "classifier hf0 unexpectedly hit host-fast");
+        let (cs0, cst0, ccnt0, ch0, cfb0) = run_classify(false);
+        let (cs1, cst1, ccnt1, ch1, cfb1) = run_classify(true);
+        assert_eq!(ch0, [0; 8], "classifier hf0 unexpectedly hit host-fast");
+        assert_eq!(cfb0, [0; 5], "classifier hf0 unexpected fallbacks: {cfb0:?}");
+        assert_eq!(cfb1, [0; 5], "classifier hf1 unexpected fallbacks: {cfb1:?}");
         assert!(ch1.iter().sum::<u64>() > 0, "classifier hf1 expected host-fast hits > 0");
         assert_eq!(cs1, cs0, "classifier full wire segments differ (hf1 vs hf0)");
         assert_eq!((cst1, ccnt1), (cst0, ccnt0), "classifier final transcript state/counter differ (hf1 vs hf0)");
         classify_run::verify_classify_run(&c_st, &c_blocks, &c_bound, &cs1, VerifierPolicy { min_whole_run_bits: 93 })
             .expect("verify_classify_run hf1");
         eprintln!(
-            "HOST-FAST [stage_in_c + blocks + stage_out_c]: hf0 == hf1 ({:?} B, hits={ch1:?}) + verified",
+            "HOST-FAST [stage_in_c + blocks + stage_out_c]: hf0 == hf1 ({:?} B, hits={ch1:?}, fallbacks={cfb1:?}) + verified",
             cs1.iter().map(|s| s.len()).collect::<Vec<_>>()
         );
+    }
+}
+
+/// **[HOST-FAST M1] Direct GPU differential tests for all 7 `k_tab_pub_gen` kinds,
+/// `SC_SS`/`SC_SSM`/`SC_RS` `direct_total`, and `direct = true` `SlotKind::Private`
+/// through `MetalRounds` with `defer = true` prelude + `recover_one(Some(unmasked_claim))`.**
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "HOST-FAST: Metal GPU test; run by name on a Mac, HL_GPU_REQUIRED=1"]
+fn host_fast_m1_pub_gen_all_7_kinds_and_direct_total_gpu() {
+    use super::accuracy_groups::Group;
+    use super::accuracy_precision::{BaseShifts, Stack};
+    use super::accuracy_public::{AccuracyPublic, Geometry, Multipliers};
+    use super::accuracy_tables::silu_table;
+    use super::argument::{Acc, Ctx, Points, ProverData, PubGen, Side, SlotProof};
+
+    struct Reset {
+        prev_hf: Option<bool>,
+        prev_gpu: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::zk::set_host_fast_for_test(self.prev_hf);
+            super::argument::set_device_tables_for_test(None);
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+    };
+    std::env::set_var("HL_GPU", "1");
+
+    // ---- Part 1: All 7 k_tab_pub_gen kinds (defer = false AND defer = true) ----
+    // Padded shape with non-trivial row, col, hidden, and GQA head padding:
+    // tokens=24 (t_pad=32), width=48 (d_pad=64), hidden=6 (f_pad=8),
+    // q_heads=6, kv_heads=2 (h_pad=8, per=4, group=3, padded head slots {3, 7}), head_dim=8.
+    let sh_pad = Shape::new("HOST-FAST M1 pad", "host-fast-m1-pad", 24, 48, 6, 6, 8, 2, 8, 8, 9, 13, None, None, None, None)
+        .expect("M1 padded shape");
+    let m_acc = Multipliers {
+        q: vec![1; 48],
+        k: vec![1; 16],
+        v: vec![1; 16],
+        o: vec![1; 48],
+        g: vec![1; 6],
+        u: vec![1; 6],
+        d: vec![1; 48],
+    };
+    let groups = vec![Group { e_in: -4, e_out: -13 }, Group { e_in: -1, e_out: -11 }];
+    let act_tables = groups.iter().map(|g| silu_table(g.e_in, g.e_out, 12).unwrap()).collect();
+    let acc_pub = AccuracyPublic::new(
+        Stack::LowH24,
+        Geometry { width: 48, query_width: 48, kv_width: 16, hidden: 6 },
+        BaseShifts { norm_tn: 10, qkv: 8, score: 6, pv: 9, ao: 7, gate: 8, up: 0, product: 14, down: 6 },
+        (-3, -11),
+        m_acc,
+        groups,
+        vec![0, 1, 0, 1, 0, 1],
+        act_tables,
+    )
+    .expect("M1 AccuracyPublic");
+
+    let lift_ref = |ind: &[i64], rep: usize| -> Vec<Fp2> {
+        (0..ind.len() * rep).map(|x| Fp2::from_i64(ind[x / rep])).collect()
+    };
+    let check_pub_gen = |label: &str, gen: &PubGen, want_ref: &[Fp2]| {
+        let want_cpu = gen.to_vec();
+        assert_eq!(want_cpu.as_slice(), want_ref, "M1 PubGen::to_vec {label} != baseline reference");
+        for defer in [false, true] {
+            let mut mt = crate::gpu::MetalTables::new(1, gen.len()).expect("MetalTables::new");
+            // Pre-fill with non-zero garbage to prove k_tab_pub_gen writes every zero & c1 = 0 word
+            mt.tables_mut()[0].fill(Fp2::new(Fp::new(0xDEAD_BEEF), Fp::new(0xCAFE_BABE)));
+            assert!(super::argument::plan_pub_gen_on(&mut mt, 0, gen), "M1 plan_pub_gen_on failed for {label}");
+            let taken = mt.build_planned([&[]; 4], &[true], defer, false, |_| {}).expect("M1 build_planned");
+            assert!(taken, "M1 build_planned returned false for {label} defer={defer}");
+            assert_eq!(mt.base_checked(), Some(true), "M1 base_checked != Some(true) for {label} defer={defer}");
+            if defer {
+                assert!(mt.deferred(), "M1 expected deferred pending build for {label}");
+                mt.flush().expect("M1 flush deferred pub_gen");
+            }
+            assert!(!mt.deferred(), "M1 expected no pending build for {label} defer={defer}");
+            let got = mt.to_vecs();
+            assert_eq!(got.len(), 1);
+            assert_eq!(got[0], want_cpu, "M1 GPU {label} defer={defer} != PubGen::to_vec");
+            assert_eq!(got[0].as_slice(), want_ref, "M1 GPU {label} defer={defer} != baseline reference");
+        }
+    };
+
+    let per = sh_pad.slots_per_kv_group();
+    let group = sh_pad.q_heads / sh_pad.kv_heads;
+    let ind_t = super::pad::indicator_table(&sh_pad, Dom::T);
+    let ind_d = super::pad::indicator_table(&sh_pad, Dom::D);
+    let ind_q = super::pad::indicator_table(&sh_pad, Dom::Q);
+    let ind_ht = super::pad::indicator_table(&sh_pad, Dom::Ht);
+    let ind_s = super::pad::indicator_table(&sh_pad, Dom::S);
+
+    // 1. Box (shift = 0 and shift > 0 lifted domain)
+    check_pub_gen(
+        "Box(shift=0, Dom::D)",
+        &PubGen::BoxSupp { len: sh_pad.size(Dom::D), shift: 0, rows_live: sh_pad.tokens, cols_live: sh_pad.width, row_stride: sh_pad.d_pad },
+        &lift_ref(&ind_d, 1),
+    );
+    check_pub_gen(
+        "Box(shift=6, Dom::T lifted into Dom::D)",
+        &PubGen::BoxSupp { len: sh_pad.size(Dom::D), shift: 6, rows_live: 1, cols_live: sh_pad.tokens, row_stride: sh_pad.size(Dom::T) },
+        &lift_ref(&ind_t, sh_pad.size(Dom::D) / sh_pad.size(Dom::T)),
+    );
+    check_pub_gen(
+        "Box(shift=2, Dom::D lifted x4)",
+        &PubGen::BoxSupp { len: sh_pad.size(Dom::D) * 4, shift: 2, rows_live: sh_pad.tokens, cols_live: sh_pad.width, row_stride: sh_pad.d_pad },
+        &lift_ref(&ind_d, 4),
+    );
+    // 2. GroupCol
+    let group_ids: Vec<u32> = acc_pub.group_ids()[..sh_pad.hidden].iter().map(|&g| g as u32).collect();
+    let ref_gc = super::accuracy_act::group_column(&sh_pad, &acc_pub).expect("group_column ref");
+    check_pub_gen(
+        "GroupCol(Dom::F)",
+        &PubGen::GroupCol { len: sh_pad.size(Dom::F), rows_live: sh_pad.tokens, cols_live: sh_pad.hidden, row_stride: sh_pad.f_pad, group_ids },
+        &ref_gc,
+    );
+    // 3. Causal
+    let ref_causal = super::argument::causal_mask_at(&sh_pad);
+    check_pub_gen(
+        "Causal(Dom::S)",
+        &PubGen::CausalMask { len: sh_pad.size(Dom::S), t_pad: sh_pad.t_pad },
+        &ref_causal,
+    );
+    // 4. Repeat (including negative values mapped mod P)
+    let gamma_i64: Vec<i64> = (0..64i64)
+        .map(|i| match i {
+            0 => -128,
+            1 => -1,
+            2 => 0,
+            3 => 1,
+            4 => 127,
+            5 => -32_768,
+            6 => 32_767,
+            7 => -1_000_000,
+            _ => (i * 37 - 1111),
+        })
+        .collect();
+    let gamma_words: Vec<u64> = gamma_i64.iter().map(|&v| Fp::from_i64(v).0).collect();
+    let ref_repeat: Vec<Fp2> = (0..2048).map(|x| Fp2::from_i64(gamma_i64[x % gamma_i64.len()])).collect();
+    check_pub_gen(
+        "Repeat(signed mod P)",
+        &PubGen::GammaRepeat { len: 2048, vals: gamma_words },
+        &ref_repeat,
+    );
+    // 5. HeadQ (shift = 0 and shift > 0)
+    check_pub_gen(
+        "HeadQ(shift=0, Dom::Q)",
+        &PubGen::HeadSupp { len: sh_pad.size(Dom::Q), shift: 0, mode: 0, tokens: sh_pad.tokens, h_pad: sh_pad.h_pad, per, group, stride: sh_pad.head_dim },
+        &lift_ref(&ind_q, 1),
+    );
+    check_pub_gen(
+        "HeadQ(shift=2, Dom::Q lifted x4)",
+        &PubGen::HeadSupp { len: sh_pad.size(Dom::Q) * 4, shift: 2, mode: 0, tokens: sh_pad.tokens, h_pad: sh_pad.h_pad, per, group, stride: sh_pad.head_dim },
+        &lift_ref(&ind_q, 4),
+    );
+    // 6. HeadHt (shift = 0 and shift = 5 lifted into Dom::S)
+    check_pub_gen(
+        "HeadHt(shift=0, Dom::Ht)",
+        &PubGen::HeadSupp { len: sh_pad.size(Dom::Ht), shift: 0, mode: 1, tokens: sh_pad.tokens, h_pad: sh_pad.h_pad, per, group, stride: sh_pad.t_pad },
+        &lift_ref(&ind_ht, 1),
+    );
+    check_pub_gen(
+        "HeadHt(shift=5, Dom::Ht lifted into Dom::S)",
+        &PubGen::HeadSupp { len: sh_pad.size(Dom::S), shift: 5, mode: 1, tokens: sh_pad.tokens, h_pad: sh_pad.h_pad, per, group, stride: sh_pad.t_pad },
+        &lift_ref(&ind_ht, sh_pad.size(Dom::S) / sh_pad.size(Dom::Ht)),
+    );
+    // 7. HeadS (shift = 0 and shift > 0)
+    check_pub_gen(
+        "HeadS(shift=0, Dom::S)",
+        &PubGen::HeadSupp { len: sh_pad.size(Dom::S), shift: 0, mode: 2, tokens: sh_pad.tokens, h_pad: sh_pad.h_pad, per, group, stride: sh_pad.t_pad },
+        &lift_ref(&ind_s, 1),
+    );
+    check_pub_gen(
+        "HeadS(shift=1, Dom::S lifted x2)",
+        &PubGen::HeadSupp { len: sh_pad.size(Dom::S) * 2, shift: 1, mode: 2, tokens: sh_pad.tokens, h_pad: sh_pad.h_pad, per, group, stride: sh_pad.t_pad },
+        &lift_ref(&ind_s, 2),
+    );
+
+    // ---- Part 2: Direct differential test of SC_SS, SC_SSM, SC_RS direct_total ----
+    // Both supp.is_some() (sh_pad) and supp.is_none() (Shape::toy()), with arbitrary non-zero
+    // garbage injected in padded rows/cols/heads AND upper-triangle j > t.
+    let mut prng = 0x2026_1123_4D31_0002u64;
+    let mut next_nz_fp = || -> Fp {
+        prng ^= prng << 13;
+        prng ^= prng >> 7;
+        prng ^= prng << 17;
+        let w = (prng % (crate::field::P - 1)) + 1;
+        Fp(w)
+    };
+    for (sh, want_supp) in [(&sh_pad, true), (&Shape::toy(), false)] {
+        let lay = Layout::for_shape(sh).expect("layout");
+        let (public, ff, _) = super::grow_tests::tame_case(sh);
+        let a_data: Vec<Fp> = (0..lay.a_rows * lay.n()).map(|_| next_nz_fp()).collect();
+        let ctx = Ctx {
+            accuracy: None,
+            lay: &lay,
+            public: &public,
+            ff: &ff,
+            alpha: Fp2::new(Fp::new(11), Fp::new(13)),
+            beta: Fp2::new(Fp::new(17), Fp::new(19)),
+            g_u8: Fp2::new(Fp::new(23), Fp::new(29)),
+            g_exp: Fp2::new(Fp::new(31), Fp::new(37)),
+            g_act: Fp2::new(Fp::new(41), Fp::new(43)),
+            g_dd: Fp2::new(Fp::new(47), Fp::new(53)),
+        };
+        let pd = ProverData { data: [&a_data, &[], &[], &[]], masks: &[] };
+        for slot in [SC_SS, SC_SSM, SC_RS] {
+            let mut tr_ref = Transcript::new(b"host-fast-m1-direct-total");
+            tr_ref.absorb_u64(b"slot", slot as u64);
+            let mut tr_fast = Transcript::clone_state(&tr_ref);
+            let mut pts_ref = Points::default();
+            pts_ref.pub_gen_prove = false;
+            let mut pts_fast = Points::default();
+            pts_fast.pub_gen_prove = true;
+
+            let mut def_ref = super::argument::define(slot, &ctx, &mut pts_ref, &mut tr_ref).expect("define ref");
+            let def_fast = super::argument::define(slot, &ctx, &mut pts_fast, &mut tr_fast).expect("define fast");
+            let expected_tabs = match slot {
+                SC_SS | SC_SSM => if want_supp { 3 } else { 2 },
+                SC_RS => if want_supp { 5 } else { 4 },
+                _ => unreachable!(),
+            };
+            assert_eq!(def_ref.tabs.len(), expected_tabs, "M1 slot {slot} supp tab count mismatch");
+            assert!(def_fast.direct_total.is_some(), "M1 slot {slot} missing direct_total");
+            let n = sh.slots()[slot].0;
+            let tables_ref = super::argument::build_tables_at(&mut def_ref.tabs, n, &pd, super::argument::TABLES_PAR_MIN);
+            let want = super::argument::total_at(&tables_ref, &def_ref.poly, super::argument::TOTAL_PAR_MIN);
+            let got = (def_fast.direct_total.as_ref().expect("direct_total"))(&pd);
+            assert_ne!(want, Fp2::ZERO, "M1 direct_total fixture must be non-vacuous");
+            assert_eq!(got, want, "M1 direct_total != total(&tables, &poly) slot={slot} shape={} want_supp={want_supp}", sh.name);
+        }
+    }
+
+    // ---- Part 3: SlotKind::Private (SC_RS) with direct = true through MetalRounds ----
+    // n = 16, 5 tables -> 5 << 16 = 327,680 > 262,144 (METAL_DIRECT_MIN), with 2 PubGen tables
+    // (CausalMask + HeadSupp mode 2), defer = true prelude + recover_one(Some(unmasked_claim)).
+    let sh_m1 = Shape::new(
+        "HOST-FAST M1 direct-private",
+        "host-fast-m1-direct-private",
+        50, 48, 48, 12, 8, 4, 10, 4, 9, 9, None, None, None, None,
+    )
+    .expect("M1 direct-private shape");
+    let lay_m1 = Layout::for_shape(&sh_m1).expect("M1 layout");
+    let (pub_m1, ff_m1, _) = super::grow_tests::tame_case(&sh_m1);
+    let a_m1: Vec<Fp> = (0..lay_m1.a_rows * lay_m1.n()).map(|_| next_nz_fp()).collect();
+    assert!(
+        a_m1.len() <= (1usize << 22),
+        "M1 a_data ({}) must fit under TAB_VIEW_MAX_WORDS so A12 builds on GPU",
+        a_m1.len()
+    );
+    let mut mrng = ZkRng::new(0x2026_1123_0001_0003, b"host-fast-m1-masks");
+    let masks_m1: Vec<crate::sumcheck::CfsMask> = sh_m1
+        .slots()
+        .iter()
+        .map(|&(main, ext, deg)| crate::sumcheck::CfsMask::random(&mut mrng, main + ext, deg))
+        .collect();
+    let ctx_m1 = Ctx {
+        accuracy: None,
+        lay: &lay_m1,
+        public: &pub_m1,
+        ff: &ff_m1,
+        alpha: Fp2::new(Fp::new(11), Fp::new(13)),
+        beta: Fp2::new(Fp::new(17), Fp::new(19)),
+        g_u8: Fp2::new(Fp::new(23), Fp::new(29)),
+        g_exp: Fp2::new(Fp::new(31), Fp::new(37)),
+        g_act: Fp2::new(Fp::new(41), Fp::new(43)),
+        g_dd: Fp2::new(Fp::new(47), Fp::new(53)),
+    };
+
+    let run_sc_rs = |hf_on: bool| -> (SlotProof, [u8; 32], u64, Fp2, [u64; 8], [u64; 5], [u64; 8]) {
+        crate::zk::set_host_fast_for_test(Some(hf_on));
+        super::argument::set_device_tables_for_test(Some(super::argument::DT_DEVICE));
+        let hb = crate::zk::host_fast_hits_for_test();
+        let fbb = crate::zk::host_fast_fallbacks_for_test();
+        let tbb = crate::gpu::MetalTables::build_stats();
+
+        let mut tr = Transcript::new(b"host-fast-m1-sc-rs-direct");
+        let mut twin = Transcript::clone_state(&tr);
+        let mut ipts = super::slot_ir::IrPoints::default();
+        let ir = super::slot_ir::build_slot_ir(SC_RS, &ctx_m1, &mut ipts, &mut twin).expect("SC_RS slot_ir");
+        let mut pts = Points::default();
+        pts.pub_gen_prove = hf_on;
+        let mut def = super::argument::define(SC_RS, &ctx_m1, &mut pts, &mut tr).expect("define SC_RS");
+        let n = sh_m1.slots()[SC_RS].0;
+        assert_eq!(n, 16);
+        assert_eq!(def.tabs.len(), 5);
+        assert!((def.tabs.len() << n) > (1usize << 18), "SC_RS must exceed METAL_DIRECT_MIN");
+        assert!(
+            ir.tables.len() == def.tabs.len() && super::metal_slot::ir_matches_closure(&ir, &*def.poly, SC_RS),
+            "SC_RS IR must match closure"
+        );
+        let (k0, k1, cf, base) = super::metal_slot::msl_round_kernels(&ir);
+        def.metal = Some((format!("{k0}\n{k1}"), cf, base));
+
+        let mut acc = Acc::default();
+        acc.cs = vec![Fp2::ONE; SC_RS];
+        acc.scalars = vec![Fp2::ZERO; SC_RS];
+        let mut side = Side::Prove {
+            pd: ProverData { data: [&a_m1, &[], &[], &[]], masks: &masks_m1 },
+            out: Vec::new(),
+        };
+        super::argument::run_slot(&mut side, &mut acc, def, &mut tr).expect("run_slot SC_RS");
+        let sp = match side {
+            Side::Prove { mut out, .. } => out.pop().expect("SlotProof"),
+            Side::Verify { .. } => unreachable!(),
+        };
+        let ha = crate::zk::host_fast_hits_for_test();
+        let fba = crate::zk::host_fast_fallbacks_for_test();
+        let tba = crate::gpu::MetalTables::build_stats();
+        (
+            sp,
+            tr.state(),
+            tr.counter(),
+            acc.fs[0].value,
+            std::array::from_fn(|i| ha[i] - hb[i]),
+            std::array::from_fn(|i| fba[i] - fbb[i]),
+            std::array::from_fn(|i| tba[i] - tbb[i]),
+        )
+    };
+
+    let (sp0, st0, cnt0, gv0, h0, fb0, _tb0) = run_sc_rs(false);
+    let (sp1, st1, cnt1, gv1, h1, fb1, tb1) = run_sc_rs(true);
+    assert_eq!(h0, [0; 8], "M1 SC_RS hf0 must not record host-fast hits");
+    assert_eq!(fb0, [0; 5], "M1 SC_RS hf0 unexpected fallbacks: {fb0:?}");
+    assert_eq!(fb1, [0; 5], "M1 SC_RS hf1 unexpected fallbacks: {fb1:?}");
+    assert_eq!(h1[crate::zk::HF_H6_GPU_PUB_GEN], 2, "M1 SC_RS hf1 expected 2 GPU pub_gen tables (Causal + HeadS), got {h1:?}");
+    assert_eq!(h1[crate::zk::HF_H6_DIRECT_TOTAL], 1, "M1 SC_RS hf1 expected 1 direct_total hit, got {h1:?}");
+    assert!(tb1[6] >= 1, "M1 SC_RS hf1 expected deferred A12 prelude build, got build_stats delta {tb1:?}");
+    assert_eq!(sp1.scalar, sp0.scalar, "M1 SC_RS scalar mismatch (direct=true vs false)");
+    assert_eq!(sp1.terms, sp0.terms, "M1 SC_RS terms mismatch (direct=true vs false)");
+    assert_eq!(sp1.sc.rounds, sp0.sc.rounds, "M1 SC_RS rounds mismatch (direct=true vs false)");
+    assert_eq!((st1, cnt1), (st0, cnt0), "M1 SC_RS transcript mismatch (direct=true vs false)");
+    assert_eq!(gv1, gv0, "M1 SC_RS mask eval functional mismatch");
+
+    // Verify Side::Verify accepts the direct-path SlotProof identically
+    let mut tr_v = Transcript::new(b"host-fast-m1-sc-rs-direct");
+    let mut pts_v = Points::default();
+    let def_v = super::argument::define(SC_RS, &ctx_m1, &mut pts_v, &mut tr_v).expect("verify define SC_RS");
+    let mut slots_v = vec![SlotProof::default(); SC_RS];
+    slots_v.push(sp1);
+    let mut acc_v = Acc::default();
+    acc_v.cs = vec![Fp2::ONE; SC_RS];
+    acc_v.scalars = vec![Fp2::ZERO; SC_RS];
+    let mut side_v = Side::Verify { slots: &slots_v };
+    super::argument::run_slot(&mut side_v, &mut acc_v, def_v, &mut tr_v).expect("Side::Verify SC_RS");
+    assert_eq!((tr_v.state(), tr_v.counter()), (st1, cnt1), "M1 SC_RS verifier transcript mismatch");
+    assert_eq!(acc_v.fs[0].value, gv1, "M1 SC_RS verifier mask functional mismatch");
+    eprintln!(
+        "HOST-FAST M1: all 7 PubGen kinds (sync+defer), SC_SS/SSM/RS direct_total (supp+nosupp), and SC_RS direct=true MetalRounds PASS (hits={h1:?}, deferred_builds={})",
+        tb1[6]
+    );
+}
+
+/// **[HOST-FAST M3] Flag-matrix parity on W16R2 rung (`96e4f0b6`):**
+/// verifies `hf1` matches `W16R2_RUNG_GOLDEN` with zero fallbacks under
+/// `HL_A27_FOLD=0` (with `sc0` and `sc1`), `HL_METAL_BATCH=0` (unbatched),
+/// and `HL_METAL_DEVICE_TABLES=host` / `sync`.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "HOST-FAST: toggles Metal env flags; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn host_fast_m3_flag_matrix_golden() {
+    struct Reset {
+        prev_hf: Option<bool>,
+        prev_sc: Option<bool>,
+        prev_a27: Option<bool>,
+        prev_batch: Option<bool>,
+        prev_gpu: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::gpu::metal_set_sc_chain_fast_for_test(self.prev_sc);
+            crate::gpu::metal_set_a27_fold_for_test(self.prev_a27);
+            crate::gpu::metal_set_batch_for_test(self.prev_batch);
+            super::argument::set_device_tables_for_test(None);
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+        prev_sc: crate::gpu::metal_set_sc_chain_fast_for_test(None),
+        prev_a27: crate::gpu::metal_set_a27_fold_for_test(None),
+        prev_batch: crate::gpu::metal_set_batch_for_test(None),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+    };
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::remove_var("HL_GPU");
+    let cpu0 = seeded_digest(&sh, &blk, copy(&w));
+    assert!(cpu0.starts_with(W16R2_RUNG_GOLDEN), "W16R2 rung CPU baseline moved: {cpu0}");
+
+    std::env::set_var("HL_GPU", "1");
+    crate::zk::set_host_fast_for_test(Some(true));
+    let matrix = [
+        ("a27_fold=0+sc0", false, true, super::argument::DT_DEVICE, false, true),
+        ("a27_fold=0+sc1", false, true, super::argument::DT_DEVICE, true, true),
+        ("batch=0+dt_device", true, false, super::argument::DT_DEVICE, false, true),
+        ("dt_host", true, true, super::argument::DT_HOST, false, false),
+        ("dt_sync", true, true, super::argument::DT_SYNC, false, true),
+        ("batch=0+dt_sync", true, false, super::argument::DT_SYNC, false, true),
+    ];
+    for (label, a27, batch, dt, sc, expect_gpu_pub_gen) in matrix {
+        crate::gpu::metal_set_a27_fold_for_test(Some(a27));
+        crate::gpu::metal_set_batch_for_test(Some(batch));
+        super::argument::set_device_tables_for_test(Some(dt));
+        crate::gpu::metal_set_sc_chain_fast_for_test(Some(sc));
+
+        let hb = crate::zk::host_fast_hits_for_test();
+        let fbb = crate::zk::host_fast_fallbacks_for_test();
+        let d = seeded_digest(&sh, &blk, copy(&w));
+        let ha = crate::zk::host_fast_hits_for_test();
+        let fba = crate::zk::host_fast_fallbacks_for_test();
+        let hd: [u64; 8] = std::array::from_fn(|i| ha[i] - hb[i]);
+        let fbd: [u64; 5] = std::array::from_fn(|i| fba[i] - fbb[i]);
+
+        assert_eq!(d, cpu0, "M3 flag matrix [{label}] digest != CPU golden");
+        assert!(d.starts_with(W16R2_RUNG_GOLDEN), "M3 flag matrix [{label}] digest != {W16R2_RUNG_GOLDEN}: {d}");
+        assert_eq!(fbd, [0; 5], "M3 flag matrix [{label}] unexpected fallbacks: {fbd:?}");
+        for i in [
+            crate::zk::HF_H1_INV_TBL,
+            crate::zk::HF_H2_PAR_MASK,
+            crate::zk::HF_H3_PAR_RNG16,
+            crate::zk::HF_H4_ACC_FOLD,
+            crate::zk::HF_H5_PRIV_FOLD,
+            crate::zk::HF_H6_CPU_PUB_GEN,
+        ] {
+            assert!(hd[i] > 0, "M3 flag matrix [{label}] expected hit counter {i} > 0, got {hd:?}");
+        }
+        if expect_gpu_pub_gen {
+            assert!(hd[crate::zk::HF_H6_GPU_PUB_GEN] > 0, "M3 flag matrix [{label}] expected GPU pub_gen > 0, got {hd:?}");
+        } else {
+            assert_eq!(hd[crate::zk::HF_H6_GPU_PUB_GEN], 0, "M3 flag matrix [{label}] dt_host must not hit GPU pub_gen");
+        }
+        eprintln!("HOST-FAST M3 [{label}]: digest {} (golden); hits={hd:?} fallbacks={fbd:?}", &d[..8]);
     }
 }
 

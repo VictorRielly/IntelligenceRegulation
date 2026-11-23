@@ -3314,7 +3314,30 @@ fn slot_label(kernel_src: &str) -> String {
 /// when its imaginary part is zero (a base-field table's first fold). The same
 /// canonical words (`metal_kernels.metal`; `a27_` tests). Returns (the host-challenge
 /// fold, the device-challenge fold).
+#[cfg(test)]
+static A27_FOLD_TEST: AtomicUsize = AtomicUsize::new(0);
+
+#[cfg(test)]
+pub fn set_a27_fold_for_test(on: Option<bool>) -> Option<bool> {
+    let v = match on {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    match A27_FOLD_TEST.swap(v, Ordering::Relaxed) {
+        1 => Some(false),
+        2 => Some(true),
+        _ => None,
+    }
+}
+
 fn a27_fold_on() -> bool {
+    #[cfg(test)]
+    match A27_FOLD_TEST.load(Ordering::Relaxed) {
+        1 => return false,
+        2 => return true,
+        _ => {}
+    }
     static ON: OnceLock<bool> = OnceLock::new();
     *ON.get_or_init(|| std::env::var("HL_A27_FOLD").map(|v| v != "0").unwrap_or(true))
 }
@@ -4751,8 +4774,31 @@ fn batch_tail_budget_s() -> f64 {
     *B.get_or_init(|| std::env::var("HL_METAL_BATCH_TAIL_US").ok().and_then(|v| v.parse::<f64>().ok()).filter(|v| v.is_finite() && *v >= 0.0).map(|us| us * 1e-6).unwrap_or(BATCH_TAIL_BUDGET_S))
 }
 
+#[cfg(test)]
+static BATCH_TEST: AtomicUsize = AtomicUsize::new(0);
+
+#[cfg(test)]
+pub fn set_batch_for_test(on: Option<bool>) -> Option<bool> {
+    let v = match on {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    match BATCH_TEST.swap(v, Ordering::Relaxed) {
+        1 => Some(false),
+        2 => Some(true),
+        _ => None,
+    }
+}
+
 /// `HL_METAL_BATCH=0` restores one command buffer per device round (M4).
 fn batch_on() -> bool {
+    #[cfg(test)]
+    match BATCH_TEST.load(Ordering::Relaxed) {
+        1 => return false,
+        2 => return true,
+        _ => {}
+    }
     static B: OnceLock<bool> = OnceLock::new();
     *B.get_or_init(|| std::env::var("HL_METAL_BATCH").map(|v| v != "0").unwrap_or(true))
 }

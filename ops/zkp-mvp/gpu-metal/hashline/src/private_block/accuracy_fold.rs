@@ -530,8 +530,12 @@ pub(crate) fn fold(
 )->Result<Vec<Fp2>,String> {
     let fast = crate::zk::host_fast_on();
     let out = fold_with_mode(matrix, rows, cols, axis, coefficients, eq, fast)?;
-    if fast && rows <= HOST_FAST_MAX_DIM && cols <= HOST_FAST_MAX_DIM {
-        crate::zk::record_host_fast_hit(crate::zk::HF_H4_ACC_FOLD);
+    if fast {
+        if rows <= HOST_FAST_MAX_DIM && cols <= HOST_FAST_MAX_DIM {
+            crate::zk::record_host_fast_hit(crate::zk::HF_H4_ACC_FOLD);
+        } else {
+            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H4_DIM, "H4 acc_fold: rows or cols > HOST_FAST_MAX_DIM");
+        }
     }
     Ok(out)
 }
