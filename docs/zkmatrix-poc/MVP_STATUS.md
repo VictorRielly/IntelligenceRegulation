@@ -801,6 +801,15 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 02:43 UTC, Lean [PROVED: green guarded build and full check, 594 of 594 declarations
+    audited, standard axioms only]: the run's top theorem no longer depends on the undercounting
+    zero-knowledge budget.** The chain of seven theorems up to the top now has a second form that
+    accepts any error budget within the target; the old theorems keep their exact statements and are
+    special cases of the new ones. This is the first of the six steps named in the entry below. It
+    removes the risk that the top theorem is empty because its budget cannot be met. It does not
+    prove zero knowledge: that remains one stated assumption of the top theorem, and the other five
+    steps (three of them large) are what would discharge it. Handoff:
+    `results/zk60_lean_l63_20261116/HANDOFF_20261123_1.md`.
     **Nov 23, 02:15 UTC, Lean [READ by a Claude reviewer, nothing built; four citations checked by
     Claude]: zero knowledge of the full run is not proved yet, and the review says what is missing.**
     The run's top theorem assumes zero knowledge at an error budget that is known to undercount the
