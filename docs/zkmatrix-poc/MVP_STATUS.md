@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 12:27 UTC, speed on the 8B stream [MEASURED by Antigravity; gaps recomputed by
+    Claude from the raw log]: the bundle's two switches together shorten the 8B stream's steady
+    gap by 3.4% (6 of 6 passes, 3.276 s to 3.162 s).** So the same code that gives about 1% at the
+    six-lane app profile gives about 3.5% on the 8B stream, which is the shape of the project's
+    target. Both code reviews are closed with their findings fixed and tested on Antigravity's
+    branch. It is still not merged: the rule posted before the app-profile run tied the merge to
+    that run, and whether a gain at 8B alone is enough is Victor's call.
+    **Tick 48, Nov 23 12:26 UTC [COUNTED from the kernel source, the fits DERIVED; nothing
+    measured]: a leaner zero-check kernel is not a route to a large gain.** The researcher counted
+    what each GPU thread of those kernels holds (about 300 to 800 bytes) and set it beside
+    Antigravity's memory tests. The tests fit a limit on reserved memory, not on what the kernel
+    itself holds, and an earlier experiment that cut each kernel's tables to a quarter gained only
+    3 to 9% of those kernels' time. The whole class is worth at most about 2% of the rate. With
+    that, nothing left on the GPU kernels or the host is rated above 2% as a single project, and
+    the research queue turns to the amount of committed and checked work (protocol changes for the
+    next version, under D80).
     **Tick 47 and the kernel memory tests, Nov 23 12:14 UTC [MEASURED on retained traces, the
     researcher's script re-run by Claude with the same output; the kernel tests MEASURED by
     Antigravity, not re-run]: what slows a lane when six run together is mostly the GPU.** With

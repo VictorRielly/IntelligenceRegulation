@@ -1,0 +1,46 @@
+# Research handoff: the zero-check round kernels' footprint per thread and the occupancy ladders (2026-11-23 UTC, claude-tick 48, queue item 80)
+
+From Claude, the background researcher. One bounded cycle: local source reading and arithmetic, one web search and two page reads (Apple's tech talk 111375, an Apple developer-forum answer). No run, no build, no Git. Clock at writing 2026-11-23T12:23:32Z. **Triage material, not a work order.** Nothing here changes what the prover commits.
+
+**Read, and how.** In full: the queue item; `results/zk60_tick46_occ_ladders_20261123/README.md` (Antigravity's ladders, every table); tick 46's handoff (sections 1, 3, 4); tick 15's sections 3 and 4 (register counts, K5); coordination entries of 12:03:00Z and 12:14:01Z. Code: `metal_slot.rs:340-478` (`gen_kernel`), and the generated `k_sc_round_base` of slots 14 and 18 in `results/zk60_tick46_occ_ladders_20261123/build/z_occ_s{14,18}.metal` (the verbatim W16R2 8B shaders the ladder compiled; loop body parsed in full by the script). Pages: Apple tech talk 111375 (read, summary by the fetch tool), forum thread 780112 (read; a user's answer, not Apple documentation). Script `20261123-claude-tick48-round-footprint.py` (standard library, `-I -B`, 0.8 s), output `...round-footprint.out.txt`. Labels: COUNTED (file:line or script), MEASURED (record cited), DERIVED (script), ASSUMED.
+
+## 1. Footprint per thread of the round kernel (item 80, part a)
+
+The loop body of `k_sc_round` (`metal_slot.rs:446-478`; one thread per (pair stride, point), one point per SIMD group) loads every table as an `fp2` (`ln_ext`, 16 B: later rounds are all extension-typed, the dump has no `ln_base` in it), then evaluates the node DAG, then accumulates `out` into `acc`. No threadgroup memory (tick 46). Live `fp2` values at the peak, COUNTED by the script in the written statement order (a value is live from its definition, or from first use if loads are sunk, to its last use):
+
+| slot (8B) | tables loaded (xtabs included) | nodes | loads where written: peak live | loads sunk to first use: peak live |
+|---|---:|---:|---:|---:|
+| 14 | 39 (36 + 3 materialized) | 45 | 39 fp2 = 624 B at node n4 | 20 fp2 = 320 B at n37 |
+| 18 | 22 (19 + 3) | 23 | 20 fp2 = 320 B at n1 | 14 fp2 = 224 B at n17 |
+
+Add the fixed part, ASSUMED (no ISA dump exists; loop state, `acc`, bounds, the transients of one `ln_ext` and one `f2_mul` reduction): 24 to 40 registers = 96 to 160 B. **Footprint per thread: slot 14 416 to 784 B (104 to 196 registers), slot 18 320 to 480 B (80 to 120 registers)**, lower bound = loads sunk and fewest transients, upper = source order and most. Tick 15's counts in words for the same shapes (160 and 92 words in source order, 80 and 56 depth-first, loads and nodes only) agree within 15%. The compiler's real order is unknown: tick 15 saw K3a hoist loads and K5b show scoping does not reduce liveness, which favours the upper figures. [Apple, via search] M1-family threads address at most 128 32-bit registers (512 B) before spilling; slot 14's upper bound is above that and its lower below it.
+
+## 2. The ladders against one model (parts b)
+
+Data (MEASURED, tick 46 README, L = unused bytes per 64-thread group, time against L = 0): slot 14 flat 0.98 to 1.00 to L = 8,192 (round 1 0.91 at 8,192), 1.34 at 16,384, 2.07 at 32,768; slot 18 flat 0.99 to 8,192, 1.52 and 3.20; NTT 0.98 at 32 KiB in total; sparse fold (tick 41, tick 46 control) 5,120 B per 32 threads fast, 18,944 B 3.31x slower.
+
+Apple [talk 111375]: from family 9 register use no longer caps resident SIMD groups; registers, thread-group and buffer data share on-chip memory and the core lowers occupancy itself; no pool size given. A forum answer (unverified): 32 KiB of thread-group memory per core, so 32 KiB per group means one resident group, 16 KiB two, 8 KiB four.
+
+Three models, fitted by the script on the ten ladder points (not on K1, K3b, K5):
+- **A, one shared pool, proportional** (t = max(1, (r + l)/F*), l = L/64): slot 14 fits (F* 354 B, r 218 B, predicts 1.000 at 128 B per thread; measured 0.98) but r = 218 B is below the counted lower bound 416 B; slot 18 needs r = -25 B (impossible). **Fails** for slot 18, strains for slot 14.
+- **B, one shared pool of registers plus allocation, integer groups:** the six best fits for each slot put r at the grid's floor (20 to 22 registers, 80 to 88 B), far below the 80 to 104 registers counted. **Does not fit with the counted footprints**; the data prefer a pool that registers hardly enter.
+- **C, thread-group allocation only** (G = floor(P/L) groups of 64 threads per core, time constant when G >= Gs, else a + (1-a) Gs/G): P = 32 KiB gives G = 4, 2, 1 at L = 8,192, 16,384, 32,768. Slot 14: sse 0.0008, Gs 4.0, a 0.65 (good). Slot 18: sse 0.020, Gs 3.5 (the curve is steeper than this form: 3.20/1.52 = 2.1 for a halving of G). P = 65,536 B fits slot 14 equally (Gs 8) and slot 18 worse; 48 and 60 KiB fit slot 18 better (sse 0.003 to 0.004, Gs 6.5, a 0.6) and slot 14 worse (0.010 to 0.014). **Pool size is not identified by the ladder.**
+
+Step positions. C's fits put the knee at 2 to 8 resident 64-thread groups, about **128 to 512 threads per core**. One curve of resident threads fits loosely across kernels: 32 threads (fold A) x3.3, 64 x2.1 and x3.2 (slots 14, 18), 128 x1.34 and x1.52, 192 and more flat. The shared-pool models cannot explain, and C does, that slot 18 has the SMALLER register footprint yet the larger penalty at every L; K1's load share is 0.19 at slot 18 against 0.11 at slot 14, so the kernel with more latency to hide needs more resident threads (DERIVED, loosely; one pair of kernels). No step occurs at L = 8,192 for either slot.
+
+## 3. Does a step lie below the shipped footprint (part c)
+
+**Statement: no step is within reach, on the evidence in hand.** Reasons:
+1. A flat ladder from L = 0 to 8,192 cannot show a step below L = 0. It is consistent with two worlds: (R1) the kernel is saturated at the residency it gets (it has at least 128 B per thread of room before the knee), so fewer registers buy nothing; (R2) it is register or cache limited at about 4 groups at L = 0 and the ladder meets that limit only at 16 KiB. R2 predicts that a large cut of live values raises residency and shortens time.
+2. R2 has been run. K5's four-way split (H162, tick 15) cut each kernel's tables to a quarter (loads alone 156 words at 8B slot 14, a quarter of that per kernel) and gave time 0.914 (slot 14) and 0.967 (slot 18) of v13, the whole gain in rounds 1 to 5 [MEASURED, tick 15]. Footprint down 3 to 4 times, time down 3 to 9%. Against the other shapes (K5: Shieldstral 14 and 18, 0.773 and 0.871, with 268 and 128 loaded words) gain falls with footprint: about 0 to 3% at 56 to 92 words, 9% at 156 to 160, 13% at 128, 23% at 268 (loose, one inversion). The step, if any, lies above about 100 to 130 words (400 to 520 B) in source order; the 8B slot 18 kernel (92 words) is already below it, and slot 14 (160) is just above it and has been measured to give 9%.
+3. The only gains seen going down the ladder are slot 14 round 1 at L = 8,192 (-9.2%, total -2.0%) and slot 18 (-0.5% total; its L = 0 arm also differs from the unmodified kernel by 4.3% with no source change, so the noise floor of the harness for this comparison is a few percent). Slot 14's base arm IQR (7.40 to 7.69 ms) is as wide as the 2% effect. That is 0.15 ms of a 94 ms block, not a project.
+
+**Ceiling, DERIVED:** the whole K5 gain at 8B (9% of slot 14's 15.5 ms and 3% of slot 18's 21.3 ms, the installed block's figures from the 2026-11-20 measurement; taking the 9% and 3% as shares of whole slots is generous) is 2.0 ms of block GPU, 2.1%. At tick 40's exchange (0.3 to 0.9% of rate per one-lane device ms) that is 0.6 to 1.8% of rate; at full pass-through to the 8B cadence 2.0 x 32/3745.5 = 1.7%. Under the 5% rule at the ceiling.
+
+**Optional bench Z-down, NOT scheduled.** K5's split harness (`results/zk60_k0k1_roofline_20261118/`), 8B slots 14 and 18, G = 1, 2, 3, 4, 6, rounds 1 to 5 timed apart, output words equal to G = 1, median of 20, guard class gpu, tick 46's positive control kept. Line first: a step below the shipped kernel exists if slot 14 at G = 2 gets 0.93 or less; none if G = 2 and 3 stay above 0.97 (the G = 4 gain then needs the whole quarter, an instruction-count effect). No rewrite proposed.
+
+## 4. Expected effect, risks, not verified
+
+Committed words per request: none. Proved tokens per second: nothing from reading; ceiling 0.6 to 1.8% of rate for the whole K5 class, not scheduled. Risks: footprint numbers are counts over source text, not registers read from a pipeline; the fixed part is assumed; the compiler's order is unknown; P is a forum figure and the fits cannot tell P apart; the ladders are 1-lane synthetic dispatches; model C has three free parameters per slot, no out-of-sample test, and fits slot 18 poorly; the latency-hiding inference rests on one pair of kernels. No ISA dump, spill count or occupancy counter was read.
+
+Sources: [Apple tech talk 111375](https://developer.apple.com/videos/play/tech-talks/111375/), [Apple developer forum thread 780112](https://developer.apple.com/forums/thread/780112), [Rosenzweig, Dissecting the Apple M1 GPU part III](https://rosenzweig.io/blog/asahi-gpu-part-3.html) (search result only).

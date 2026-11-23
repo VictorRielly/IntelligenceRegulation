@@ -1,0 +1,43 @@
+slot14: statements 85 (loads 39, nodes 45)
+  written order, loads where written: max live fp2 = 39 at statement 43 (n4) = 624 B
+  written order, loads sunk to first use: max live fp2 = 20 at statement 76 (n37) = 320 B
+slot18: statements 46 (loads 22, nodes 23)
+  written order, loads where written: max live fp2 = 20 at statement 23 (n1) = 320 B
+  written order, loads sunk to first use: max live fp2 = 14 at statement 39 (n17) = 224 B
+fixed registers (ASSUMED): 24 to 40 x 4 B = 96 to 160 B
+
+slot14: footprint per thread, lower 416 B (104 regs), upper 784 B (196 regs)
+slot18: footprint per thread, lower 320 B (80 regs), upper 480 B (120 regs)
+
+Model A (proportional): t/t0 = max(1, (r + l)/F*), l = L/64 bytes per thread, r = the kernel's own bytes per thread
+  slot14: slope 0.00283/B -> F* 354 B, r 218 B; predicted t(128 B/thread) = 1.000 (measured 0.980)
+  slot18: slope 0.00656/B -> F* 152 B, r -25 B; predicted t(128 B/thread) = 1.000 (measured 0.995)
+
+Model B (integer groups): G = floor(P / (64 r + L)), t/t0 = (a + (1-a) * Gs/G) / 1 for G < Gs else 1 at G >= Gs
+  slot14: six best fits (sse, P bytes per core, r regs, Gs, a):
+    sse 0.0006  P 147456  r 20 regs (80 B)  Gs 11  a 0.6
+    sse 0.0007  P 151552  r 20 regs (80 B)  Gs 11  a 0.4
+    sse 0.0007  P 155648  r 20 regs (80 B)  Gs 11  a 0.4
+    sse 0.0007  P 155648  r 22 regs (88 B)  Gs 11  a 0.4
+    sse 0.0007  P 159744  r 20 regs (80 B)  Gs 11  a 0.4
+    sse 0.0007  P 159744  r 22 regs (88 B)  Gs 11  a 0.4
+  slot18: six best fits (sse, P bytes per core, r regs, Gs, a):
+    sse 0.0068  P 217088  r 20 regs (80 B)  Gs 16  a 0.0
+    sse 0.0068  P 221184  r 20 regs (80 B)  Gs 16  a 0.0
+    sse 0.0068  P 221184  r 22 regs (88 B)  Gs 16  a 0.0
+    sse 0.0068  P 225280  r 20 regs (80 B)  Gs 16  a 0.0
+    sse 0.0068  P 225280  r 22 regs (88 B)  Gs 16  a 0.0
+    sse 0.0068  P 229376  r 22 regs (88 B)  Gs 16  a 0.0
+
+Model C (thread-group memory only, registers not in the pool): G = floor(P / L) groups of 64 threads per core, G = infinity at L = 0;
+  t/t0 = 1 if G >= Gs else a + (1-a) * Gs / G.  P = 32 KiB is the figure of a developer-forum answer (unverified); others for sensitivity.
+  slot14 P=32768: best sse 0.0008 at Gs 4.0, a 0.65; G at L = {0: 'inf', 2048: 16, 4096: 8, 8192: 4, 16384: 2, 32768: 1}
+  slot14 P=49152: best sse 0.0136 at Gs 8.0, a 0.85; G at L = {0: 'inf', 2048: 24, 4096: 12, 8192: 6, 16384: 3, 32768: 1}
+  slot14 P=61440: best sse 0.0104 at Gs 8.0, a 0.85; G at L = {0: 'inf', 2048: 30, 4096: 15, 8192: 7, 16384: 3, 32768: 1}
+  slot14 P=65536: best sse 0.0008 at Gs 8.0, a 0.65; G at L = {0: 'inf', 2048: 32, 4096: 16, 8192: 8, 16384: 4, 32768: 2}
+  slot18 P=32768: best sse 0.0196 at Gs 3.5, a 0.15; G at L = {0: 'inf', 2048: 16, 4096: 8, 8192: 4, 16384: 2, 32768: 1}
+  slot18 P=49152: best sse 0.0042 at Gs 6.5, a 0.6; G at L = {0: 'inf', 2048: 24, 4096: 12, 8192: 6, 16384: 3, 32768: 1}
+  slot18 P=61440: best sse 0.0027 at Gs 6.5, a 0.6; G at L = {0: 'inf', 2048: 30, 4096: 15, 8192: 7, 16384: 3, 32768: 1}
+  slot18 P=65536: best sse 0.0094 at Gs 6.5, a 0.05; G at L = {0: 'inf', 2048: 32, 4096: 16, 8192: 8, 16384: 4, 32768: 2}
+
+Predictions of the P = 32 KiB model C fit for the points NOT used to fit it are the flat ones; it cannot explain slot 14's 0.98 (round 1: 0.91).

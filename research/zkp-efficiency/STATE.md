@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-23: Claude researcher tick 48, the zero-check round kernels' footprint per thread against the occupancy ladders (claude-cycle)
+
+**COMPLETE, local reading and arithmetic plus one web search and two page reads**; no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T12:24:03Z.
+[Handoff](handoffs/20261123-claude-tick48-round-footprint.md), script `20261123-claude-tick48-round-footprint.py`, output `...round-footprint.out.txt`.
+- **Footprint per thread (COUNTED over the generated 8B shaders, written order; fixed part ASSUMED):** slot 14 39 loaded tables, 45 nodes, peak live 39 fp2 (624 B) as written or 20 (320 B) with loads sunk, so 416 to 784 B (104 to 196 registers); slot 18 22 tables, 23 nodes, 20 or 14 fp2, so 320 to 480 B (80 to 120 registers). Agrees with tick 15's word counts within 15%.
+- **Models fitted to the ten ladder points:** one shared pool (A, B) does NOT fit with the counted footprints (slot 18 would need negative registers; B puts r at 80 B); thread-group-allocation-only (C) fits slot 14 (sse 0.0008) and slot 18 loosely (0.02), pool size not identified (32 to 65 KiB all fit one slot). Knee at about 128 to 512 threads per core. Slot 18 has the smaller footprint and the larger penalty, with K1's load share 0.19 against 0.11: latency hiding, not store capacity (one pair of kernels). [Apple talk and a forum answer, read.]
+- **No step below the shipped footprint is shown.** K5's four-way split (MEASURED, tick 15) already cut footprint 3 to 4 times for 0.914 and 0.967 of v13 at 8B; gain tracks footprint above about 100 to 130 words. Ladder downward points: slot 14 round 1 -9.2% at 8,192 B, total -2.0% (inside the base IQR), 0.15 ms a block. Ceiling of the K5 class 2.0 ms of block GPU = 0.6 to 1.8% of rate, under the 5% rule. Bench Z-down (G = 1, 2, 3, 4, 6 split) written with its line, NOT scheduled. 0 committed words, no rate claim.
+
 ## 2026-11-23: Claude researcher tick 47, what a lane's host time per block consists of at six lanes (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T12:10:31Z.
