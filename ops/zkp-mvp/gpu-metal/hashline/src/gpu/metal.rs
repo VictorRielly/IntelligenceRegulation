@@ -195,10 +195,20 @@ fn sc_chain_fast_pipes(c: &Ctx) -> Result<&ScChainFastPipes, &String> {
 static SC_CHAIN_FAST_TEST: AtomicUsize = AtomicUsize::new(0);
 /// [K9] count of `batched_rounds` dispatches that executed on the fast sumcheck chain
 static SC_CHAIN_FAST_BATCHES: AtomicU64 = AtomicU64::new(0);
+/// [K9] count of calls where `HL_METAL_SC_CHAIN_FAST=1` was enabled but fell back to the standard chain
+static SC_CHAIN_FAST_FALLBACKS: AtomicU64 = AtomicU64::new(0);
+static SC_CHAIN_FAST_FALLBACK_LOGGED: AtomicBool = AtomicBool::new(false);
+
+fn record_sc_chain_fast_fallback(reason: &str) {
+    SC_CHAIN_FAST_FALLBACKS.fetch_add(1, Ordering::Relaxed);
+    if !SC_CHAIN_FAST_FALLBACK_LOGGED.swap(true, Ordering::Relaxed) {
+        eprintln!("[ZK60-METAL] HL_METAL_SC_CHAIN_FAST=1 fell back to standard sumcheck chain ({reason})");
+    }
+}
 
 /// [K9] `HL_METAL_SC_CHAIN_FAST=1` (default OFF): in-kernel SIMD reduction + SoA `part`,
 /// `k_sc_fs_step_v3` (zero-array scalar-register BLAKE3 + SIMD-parallel mask/interp),
-/// and fused `k_fold_tables_dev3_xy` (skipping dead `j == nd` `xtabs` fold).
+/// and fused `k_fold_tables_dev3_xy`.
 fn sc_chain_fast_on() -> bool {
     match SC_CHAIN_FAST_TEST.load(Ordering::Relaxed) {
         1 => false,
@@ -234,15 +244,54 @@ pub fn sc_chain_fast_batches_for_test() -> u64 {
     SC_CHAIN_FAST_BATCHES.load(Ordering::Relaxed)
 }
 
-/// [K9] whether a sumcheck of `degree` can use the fast chain (pipelines compiled & tgw >= 256)
+/// [K9] total sumchecks where `HL_METAL_SC_CHAIN_FAST=1` fell back to the standard chain
+pub fn sc_chain_fast_fallbacks_for_test() -> u64 {
+    SC_CHAIN_FAST_FALLBACKS.load(Ordering::Relaxed)
+}
+
+/// [K9] whether a sumcheck of `degree` can use the fast chain (pipelines compiled,
+/// `tgw >= 256`, and 32-lane SIMD execution width matching `simd_shuffle_down` / `>> 5`)
 fn sc_chain_fast_ready(c: &Ctx, degree: usize) -> bool {
-    if !sc_chain_fast_on() || degree == 0 || degree + 1 > FS_MAX_POINTS {
+    if !sc_chain_fast_on() {
+        return false;
+    }
+    if degree == 0 || degree + 1 > FS_MAX_POINTS {
+        record_sc_chain_fast_fallback("degree outside 1..=7");
         return false;
     }
     match sc_chain_fast_pipes(c) {
-        Ok(p) => p.fs_step_v3.max_total_threads_per_threadgroup() >= 256,
-        Err(_) => false,
+        Ok(p) => {
+            if p.fs_step_v3.max_total_threads_per_threadgroup() < 256 {
+                record_sc_chain_fast_fallback("k_sc_fs_step_v3 max_total_threads_per_threadgroup < 256");
+                return false;
+            }
+            if p.fs_step_v3.thread_execution_width() != 32 {
+                record_sc_chain_fast_fallback("k_sc_fs_step_v3 thread_execution_width != 32");
+                return false;
+            }
+            true
+        }
+        Err(_) => {
+            record_sc_chain_fast_fallback("fast pipeline compile failed");
+            false
+        }
     }
+}
+
+/// [K9] resolve round pipelines and enforce 32-lane SIMD width when `sc_fast` is active
+fn sc_pipelines_checked(c: &Ctx, kernel_src: &str, k: usize, degree: usize, sc_fast: bool) -> Result<(ComputePipelineState, ComputePipelineState, bool), String> {
+    let (p0, p) = sc_pipelines(c, kernel_src, k, degree, sc_fast)?;
+    if sc_fast
+        && (p0.thread_execution_width() != 32
+            || p.thread_execution_width() != 32
+            || p0.max_total_threads_per_threadgroup() < 32
+            || p.max_total_threads_per_threadgroup() < 32)
+    {
+        record_sc_chain_fast_fallback("round pipeline SIMD width != 32 or max_tg < 32");
+        let (s0, s) = sc_pipelines(c, kernel_src, k, degree, false)?;
+        return Ok((s0, s, false));
+    }
+    Ok((p0, p, sc_fast))
 }
 
 /// `HL_GPU=1` and a Metal device whose kernels compiled.
@@ -3285,7 +3334,7 @@ pub fn metal_rounds(kernel_src: &str, tables: &[Vec<Fp2>], degree: usize, coefs:
         return Err("metal sumcheck: base flags".into());
     }
     let sc_fast = sc_chain_fast_ready(c, degree);
-    let (pipe0, pipe) = sc_pipelines(c, kernel_src, k, degree, sc_fast)?;
+    let (pipe0, pipe, sc_fast) = sc_pipelines_checked(c, kernel_src, k, degree, sc_fast)?;
     let t_setup = std::time::Instant::now();
     objc::rc::autoreleasepool(|| {
         // the tables straight into shared memory, one table per rayon task
@@ -3468,7 +3517,7 @@ pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs
         return fail(t, Some("metal sumcheck: degree 0 or base flags".into()));
     }
     let sc_fast = sc_chain_fast_ready(c, degree);
-    let (pipe0, pipe) = match sc_pipelines(c, kernel_src, t.k, degree, sc_fast) {
+    let (pipe0, pipe, sc_fast) = match sc_pipelines_checked(c, kernel_src, t.k, degree, sc_fast) {
         Ok(p) => p,
         Err(e) => return fail(t, Some(e)),
     };
@@ -4210,7 +4259,8 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                 // [A27] the points up to the evaluated degree only
                 let np = if eval_one { self.de + 1 } else { self.de };
                 let grid = (nthreads.div_ceil(32) * 32 * np) as u64;
-                let tg = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                let tg_raw = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                let tg = if self.sc_fast { (tg_raw & !31).max(32) } else { tg_raw };
                 enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
                 Ok(())
             })
@@ -4321,7 +4371,8 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
             let sp = self.split_ns.get();
             eprintln!(
-                "[ZK60-METAL] sumcheck rounds: {} tables, {} rounds, degree {} in {:.4} s (round 0 {:.4}, rounds 1.. {:.4}, folds {:.4}; max threads/group {} / {})",
+                "[ZK60-METAL] sumcheck rounds ({}): {} tables, {} rounds, degree {} in {:.4} s (round 0 {:.4}, rounds 1.. {:.4}, folds {:.4}; max threads/group {} / {})",
+                if self.sc_fast { "sc-chain-fast" } else { "std" },
                 self.k,
                 self.n_vars,
                 self.degree,
@@ -4705,7 +4756,7 @@ impl MetalRounds {
             let part2 = if fast_pipes.is_some() { None } else { Some(shared_buffer(cx, (PART_RED_WIDTH * d1 * 16) as u64)?) };
             let mut claim_known = self.recover_one && self.unmasked_claim.is_some();
             let tabs: &metal::BufferRef = &self.tabs;
-            trace_detail(|| format!("{} | k={} m={} log_cap={} deg={} de={de} nd={nd} n_vars={} recover={} pre={}", self.label, self.k, self.m, self.cap.trailing_zeros(), self.degree, self.n_vars, self.recover_one as u8, pre.as_ref().map(|p| p.args.len()).unwrap_or(0)));
+            trace_detail(|| format!("{} | k={} m={} log_cap={} deg={} de={de} nd={nd} n_vars={} recover={} pre={} sc={}", self.label, self.k, self.m, self.cap.trailing_zeros(), self.degree, self.n_vars, self.recover_one as u8, pre.as_ref().map(|p| p.args.len()).unwrap_or(0), if fast_pipes.is_some() { "fast" } else { "std" }));
             // [A27] the materialized tables' values, ahead of round 0's kernel
             let mat = self.mat_pending;
             run_tagged_pre(cx, "batch", pre.as_ref().map(|p| (p, tabs)), |enc| {
@@ -4718,20 +4769,13 @@ impl MetalRounds {
                         let hprev = (self.len >> (j - 1)) / 2;
                         let roff = ((j - 1) * rec + 4 * d1) as u64;
                         if let Some(fp) = fast_pipes {
-                            // [K9 C1] fused tabs + xtabs fold in one dispatch; skip dead xtabs fold at j == nd
-                            if j < nd {
-                                if let Some(x) = self.xtabs.as_ref() {
-                                    enc.set_buffer(0, Some(&self.tabs), 0);
-                                    enc.set_buffer(1, Some(x), 0);
-                                    set_args(enc, 2, &FoldDevXYArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, m: self.m as u64, roff });
-                                    enc.set_buffer(3, Some(&out), 0);
-                                    dispatch_2d_pipe(enc, &fp.fold_dev3_xy, hprev as u64, (self.k + self.m) as u64);
-                                } else {
-                                    enc.set_buffer(0, Some(&self.tabs), 0);
-                                    set_args(enc, 1, &FoldDevArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, roff });
-                                    enc.set_buffer(2, Some(&out), 0);
-                                    dispatch_2d(cx, enc, fold_kernels().1, hprev as u64, self.k as u64);
-                                }
+                            // [K9 C1] fused tabs + xtabs fold in one dispatch (all 1..=nd so xtabs stays consistent)
+                            if let Some(x) = self.xtabs.as_ref() {
+                                enc.set_buffer(0, Some(&self.tabs), 0);
+                                enc.set_buffer(1, Some(x), 0);
+                                set_args(enc, 2, &FoldDevXYArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, m: self.m as u64, roff });
+                                enc.set_buffer(3, Some(&out), 0);
+                                dispatch_2d_pipe(enc, &fp.fold_dev3_xy, hprev as u64, (self.k + self.m) as u64);
                             } else {
                                 enc.set_buffer(0, Some(&self.tabs), 0);
                                 set_args(enc, 1, &FoldDevArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, roff });
@@ -4764,7 +4808,8 @@ impl MetalRounds {
                     // [A27] the points up to the evaluated degree only
                     let np = if eval_one { de + 1 } else { de };
                     let grid = (nthreads.div_ceil(32) * 32 * np) as u64;
-                    let tg = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                    let tg_raw = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                    let tg = if fast_pipes.is_some() { (tg_raw & !31).max(32) } else { tg_raw };
                     enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
                     // [K9 A] under sc_fast, each 32-lane SIMD group already reduced to 1 SoA entry
                     // -> skip `k_sc_part_reduce` completely and pass `n_sg` directly to `k_sc_fs_step_v3`
@@ -4860,6 +4905,7 @@ impl TailedRounds<'_> {
         assert!(self.n_vars <= mask.n_vars, "masked evaluator variable count");
         let t0 = std::time::Instant::now();
         let dev = self.dev.as_mut().expect("the device evaluator");
+        let fast_chain = dev.sc_fast;
         let (dev_sums, dev_r) = dev.batched_rounds(nd, mask, c, tr).expect("metal batched sumcheck rounds");
         tr.set_masker(Box::new(zkp_core::sumcheck::CfsMasker { mask: mask.clone(), c, challenges: Vec::new() }));
         let recover = dev.recover_one;
@@ -4896,7 +4942,15 @@ impl TailedRounds<'_> {
             challenges.push(r);
         }
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
-            eprintln!("[ZK60-METAL M6] {} of {} rounds batched (degree {}), batch + replay {:.4} s, then {} host rounds", nd, self.n_vars, self.degree, replay_s, self.host_rounds);
+            eprintln!(
+                "[ZK60-METAL M6] {} of {} rounds batched (degree {}, {}), batch + replay {:.4} s, then {} host rounds",
+                nd,
+                self.n_vars,
+                self.degree,
+                if fast_chain { "sc-chain-fast" } else { "std" },
+                replay_s,
+                self.host_rounds
+            );
         }
         let finals = self.finals();
         let (_, masked) = tr.take_masker();

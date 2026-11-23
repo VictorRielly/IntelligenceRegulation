@@ -4236,16 +4236,19 @@ fn sc_chain_fast_w16r2_rung_golden() {
         for (per_thread, qname) in [(false, "shared"), (true, "thread")] {
             crate::gpu::metal_set_queues_for_test(per_thread);
             let sc_before = crate::gpu::metal_sc_chain_fast_batches_for_test();
+            let fb_before = crate::gpu::metal_sc_chain_fast_fallbacks_for_test();
             let d = seeded_digest(&sh, &blk, copy(&w));
             let sc_delta = crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_before;
+            let fb_delta = crate::gpu::metal_sc_chain_fast_fallbacks_for_test() - fb_before;
             assert_eq!(d, cpu, "Metal W16R2 rung digest under {arm} ({qname}) differs from CPU");
             assert!(d.starts_with(W16R2_RUNG_GOLDEN), "Metal W16R2 rung digest {arm} ({qname}) != golden: {d}");
+            assert_eq!(fb_delta, 0, "{arm} ({qname}): unexpected fast sumcheck chain fallbacks ({fb_delta})");
             if sc_on {
                 assert!(sc_delta > 0, "{arm} ({qname}): expected fast sumcheck chain batches > 0");
             } else {
                 assert_eq!(sc_delta, 0, "{arm} ({qname}): sc0 must not dispatch fast sumcheck chain");
             }
-            eprintln!("K9-RUNG {} arm={arm} queues={qname}: digest {} (golden); fast_sc_batches={sc_delta}", sh.name, &d[..8]);
+            eprintln!("K9-RUNG {} arm={arm} queues={qname}: digest {} (golden); fast_sc_batches={sc_delta} fallbacks={fb_delta}", sh.name, &d[..8]);
         }
     }
 }
