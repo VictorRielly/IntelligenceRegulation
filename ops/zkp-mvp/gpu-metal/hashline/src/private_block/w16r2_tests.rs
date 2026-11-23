@@ -4184,6 +4184,72 @@ fn sparse_fold_w16r2_rung_golden() {
     }
 }
 
+/// **[K9] Fast sumcheck dependent chain (`HL_METAL_SC_CHAIN_FAST=1`) W16R2 rung golden parity:**
+/// exercises `sc0`, `sc1`, and `frs1+sf1+sc1` in both `shared` and `thread` queue modes,
+/// verifying bit-for-bit equality to CPU and `W16R2_RUNG_GOLDEN` (`96e4f0b6`), exact
+/// `SC_CHAIN_FAST_BATCHES` anti-vacuity deltas (`== 0` on `sc0`, `> 0` on `sc1`),
+/// with a drop guard so panics never poison global hooks.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "K9: toggles HL_GPU, Metal queues, sc-chain-fast, sparse-fold, and fused-rs in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn sc_chain_fast_w16r2_rung_golden() {
+    struct Reset {
+        prev_sc: Option<bool>,
+        prev_sf: Option<bool>,
+        prev_frs: Option<bool>,
+        prev_q: bool,
+        prev_gpu: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::gpu::metal_set_sc_chain_fast_for_test(self.prev_sc);
+            crate::gpu::metal_set_sparse_fold_for_test(self.prev_sf);
+            crate::gpu::set_fused_rs_for_test(self.prev_frs);
+            crate::gpu::metal_set_queues_for_test(self.prev_q);
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_sc: crate::gpu::metal_set_sc_chain_fast_for_test(None),
+        prev_sf: crate::gpu::metal_set_sparse_fold_for_test(None),
+        prev_frs: crate::gpu::set_fused_rs_for_test(None),
+        prev_q: crate::gpu::metal_set_queues_for_test(false),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+    };
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::remove_var("HL_GPU");
+    let cpu = seeded_digest(&sh, &blk, copy(&w));
+    assert!(cpu.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's CPU digest moved: {cpu}");
+
+    std::env::set_var("HL_GPU", "1");
+    for (sc_on, frs_on, sf_on, arm) in [
+        (false, false, false, "sc0"),
+        (true, false, false, "sc1"),
+        (true, true, true, "frs1+sf1+sc1"),
+    ] {
+        crate::gpu::metal_set_sc_chain_fast_for_test(Some(sc_on));
+        crate::gpu::set_fused_rs_for_test(Some(frs_on));
+        crate::gpu::metal_set_sparse_fold_for_test(Some(sf_on));
+        for (per_thread, qname) in [(false, "shared"), (true, "thread")] {
+            crate::gpu::metal_set_queues_for_test(per_thread);
+            let sc_before = crate::gpu::metal_sc_chain_fast_batches_for_test();
+            let d = seeded_digest(&sh, &blk, copy(&w));
+            let sc_delta = crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_before;
+            assert_eq!(d, cpu, "Metal W16R2 rung digest under {arm} ({qname}) differs from CPU");
+            assert!(d.starts_with(W16R2_RUNG_GOLDEN), "Metal W16R2 rung digest {arm} ({qname}) != golden: {d}");
+            if sc_on {
+                assert!(sc_delta > 0, "{arm} ({qname}): expected fast sumcheck chain batches > 0");
+            } else {
+                assert_eq!(sc_delta, 0, "{arm} ({qname}): sc0 must not dispatch fast sumcheck chain");
+            }
+            eprintln!("K9-RUNG {} arm={arm} queues={qname}: digest {} (golden); fast_sc_batches={sc_delta}", sh.name, &d[..8]);
+        }
+    }
+}
+
 /// **[Quick C3] `w16_histograms_cols` (flat `u32` bins + `for_each_init` pool +
 /// direct `LookedCol` iteration) matches `w16_histograms` word-for-word** on a
 /// valid W16R2 rung witness, with injected U8 and Range misses (negative values,

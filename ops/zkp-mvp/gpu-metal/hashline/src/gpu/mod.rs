@@ -93,6 +93,22 @@ pub use metal::trace_flush as metal_trace_flush;
 // [OPT-NEXT-1] fused DIF-INTT -> DIT-FWD coset RS encoder test switch (`HL_METAL_FUSED_RS=1`, default off)
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
 pub use metal::{fused_rs_calls_for_test, fused_rs_for_test, set_fused_rs_for_test};
+// [K9] fast sumcheck dependent chain (`HL_METAL_SC_CHAIN_FAST=1`, default off):
+// SIMD-in-round SoA partials + `k_sc_fs_step_v3` + fused `k_fold_tables_dev3_xy`
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+pub use metal::{sc_chain_fast_batches_for_test as metal_sc_chain_fast_batches_for_test, sc_chain_fast_for_test as metal_sc_chain_fast_for_test, set_sc_chain_fast_for_test as metal_set_sc_chain_fast_for_test};
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+pub fn metal_set_sc_chain_fast_for_test(_on: Option<bool>) -> Option<bool> {
+    None
+}
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+pub fn metal_sc_chain_fast_for_test() -> bool {
+    false
+}
+#[cfg(not(all(feature = "gpu-metal", not(feature = "gpu-cuda"))))]
+pub fn metal_sc_chain_fast_batches_for_test() -> u64 {
+    0
+}
 
 /// [A4] Without the Metal backend no witness product runs on a device: `Ok(None)`
 /// sends every caller to its CPU path.
