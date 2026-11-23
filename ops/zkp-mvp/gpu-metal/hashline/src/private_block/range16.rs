@@ -253,6 +253,7 @@ pub(crate) fn denominator_inverses(width: u32, alpha: Fp2, g: Fp2) -> Vec<Option
         const CH: usize = 2048;
         out.par_chunks_mut(CH).enumerate().for_each(|(ci, dst)| {
             let v0 = ci * CH;
+            // Per-chunk stack scratch is ~80 KiB (CH=2048), well within rayon's 2 MiB default worker stack.
             let mut nz_idx = [0usize; CH];
             let mut nz_den = [Fp2::ZERO; CH];
             let mut acc = [Fp2::ZERO; CH];

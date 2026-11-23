@@ -2893,6 +2893,7 @@ fn a14_set(s: Option<(zkp_core::rng::XofForm, bool, bool)>) {
 #[test]
 #[ignore = "A14: toggles HL_GPU and the A14 forms in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
 fn a14_w16r2_rung_golden_under_every_a14_setting() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
     let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
     std::env::remove_var("HL_GPU");
     let mut cpu: Option<String> = None;
@@ -2931,6 +2932,7 @@ fn a14_w16r2_rung_golden_under_every_a14_setting() {
 #[test]
 #[ignore = "A14: heavy (one 8B T128 block on Metal, thirteen times), toggles HL_GPU; run alone by name with HL_PB_ORACLE=0"]
 fn a14_the_8b_block_proves_the_same_under_every_a14_setting() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
     use crate::private_block::shape::NormCalibration;
     let spec = shape::W16R2_PROFILES.iter().find(|s| s.name == "W16R2_8B_T128_H24").expect("the W16R2 8B profile");
     let cal = NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
@@ -4711,6 +4713,7 @@ fn sc_chain_fast_all_call_sites_byte_identical() {
 #[test]
 #[ignore = "HOST-FAST: toggles HL_GPU, Metal queues, host-fast, sparse-fold, sc-chain-fast, and fused-rs in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
 fn host_fast_w16r2_rung_golden() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
     struct Reset {
         prev_hf: Option<bool>,
         prev_sf: Option<bool>,
@@ -4839,6 +4842,7 @@ fn host_fast_w16r2_rung_golden() {
 #[test]
 #[ignore = "HOST-FAST: toggles HL_GPU and host-fast in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
 fn host_fast_all_call_sites_byte_identical() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
     use super::boundary;
     use super::token_io::{self as tio, classify, classify_run, classify_tied, run::VerifierPolicy, stage_in_c, stage_out_c};
 
@@ -5220,6 +5224,7 @@ fn host_fast_all_call_sites_byte_identical() {
 #[test]
 #[ignore = "HOST-FAST: Metal GPU test; run by name on a Mac, HL_GPU_REQUIRED=1"]
 fn host_fast_m1_pub_gen_all_7_kinds_and_direct_total_gpu() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
     use super::accuracy_groups::Group;
     use super::accuracy_precision::{BaseShifts, Stack};
     use super::accuracy_public::{AccuracyPublic, Geometry, Multipliers};
@@ -5578,6 +5583,7 @@ fn host_fast_m1_pub_gen_all_7_kinds_and_direct_total_gpu() {
 #[test]
 #[ignore = "HOST-FAST: toggles Metal env flags; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
 fn host_fast_m3_flag_matrix_golden() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
     struct Reset {
         prev_hf: Option<bool>,
         prev_sc: Option<bool>,
@@ -5654,6 +5660,229 @@ fn host_fast_m3_flag_matrix_golden() {
         }
         eprintln!("HOST-FAST M3 [{label}]: digest {} (golden); hits={hd:?} fallbacks={fbd:?}", &d[..8]);
     }
+}
+
+/// **[HOST-FAST M1] Default (non-ignored, non-feature-gated) CPU proof-level parity test:**
+/// runs `seeded_digest` on `W16R2_RUNG_H24`, legacy `Shape::toy()`, and `R13_RUNG_H24` with
+/// `HL_HOST_FAST` off and on under `host_fast_test_lock()`, asserting bit-for-bit equal digests
+/// (matching `W16R2_RUNG_GOLDEN` `96e4f0b6`) and non-zero hit deltas for every component reached
+/// on the CPU path (`H1..H5` and CPU `PubGen`; `H3` on W16R2, `H4` on W16R2/R13).
+#[test]
+fn host_fast_cpu_w16r2_rung_and_toy_parity_default() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
+    struct Reset(Option<bool>);
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::zk::set_host_fast_for_test(self.0);
+        }
+    }
+    let _guard = Reset(crate::zk::set_host_fast_for_test(Some(false)));
+    let gpu_on = crate::gpu::enabled();
+
+    // 1. W16R2_RUNG_H24 (hits H1, H2, H3, H4, H5, and H6 CPU PubGen on CPU builds)
+    {
+        let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+        crate::zk::set_host_fast_for_test(Some(false));
+        let d_off = seeded_digest(&sh, &blk, copy(&w));
+        assert!(d_off.starts_with(W16R2_RUNG_GOLDEN), "W16R2 rung hf0 digest moved: {d_off}");
+
+        crate::zk::set_host_fast_for_test(Some(true));
+        let hb = crate::zk::host_fast_hits_for_test();
+        let d_on = seeded_digest(&sh, &blk, copy(&w));
+        let ha = crate::zk::host_fast_hits_for_test();
+        let hd: [u64; 8] = std::array::from_fn(|i| ha[i].saturating_sub(hb[i]));
+        assert_eq!(d_on, d_off, "W16R2 rung hf1 digest differs from hf0");
+        assert!(d_on.starts_with(W16R2_RUNG_GOLDEN), "W16R2 rung hf1 digest != golden: {d_on}");
+        for i in [
+            crate::zk::HF_H1_INV_TBL,
+            crate::zk::HF_H2_PAR_MASK,
+            crate::zk::HF_H3_PAR_RNG16,
+            crate::zk::HF_H4_ACC_FOLD,
+            crate::zk::HF_H5_PRIV_FOLD,
+        ] {
+            assert!(hd[i] > 0, "W16R2 rung default parity expected hit counter {i} > 0, got {hd:?}");
+        }
+        if !gpu_on {
+            assert!(hd[crate::zk::HF_H6_CPU_PUB_GEN] > 0, "W16R2 rung CPU parity expected H6 CPU PubGen > 0, got {hd:?}");
+        } else {
+            assert!(
+                hd[crate::zk::HF_H6_CPU_PUB_GEN] + hd[crate::zk::HF_H6_GPU_PUB_GEN] > 0,
+                "W16R2 rung parity expected H6 PubGen > 0, got {hd:?}"
+            );
+        }
+    }
+
+    // 2. Legacy Shape::toy() (exercises non-ACT3 legacy H1 exp/act, H2, H5, H6 PubGen)
+    {
+        let sh = Shape::toy();
+        let (public, ff, input) = super::grow_tests::tame_case(&sh);
+        let w = super::witness::build_shaped(&sh, &public, &ff, &input).expect("toy witness");
+        let blk = BlockPublic::new(public, ff);
+
+        crate::zk::set_host_fast_for_test(Some(false));
+        let d_off = seeded_digest(&sh, &blk, copy(&w));
+
+        crate::zk::set_host_fast_for_test(Some(true));
+        let hb = crate::zk::host_fast_hits_for_test();
+        let d_on = seeded_digest(&sh, &blk, copy(&w));
+        let ha = crate::zk::host_fast_hits_for_test();
+        let hd: [u64; 8] = std::array::from_fn(|i| ha[i].saturating_sub(hb[i]));
+        assert_eq!(d_on, d_off, "Shape::toy() hf1 digest differs from hf0");
+        for i in [crate::zk::HF_H1_INV_TBL, crate::zk::HF_H2_PAR_MASK, crate::zk::HF_H5_PRIV_FOLD] {
+            assert!(hd[i] > 0, "Shape::toy() parity expected hit counter {i} > 0, got {hd:?}");
+        }
+        assert!(
+            hd[crate::zk::HF_H6_CPU_PUB_GEN] + hd[crate::zk::HF_H6_GPU_PUB_GEN] > 0,
+            "Shape::toy() parity expected H6 PubGen > 0, got {hd:?}"
+        );
+    }
+
+    // 3. R13_RUNG_H24 (exercises R13 argument_accuracy.rs paths on CPU as well)
+    {
+        let (sh, blk, w) = rung_case(shape::R13_RUNG_H24);
+        crate::zk::set_host_fast_for_test(Some(false));
+        let d_off = seeded_digest(&sh, &blk, copy(&w));
+
+        crate::zk::set_host_fast_for_test(Some(true));
+        let hb = crate::zk::host_fast_hits_for_test();
+        let d_on = seeded_digest(&sh, &blk, copy(&w));
+        let ha = crate::zk::host_fast_hits_for_test();
+        let hd: [u64; 8] = std::array::from_fn(|i| ha[i].saturating_sub(hb[i]));
+        assert_eq!(d_on, d_off, "R13_RUNG_H24 hf1 digest differs from hf0");
+        for i in [
+            crate::zk::HF_H1_INV_TBL,
+            crate::zk::HF_H2_PAR_MASK,
+            crate::zk::HF_H4_ACC_FOLD,
+            crate::zk::HF_H5_PRIV_FOLD,
+        ] {
+            assert!(hd[i] > 0, "R13_RUNG_H24 parity expected hit counter {i} > 0, got {hd:?}");
+        }
+        assert!(
+            hd[crate::zk::HF_H6_CPU_PUB_GEN] + hd[crate::zk::HF_H6_GPU_PUB_GEN] > 0,
+            "R13_RUNG_H24 parity expected H6 PubGen > 0, got {hd:?}"
+        );
+    }
+}
+
+/// **[HOST-FAST M2] Full-size `R13_SHIELD_T128_H24` single-block byte-identity + verifier gate:**
+/// proves and verifies a full wire `Receipt` at `R13_SHIELD_T128_H24` on Metal with `hf0` and
+/// `hf1`, asserting bit-for-bit identical receipt wire bytes and transcript state/counter,
+/// verifier acceptance (`verify_core`), non-zero hits across `H1, H2, H4, H5, H6_GPU, H6_DIRECT_TOTAL`,
+/// and zero fallbacks.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "HOST-FAST M2: full R13_SHIELD_T128_H24 block on Metal, toggles HL_GPU and host-fast; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn host_fast_m2_r13_shield_byte_identical() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
+    struct Reset {
+        prev_hf: Option<bool>,
+        prev_gpu: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::zk::set_host_fast_for_test(self.prev_hf);
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+    };
+    std::env::set_var("HL_GPU", "1");
+
+    let original = built(shape::R13_SHIELD_T128_H24);
+    let (sh, data, public, ff) = super::range16_tests::case(original, 3);
+    let mut seed = 0usize;
+    let wit = loop {
+        let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + seed) % (41 + 20 * (seed % 3))) as i16 - 20).collect();
+        match super::witness::build_accuracy(&sh, &public, &ff, &data, &input) {
+            Ok(w) => break w,
+            Err(_) if seed < 6 => seed += 1,
+            Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+        }
+    };
+    let ids = Ids::new(&sh).expect("R13_SHIELD ids");
+    let plane = |p: usize| -> Vec<i16> { wit.planes[p].iter().map(|v| i16::try_from(*v).expect("endpoint word")).collect() };
+    let (pin, pout) = (plane(ids.at(A_X)), plane(ids.at(A_X2)));
+    let blk = BlockPublic::new(public, ff).with_accuracy(data);
+    let lay = Layout::for_shape(&sh).expect("R13_SHIELD layout");
+    let ntt = NttTables::new(protocol::ntt_log_at(&sh));
+    let (exp_eq, owners_eq) = prepare_endpoints(IoSpec::new_shaped(&sh, [0x73; 32], 0, 0).expect("R13_SHIELD IoSpec"), &pin, &pout).expect("R13_SHIELD prepare_endpoints");
+    let [ein, eout] = protocol::check_endpoints(&sh, &exp_eq, owners_eq).expect("R13_SHIELD check_endpoints");
+
+    let run_once = |hf_on: bool| -> (Vec<u8>, [u8; 32], u64, [u64; 8], [u64; 5]) {
+        crate::zk::set_host_fast_for_test(Some(hf_on));
+        let hb = crate::zk::host_fast_hits_for_test();
+        let fbb = crate::zk::host_fast_fallbacks_for_test();
+        let mut rng = ZkRng::new(0x4F13, b"hf-m2-r13-shield");
+        let mut tr = header(&sh, &lay);
+        let binding = tr.state();
+        let mut ph = super::timing::Phases::start();
+        let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+        let core = protocol::prove_core(
+            &sh,
+            &lay,
+            &blk,
+            copy(&wit),
+            [ein.data.as_slice(), eout.data.as_slice()],
+            &ntt,
+            &mut rng,
+            &mut tr,
+            &mut ph,
+            &mut phases,
+            &mut tick,
+        )
+        .expect("R13_SHIELD prove_core");
+        verify(&sh, &blk, &core).expect("verify_core R13_SHIELD");
+        let [ic, oc] = core.io_claims;
+        protocol::check_endpoint_opening(&ic, &sh, &tr).expect("check IN");
+        let in_open = crate::pcs::open_zk(&ein, &ic, &mut tr);
+        protocol::check_endpoint_opening(&oc, &sh, &tr).expect("check OUT");
+        let out_open = crate::pcs::open_zk(&eout, &oc, &mut tr);
+        let receipt = Receipt {
+            a_root: core.a_root,
+            h_root: core.h_root,
+            mask_root: core.mask_root,
+            slots: core.slots,
+            mask_open: core.mask_open,
+            a_open: core.a_open,
+            h_open: core.h_open,
+            io_open: [in_open, out_open],
+        };
+        let bytes = wire::encode(&receipt, &binding, &lay).expect("wire::encode R13_SHIELD");
+        let ha = crate::zk::host_fast_hits_for_test();
+        let fba = crate::zk::host_fast_fallbacks_for_test();
+        (
+            bytes,
+            tr.state(),
+            tr.counter(),
+            std::array::from_fn(|i| ha[i] - hb[i]),
+            std::array::from_fn(|i| fba[i] - fbb[i]),
+        )
+    };
+
+    let (b0, s0, c0, h0, fb0) = run_once(false);
+    let (b1, s1, c1, h1, fb1) = run_once(true);
+    assert_eq!(h0, [0; 8], "R13_SHIELD hf0 must not record host-fast hits, got {h0:?}");
+    assert_eq!(fb0, [0; 5], "R13_SHIELD hf0 unexpected fallbacks: {fb0:?}");
+    assert_eq!(fb1, [0; 5], "R13_SHIELD hf1 unexpected fallbacks: {fb1:?}");
+    for i in [
+        crate::zk::HF_H1_INV_TBL,
+        crate::zk::HF_H2_PAR_MASK,
+        crate::zk::HF_H4_ACC_FOLD,
+        crate::zk::HF_H5_PRIV_FOLD,
+        crate::zk::HF_H6_GPU_PUB_GEN,
+        crate::zk::HF_H6_DIRECT_TOTAL,
+    ] {
+        assert!(h1[i] > 0, "R13_SHIELD hf1 expected hit counter {i} > 0, got {h1:?}");
+    }
+    assert_eq!(b1, b0, "R13_SHIELD full wire Receipt bytes differ (hf1 vs hf0)");
+    assert_eq!((s1, c1), (s0, c0), "R13_SHIELD transcript state/counter differ (hf1 vs hf0)");
+    drop((ein, eout));
+    eprintln!("HOST-FAST M2 [R13_SHIELD_T128_H24]: hf0 == hf1 ({} B, hits={h1:?}, fallbacks={fb1:?}) + verified", b1.len());
 }
 
 /// **[Quick C3] `w16_histograms_cols` (flat `u32` bins + `for_each_init` pool +

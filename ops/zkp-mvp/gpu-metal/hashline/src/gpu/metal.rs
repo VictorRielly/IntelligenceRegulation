@@ -3720,6 +3720,14 @@ kernel void k_tab_plane(device ulong *tabs [[buffer(0)]],
     tabs[o + 1UL] = v.c1;
     if (a.check != 0u && v.c1 != 0UL) { atomic_fetch_or_explicit(flag, 1u, memory_order_relaxed); }
 }
+"#;
+
+/// [HOST-FAST H6] standalone MSL source for `k_tab_pub_gen`, compiled lazily
+/// only when a `PubGen` job is planned so a driver compile failure never
+/// declines A12's `k_tab_eq` / `k_tab_plane` builds.
+const TAB_PUB_GEN_SRC: &str = r#"
+#include <metal_stdlib>
+using namespace metal;
 
 struct TabPubGenArgs {
     ulong out_off;    // the table's first word in `tabs`
@@ -3852,10 +3860,10 @@ impl TabJob {
 struct TabPipes {
     eq: ComputePipelineState,
     plane: ComputePipelineState,
-    pub_gen: ComputePipelineState,
 }
 
 static TAB_PIPES: OnceLock<Result<TabPipes, String>> = OnceLock::new();
+static TAB_PUB_GEN_PIPE: OnceLock<Result<ComputePipelineState, String>> = OnceLock::new();
 
 /// [A12] the table kernels, compiled once (the field code of the commit
 /// and round kernels: `gl_header`, `SC_PRELUDE`)
@@ -3869,7 +3877,22 @@ fn tab_pipes(c: &Ctx) -> Result<&'static TabPipes, String> {
                     let f = lib.get_function(name, None).map_err(|e| format!("metal table function {name}: {e}"))?;
                     c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal table pipeline {name}: {e}"))
                 };
-                Ok(TabPipes { eq: mk("k_tab_eq")?, plane: mk("k_tab_plane")?, pub_gen: mk("k_tab_pub_gen")? })
+                Ok(TabPipes { eq: mk("k_tab_eq")?, plane: mk("k_tab_plane")? })
+            })
+        })
+        .as_ref()
+        .map_err(|e| e.clone())
+}
+
+/// [HOST-FAST H6] optional `k_tab_pub_gen` pipeline, compiled lazily only when a
+/// `PubGen` job is planned so a compile failure never declines A12 `Eq`/`Plane` builds.
+fn tab_pub_gen_pipe(c: &Ctx) -> Result<&'static ComputePipelineState, String> {
+    TAB_PUB_GEN_PIPE
+        .get_or_init(|| {
+            objc::rc::autoreleasepool(|| {
+                let lib = c.device.new_library_with_source(TAB_PUB_GEN_SRC, &CompileOptions::new()).map_err(|e| format!("metal pub_gen kernel compile: {e}"))?;
+                let f = lib.get_function("k_tab_pub_gen", None).map_err(|e| format!("metal table function k_tab_pub_gen: {e}"))?;
+                c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal table pipeline k_tab_pub_gen: {e}"))
             })
         })
         .as_ref()
@@ -4038,11 +4061,12 @@ impl TabBuild {
                     enc.dispatch_threads(MTLSize::new(self.cap, 1, 1), MTLSize::new(tg, 1, 1));
                 }
                 TabArg::PubGen(ga) => {
-                    enc.set_compute_pipeline_state(&pipes.pub_gen);
+                    let pg = tab_pub_gen_pipe(c)?;
+                    enc.set_compute_pipeline_state(pg);
                     enc.set_buffer(0, Some(tabs), 0);
                     enc.set_buffer(1, Some(&self.a64), 0);
                     set_args(enc, 2, ga);
-                    let tg = pipes.pub_gen.max_total_threads_per_threadgroup().min(256).min(self.cap);
+                    let tg = pg.max_total_threads_per_threadgroup().min(256).min(self.cap);
                     enc.dispatch_threads(MTLSize::new(self.cap, 1, 1), MTLSize::new(tg, 1, 1));
                 }
             }
@@ -4119,6 +4143,13 @@ impl MetalTables {
     pub const PUB_GEN_HEAD_Q: u32 = 4;
     pub const PUB_GEN_HEAD_HT: u32 = 5;
     pub const PUB_GEN_HEAD_S: u32 = 6;
+
+    /// **[HOST-FAST H6]** whether the optional `k_tab_pub_gen` pipeline compiled
+    /// cleanly (compiled lazily on first `PubGen` query so a missing pipeline
+    /// never affects A12's `Eq`/`Plane` builds).
+    pub fn pub_gen_available(&self) -> bool {
+        ctx().and_then(tab_pub_gen_pipe).is_ok()
+    }
 
     /// **[HOST-FAST H6]** plan table `t` as a generated base-field (`c1 = 0`)
     /// public table materialized on the device by `k_tab_pub_gen` inside A12's
@@ -4261,6 +4292,19 @@ impl MetalTables {
         }
         let c = ctx()?;
         tab_pipes(c)?;
+        let mut plan = plan;
+        if plan.iter().any(|j| matches!(j, TabJob::PubGen { .. })) {
+            if let Err(e) = tab_pub_gen_pipe(c) {
+                crate::gpu::declined("[ZK60-HOST-FAST H6] k_tab_pub_gen pipeline", &e);
+                for j in &plan {
+                    if let TabJob::PubGen { t, .. } = j {
+                        planned[*t] = false;
+                        crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H6_GPU_PUB_GEN, "H6 pub_gen: k_tab_pub_gen pipeline unavailable");
+                    }
+                }
+                plan.retain(|j| !matches!(j, TabJob::PubGen { .. }));
+            }
+        }
         objc::rc::autoreleasepool(|| {
             // the small tables, packed: u32 index maps, u64 field words
             let (mut aux32, mut aux64): (Vec<u32>, Vec<u64>) = (Vec::new(), Vec::new());

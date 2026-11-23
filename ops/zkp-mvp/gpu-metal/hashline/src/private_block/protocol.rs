@@ -3102,6 +3102,8 @@ pub(crate) fn prove_core_after_with(
     drop(h);
     ph.mark_bytes(Half::Open, "open H (schedule audit + pcs::open_zk)", (lay.h_rows * lay.n()) as u64, "words", 8 * (lay.h_rows * lay.n()) as u64);
     let _ = hc.len();
+    // Note: HOST_FAST_HITS/FALLBACKS are process-wide atomics, so in multi-lane runs
+    // per-block deltas include concurrent lanes' hits; fallback totals remain exact process-wide.
     if crate::zk::host_fast_on() && crate::zk::host_fast_timing_on() {
         let hf_hits_end = crate::zk::host_fast_hits_for_test();
         let hf_fb_end = crate::zk::host_fast_fallbacks_for_test();

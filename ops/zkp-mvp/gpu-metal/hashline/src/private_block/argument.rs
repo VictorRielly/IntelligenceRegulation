@@ -1241,6 +1241,9 @@ pub(super) fn plane_plan(p: &Priv, n_vars: usize) -> Option<(usize, usize, Vec<u
 #[cfg(feature = "gpu-metal")]
 pub(super) fn plan_pub_gen_on(mt: &mut crate::gpu::MetalTables, t: usize, g: &PubGen) -> bool {
     use crate::gpu::MetalTables;
+    if !mt.pub_gen_available() {
+        return false;
+    }
     let u = |v: usize| u32::try_from(v).ok();
     match g {
         PubGen::BoxSupp { shift, rows_live, cols_live, row_stride, .. } => {
@@ -1567,14 +1570,18 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
     if def.tabs.iter().any(|t| matches!(t, Tab::Priv(p) if p.ext_round >= ext || p.coords.len() != p.log)) {
         return Err(format!("private block: slot {s} table shape"));
     }
+    if matches!(side, Side::Verify { .. }) && !def.pub_gens.is_empty() {
+        return Err(format!("private block: slot {s} verifier received prover PubGen descriptors"));
+    }
     // **FINDING F-6.** The table-length check below lives in the `Prove` arm,
     // so on the VERIFY path a public table whose length is not the slot's cube
     // used to fall through to `eval_mle_ext`'s own `assert_eq!` — a panic
     // where a verifier owes a refusal. Public tables are shape-driven and no
     // frame can choose one, so this is robustness and not a reachable attack;
     // the refusal names a length, which is a function of the shape.
+    let is_prove = matches!(side, Side::Prove { .. });
     if def.tabs.iter().enumerate().any(|(i, t)| match t {
-        Tab::Pub(v) => match def.pub_gen(i) {
+        Tab::Pub(v) => match is_prove.then(|| def.pub_gen(i)).flatten() {
             Some(g) => g.len() != 1usize << n,
             None => v.len() != 1usize << n,
         },
@@ -1890,19 +1897,9 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
             let vals: Vec<Fp2> = def
                 .tabs
                 .iter()
-                .enumerate()
-                .map(|(i, t)| match t {
+                .map(|t| match t {
                     Tab::Eq { point, start } => sel.mul(eq_point(point, &rho[*start..*start + point.len()])),
-                    Tab::Pub(v) => {
-                        let eval = match def.pub_gen(i) {
-                            Some(g) => {
-                                let mat = g.to_vec();
-                                match &split { Some(s) => s.eval_ext(&mat), None => eval_mle_ext(&mat, &rho) }
-                            }
-                            None => match &split { Some(s) => s.eval_ext(v), None => eval_mle_ext(v, &rho) },
-                        };
-                        sel.mul(eval)
-                    }
+                    Tab::Pub(v) => sel.mul(match &split { Some(s) => s.eval_ext(v), None => eval_mle_ext(v, &rho) }),
                     Tab::Priv(_) => {
                         k += 1;
                         sp.terms[k - 1]
@@ -2554,13 +2551,20 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             pts.r_t = tr.challenge_fp2_vec(lt);
             b.eq(&pts.r_t, 0);
             let plane = ids.at(A_X);
+            #[cfg(feature = "gpu-metal")]
+            let plane_log = b.a_log(plane);
             b.a(plane)?;
             let supp = b.supp(Dom::D, cube)?;
             let g = Gate(supp);
             #[allow(unused_mut)]
             let mut def = b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1]).mul(v[1])), vec![])?;
             #[cfg(feature = "gpu-metal")]
-            if pts.pub_gen_prove && sh.size(Dom::D) == sh.t_pad * sh.d_pad {
+            if pts.pub_gen_prove
+                && sh.size(Dom::D) == sh.t_pad * sh.d_pad
+                && plane_log == sh.slots()[slot].0
+                && sh.t_pad.is_power_of_two()
+                && pts.r_t.len() == lg(sh.t_pad)
+            {
                 let r_t = pts.r_t.clone();
                 let a_off = lay.a_off[plane];
                 let d_pad = sh.d_pad;
@@ -2587,13 +2591,20 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             pts.r_t2 = tr.challenge_fp2_vec(lt);
             b.eq(&pts.r_t2, 0);
             let plane = ids.at(A_X1);
+            #[cfg(feature = "gpu-metal")]
+            let plane_log = b.a_log(plane);
             b.a(plane)?;
             let supp = b.supp(Dom::D, cube)?;
             let g = Gate(supp);
             #[allow(unused_mut)]
             let mut def = b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1]).mul(v[1])), vec![])?;
             #[cfg(feature = "gpu-metal")]
-            if pts.pub_gen_prove && sh.size(Dom::D) == sh.t_pad * sh.d_pad {
+            if pts.pub_gen_prove
+                && sh.size(Dom::D) == sh.t_pad * sh.d_pad
+                && plane_log == sh.slots()[slot].0
+                && sh.t_pad.is_power_of_two()
+                && pts.r_t2.len() == lg(sh.t_pad)
+            {
                 let r_t2 = pts.r_t2.clone();
                 let a_off = lay.a_off[plane];
                 let d_pad = sh.d_pad;
@@ -2719,6 +2730,8 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.causal_mask(sh);
             let plane_e = ids.at(A_E);
             let plane_z = ids.at(A_ZSEL);
+            #[cfg(feature = "gpu-metal")]
+            let (log_e, log_z) = (b.a_log(plane_e), b.a_log(plane_z));
             b.a(plane_e)?;
             b.a(plane_z)?;
             // P-1: the row sums run over the padded `Dom::S` cube, so the
@@ -2733,6 +2746,10 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             if pts.pub_gen_prove
                 && sh.size(Dom::S) == sh.h_pad * sh.t_pad * sh.t_pad
                 && sh.size(Dom::Ht) == sh.h_pad * sh.t_pad
+                && log_e == sh.slots()[slot].0
+                && log_z == sh.slots()[slot].0
+                && (sh.h_pad * sh.t_pad).is_power_of_two()
+                && pts.p_ht.len() == lg(sh.h_pad * sh.t_pad)
             {
                 let p_ht = pts.p_ht.clone();
                 let off_e = lay.a_off[plane_e];
@@ -3875,5 +3892,36 @@ mod tests {
         let mut tab_flip = Tab::Priv(p_flip);
         let got_flip = table_of_taking_with(&mut tab_flip, None, 4, &pd, Some(&fc));
         assert_ne!(got_flip, v_base, "Coord::Flip must bypass FoldCache");
+    }
+
+    #[test]
+    fn host_fast_b_l3_verify_refuses_prover_pub_gen_descriptors() {
+        let sh = Shape::toy();
+        let lay = Layout::for_shape(&sh).expect("toy layout");
+        let (public, ff, _) = super::super::grow_tests::tame_case(&sh);
+        let ctx = Ctx {
+            accuracy: None,
+            lay: &lay,
+            public: &public,
+            ff: &ff,
+            alpha: Fp2::from_i64(7),
+            beta: Fp2::from_i64(11),
+            g_u8: Fp2::from_i64(13),
+            g_exp: Fp2::from_i64(17),
+            g_act: Fp2::from_i64(19),
+            g_dd: Fp2::from_i64(23),
+        };
+        let mut pts = Points::default();
+        pts.pub_gen_prove = true;
+        let mut tr = Transcript::new(b"host-fast-b-l3");
+        let def = define(SC_RS, &ctx, &mut pts, &mut tr).expect("define SC_RS with pub_gen_prove");
+        assert!(!def.pub_gens.is_empty(), "SC_RS with pub_gen_prove must carry PubGen descriptors");
+        let slots = vec![SlotProof::default(); SC_RS + 1];
+        let mut acc = Acc::default();
+        acc.cs = vec![Fp2::ONE; SC_RS];
+        acc.scalars = vec![Fp2::ZERO; SC_RS];
+        let mut side = Side::Verify { slots: &slots };
+        let err = run_slot(&mut side, &mut acc, def, &mut tr).expect_err("Side::Verify must refuse prover PubGen descriptors");
+        assert!(err.contains("verifier received prover PubGen descriptors"), "unexpected error: {err}");
     }
 }

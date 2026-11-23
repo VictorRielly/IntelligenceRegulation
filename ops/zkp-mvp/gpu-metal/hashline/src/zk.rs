@@ -174,6 +174,7 @@ pub fn host_fast_on() -> bool {
     }
 }
 
+#[cfg(test)]
 pub fn set_host_fast_for_test(on: Option<bool>) -> Option<bool> {
     let v = match on {
         None => 0,
@@ -187,6 +188,7 @@ pub fn set_host_fast_for_test(on: Option<bool>) -> Option<bool> {
     }
 }
 
+#[cfg(test)]
 pub fn host_fast_for_test() -> bool {
     host_fast_on()
 }

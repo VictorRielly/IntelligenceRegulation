@@ -3164,6 +3164,7 @@ fn d55_ab_one_request_serial_against_forks() {
     let mut ab_pipe_table: Vec<(String, Vec<(f64, f64)>)> = Vec::new();
     #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
     if !gpu_ab.is_empty() {
+        let _hf_lock = crate::zk::host_fast_test_lock();
         let own_q = crate::gpu::metal_set_queues_for_test(false);
         let own_w = crate::gpu::metal_set_wait_for_test(None);
         crate::gpu::metal_set_queues_for_test(own_q);
@@ -7089,6 +7090,7 @@ mod a22 {
             }
             A22Stream { done, lat_arrival: lat.clone(), lat_sealing: lat, mem, usage }
         };
+        let _hf_lock = crate::zk::host_fast_test_lock();
         let apply = |a: &A22Arm| {
             a18_apply(&a.a18);
             set_a22_digest_ahead_for_test(a.dig);
