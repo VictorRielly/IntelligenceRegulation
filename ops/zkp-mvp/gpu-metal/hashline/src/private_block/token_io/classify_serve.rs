@@ -517,6 +517,12 @@ fn serve_inner(f: &[(String, String)], lines: impl Iterator<Item = String> + Sen
 fn serve_inner_with(f: &[(String, String)], lines: impl Iterator<Item = String> + Send, emit: &mut dyn FnMut(&str), ahead: bool) -> Result<(usize, usize), String> {
     let cfg = prove_cfg_of(f)?;
     let srv = ResidentClassifier::start(f)?;
+    // Under `HL_CLASSIFY_HOST_FAST=1`, populate the cached table BLAKE3 digests once at
+    // prover-server startup so even the first request pays zero table-hashing latency.
+    if classify_host_fast_on() {
+        let _ = srv.bound.emb_digest();
+        let _ = srv.bound.w_digest();
+    }
     emit(&srv.start_line("classify-serve", cfg.lanes, cfg.threads, &format!(",\"witness_cache_bytes\":{},\"seal_ahead\":{}", cfg.witness_budget, ahead)));
     let t = Instant::now();
     // [A28] seal ahead: two request threads a lane, one run at a time per lane (its gate)

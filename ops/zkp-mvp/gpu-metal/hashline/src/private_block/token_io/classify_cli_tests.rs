@@ -519,3 +519,174 @@ fn r12_cli_the_label_is_the_or_over_every_chunk_exactly_once() {
     assert!(aggregate_label(&[(c(0, 27), 0, pol(), m), (c(1, 27), 0, pol(), [8u8; 32])], 27).unwrap_err().contains("not one item's chunks"));
     assert!(aggregate_label(&[], 1).is_err());
 }
+
+#[test]
+fn classify_host_fast_end_to_end_rung_byte_identical_and_verified() {
+    use super::classify_cli::{classify_prove_capturing_for_test, CLASSIFY_LABELS};
+    use super::classify_run::{honest_classify, prove_classify_run_with_dir_sink, ClassifySource};
+    use super::classify_tied::load_bound_tables;
+    use super::super::run::RunShape;
+    use super::super::trained_block::{parse_json, stack_context, J};
+    use super::super::BlockPublic;
+
+    let cc = Cc::new("chf-e2e");
+    let prove_capturing = |out: &Path| -> (i32, Vec<String>) {
+        let cf = cc.content_file(&cc.content);
+        let od = cc.owner_dir(out);
+        classify_prove_capturing_for_test(&s(&[
+            "--export",
+            cc.export.to_str().unwrap(),
+            "--tables",
+            cc.tables.to_str().unwrap(),
+            "--policy",
+            POLICY_RUNG_DEV,
+            "--content-file",
+            cf.to_str().unwrap(),
+            "--seq",
+            "s0",
+            "--out",
+            out.to_str().unwrap(),
+            "--owner-dir",
+            od.to_str().unwrap(),
+        ]))
+    };
+
+    let parse_events = |lines: &[String]| -> (Vec<String>, Vec<(usize, usize)>) {
+        let mut names = Vec::new();
+        let mut segs = Vec::new();
+        for l in lines {
+            if !l.starts_with('{') {
+                continue;
+            }
+            let j = parse_json(l.as_bytes()).unwrap_or_else(|e| panic!("not JSON: {l}: {e}"));
+            let ev = j.get("event").unwrap().str().unwrap().to_string();
+            if ev == "segment" {
+                let idx = j.get("index").unwrap().i64().unwrap() as usize;
+                let nbytes = j.get("bytes").unwrap().i64().unwrap() as usize;
+                segs.push((idx, nbytes));
+            }
+            names.push(ev);
+        }
+        (names, segs)
+    };
+
+    // ---- 1. Baseline: HL_CLASSIFY_HOST_FAST=0
+    let out_off = cc.root.join("run-off");
+    let (names_off, segs_off, stmt_off) = {
+        let _off = ClassifyHostFastGuard::set(false);
+        let h0 = classify_host_fast_hits_snapshot();
+        let (code, events) = prove_capturing(&out_off);
+        let h1 = classify_host_fast_hits_snapshot();
+        assert_eq!(code, 0, "baseline prove failed: {events:?}");
+        assert_eq!(h1, h0, "no HL_CLASSIFY_HOST_FAST counters may fire when OFF: before={h0:?} after={h1:?}");
+        let (names, segs) = parse_events(&events);
+        assert_eq!(names, vec!["loaded", "segment", "segment", "segment", "proved"]);
+        assert_eq!(segs.iter().map(|(i, _)| *i).collect::<Vec<_>>(), vec![0, 1, 2]);
+        for &(i, n) in &segs {
+            let path = out_off.join(run_sink::segment_file_name(i));
+            assert_eq!(std::fs::metadata(&path).unwrap().len() as usize, n, "segment {i} length mismatch");
+        }
+        assert_eq!(cc.verify(&out_off, &cc.tables), 0, "baseline verify failed");
+        assert_eq!(cc.input_owner(&out_off, &cc.tables, &cc.content), 0, "baseline input-owner failed");
+        (names, segs, published(&out_off))
+    };
+
+    // ---- 2. Fast path: HL_CLASSIFY_HOST_FAST=1
+    let out_on = cc.root.join("run-on");
+    let (names_on, segs_on, stmt_on) = {
+        let _on = ClassifyHostFastGuard::set(true);
+        let h0 = classify_host_fast_hits_snapshot();
+        let (code, events) = prove_capturing(&out_on);
+        let h1 = classify_host_fast_hits_snapshot();
+        assert_eq!(code, 0, "fast-path prove failed: {events:?}");
+        let delta: [u64; 5] = std::array::from_fn(|i| h1[i].saturating_sub(h0[i]));
+        assert!(delta[CHF_C1_DIGESTS] > 0, "C1 cached digests hit expected > 0, got {delta:?}");
+        assert!(delta[CHF_C2_ASYNC_SINK] >= 3, "C2 async sink hits expected >= 3, got {delta:?}");
+        assert!(delta[CHF_C3_SEQ_BOUNDARY] > 0, "C3 seq/boundary hits expected > 0, got {delta:?}");
+        assert!(delta[CHF_C4_CS3_SKIP] > 0, "C4 CS-3 skip hits expected > 0, got {delta:?}");
+        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+        assert!(delta[CHF_C5_EMB_FOLD_NEON] > 0, "C5 NEON emb_fold hits expected > 0, got {delta:?}");
+
+        let (names, segs) = parse_events(&events);
+        assert_eq!(names, names_off, "event sequence must match OFF vs ON");
+        assert_eq!(segs, segs_off, "segment indices and lengths must match OFF vs ON");
+        let entries = run_sink::dir_entry_names(&out_on).unwrap();
+        assert!(!entries.iter().any(|n| n.ends_with(".partial")), "no .partial left in {out_on:?}: {entries:?}");
+        for &(i, n) in &segs {
+            let path = out_on.join(run_sink::segment_file_name(i));
+            assert_eq!(std::fs::metadata(&path).unwrap().len() as usize, n, "fast segment {i} length mismatch");
+        }
+        assert!(out_on.is_dir() && !sib(&out_on, ".incomplete").exists() && !out_on.join(run_sink::STATEMENT_DIR).exists());
+
+        // Verify with the unchanged verifier (with switch OFF during verify to ensure complete independence).
+        let _verify_off = set_classify_host_fast_for_test(Some(false));
+        assert_eq!(cc.verify(&out_on, &cc.tables), 0, "unchanged verify rejected HL_CLASSIFY_HOST_FAST=1 receipt");
+        assert_eq!(cc.input_owner(&out_on, &cc.tables, &cc.content), 0, "unchanged input-owner rejected HL_CLASSIFY_HOST_FAST=1 receipt");
+        let _ = set_classify_host_fast_for_test(_verify_off);
+
+        // ---- 3a. Pre-header CLI refusal cleanup under HL_CLASSIFY_HOST_FAST=1
+        let out_ctl = cc.root.join("run-on-ctl");
+        let ctl = cc.content.replacen("9,", "3,", 1);
+        assert_eq!(cc.prove_full(&out_ctl, &cc.tables, POLICY_RUNG_DEV, &ctl), 1, "control id must be refused");
+        assert!(
+            !out_ctl.exists() && !sib(&out_ctl, ".incomplete").exists() && !sib(&out_ctl, ".unverified-statement").exists() && !cc.owner_dir(&out_ctl).exists(),
+            "refused fast-path prove must leave no directories behind"
+        );
+
+        // ---- 3b. Mid-run async writer-thread error: clean error propagation & join, no .partial left
+        let p = load_export(&cc.export).unwrap();
+        let policy = policy_by_id(POLICY_RUNG_DEV).unwrap();
+        let sh = p.sh.clone();
+        let bound = load_bound_tables(&sh, &p.model, &cc.export, &cc.tables, &policy).unwrap();
+        let mut eb = ExportTokenBlocks::new(&p);
+        let blks: Vec<BlockPublic> = (0..p.layers.len()).map(|k| eb.block(k).map(|b| (*b).clone())).collect::<Result<_, _>>().unwrap();
+        drop(eb);
+        let shapes: Vec<Shape> = p.model.layers.iter().map(|r| cli_stage_shape(&sh, &r.own)).collect::<Result<_, _>>().unwrap();
+        let content_ids: Vec<u64> = cc.content.split(',').map(|x| x.parse::<u64>().unwrap()).collect();
+        let cp = ClassifierProfile::new_bound(&sh, &bound, &policy, content_ids.len(), Tier::R1_MVP).unwrap();
+        let mut hp = honest_classify(&shapes, &cp, bound.tables(), &blks, &cp.tokens_of(&content_ids).unwrap()).unwrap();
+        let ctx = stack_context(&p.ex.variant, &p.layers, CLASSIFY_LABELS[0]).unwrap();
+        let (root, owner) = seal_input(&input_endpoint_spec(&sh, ctx, &cp).unwrap(), &hp.in_plane, &sh.hash_tag()).unwrap();
+        let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile).unwrap(), ctx, p.digests.clone(), &p.model, &bound, &policy, content_ids.len(), Tier::R1_MVP, root, hp.out_values.verdict, content_ids.len(), 0).unwrap();
+        let fail_dir = cc.root.join("async-writer-fail");
+        std::fs::create_dir(&fail_dir).unwrap();
+        let bad_disk = run_sink::DirSink::create(&fail_dir, 1).unwrap();
+        let mut own = ExportTokenBlocks::new(&p);
+        let mut seen_idx = Vec::new();
+        let err = prove_classify_run_with_dir_sink(&st, &mut own, None, &bound, &mut ClassifySource(&mut hp), owner, bad_disk, &mut |idx, _| seen_idx.push(idx))
+            .err()
+            .expect("undersized DirSink must fail on segment 1");
+        assert!(err.contains("the sink was handed segment 1 and this run has 1"), "unexpected async writer error: {err}");
+        assert_eq!(seen_idx, vec![0], "segment 0 must complete on request thread before segment 1 error");
+        let fail_entries = run_sink::dir_entry_names(&fail_dir).unwrap();
+        assert!(!fail_entries.iter().any(|n| n.ends_with(".partial")), "no .partial left after writer error: {fail_entries:?}");
+        std::fs::remove_dir_all(&fail_dir).unwrap();
+
+        (names, segs, published(&out_on))
+    };
+
+    assert_eq!(names_on, names_off);
+    assert_eq!(segs_on, segs_off);
+    let j_off = parse_json(stmt_off.as_bytes()).unwrap();
+    let j_on = parse_json(stmt_on.as_bytes()).unwrap();
+    for key in [
+        "schema",
+        "run_profile",
+        "block_profile",
+        "blocks",
+        "trained_statement_identity",
+        "policy",
+        "verdict",
+        "verdict_bit",
+        "margin_vector_digest",
+        "embedding_digest",
+        "classifier_profile_digest",
+        "whole_run_floor_bits",
+        "parameter_line",
+    ] {
+        let a: &J = j_off.get(key).unwrap();
+        let b: &J = j_on.get(key).unwrap();
+        assert_eq!(a, b, "published statement field `{key}` differed between OFF and ON");
+    }
+    eprintln!("HL_CLASSIFY_HOST_FAST | e2e rung: OFF vs ON identical events/lengths/statement, verified, C1..C5 hits confirmed, refusal + async writer error cleanup verified");
+}

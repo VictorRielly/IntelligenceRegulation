@@ -343,8 +343,42 @@ pub(crate) fn prepare(spec: &BoundarySpec, values: &[Fp], ntt: &NttTables, rng: 
     let first_mask = spec.data_rows();
     let mut data = vec![Fp::ZERO; spec.commitment_rows() * n];
     data[..values.len()].copy_from_slice(values);
-    for x in &mut data[first_mask * n..] {
-        *x = rng.fp();
+    if super::token_io::classify::classify_host_fast_on() {
+        super::token_io::classify::record_classify_host_fast_hit(super::token_io::classify::CHF_C3_SEQ_BOUNDARY);
+        rng.fill_fp(&mut data[first_mask * n..]);
+    } else {
+        for x in &mut data[first_mask * n..] {
+            *x = rng.fp();
+        }
+    }
+    let params = spec.params();
+    let mut committed = pcs::commit_zk_owned_tagged(&params, data, ntt, &ZkOpts::standard(&params), rng, tag);
+    committed.mask_rows = spec.site_rows();
+    committed.prox_mask_row = Some(spec.prox_row());
+    Ok(PreparedBoundary { spec_digest: spec.digest(), committed })
+}
+
+/// Same boundary commitment as [`prepare`], converting canonical `i16` plane words directly
+/// into the committed buffer without an intermediate `Vec<Fp>` allocation. Every `i16` maps
+/// to a canonical field word `< P`, and mask-row draws are bit-identical to [`prepare`].
+pub(crate) fn prepare_i16(spec: &BoundarySpec, values: &[i16], ntt: &NttTables, rng: &mut ZkRng, tag: &HashTag) -> Result<PreparedBoundary, String> {
+    check_ntt(spec, ntt)?;
+    if values.len() != spec.len() {
+        return Err("boundary: wrong length or noncanonical input words".into());
+    }
+    let n = 1usize << spec.log_n;
+    let first_mask = spec.data_rows();
+    let mut data = vec![Fp::ZERO; spec.commitment_rows() * n];
+    for (dst, &v) in data[..values.len()].iter_mut().zip(values.iter()) {
+        *dst = Fp::from_i64(i64::from(v));
+    }
+    if super::token_io::classify::classify_host_fast_on() {
+        super::token_io::classify::record_classify_host_fast_hit(super::token_io::classify::CHF_C3_SEQ_BOUNDARY);
+        rng.fill_fp(&mut data[first_mask * n..]);
+    } else {
+        for x in &mut data[first_mask * n..] {
+            *x = rng.fp();
+        }
     }
     let params = spec.params();
     let mut committed = pcs::commit_zk_owned_tagged(&params, data, ntt, &ZkOpts::standard(&params), rng, tag);

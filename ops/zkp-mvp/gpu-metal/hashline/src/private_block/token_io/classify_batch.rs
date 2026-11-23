@@ -228,7 +228,7 @@ fn batch_inner(f: &[(String, String)], spec: &Spec) -> Result<Vec<(usize, usize)
         let policy = policy_by_id(&row.policy)?;
         bound.check_for(&p.sh, p.profile, &p.model, &policy)?;
         let ch = ChunkRef::derive(total, row.chunk, chunk_plan(&p.sh, &policy, p.profile)?)?;
-        let cp = ClassifierProfile::new(&p.sh, bound.tables(), bound.bos(), bound.norm(), &policy, ch.b - ch.a, Tier::R1_MVP)?;
+        let cp = ClassifierProfile::new_bound(&p.sh, &bound, &policy, ch.b - ch.a, Tier::R1_MVP)?;
         cp.tokens_of(&whole[ch.a..ch.b])?;
     }
     println!("{{\"event\":\"batch-loaded\",\"jobs\":{},\"model_loads\":{model_loads},\"table_loads\":{table_loads},\"load_seconds\":{:.3},\"trained_statement_identity\":{},\"context_label\":{}}}", rows.len(), t_load.elapsed().as_secs_f64(), js(&hex(&p.model.identity())), js(label));

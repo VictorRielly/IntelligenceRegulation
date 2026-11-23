@@ -170,6 +170,182 @@ pub(crate) fn prove_classify_run(
     prove_classify_run_with(st, &mut ResidentBlocks(blocks), None, tables, src, owner, sink)
 }
 
+thread_local! {
+    /// Scoped `DirSink` handoff from [`prove_classify_run_with_dir_sink`] into
+    /// [`prove_classify_run_with`] under `HL_CLASSIFY_HOST_FAST=1`, keeping the single
+    /// OS generator construction inside [`prove_classify_run_with`].
+    static ASYNC_DIR_SINK: std::cell::RefCell<Option<super::super::run_sink::DirSink>> = const { std::cell::RefCell::new(None) };
+}
+
+enum SinkJob {
+    Raw {
+        index: usize,
+        bytes: Vec<u8>,
+    },
+    Block {
+        index: usize,
+        seg: Box<Segment>,
+        lay: super::super::layout::Layout,
+        geom: wire::SegGeom,
+        binding: Digest,
+        start: [u8; 32],
+        end: [u8; 32],
+    },
+}
+
+enum SegmentDispatcher<'a> {
+    Sync,
+    Async {
+        job_tx: Option<std::sync::mpsc::SyncSender<SinkJob>>,
+        done_rx: std::sync::mpsc::Receiver<Result<(usize, usize), String>>,
+        abort: &'a std::sync::atomic::AtomicBool,
+    },
+}
+
+impl SegmentDispatcher<'_> {
+    fn drain_done(
+        done_rx: &std::sync::mpsc::Receiver<Result<(usize, usize), String>>,
+        stats: &mut ClassifyRunStats,
+        sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
+        blocking: bool,
+    ) -> Result<(), String> {
+        let mut first_err: Option<String> = None;
+        loop {
+            let item = if blocking {
+                match done_rx.recv() {
+                    Ok(r) => r,
+                    Err(_) => break,
+                }
+            } else {
+                match done_rx.try_recv() {
+                    Ok(r) => r,
+                    Err(_) => break,
+                }
+            };
+            match item {
+                Ok((idx, nbytes)) => {
+                    stats.segment_bytes.push(nbytes);
+                    record_classify_host_fast_hit(CHF_C2_ASYNC_SINK);
+                    if first_err.is_none() {
+                        if let Err(e) = sink(idx, (nbytes as u64).to_le_bytes().to_vec()) {
+                            first_err = Some(e);
+                        }
+                    }
+                }
+                Err(e) => {
+                    if first_err.is_none() {
+                        first_err = Some(e);
+                    }
+                }
+            }
+        }
+        match first_err {
+            Some(e) => Err(e),
+            None => Ok(()),
+        }
+    }
+
+    fn send_async(
+        &mut self,
+        job: SinkJob,
+        stats: &mut ClassifyRunStats,
+        sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
+    ) -> Result<(), String> {
+        if let SegmentDispatcher::Async { job_tx, done_rx, abort } = self {
+            if let Err(e) = Self::drain_done(done_rx, stats, sink, false) {
+                abort.store(true, std::sync::atomic::Ordering::Release);
+                job_tx.take();
+                return Err(e);
+            }
+            let sent = job_tx.as_ref().expect("async sink channel open").send(job);
+            if sent.is_err() {
+                abort.store(true, std::sync::atomic::Ordering::Release);
+                job_tx.take();
+                Self::drain_done(done_rx, stats, sink, true)?;
+                return Err("classifier run: async segment writer stopped unexpectedly".into());
+            }
+            if let Err(e) = Self::drain_done(done_rx, stats, sink, false) {
+                abort.store(true, std::sync::atomic::Ordering::Release);
+                job_tx.take();
+                return Err(e);
+            }
+        }
+        Ok(())
+    }
+
+    fn send_raw(
+        &mut self,
+        index: usize,
+        bytes: Vec<u8>,
+        stats: &mut ClassifyRunStats,
+        sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
+    ) -> Result<(), String> {
+        match self {
+            SegmentDispatcher::Sync => {
+                stats.segment_bytes.push(bytes.len());
+                sink(index, bytes)
+            }
+            SegmentDispatcher::Async { .. } => self.send_async(SinkJob::Raw { index, bytes }, stats, sink),
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn send_block(
+        &mut self,
+        index: usize,
+        seg: Segment,
+        lay: super::super::layout::Layout,
+        geom: wire::SegGeom,
+        binding: Digest,
+        start: [u8; 32],
+        end: [u8; 32],
+        ph: &mut timing::Phases,
+        stats: &mut ClassifyRunStats,
+        sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
+    ) -> Result<(), String> {
+        match self {
+            SegmentDispatcher::Sync => {
+                let bytes = wire::encode_segment(&seg, &lay, geom, &binding, &start, &end)?;
+                drop(seg);
+                let nbytes = bytes.len() as u64;
+                ph.mark(timing::Half::Frame, "frame: encode segment", nbytes, "bytes");
+                stats.segment_bytes.push(bytes.len());
+                sink(index, bytes)?;
+                ph.mark(timing::Half::Frame, "sink: segment to disk", nbytes, "bytes");
+                Ok(())
+            }
+            SegmentDispatcher::Async { .. } => {
+                self.send_async(
+                    SinkJob::Block { index, seg: Box::new(seg), lay, geom, binding, start, end },
+                    stats,
+                    sink,
+                )?;
+                ph.mark(timing::Half::Frame, "frame+sink: enqueue async segment", 1, "segment");
+                Ok(())
+            }
+        }
+    }
+
+    fn finish(
+        mut self,
+        stats: &mut ClassifyRunStats,
+        sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
+    ) -> Result<(), String> {
+        if let SegmentDispatcher::Async { ref mut job_tx, ref done_rx, .. } = self {
+            job_tx.take();
+            Self::drain_done(done_rx, stats, sink, true)?;
+        }
+        Ok(())
+    }
+
+    fn abort_and_close(&mut self) {
+        if let SegmentDispatcher::Async { job_tx, abort, .. } = self {
+            abort.store(true, std::sync::atomic::Ordering::Release);
+            job_tx.take();
+        }
+    }
+}
+
 /// **THE CLASSIFIER RUN PROVER.** One transcript, `L + 2` segments handed to
 /// `sink` (UNPUBLISHED until this returns Ok), block `k` at its own stage.
 ///
@@ -204,7 +380,7 @@ pub(crate) fn prove_classify_run_with(
     }
     protocol::fits_the_ntt_tables(sh)?;
     // N-r13-1: the tables are bound to the statement's trained statement and are its own
-    st.check_tables(tables)?;
+    st.check_tables_prover(tables)?;
     let tables = tables.tables();
     if owner.commitment().root != st.in_root() || owner.cm.rows != st.in_spec.commitment_rows() {
         return Err("classifier run: the input endpoint owner is not the statement's".into());
@@ -240,91 +416,200 @@ pub(crate) fn prove_classify_run_with(
     #[cfg(test)]
     CLASSIFY_HEADERS.with(|c| c.set(c.get() + 1));
     let binding = tr.state();
-    let mut stats = ClassifyRunStats::default();
 
-    // ---- stage IN-C
-    let t0 = Instant::now();
-    let start = position_tag(&tr);
-    let in_lay = super::stage_in_c::layout(sh, cp);
-    let b0 = st.boundary_spec(0)?;
-    let inp = super::stage_in_c::prove(&in_lay, cp, tables, win, &b0, &b_in_plane, owner, &ntt, &mut rng, &mut tr, &tag)?;
-    let end = position_tag(&tr);
-    let bytes = st.in_geom(&in_lay).encode(&inp.seg, &binding, &start, &end)?;
-    stats.segment_bytes.push(bytes.len());
-    sink(0, bytes)?;
-    stats.prove_s.push(t0.elapsed().as_secs_f64());
-    let in_dec = inp.decommitment;
-    let mut pending: Vec<ZClaim> = inp.pending_b;
-    let mut prev: (BoundarySpec, PreparedBoundary) = (b0, inp.b_owner);
-
-    // ---- the blocks, unchanged
-    for k in 0..l {
-        let t0 = Instant::now();
-        let mut ph = timing::Phases::start();
-        let mut phases: Vec<(&'static str, f64)> = Vec::new();
-        let mut tick = Instant::now();
-        let start = position_tag(&tr);
-        tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
-        tr.absorb(b"pb-run-block", &st.block_digests[k]);
-        let blk = blocks.block(k)?;
-        // [A26] CS-1 / CS-4 / CS-6 as `stage_block_is_the_statements` (the same checks, order and
-        // refusals), keeping the record of the passed CS-1 / CS-4 check for `prove_core_with`
-        let checked = Some(stage_block_kept(st, k, &blk, !cheating, kept_of(k))?);
-        // [GPU-CLASSIFIER LANE, diagnostic only] phase marks (write-only recorder, inert unless HL_PB_TIMING=1)
-        ph.mark(timing::Half::Run, "run: block load + statement check", 1, "block");
-        let spec = st.boundary_spec(k + 1)?;
-        let plane = src.boundary_plane(k)?;
-        if plane.len() != spec.len() {
-            return Err(format!("classifier run: boundary {}'s plane is {} words, the padded plane is {}", k + 1, plane.len(), spec.len()));
-        }
-        let words: Vec<Fp> = plane.iter().map(|x| Fp::from_i64(i64::from(*x))).collect();
-        let cur = boundary::prepare(&spec, &words, &ntt, &mut rng, &tag)?;
-        ph.mark_bytes(timing::Half::Run, "run: boundary B_k commitment", spec.len() as u64, "words", 8 * spec.len() as u64);
-        protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
-        let lay = st.block_layout(k)?;
-        let ssh = st.stage_shape(k)?;
-        let wit = src.witness(k, &blk, &ssh)?;
-        ph.mark(timing::Half::Run, "run: witness (CliSource)", 1, "block");
-        // [A26] the record above stands in for `prove_core`'s own CS-1 / CS-4 re-check of this very
-        // block at this very shape and for `define`'s per-slot registry re-checks (A17 / A18's
-        // `CoreHints`: honoured only for the same object at an equal shape; `HL_A17_CHECKED=0` /
-        // `HL_A18_REGISTRY=0` or `HL_A26_RUN_RECORD=0` re-check as before). The same bytes.
-        let hints = protocol::CoreHints { checked: checked.as_ref().filter(|_| a26_run_record_on()) };
-        let core = protocol::prove_core_with(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints)?;
-        let [ic, oc] = core.io_claims;
-        let mut claims = std::mem::take(&mut pending);
-        claims.extend(ic);
-        let (pspec, powner) = prev;
-        let in_open = powner.into_opening(&pspec, &claims, &mut tr)?;
-        ph.mark(timing::Half::Open, "run: boundary B_(k-1) opening", claims.len() as u64, "claims");
-        pending = oc;
-        let end = position_tag(&tr);
-        let seg = Segment { b_root: Some(cur.root()), a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open, in_open, out_open: None };
-        let bytes = wire::encode_segment(&seg, &lay, st.block_geom(k)?, &binding, &start, &end)?;
-        drop(seg);
-        let nbytes = bytes.len() as u64;
-        ph.mark(timing::Half::Frame, "frame: encode segment", nbytes, "bytes");
-        stats.segment_bytes.push(bytes.len());
-        sink(k + 1, bytes)?;
-        ph.mark(timing::Half::Frame, "sink: segment to disk", nbytes, "bytes");
-        prev = (spec, cur);
-        drop(blk);
-        ph.mark(timing::Half::Run, "run: drop block", 1, "block");
-        ph.report("prove", st.profile());
-        stats.prove_s.push(t0.elapsed().as_secs_f64());
+    let mut async_disk = ASYNC_DIR_SINK.with(|c| c.borrow_mut().take());
+    if classify_host_fast_on() && async_disk.is_none() {
+        record_classify_host_fast_fallback(CHF_C2_ASYNC_SINK);
     }
+    let abort = std::sync::atomic::AtomicBool::new(false);
+    let run_res: Result<(ClassifyRunStats, Decommitment), String> = std::thread::scope(|scope| {
+        let mut dispatcher = if let Some(ref mut disk) = async_disk {
+            let (job_tx, job_rx) = std::sync::mpsc::sync_channel::<SinkJob>(1);
+            let (done_tx, done_rx) = std::sync::mpsc::channel::<Result<(usize, usize), String>>();
+            let abort_ref = &abort;
+            scope.spawn(move || {
+                use super::super::run_sink::SegmentSink;
+                for job in job_rx {
+                    if abort_ref.load(std::sync::atomic::Ordering::Acquire) {
+                        break;
+                    }
+                    let res = match job {
+                        SinkJob::Raw { index, bytes } => {
+                            let n = bytes.len();
+                            SegmentSink::accept(disk, index, bytes).map(|()| (index, n))
+                        }
+                        SinkJob::Block { index, seg, lay, geom, binding, start, end } => {
+                            let enc = wire::encode_segment(&seg, &lay, geom, &binding, &start, &end);
+                            drop(seg);
+                            enc.and_then(|bytes| {
+                                let n = bytes.len();
+                                SegmentSink::accept(disk, index, bytes).map(|()| (index, n))
+                            })
+                        }
+                    };
+                    let failed = res.is_err();
+                    let _ = done_tx.send(res);
+                    if failed {
+                        break;
+                    }
+                }
+            });
+            SegmentDispatcher::Async { job_tx: Some(job_tx), done_rx, abort: &abort }
+        } else {
+            SegmentDispatcher::Sync
+        };
 
-    // ---- stage OUT-C
-    let t0 = Instant::now();
-    let start = position_tag(&tr);
-    let (bspec, bowner) = prev;
-    let outp = super::stage_out_c::prove(&out_lay, cp, tables, wout, st.verdict(), &bspec, bowner, pending, (l + 1) as u64, &ntt, &mut rng, &mut tr, &tag)?;
-    let end = position_tag(&tr);
-    let bytes = st.out_geom(&out_lay)?.encode(&outp.seg, &binding, &start, &end)?;
-    stats.segment_bytes.push(bytes.len());
-    sink(l + 1, bytes)?;
-    stats.prove_s.push(t0.elapsed().as_secs_f64());
-    Ok((stats, in_dec))
+        let body = (|dispatcher: &mut SegmentDispatcher<'_>, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>| -> Result<(ClassifyRunStats, Decommitment), String> {
+            let mut stats = ClassifyRunStats::default();
+
+            // ---- stage IN-C
+            let t0 = Instant::now();
+            let start = position_tag(&tr);
+            let in_lay = super::stage_in_c::layout(sh, cp);
+            let b0 = st.boundary_spec(0)?;
+            let inp = super::stage_in_c::prove(&in_lay, cp, tables, win, &b0, &b_in_plane, owner, &ntt, &mut rng, &mut tr, &tag)?;
+            let end = position_tag(&tr);
+            let bytes = st.in_geom(&in_lay).encode(&inp.seg, &binding, &start, &end)?;
+            dispatcher.send_raw(0, bytes, &mut stats, &mut *sink)?;
+            stats.prove_s.push(t0.elapsed().as_secs_f64());
+            let in_dec = inp.decommitment;
+            let mut pending: Vec<ZClaim> = inp.pending_b;
+            let mut prev: (BoundarySpec, PreparedBoundary) = (b0, inp.b_owner);
+
+            // ---- the blocks, unchanged
+            for k in 0..l {
+                let t0 = Instant::now();
+                let mut ph = timing::Phases::start();
+                let mut phases: Vec<(&'static str, f64)> = Vec::new();
+                let mut tick = Instant::now();
+                let start = position_tag(&tr);
+                tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
+                tr.absorb(b"pb-run-block", &st.block_digests[k]);
+                let blk = blocks.block(k)?;
+                // [A26] CS-1 / CS-4 / CS-6 as `stage_block_is_the_statements` (the same checks, order and
+                // refusals), keeping the record of the passed CS-1 / CS-4 check for `prove_core_with`
+                let checked = Some(stage_block_kept(st, k, &blk, !cheating, kept_of(k))?);
+                // [GPU-CLASSIFIER LANE, diagnostic only] phase marks (write-only recorder, inert unless HL_PB_TIMING=1)
+                ph.mark(timing::Half::Run, "run: block load + statement check", 1, "block");
+                let spec = st.boundary_spec(k + 1)?;
+                let plane = src.boundary_plane(k)?;
+                if plane.len() != spec.len() {
+                    return Err(format!("classifier run: boundary {}'s plane is {} words, the padded plane is {}", k + 1, plane.len(), spec.len()));
+                }
+                let cur = if classify_host_fast_on() {
+                    boundary::prepare_i16(&spec, &plane, &ntt, &mut rng, &tag)?
+                } else {
+                    let words: Vec<Fp> = plane.iter().map(|x| Fp::from_i64(i64::from(*x))).collect();
+                    boundary::prepare(&spec, &words, &ntt, &mut rng, &tag)?
+                };
+                ph.mark_bytes(timing::Half::Run, "run: boundary B_k commitment", spec.len() as u64, "words", 8 * spec.len() as u64);
+                protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
+                let lay = st.block_layout(k)?;
+                let ssh = st.stage_shape(k)?;
+                let wit = src.witness(k, &blk, &ssh)?;
+                ph.mark(timing::Half::Run, "run: witness (CliSource)", 1, "block");
+                // [A26] the record above stands in for `prove_core`'s own CS-1 / CS-4 re-check of this very
+                // block at this very shape and for `define`'s per-slot registry re-checks (A17 / A18's
+                // `CoreHints`: honoured only for the same object at an equal shape; `HL_A17_CHECKED=0` /
+                // `HL_A18_REGISTRY=0` or `HL_A26_RUN_RECORD=0` re-check as before). The same bytes.
+                let hints = protocol::CoreHints { checked: checked.as_ref().filter(|_| a26_run_record_on()) };
+                let core = protocol::prove_core_with(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints)?;
+                let [ic, oc] = core.io_claims;
+                let mut claims = std::mem::take(&mut pending);
+                claims.extend(ic);
+                let (pspec, powner) = prev;
+                let in_open = powner.into_opening(&pspec, &claims, &mut tr)?;
+                ph.mark(timing::Half::Open, "run: boundary B_(k-1) opening", claims.len() as u64, "claims");
+                pending = oc;
+                let end = position_tag(&tr);
+                let seg = Segment { b_root: Some(cur.root()), a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open, in_open, out_open: None };
+                let geom = st.block_geom(k)?;
+                dispatcher.send_block(k + 1, seg, lay, geom, binding, start, end, &mut ph, &mut stats, &mut *sink)?;
+                prev = (spec, cur);
+                drop(blk);
+                ph.mark(timing::Half::Run, "run: drop block", 1, "block");
+                ph.report("prove", st.profile());
+                stats.prove_s.push(t0.elapsed().as_secs_f64());
+            }
+
+            // ---- stage OUT-C
+            let t0 = Instant::now();
+            let start = position_tag(&tr);
+            let (bspec, bowner) = prev;
+            let outp = super::stage_out_c::prove(&out_lay, cp, tables, wout, st.verdict(), &bspec, bowner, pending, (l + 1) as u64, &ntt, &mut rng, &mut tr, &tag)?;
+            let end = position_tag(&tr);
+            let bytes = st.out_geom(&out_lay)?.encode(&outp.seg, &binding, &start, &end)?;
+            dispatcher.send_raw(l + 1, bytes, &mut stats, &mut *sink)?;
+            stats.prove_s.push(t0.elapsed().as_secs_f64());
+            Ok((stats, in_dec))
+        })(&mut dispatcher, &mut *sink);
+
+        match body {
+            Ok((mut stats, in_dec)) => {
+                dispatcher.finish(&mut stats, sink)?;
+                Ok((stats, in_dec))
+            }
+            Err(e) => {
+                dispatcher.abort_and_close();
+                Err(e)
+            }
+        }
+    });
+    if let Some(disk) = async_disk {
+        ASYNC_DIR_SINK.with(|c| *c.borrow_mut() = Some(disk));
+    }
+    run_res
+}
+
+/// [`prove_classify_run_with`] writing segments directly into a [`DirSink`].
+/// When `HL_CLASSIFY_HOST_FAST=1`, overlaps `wire::encode_segment`, `drop(seg)` and
+/// `DirSink::accept` (`write_all` + `sync_all` + `rename` + `digest_hex`) on one scoped
+/// bounded-1 writer thread while emitting `on_segment(index, bytes)` in strict FIFO order
+/// `0..=L+1` on the calling (request) thread, and joining the writer thread before returning
+/// on both `Ok` and `Err`. When `HL_CLASSIFY_HOST_FAST` is off, runs synchronously.
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn prove_classify_run_with_dir_sink(
+    st: &ClassifyRunStatement,
+    blocks: &mut dyn TokenBlocks,
+    kept: Option<&[std::sync::Arc<super::super::run::fork::KeptBlock>]>,
+    tables: &BoundClassifierTables,
+    src: &mut dyn ClassifyRunSource,
+    owner: CommittedZk,
+    mut disk: super::super::run_sink::DirSink,
+    on_segment: &mut dyn FnMut(usize, usize),
+) -> Result<(ClassifyRunStats, Decommitment, super::super::run_sink::DirSink), String> {
+    use super::super::run_sink::SegmentSink;
+    if !classify_host_fast_on() {
+        let (stats, dec) = prove_classify_run_with(st, blocks, kept, tables, src, owner, &mut |k, bytes| {
+            let n = bytes.len();
+            SegmentSink::accept(&mut disk, k, bytes)?;
+            on_segment(k, n);
+            Ok(())
+        })?;
+        return Ok((stats, dec, disk));
+    }
+    struct AsyncDirGuard;
+    impl Drop for AsyncDirGuard {
+        fn drop(&mut self) {
+            ASYNC_DIR_SINK.with(|c| {
+                let _ = c.borrow_mut().take();
+            });
+        }
+    }
+    ASYNC_DIR_SINK.with(|c| {
+        let prev = c.borrow_mut().replace(disk);
+        debug_assert!(prev.is_none(), "nested async DirSink on the same thread");
+    });
+    let _guard = AsyncDirGuard;
+    let (stats, dec) = prove_classify_run_with(st, blocks, kept, tables, src, owner, &mut |k, meta| {
+        let arr: [u8; 8] = meta.try_into().map_err(|_| "classifier run: invalid async segment length notification".to_string())?;
+        on_segment(k, u64::from_le_bytes(arr) as usize);
+        Ok(())
+    })?;
+    let disk = ASYNC_DIR_SINK
+        .with(|c| c.borrow_mut().take())
+        .ok_or_else(|| "classifier run: async DirSink was not returned".to_string())?;
+    Ok((stats, dec, disk))
 }
 
 /// **THE CLASSIFIER RUN VERIFIER** over a resident slice of blocks
