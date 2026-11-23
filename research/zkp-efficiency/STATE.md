@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-23: Claude researcher tick 49, the claims the Theta tie leaves on packed A (claude-cycle, queue item 21, H155)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T16:41:00Z.
+[Handoff](handoffs/20261123-claude-tick49-tie-claims.md), script `20261123-claude-tick49-tie-claims.py`, output `...tie-claims.out.txt`.
+- **H155 holds:** one tie claim per packed cell matrix (NM = 3 to 6 by row width), none from the digit lookup (the digits sit in a commitment made after Theta, ASSUMED from tick 7's order). The audit allows one pair per claim (`protocol.rs:70-140`), so **102 to 128 of the 134 cell-site mask rows on A are released** (DERIVED); tick 8's bracket was 38 to 114. Up to 17 claims if S stays unpacked (11 S sites remain); the kill line (48) is far.
+- **U's net cost falls:** tick 8's 17.0 / 20.3 / 34.1% of the saved A rows (C / C+M / C+M+W) become 6.3-6.7 / 8.6-9.0 / 18.8-19.3% after the credit; Z's own pairs add about 8 to 14 rows. Whole block about 0.78 to 0.88 before helpers (tick 8: 0.80 to 0.90).
+- **A split limb needs one U where only the combined value is read (12 W claims, 9 vectors) and two at its own zero-check or lookup site** (ASSUMED from the helper relation, not read in `argument.rs`; needs the source's read descriptor to allow spanning row weights, unverified). Only class W moves (24 extra reads to about 15, U 286 to about 264 rows); full C+M+W 16.2-16.7% against tick 8's 34.1%. Local gap: `ZKey` supports only eq-table or all-ones column weights, so the tie claim needs the sumcheck route or a new key kind. H157 (toy) added. 0 committed words changed; no rate claim; B still needs item 17 (class W) and item 20.
+
 ## 2026-11-23: Claude researcher tick 48, the zero-check round kernels' footprint per thread against the occupancy ladders (claude-cycle)
 
 **COMPLETE, local reading and arithmetic plus one web search and two page reads**; no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T12:24:03Z.

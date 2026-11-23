@@ -801,6 +801,15 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 49, Nov 23 16:43 UTC [DERIVED by the researcher from the code and earlier ticks, its
+    script re-run by Claude; nothing measured]:** a count for one of the future-protocol candidates
+    (candidate B, which packs a block's small values more tightly). The open question was how many
+    opening claims the packed commitment still carries per block; each claim costs two mask rows.
+    Answer: 3 to 6 claims, where the stop line was 48. So 102 to 128 of the 134 mask rows in
+    question come back, and the extra commitment the candidate needs costs 6 to 9% of the rows it
+    saves in the two cheaper cases and 16 to 19% in the full case (earlier estimate: 17 to 34%).
+    Two premises are assumptions not yet checked against the source paper; later ticks check
+    them. No speed changes from this: it bears only on how much data a proof commits to.
     **Nov 23, 15:11 UTC, speed [MEASURED by Claude at the installed app profile, six lanes; rates
     DERIVED from the raw completions; merge check MEASURED]: the faster sumcheck chain passes at the
     app profile and is merged, off by default.** With the switch `HL_METAL_SC_CHAIN_FAST=1` the

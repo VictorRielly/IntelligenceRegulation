@@ -1,0 +1,44 @@
+== 1. tie claims on packed A (one per matrix) ==
+  NM = 3: stack by width: 4096 {D,Q,S}, 1024 {Kv}, 7168 {F}
+  NM = 3: stack by width, S unpacked: 4096 {D,Q}, 1024, 7168
+  NM = 5: one matrix per domain D,Q,Kv,F,S
+  NM = 6: one per domain, F in two halves
+
+== 2. A mask rows (pairs) released ==
+  S packed=True  NM=3: claims moved 67, pairs freed 134 rows, tie pairs kept 6, NET released 128 rows
+  S packed=True  NM=4: claims moved 67, pairs freed 134 rows, tie pairs kept 8, NET released 126 rows
+  S packed=True  NM=5: claims moved 67, pairs freed 134 rows, tie pairs kept 10, NET released 124 rows
+  S packed=True  NM=6: claims moved 67, pairs freed 134 rows, tie pairs kept 12, NET released 122 rows
+  S packed=False NM=3: claims moved 56, pairs freed 112 rows, tie pairs kept 6, NET released 106 rows
+  S packed=False NM=4: claims moved 56, pairs freed 112 rows, tie pairs kept 8, NET released 104 rows
+  S packed=False NM=5: claims moved 56, pairs freed 112 rows, tie pairs kept 10, NET released 102 rows
+  range of net release: 102 to 128 rows (tick 8's bracket was 38 to 114+)
+  claims left on A for cell planes: 3 to 6 tie claims; plus 11 unpacked S sites in the S-unpacked case = up to 17
+
+== 3. U rows ==
+  67 reads, S at 4096: 43 data rows + 136 =  179
+  56 reads (S unpacked, stays on A): 152
+
+== 4. net U cost as a share of A data rows saved (tick 8 rows, S packed) ==
+  (a) each half its own U everywhere (tick 8 as written), no credit:
+      C split only, S one 4,096 matrix: U 204, saved 1202, 17.0%
+      C + M split, S 4,096: U 222, saved 1094, 20.3%
+      C + M + W split, S 4,096: U 286, saved 839, 34.1%
+  (b) same, credit of freed A pairs NM=3 (128 rows) and NM=5 (124 rows):
+      C split only, S one 4,096 matrix: net 76 to 80 rows = 6.3% to 6.7%
+      C + M split, S 4,096: net 94 to 98 rows = 8.6% to 9.0%
+      C + M + W split, S 4,096: net 158 to 162 rows = 18.8% to 19.3%
+
+== 5. one U or two per split limb ==
+  W planes read where only the combined value is needed: 12 claims, 9 vectors
+  W extra reads: tick 8 about 24 (every read doubled) -> about 15 (zero-check reads only)
+  rows saved at the C+M+W scenario: about 22 of 286 (U 286 -> about 264)
+  C and M planes (16 planes) are remainder limbs read only at their zero-check site: no change
+  C+M+W net with credit 124-128 rows: 136 to 140 rows = 16.2% to 16.7% of 839
+
+== 6. A column-weight groups holding cell keys ==
+  SS, SSM, RS, 09 Q K V, 12 WO, 13 G U D, 14 F, 10 score x2, 11 PV x2, 03 cube, 04 cube+partner,
+  05 cube+partner, 06 cube, IO_IN, IO_OUT = 23 groups (DERIVED from the a_groups comment)
+  non-cell: tzc + 4 (08 limb, TAB, 03 off-cube T, 06 off-cube Ht); total tzc + 27 (+2 dictionary)
+  after B: 1 to NM groups for the tie claims if their column tails coincide (one shared end point)
+  one group vector = (2^14 + 256) Fp2 = 33280 words = 2.03 rows
