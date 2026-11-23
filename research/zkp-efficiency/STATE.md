@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-23: Claude researcher tick 46, thread-group memory of the kernels behind the device-demand top ten, and two allocation-ladder tests (claude-cycle)
+
+**COMPLETE, local reading and arithmetic plus one web search (summary only)**; no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T10:59:45Z.
+[Handoff](handoffs/20261123-claude-tick46-tg-memory.md), script `20261123-claude-tick46-tg-memory.py`; pass and fail lines written before any count.
+- **The zero-check slots hold NO thread-group memory** (COUNTED, `metal_slot.rs:364, 446`: generated `k_sc_round0` / `k_sc_round` take only the grid position, no `threadgroup` array, no barrier; groups of 64). Slots 14 to 18 (54% of demand) cannot be limited by an allocation as the sparse fold was; what they hold per thread is registers, never read from the device. Also none: `k_sc_part_reduce`, fold, `k_hash_cols`.
+- **Table by bytes per group (COUNTED):** sparse fold A 18,944 B per 32 threads (592 B/thread), H 5,120 (160); NTT head, tail and the production fused kernel 16,384 B per 512 threads (32 B/thread; 22.3 ms of a block = 22.6% of D1, tick 21's split); transcript step 4,224 B, one group, 40 to 60 barriers per round (the barrier part of item 35 only). T-occ elasticity DERIVED 0.90 (time x3.255 for allocation x3.700).
+- **Two tests stated, not scheduled, for Antigravity:** N-occ (fused NTT, unused dynamic argument, 16 to 32 KiB; go at r >= 1.30 = ceiling 5.1 ms = 5.2% of D1; stop at <= 1.15) and Z-occ (round kernels, ladder 0 to 32 KiB per 64-thread group; group-count limited at r(16 KiB) >= 1.25, not limited at r(32 KiB) <= 1.05). Not known: the resident-group limit and pool size; M3 Dynamic Caching shares registers and thread-group memory in one store [search summary, pages not read]. No rewrite proposed. 0 committed words, no rate claim.
+
 ## 2026-11-23: Claude researcher tick 45, what ends the long waits that do not end at a buffer end, and a convoy test (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T07:50:53Z.

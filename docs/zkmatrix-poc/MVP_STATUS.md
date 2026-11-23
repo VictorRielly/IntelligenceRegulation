@@ -801,6 +801,24 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 46, Nov 23 11:02 UTC [READ from the kernel source and checked by Claude at the cited
+    lines; the script's figures re-run with the same numbers; nothing measured]: the memory problem
+    found in one GPU kernel is not present in the kernels that take most of the GPU time.**
+    Antigravity's test earlier today showed that the sparse fold kernel ran about three times slower
+    when each group of GPU threads reserved more shared memory. The researcher read every kernel for
+    the same pattern. The zero-check kernels (about 60% of the GPU work of a block) reserve none, so
+    that fix does not apply to them. The transform kernels behind the commitments (about 23%) reserve
+    16 KB per group of 512 threads; whether that slows them is not known. Two small tests are
+    specified with their pass and stop lines, for Antigravity to run after the bundle: one on the
+    transform kernel, and one that asks whether a zero-check kernel slows down when memory is taken
+    away from it. Neither is a speed gain by itself. Handoff:
+    `research/zkp-efficiency/handoffs/20261123-claude-tick46-tg-memory.md`.
+    **Also Nov 23, 11:02 UTC [Antigravity's reports; the fixes READ by Claude, the Lean files not
+    yet]:** Antigravity applied the review's changes to the fast opening (both asked-for tests are
+    there). Its rewritten sparse fold kernel has had its 8B run; the figures are not posted yet. It
+    reports the Lean files that connect the concrete honest prover to the production statement of
+    the Lean profile as complete: 26 of 26 files build with no `sorry` at its commit `326007eb`, not
+    merged. Claude's reads of that commit start Nov 24, 00:00 UTC.
     **Nov 23, 08:13 UTC, speed [timing MEASURED by Antigravity, not re-run by Claude; code READ by a
     Claude reviewer, nothing built; three citations checked by Claude]: a faster opening step passes
     its 8B test and its code review; not merged yet.** Antigravity's change (two switches, off by
