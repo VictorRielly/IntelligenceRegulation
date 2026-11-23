@@ -57,9 +57,24 @@ All 324 requests were proved; 216 B1 receipts were checked by B0 and accepted; n
 
 **Other jobs.** `overlap_check.py` (`raw/overlap_check.txt`): no other guarded job overlapped any timed leg. Antigravity held the GPU and heavy builds idle for the set. No agent and no research tick of the tester ran beside it.
 
-## Reading (interpretation, not a measurement)
+## Traced pair, A then C (guard `4ba609f916f3`, exit 0, 11:52 to 12:01 UTC; `HL_A27_GPU_TRACE`; no verdict; per block, by begin time between completion N and N + 48, B = 26 x 48)
 
-On the 8B stream (two lanes) the two parts shortened the steady gap by 2.3% and 1.8%. At six lanes of the app profile the same code gives about +1.2% of rate. That agrees with research ticks 40 to 45: at six lanes a block waits about 52 ms for the GPU and waiting jobs start in groups, so a few milliseconds less device or host work per block mostly turns into waiting. At this profile the wait binds, not the time inside one kernel.
+Stated in the coordination file (11:51:56Z) before it ran, with how it would be read. The trace costs time, so these rates are not read against the rule.
+
+| arm | rate, tok/s | wall | prover e | q | w | host time (wall - e - q - w, DERIVED) | empty-device share | commit e, rows 2504 / 2606 | spfold buffers | trace records |
+|---|---|---|---|---|---|---|---|---|---|---|
+| A (B0, `frs1 sf1`) | 46.407 | 521.5 ms | 218.5 | 58.7 | 2.7 | 241.6 | 18.0 % | 17.00 / 17.38 | 4032 (3.23 per block, e 9.33 ms/block) | 41,938 |
+| C (B1, plus `of1` and `reg8`) | 47.261 | 506.3 ms | 210.1 | 56.1 | 2.3 | 237.7 | 19.8 % | 16.15 / 17.68 | 4032 (3.23 per block, e 5.30 ms/block) | 37,440 |
+
+(ms per block unless stated.) From A to C: wall -15.2 ms (-2.9%), device execution -8.4 ms (of which the sparse fold -4.0 ms; 4,498 fewer buffers in the window, about 3.6 per block, the gathers now done on the host), wait before start -2.6 ms, host time -3.9 ms. Rate +1.84% for this single traced pair. All 54 receipts of arm C were accepted by B0. `overlap_check.py`: no other guarded job inside either leg.
+
+**Read by the lines fixed before it ran:** X, the fall of `e`, is 8.4 ms. "The saved device work turned into waiting" needed `q` to rise by at least 4.2 ms; `q` fell by 2.6 ms. **That explanation is not supported.** The second fixed line (`q` within 1 ms while wall falls by about X) does not describe the pair either, so no label is given; the numbers are above.
+
+## Reading (interpretation; the first version of this section was wrong and is corrected here)
+
+The first version of this section, written before the traced pair, said the saved work mostly turned into waiting for the GPU. The traced pair contradicts that: the wait fell too. What the pair shows instead is plain arithmetic. At six lanes one block costs a lane about 520 ms: about 218 ms of its GPU work running, 59 ms waiting for the GPU and 242 ms on the host. The bundle takes about 15 ms out of that (2.9% of the prove call), and the prove call is about four fifths of what sets the rate, so the rate moves by one to two percent. The bundle does what it was built to do; the opening path it speeds up is a small part of a block at this profile (the sparse fold was 9.3 ms of 218). The new kernel's own time fell from 9.33 to 5.30 ms per block here, less than the factor of four of the single-kernel test, because six lanes share the GPU.
+
+Two things in the table are larger than anything the bundle touches: the host time (about 240 ms per block, 46% of the wall) and the slowdown of device work under six lanes (218 ms of execution per block against about 98 ms measured for one lane in research tick 40).
 
 ## What follows (fixed before the run)
 
@@ -67,4 +82,11 @@ Not merged. `agy/bundle-of1-r81` stays as a branch. Its parts are not re-tested 
 
 ## Files
 
-`bundle_driver.py`, `t1_driver.py` (helper, a copy), `bundle_launch.py` (one detached guarded job with a `.done` marker), `guarded_here.py` (guard wrapper), `bundle_summary.py`, `overlap_check.py`, `smoke_paths.py`; `raw/` holds the build logs, the smoke (`bn_smoke`), the set (`bn_set1`), the guard records and the three script outputs.
+`bundle_driver.py`, `t1_driver.py` (helper, a copy), `bundle_launch.py` (one detached guarded job with a `.done` marker), `guarded_here.py` (guard wrapper), `bundle_summary.py`, `overlap_check.py`, `smoke_paths.py`, `compress_traces.py`; `raw/` holds the build logs, the smoke (`bn_smoke`), the set (`bn_set1`), the traced pair (`bn_trace`), the guard records, the three script outputs and the xz traces:
+
+| file | uncompressed bytes | compressed bytes | SHA-256 of the `.xz` |
+|---|---|---|---|
+| `bn_trace_leg1.12896.tsv.xz` (arm A) | 8,358,309 | 727,584 | `bb077b4c77af94d809bb23945eecea15a870de3d91ef7900745592a7e474e916` |
+| `bn_trace_leg2.14338.tsv.xz` (arm C) | 7,923,915 | 658,416 | `2e312b4cb11ab196d16c830a61ae06dd1ad4757290a56bba82430ed811620861` |
+
+No receipts and no binaries are kept. The content is the eight public posts; nothing under the owner-private directory was read.

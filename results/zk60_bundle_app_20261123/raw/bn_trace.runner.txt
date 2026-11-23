@@ -1,0 +1,4 @@
+[03:52:11] launching bn_trace
+[zk60-guard 03:52:11] START bundle-bn_trace class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=4ba609f916f3
+[zk60-guard 04:01:08] END bundle-bn_trace exit=0 child_wall=537s peak_rss=66.47G min_avail=135.85G peak_vram=19746MiB
+[04:01:08] bn_trace guard exit 0

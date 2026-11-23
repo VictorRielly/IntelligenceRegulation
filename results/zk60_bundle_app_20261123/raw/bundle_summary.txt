@@ -17,3 +17,7 @@ leg 1 arm A: no GPU trace was taken in this leg
 leg 2 arm B: no GPU trace was taken in this leg
 leg 3 arm C: no GPU trace was taken in this leg
 
+== traced pair A then C (bn_trace), no verdict
+leg 1 arm A: rate 46.407 tok/s | wall 521.5 ms/block | prover e 218.5 q 58.7 w 2.7 ms/block | host time (wall - e - q - w, DERIVED) 241.6 ms/block | empty-device share (1 - union over all buffers) 18.0 % | commit e: rows 2504 17.00, rows 2606 17.38 ms/block | commit buffers/block 3.23 | spfold buffers 4032 (3.23/block, e 9.33 ms/block) | records 41938
+leg 2 arm C: rate 47.261 tok/s | wall 506.3 ms/block | prover e 210.1 q 56.1 w 2.3 ms/block | host time (wall - e - q - w, DERIVED) 237.7 ms/block | empty-device share (1 - union over all buffers) 19.8 % | commit e: rows 2504 16.15, rows 2606 17.68 ms/block | commit buffers/block 3.23 | spfold buffers 4032 (3.23/block, e 5.30 ms/block) | records 37440
+

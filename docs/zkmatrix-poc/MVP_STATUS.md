@@ -810,10 +810,14 @@ item was re-checked against the source by the coordinator.
     and 47.1 tok/s for the merged head: +0.93% and +1.47%. The rule posted before the run needs
     +1.5% in each pair even to earn a repeat, so the verdict is "no transfer". All 216 receipts made
     by the bundle were accepted by the merged head's verifier, and no other job ran beside the
-    measurement. The likely reason for the small gain [interpretation]: with six lanes a block
-    spends about 52 ms waiting for the GPU, so saving a few milliseconds of work mostly lengthens
-    the wait. The branch is kept. Whether such code may merge for the 8B stream alone, where it
-    does win, is a question put to Victor. Record: `results/zk60_bundle_app_20261123/README.md`.
+    measurement. Why the gain is small [MEASURED by a traced pair at 12:01 UTC, which corrected
+    Claude's first guess that the saved work turned into waiting; the wait fell too]: with six
+    lanes one block costs a lane about 520 ms (218 ms of its GPU work, 59 ms waiting for the GPU,
+    242 ms on the host), and the bundle removes about 15 ms of that. The part of the proof it
+    speeds up is simply small at this profile. The two large items it does not touch are the host
+    time and the slowdown of GPU work when six lanes share the device. The branch is kept. Whether
+    such code may merge for the 8B stream alone, where it does win, is a question put to Victor.
+    Record: `results/zk60_bundle_app_20261123/README.md`.
     **Tick 46, Nov 23 11:02 UTC [READ from the kernel source and checked by Claude at the cited
     lines; the script's figures re-run with the same numbers; nothing measured]: the memory problem
     found in one GPU kernel is not present in the kernels that take most of the GPU time.**
