@@ -2309,6 +2309,8 @@ pub(crate) struct CoreAhead {
     m_rng: Vec<Vec<u64>>,
     m_exp: Vec<u64>,
     m_act: Vec<u64>,
+    exp_missed: usize,
+    act_missed: usize,
     deltas: Vec<i64>,
     act_idx: Vec<i64>,
     a: pcs::CommittedZk,
@@ -2530,6 +2532,8 @@ pub(crate) fn prove_core_before_with(
         m_rng,
         m_exp,
         m_act,
+        exp_missed,
+        act_missed,
         deltas,
         act_idx,
         a,
@@ -2561,7 +2565,7 @@ pub(crate) fn prove_core_after_with(
     tick: &mut std::time::Instant,
     hints: CoreHints<'_, '_>,
 ) -> Result<CoreProof, String> {
-    let CoreAhead { sh: made_for, rows, blk_at, views_on, params, zko, tag, wit, looked, built, lookup_words, m_u8, m_rng, m_exp, m_act, deltas, act_idx, a, a_root, mc, mask_root } = ahead;
+    let CoreAhead { sh: made_for, rows, blk_at, views_on, params, zko, tag, wit, looked, built, lookup_words, m_u8, m_rng, m_exp, m_act, exp_missed, act_missed, deltas, act_idx, a, a_root, mc, mask_root } = ahead;
     if made_for != *sh || rows != (lay.a_rows, lay.h_rows, lay.n()) {
         return Err("private block: the before-challenge state was made for another shape or layout".into());
     }
@@ -2666,15 +2670,116 @@ pub(crate) fn prove_core_after_with(
     // so the same elements in the same order (zip stops at the shorter side,
     // as the sequential zip did)
     use rayon::prelude::*;
-    let exp_den = deltas.par_iter().zip(wit.planes[ids.at(A_E)].par_iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
-    write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
-    let act_den = match blk.accuracy() {
-        // [ZK60-METAL M15] fused: one pass over the rows, no per-element
-        // divisions, no intermediate vector (`accuracy_act::denominators`)
-        Some(data)=>super::accuracy_act::denominators(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)],alpha,beta,g_act)?,
-        None=>act_idx.par_iter().zip(wit.planes[ids.at(A_A16)].par_iter()).map(|(i,a)|alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect(),
-    };
-    write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
+    // [HOST-FAST H1] When `exp_missed == 0`, every `(d, e)` in `Dom::S` matches
+    // an entry of the 256-row exp table (`0 <= d < 256`, `e == public.exp[d]`).
+    // Invert the 256 table denominators once, scatter directly into `h_data`,
+    // and reuse `exp_inv` for `gexp` below. Any miss or zero table denominator
+    // falls back to the exact baseline path so refusal order/strings never move.
+    let mut exp_inv_cached: Option<Vec<Fp2>> = None;
+    if crate::zk::host_fast_on() && exp_missed == 0 && deltas.len() == wit.planes[ids.at(A_E)].len() {
+        let tv_exp = table_values_exp(public, beta, g_exp);
+        if let Ok(exp_inv) = inverses(tv_exp.iter().map(|t| alpha.sub(*t)).collect()) {
+            let len = deltas.len();
+            let off = lay.h_off[hids.sexp()];
+            let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
+            if lo + len <= hi && hi + len <= h_data.len() {
+                let (head, tail) = h_data.split_at_mut(hi);
+                let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
+                let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
+                if len >= WRITE_H_PAR_MIN {
+                    re.par_chunks_mut(HELPER_CHUNK)
+                        .zip(im.par_chunks_mut(HELPER_CHUNK))
+                        .zip(deltas.par_chunks(HELPER_CHUNK))
+                        .for_each(|((r, m), ds)| {
+                            for ((r, m), &d) in r.iter_mut().zip(m.iter_mut()).zip(ds.iter()) {
+                                let v = exp_inv[d as usize];
+                                *r = v.c0;
+                                *m = v.c1;
+                            }
+                        });
+                } else {
+                    for ((r, m), &d) in re.iter_mut().zip(im.iter_mut()).zip(deltas.iter()) {
+                        let v = exp_inv[d as usize];
+                        *r = v.c0;
+                        *m = v.c1;
+                    }
+                }
+                exp_inv_cached = Some(exp_inv);
+                crate::zk::record_host_fast_hit(crate::zk::HF_H1_EXP_ACT);
+            }
+        }
+    }
+    if exp_inv_cached.is_none() {
+        let exp_den = deltas.par_iter().zip(wit.planes[ids.at(A_E)].par_iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
+        write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
+    }
+    // [HOST-FAST H1] Same for `fact` / `gact` when `act_missed == 0`: invert the
+    // active ACT table once (<= 16,384 entries for ACT3, 256 for legacy), write
+    // `fact` straight into `h_data`, and reuse `act_inv` for `gact` below.
+    let mut act_inv_cached: Option<Vec<Fp2>> = None;
+    if crate::zk::host_fast_on() && act_missed == 0 {
+        if let Some(data) = blk.accuracy() {
+            if let Ok(act_tbl) = super::accuracy_act::table(data, sh.size(Dom::Tab), beta, g_act) {
+                if let Ok(act_inv) = inverses(act_tbl.compressed[..act_tbl.entries].iter().map(|t| alpha.sub(*t)).collect()) {
+                    let gates = &wit.planes[ids.at(A_G8)];
+                    let outputs = &wit.planes[ids.at(A_A16)];
+                    let len = gates.len();
+                    let off = lay.h_off[hids.fact()];
+                    let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
+                    if lo + len <= hi && hi + len <= h_data.len() {
+                        let (head, tail) = h_data.split_at_mut(hi);
+                        let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
+                        let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
+                        if super::accuracy_act::write_helpers_from_inv(sh, data, gates, outputs, &act_inv, re, im).is_ok() {
+                            act_inv_cached = Some(act_inv);
+                            crate::zk::record_host_fast_hit(crate::zk::HF_H1_EXP_ACT);
+                        }
+                    }
+                }
+            }
+        } else if act_idx.len() == wit.planes[ids.at(A_A16)].len() {
+            let tv_act = table_values_act(ff, beta, g_act);
+            if let Ok(act_inv) = inverses(tv_act.iter().map(|t| alpha.sub(*t)).collect()) {
+                let len = act_idx.len();
+                let off = lay.h_off[hids.fact()];
+                let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
+                if lo + len <= hi && hi + len <= h_data.len() {
+                    let (head, tail) = h_data.split_at_mut(hi);
+                    let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
+                    let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
+                    if len >= WRITE_H_PAR_MIN {
+                        re.par_chunks_mut(HELPER_CHUNK)
+                            .zip(im.par_chunks_mut(HELPER_CHUNK))
+                            .zip(act_idx.par_chunks(HELPER_CHUNK))
+                            .for_each(|((r, m), idx)| {
+                                for ((r, m), &k) in r.iter_mut().zip(m.iter_mut()).zip(idx.iter()) {
+                                    let v = act_inv[k as usize];
+                                    *r = v.c0;
+                                    *m = v.c1;
+                                }
+                            });
+                    } else {
+                        for ((r, m), &k) in re.iter_mut().zip(im.iter_mut()).zip(act_idx.iter()) {
+                            let v = act_inv[k as usize];
+                            *r = v.c0;
+                            *m = v.c1;
+                        }
+                    }
+                    act_inv_cached = Some(act_inv);
+                    crate::zk::record_host_fast_hit(crate::zk::HF_H1_EXP_ACT);
+                }
+            }
+        }
+    }
+    if act_inv_cached.is_none() {
+        let act_den = match blk.accuracy() {
+            // [ZK60-METAL M15] fused: one pass over the rows, no per-element
+            // divisions, no intermediate vector (`accuracy_act::denominators`)
+            Some(data)=>super::accuracy_act::denominators(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)],alpha,beta,g_act)?,
+            None=>act_idx.par_iter().zip(wit.planes[ids.at(A_A16)].par_iter()).map(|(i,a)|alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect(),
+        };
+        write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
+    }
     ph.mark_bytes(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words", 16 * (sh.size(Dom::S) + sh.size(Dom::F)) as u64);
     // **NATIVE R9 (D30): the dictionary's two LogUp columns.** The score
     // entry's single tuple helper `1 / (alpha - (gamma TAG_DD + Sum + beta
@@ -2745,24 +2850,37 @@ pub(crate) fn prove_core_after_with(
     // [A18] the legacy activation table is periodic (`table_values_act_at`); an
     // accuracy profile's (`accuracy_act::table`) is not
     let act_periodic = blk.accuracy().is_none();
-    let act_table=match blk.accuracy() {
-        Some(data)=>{
-            let table=super::accuracy_act::table(data,sh.size(Dom::Tab),beta,g_act)?;
-            table.compressed[..table.entries].to_vec()
-        },
-        None=>table_values_act(ff,beta,g_act),
+    let act_table = if act_inv_cached.is_some() {
+        Vec::new()
+    } else {
+        match blk.accuracy() {
+            Some(data) => {
+                let table = super::accuracy_act::table(data, sh.size(Dom::Tab), beta, g_act)?;
+                table.compressed[..table.entries].to_vec()
+            }
+            None => table_values_act(ff, beta, g_act),
+        }
     };
-    for (plane, tv, m, periodic) in [
-        (gu8, table_values_u8(g_u8), &m_u8, true),
-        (gexp, table_values_exp(public, beta, g_exp), &m_exp, true),
-        (gact, act_table, &m_act, act_periodic),
+    for (plane, cached, tv, m, periodic) in [
+        (gu8, None, Some(table_values_u8(g_u8)), &m_u8, true),
+        (gexp, exp_inv_cached, None, &m_exp, true),
+        (gact, act_inv_cached, Some(act_table), &m_act, act_periodic),
     ] {
-        // [A18] `HL_A18_TABINV`: [`table_helper`] (the same words, the same refusal)
-        let col: Vec<Fp2> = if tab_on {
-            table_helper(&tv, m, alpha, periodic)?
-        } else {
-            let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
+        // [HOST-FAST H1] reuse `exp_inv` / `act_inv` inverted above when available
+        let col: Vec<Fp2> = if let Some(inv) = cached {
             inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect()
+        } else {
+            let tv = match tv {
+                Some(v) => v,
+                None => table_values_exp(public, beta, g_exp),
+            };
+            // [A18] `HL_A18_TABINV`: [`table_helper`] (the same words, the same refusal)
+            if tab_on {
+                table_helper(&tv, m, alpha, periodic)?
+            } else {
+                let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
+                inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect()
+            }
         };
         write_h(&mut h_data, lay.h_off[plane], &col);
     }

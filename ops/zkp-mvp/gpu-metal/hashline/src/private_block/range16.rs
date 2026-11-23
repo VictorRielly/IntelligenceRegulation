@@ -245,6 +245,39 @@ pub(crate) fn support_column(f: Fam, log_cols: usize) -> Vec<Fp2> {
 /// denominator is zero (the prover then refuses, as the U8 table does)
 pub(crate) fn denominator_inverses(width: u32, alpha: Fp2, g: Fp2) -> Vec<Option<Fp2>> {
     let n = 1usize << width;
+    if crate::zk::host_fast_on() && n >= 2048 {
+        use rayon::prelude::*;
+        crate::zk::record_host_fast_hit(crate::zk::HF_H3_RANGE16);
+        let base = alpha.sub(g);
+        let mut out = vec![None; n];
+        const CH: usize = 2048;
+        out.par_chunks_mut(CH).enumerate().for_each(|(ci, dst)| {
+            let v0 = ci * CH;
+            let mut nz_idx = [0usize; CH];
+            let mut nz_den = [Fp2::ZERO; CH];
+            let mut acc = [Fp2::ZERO; CH];
+            let mut count = 0usize;
+            let mut run = Fp2::ONE;
+            for i in 0..dst.len() {
+                let d = base.sub(Fp2::from_base(crate::field::Fp::new((v0 + i) as u64)));
+                if d != Fp2::ZERO {
+                    nz_idx[count] = i;
+                    nz_den[count] = d;
+                    acc[count] = run;
+                    run = run.mul(d);
+                    count += 1;
+                }
+            }
+            if count > 0 {
+                let mut inv = run.inv();
+                for j in (0..count).rev() {
+                    dst[nz_idx[j]] = Some(inv.mul(acc[j]));
+                    inv = inv.mul(nz_den[j]);
+                }
+            }
+        });
+        return out;
+    }
     let den: Vec<Fp2> = (0..n).map(|v| alpha.sub(Fp2::from_i64(v as i64).add(g))).collect();
     let mut out = vec![None; n];
     let nonzero: Vec<usize> = (0..n).filter(|&v| den[v] != Fp2::ZERO).collect();

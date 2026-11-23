@@ -74,6 +74,120 @@ pub(crate) enum Tab {
     Priv(Priv),
 }
 
+/// [HOST-FAST H6] Compact descriptor for large base-field (`c1 == 0`) public
+/// tables (`supp`, `group_column`, `causal_mask_at`, `gamma_a`/`gamma_m`,
+/// `dd_e_column`), carried beside `SlotDef::tabs` on the proving path when
+/// `HL_HOST_FAST=1` so the prover avoids allocating/filling giant host `Vec<Fp2>`
+/// buffers and A12 `MetalTables` materializes them directly via `k_tab_pub_gen`.
+#[derive(Clone, Debug)]
+pub(crate) enum PubGen {
+    /// 2D box support indicator (possibly lifted by `2^shift`):
+    /// `idx = x >> shift; (idx / row_stride) < rows_live && (idx % row_stride) < cols_live`
+    BoxSupp { len: usize, shift: u32, rows_live: usize, cols_live: usize, row_stride: usize },
+    /// Head-domain support indicator (`mode`: 0 = `Dom::Q`, 1 = `Dom::Ht`, 2 = `Dom::S`)
+    HeadSupp { len: usize, shift: u32, mode: u32, tokens: usize, h_pad: usize, per: usize, group: usize, stride: usize },
+    /// `accuracy_act::group_column`:
+    /// `(x / row_stride) < rows_live && (x % row_stride) < cols_live ? group_ids[x % row_stride] : 0`
+    GroupCol { len: usize, rows_live: usize, cols_live: usize, row_stride: usize, group_ids: Vec<u32> },
+    /// `causal_mask_at`: `(x % t_pad) <= ((x / t_pad) % t_pad) ? 1 : 0`
+    CausalMask { len: usize, t_pad: usize },
+    /// Periodic base-field words (`gamma_a`, `gamma_m`, `dd_e_column`): `Fp(vals[x % vals.len()])`
+    GammaRepeat { len: usize, vals: Vec<u64> },
+}
+
+impl PubGen {
+    pub(crate) fn len(&self) -> usize {
+        match self {
+            PubGen::BoxSupp { len, .. }
+            | PubGen::HeadSupp { len, .. }
+            | PubGen::GroupCol { len, .. }
+            | PubGen::CausalMask { len, .. }
+            | PubGen::GammaRepeat { len, .. } => *len,
+        }
+    }
+
+    pub(crate) fn materialize_into(&self, out: &mut [Fp2]) {
+        assert_eq!(out.len(), self.len(), "private block: pub_gen table length");
+        crate::zk::record_host_fast_hit(crate::zk::HF_H6_PUB_GEN);
+        const CH: usize = 1 << 14;
+        let fill_chunk = |base: usize, ch: &mut [Fp2]| match self {
+            PubGen::BoxSupp { shift, rows_live, cols_live, row_stride, .. } => {
+                let (sh, rl, cl, rs) = (*shift, *rows_live, *cols_live, *row_stride);
+                for (i, o) in ch.iter_mut().enumerate() {
+                    let idx = (base + i) >> sh;
+                    let r = idx / rs;
+                    let c = idx % rs;
+                    *o = if r < rl && c < cl { Fp2::ONE } else { Fp2::ZERO };
+                }
+            }
+            PubGen::HeadSupp { shift, mode, tokens, h_pad, per, group, stride, .. } => {
+                let (sh, m, tok, hp, pe, gr, st) = (*shift, *mode, *tokens, *h_pad, *per, *group, *stride);
+                for (i, o) in ch.iter_mut().enumerate() {
+                    let idx = (base + i) >> sh;
+                    let live = match m {
+                        0 => {
+                            let q_pad = hp * st;
+                            let t = idx / q_pad;
+                            let sl = (idx / st) % hp;
+                            t < tok && (sl % pe) < gr
+                        }
+                        1 => {
+                            let h = idx / st;
+                            let t = idx % st;
+                            h < hp && (h % pe) < gr && t < tok
+                        }
+                        _ => {
+                            let j = idx % st;
+                            let t = (idx / st) % st;
+                            let h = idx / (st * st);
+                            h < hp && (h % pe) < gr && t < tok && j < tok
+                        }
+                    };
+                    *o = if live { Fp2::ONE } else { Fp2::ZERO };
+                }
+            }
+            PubGen::GroupCol { rows_live, cols_live, row_stride, group_ids, .. } => {
+                let (rl, cl, rs) = (*rows_live, *cols_live, *row_stride);
+                for (i, o) in ch.iter_mut().enumerate() {
+                    let x = base + i;
+                    let r = x / rs;
+                    let c = x % rs;
+                    *o = if r < rl && c < cl { Fp2::new(Fp(u64::from(group_ids[c])), Fp::ZERO) } else { Fp2::ZERO };
+                }
+            }
+            PubGen::CausalMask { t_pad, .. } => {
+                let t = *t_pad;
+                for (i, o) in ch.iter_mut().enumerate() {
+                    let x = base + i;
+                    *o = if (x % t) <= ((x / t) % t) { Fp2::ONE } else { Fp2::ZERO };
+                }
+            }
+            PubGen::GammaRepeat { vals, .. } => {
+                let m = vals.len();
+                for (i, o) in ch.iter_mut().enumerate() {
+                    *o = Fp2::new(Fp(vals[(base + i) % m]), Fp::ZERO);
+                }
+            }
+        };
+        if out.len() >= TABLE_PAR_MIN {
+            use rayon::prelude::*;
+            out.par_chunks_mut(CH).enumerate().for_each(|(ci, ch)| fill_chunk(ci * CH, ch));
+        } else {
+            fill_chunk(0, out);
+        }
+    }
+
+    pub(crate) fn to_vec(&self) -> Vec<Fp2> {
+        let mut out = vec![Fp2::ZERO; self.len()];
+        self.materialize_into(&mut out);
+        out
+    }
+}
+
+fn pub_gen_at(pub_gens: &[(usize, PubGen)], idx: usize) -> Option<&PubGen> {
+    pub_gens.iter().find(|(t, _)| *t == idx).map(|(_, g)| g)
+}
+
 pub(crate) type Poly = Box<dyn Fn(&[Fp2]) -> Fp2 + Send + Sync>;
 
 // **NATIVE R9, TEST BUILDS ONLY: the LAPSED constructions D30 forbids**,
@@ -136,11 +250,25 @@ pub(crate) struct SlotDef {
     /// side with HL_GPU=1; `None` keeps the CPU evaluator.
     #[cfg(feature = "gpu-metal")]
     pub(crate) metal: Option<(String, Vec<Fp2>, Vec<bool>)>,
+    /// [HOST-FAST H6] Sparse `(table_index, PubGen)` descriptors for compact
+    /// public tables whose `Tab::Pub(Vec::new())` placeholder lives in `tabs`.
+    pub(crate) pub_gens: Vec<(usize, PubGen)>,
+    /// [HOST-FAST H6] Direct claimed-sum oracle for `SlotKind::Private` slots
+    /// (`SC_SS`, `SC_SSM`, `SC_RS`) so they can take A12's `direct` device path
+    /// without building host tables.
+    #[cfg(feature = "gpu-metal")]
+    pub(crate) direct_total: Option<Box<dyn Fn(&ProverData) -> Fp2 + Send + Sync>>,
     /// **STEP C.** The slot schedule this definition was built against, so
     /// that `run_slot` reads the SHAPE's `(main, ext, degree)` and terminal
     /// counts instead of the toy constants. At the toy it is `Shape::toy()`
     /// and `sh.slots() == SLOTS` is asserted by `Layout::new`.
     pub sh: Shape,
+}
+
+impl SlotDef {
+    fn pub_gen(&self, idx: usize) -> Option<&PubGen> {
+        pub_gen_at(&self.pub_gens, idx)
+    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -216,6 +344,11 @@ pub(crate) struct Points {
     /// its per-slot `check_for_registry`, which the record's check already ran
     /// with the same arguments. `false` (every other `Points`): it checks.
     registry_checked: bool,
+    /// **[HOST-FAST H6]** set by [`argument_with`] (and nothing else) on
+    /// `Side::Prove` when `HL_HOST_FAST=1`: emits compact `PubGen` descriptors
+    /// and `direct_total` closures without changing `Side::Verify` or direct
+    /// `define()` callers.
+    pub(super) pub_gen_prove: bool,
 }
 
 /// **TEST HOOK (stage 20).** The two bilinear slots' published claim points.
@@ -386,6 +519,49 @@ pub(super) fn a14_dot_forms(eq: &[Fp2], xs: &[Fp]) -> (Fp2, Fp2) {
 fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed: bool, par_min: usize) {
     let fixed: Vec<Fp2> = p.coords.iter().filter_map(|c| if let Coord::Fixed(f) = c { Some(*f) } else { None }).collect();
     let eqf = eq_table_msb(&fixed);
+    let one_slice = if p.slices.len() == 1 && p.slices[0].1 == Fp2::ONE { Some(p.slices[0].0) } else { None };
+    // [HOST-FAST H5] Contiguous fixed-prefix layout:
+    // `coords == [Fixed(0..nf), Rho(0..n_vars)]` => `idx == (z << n_vars) | x`.
+    // Tile `x` in 256-entry L1-resident strips and iterate `z` OUTER so every
+    // slice read `&data[off + (z << n_vars) + x0 .. +len]` is sequential
+    // instead of striding by 32-128 KiB (L1 set-aliasing thrash). Same terms
+    // accumulated into `LazyDot` in the same `z` order => bit-for-bit identical.
+    if crate::zk::host_fast_on() && lazy_on() {
+        if let Some(off) = one_slice {
+            let nf = fixed.len();
+            if nf > 0
+                && p.coords.len() == p.log
+                && p.log == nf + n_vars
+                && p.coords[..nf].iter().all(|c| matches!(c, Coord::Fixed(_)))
+                && p.coords[nf..].iter().enumerate().all(|(k, c)| matches!(c, Coord::Rho(r) if *r == k))
+            {
+                crate::zk::record_host_fast_hit(crate::zk::HF_H5_PRIV_FOLD);
+                const TILE: usize = 256;
+                let run_tile = |(ti, ch): (usize, &mut [Fp2])| {
+                    let x0 = ti * TILE;
+                    let len = ch.len();
+                    let mut acc = [LazyDot::default(); TILE];
+                    for (z, &ez) in eqf.iter().enumerate() {
+                        let base = off + (z << n_vars) + x0;
+                        let row = &data[base..base + len];
+                        for (a, &v) in acc[..len].iter_mut().zip(row.iter()) {
+                            a.add(ez, v);
+                        }
+                    }
+                    for (o, a) in ch.iter_mut().zip(&acc[..len]) {
+                        *o = a.value();
+                    }
+                };
+                if (1usize << p.log) >= par_min && acc_par_on() {
+                    use rayon::prelude::*;
+                    out.par_chunks_mut(TILE).enumerate().for_each(run_tile);
+                } else {
+                    out.chunks_mut(TILE).enumerate().for_each(run_tile);
+                }
+                return;
+            }
+        }
+    }
     let mut used = 0usize;
     for c in &p.coords {
         if let Coord::Rho(k) | Coord::Flip(k) = c {
@@ -423,7 +599,6 @@ fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed
     // `idx` share an `x`, where the old form ADDED them).
     let moving = p.coords.iter().filter(|c| !matches!(c, Coord::Fixed(_))).count();
     let simple = eqf.len() == 1 && eqf[0] == Fp2::ONE && used.count_ones() as usize == moving;
-    let one_slice = if p.slices.len() == 1 && p.slices[0].1 == Fp2::ONE { Some(p.slices[0].0) } else { None };
     // [M4j] a large PLAIN-STORE table in parallel over its output. Its map
     // `idx -> x` sends idx bit `log - 1 - j` to x bit `n_vars - 1 - k` (flipped
     // for `Flip`), one coordinate per bit, so it is a bijection onto the subsets
@@ -694,24 +869,73 @@ pub(super) fn eq_cube_into_at(e: &[Fp2], n_vars: usize, start: usize, out: &mut 
     }
 }
 
+/// [HOST-FAST H5] Per-block cache of folded contiguous-prefix private tables
+/// (`A_Y` at `pts.r_q` shared across `SC_QMM`/`SC_KMM`/`SC_VMM`, and `A_YM` at
+/// `pts.r_tf` shared across `SC_GMM`/`SC_UMM`). Keyed by
+/// `(cm, slice_off, fixed_point, n_vars)` so entries are mathematically exact.
+type FoldCacheKey = (usize, usize, Vec<Fp2>, usize);
+
+#[derive(Default)]
+struct FoldCache {
+    entries: Vec<(FoldCacheKey, Vec<Fp2>)>,
+}
+
+impl FoldCache {
+    fn get(&self, key: &FoldCacheKey) -> Option<&[Fp2]> {
+        self.entries.iter().find(|(k, _)| k == key).map(|(_, v)| v.as_slice())
+    }
+    fn insert(&mut self, key: FoldCacheKey, val: Vec<Fp2>) {
+        if !self.entries.iter().any(|(k, _)| k == &key) {
+            self.entries.push((key, val));
+        }
+    }
+}
+
+fn fold_cache_key(p: &Priv, n_vars: usize) -> Option<FoldCacheKey> {
+    if p.slices.len() != 1 || p.slices[0].1 != Fp2::ONE {
+        return None;
+    }
+    if p.coords.len() != p.log || p.log <= n_vars {
+        return None;
+    }
+    let nf = p.log - n_vars;
+    if !p.coords[nf..].iter().enumerate().all(|(k, c)| matches!(c, Coord::Rho(r) if *r == k)) {
+        return None;
+    }
+    let mut fixed = Vec::with_capacity(nf);
+    for c in &p.coords[..nf] {
+        match c {
+            Coord::Fixed(f) => fixed.push(*f),
+            _ => return None,
+        }
+    }
+    Some((p.cm as usize, p.slices[0].0, fixed, n_vars))
+}
+
 /// **STAGE 28.** `take` is `Some` on the proving path, where the slot
 /// definition is owned and dead after the tables are built: a PUBLIC table is
 /// then MOVED into the table set instead of copied, which at the 125M shape
 /// saves a 134 MB copy per public table of the two big slots. Nothing reads a
 /// `Tab::Pub` payload again on that path (the length check above happens
 /// first, and every later use matches `Tab::Priv`).
-fn table_of(tab: &Tab, n_vars: usize, pd: &ProverData) -> Vec<Fp2> {
-    match tab {
-        Tab::Eq { point, start } => eq_cube(&eq_table_msb(point), n_vars, *start),
-        Tab::Pub(v) => v.clone(),
-        Tab::Priv(p) => priv_table(p, pd.data[p.cm as usize], n_vars),
+fn table_of_taking_with(tab: &mut Tab, pub_gen: Option<&PubGen>, n_vars: usize, pd: &ProverData, fold_cache: Option<&FoldCache>) -> Vec<Fp2> {
+    if let Some(g) = pub_gen {
+        return g.to_vec();
     }
-}
-
-fn table_of_taking(tab: &mut Tab, n_vars: usize, pd: &ProverData) -> Vec<Fp2> {
     match tab {
         Tab::Pub(v) => std::mem::take(v),
-        other => table_of(other, n_vars, pd),
+        Tab::Eq { point, start } => eq_cube(&eq_table_msb(point), n_vars, *start),
+        Tab::Priv(p) => {
+            if let Some(fc) = fold_cache {
+                if let Some(key) = fold_cache_key(p, n_vars) {
+                    if let Some(cached) = fc.get(&key) {
+                        crate::zk::record_host_fast_hit(crate::zk::HF_H5_PRIV_FOLD);
+                        return cached.to_vec();
+                    }
+                }
+            }
+            priv_table(p, pd.data[p.cm as usize], n_vars)
+        }
     }
 }
 
@@ -728,44 +952,123 @@ pub(super) const TABLES_PAR_MIN: usize = 1 << 17;
 /// thing that differs between the two branches and the production call passes
 /// [`TABLES_PAR_MIN`].
 pub(super) fn build_tables_at(tabs: &mut [Tab], n_vars: usize, pd: &ProverData, par_min: usize) -> Vec<Vec<Fp2>> {
-    if tabs.len() > 1 && (tabs.len() << n_vars) >= par_min {
+    build_tables_at_with(tabs, &[], n_vars, pd, par_min, usize::MAX, None)
+}
+
+fn build_tables_at_with(
+    tabs: &mut [Tab],
+    pub_gens: &[(usize, PubGen)],
+    n_vars: usize,
+    pd: &ProverData,
+    par_min: usize,
+    slot: usize,
+    mut fold_cache: Option<&mut FoldCache>,
+) -> Vec<Vec<Fp2>> {
+    let fc_ref = if crate::zk::host_fast_on() { fold_cache.as_deref() } else { None };
+    let out: Vec<Vec<Fp2>> = if tabs.len() > 1 && (tabs.len() << n_vars) >= par_min {
         use rayon::prelude::*;
-        return tabs.par_iter_mut().map(|t| table_of_taking(t, n_vars, pd)).collect();
+        tabs.par_iter_mut()
+            .enumerate()
+            .map(|(i, t)| table_of_taking_with(t, pub_gen_at(pub_gens, i), n_vars, pd, fc_ref))
+            .collect()
+    } else {
+        tabs.iter_mut()
+            .enumerate()
+            .map(|(i, t)| table_of_taking_with(t, pub_gen_at(pub_gens, i), n_vars, pd, fc_ref))
+            .collect()
+    };
+    if crate::zk::host_fast_on() && (slot == SC_QMM || slot == SC_GMM) {
+        if let Some(fc) = fold_cache.as_deref_mut() {
+            for (t, vec) in tabs.iter().zip(out.iter()) {
+                if let Tab::Priv(p) = t {
+                    if let Some(key) = fold_cache_key(p, n_vars) {
+                        fc.insert(key, vec.clone());
+                    }
+                }
+            }
+        }
     }
-    tabs.iter_mut().map(|t| table_of_taking(t, n_vars, pd)).collect()
+    out
 }
 
 /// **[ZK60-METAL M4i]** one table of the slot written into `out` (its
-/// `2^n_vars` elements in the device buffer): the words [`table_of`] returns.
-/// A public table is copied (its length was checked on entry to `run_slot`).
-fn table_into(tab: &Tab, n_vars: usize, pd: &ProverData, out: &mut [Fp2]) {
+/// `2^n_vars` elements in the device buffer): the words `table_of_taking_with`
+/// returns. A public table is copied (its length was checked on entry to `run_slot`).
+fn table_into_with(tab: &Tab, pub_gen: Option<&PubGen>, n_vars: usize, pd: &ProverData, out: &mut [Fp2], fold_cache: Option<&FoldCache>) {
+    if let Some(g) = pub_gen {
+        g.materialize_into(out);
+        return;
+    }
     match tab {
         // [M5c] a large cube split over its point's halves (the same words)
         Tab::Eq { point, start } if out.len() >= EQ_SPLIT_MIN && point.len() >= 2 => eq_cube_split_into(point, n_vars, *start, out),
         Tab::Eq { point, start } => eq_cube_into(&eq_table_msb(point), n_vars, *start, out),
         Tab::Pub(v) => out.copy_from_slice(v),
-        Tab::Priv(p) => priv_table_into(p, pd.data[p.cm as usize], n_vars, out),
+        Tab::Priv(p) => {
+            if let Some(fc) = fold_cache {
+                if let Some(key) = fold_cache_key(p, n_vars) {
+                    if let Some(cached) = fc.get(&key) {
+                        crate::zk::record_host_fast_hit(crate::zk::HF_H5_PRIV_FOLD);
+                        out.copy_from_slice(cached);
+                        return;
+                    }
+                }
+            }
+            priv_table_into(p, pd.data[p.cm as usize], n_vars, out);
+        }
     }
 }
 
 /// **[ZK60-METAL M4i]** [`build_tables_at`] into the slot's device tables, one
 /// rayon task per table (the tables are independent; each slice is its own).
 pub(super) fn build_tables_into(tabs: &[Tab], n_vars: usize, pd: &ProverData, out: Vec<&mut [Fp2]>) {
+    build_tables_into_with(tabs, &[], n_vars, pd, out, usize::MAX, None);
+}
+
+#[allow(dead_code)]
+fn build_tables_into_with(
+    tabs: &[Tab],
+    pub_gens: &[(usize, PubGen)],
+    n_vars: usize,
+    pd: &ProverData,
+    mut out: Vec<&mut [Fp2]>,
+    slot: usize,
+    mut fold_cache: Option<&mut FoldCache>,
+) {
     use rayon::prelude::*;
     assert_eq!(tabs.len(), out.len(), "private block: device table count");
+    let fc_ref = if crate::zk::host_fast_on() { fold_cache.as_deref() } else { None };
     if table_kind_timing() {
         // DIAGNOSTIC ONLY (HL_TABLE_KIND_TIMING=1): CPU seconds per table kind,
         // summed over the threads that built them; the words are unchanged
-        tabs.par_iter().zip(out.into_par_iter()).for_each(|(t, o)| {
+        tabs.par_iter().enumerate().zip(out.par_iter_mut()).for_each(|((i, t), o)| {
             let s = std::time::Instant::now();
-            table_into(t, n_vars, pd, o);
-            let kind = match t { Tab::Eq { .. } => 0, Tab::Pub(_) => 1, Tab::Priv(p) if p.coords.iter().any(|c| matches!(c, Coord::Fixed(_))) => 3, Tab::Priv(_) => 2 };
+            table_into_with(t, pub_gen_at(pub_gens, i), n_vars, pd, *o, fc_ref);
+            let kind = match t {
+                Tab::Eq { .. } => 0,
+                Tab::Pub(_) => 1,
+                Tab::Priv(p) if p.coords.iter().any(|c| matches!(c, Coord::Fixed(_))) => 3,
+                Tab::Priv(_) => 2,
+            };
             TABLE_KIND_NS[kind].fetch_add(s.elapsed().as_nanos() as u64, std::sync::atomic::Ordering::Relaxed);
             TABLE_KIND_N[kind].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         });
-        return;
+    } else {
+        tabs.par_iter().enumerate().zip(out.par_iter_mut()).for_each(|((i, t), o)| {
+            table_into_with(t, pub_gen_at(pub_gens, i), n_vars, pd, *o, fc_ref);
+        });
     }
-    tabs.par_iter().zip(out.into_par_iter()).for_each(|(t, o)| table_into(t, n_vars, pd, o));
+    if crate::zk::host_fast_on() && (slot == SC_QMM || slot == SC_GMM) {
+        if let Some(fc) = fold_cache.as_deref_mut() {
+            for (t, o) in tabs.iter().zip(out.iter()) {
+                if let Tab::Priv(p) = t {
+                    if let Some(key) = fold_cache_key(p, n_vars) {
+                        fc.insert(key, o.to_vec());
+                    }
+                }
+            }
+        }
+    }
 }
 
 // -------------------------------------- [A12] the device slots' tables, on the device
@@ -904,8 +1207,65 @@ pub(super) fn plane_plan(p: &Priv, n_vars: usize) -> Option<(usize, usize, Vec<u
 /// take it (nothing written); `Err`: a device failure. Either way the caller
 /// builds every table on the host instead.
 #[cfg(feature = "gpu-metal")]
+fn plan_pub_gen_on(mt: &mut crate::gpu::MetalTables, t: usize, g: &PubGen) -> bool {
+    use crate::gpu::MetalTables;
+    let u = |v: usize| u32::try_from(v).ok();
+    match g {
+        PubGen::BoxSupp { shift, rows_live, cols_live, row_stride, .. } => {
+            if let (Some(rl), Some(cl), Some(rs)) = (u(*rows_live), u(*cols_live), u(*row_stride)) {
+                mt.plan_pub_gen(t, MetalTables::PUB_GEN_BOX, *shift, rl, cl, rs, 0, 0, Vec::new());
+                return true;
+            }
+        }
+        PubGen::HeadSupp { shift, mode, tokens, h_pad, per, group, stride, .. } => {
+            let kind = match mode {
+                0 => MetalTables::PUB_GEN_HEAD_Q,
+                1 => MetalTables::PUB_GEN_HEAD_HT,
+                _ => MetalTables::PUB_GEN_HEAD_S,
+            };
+            if let (Some(tok), Some(gr), Some(st), Some(hp), Some(pe)) = (u(*tokens), u(*group), u(*stride), u(*h_pad), u(*per)) {
+                mt.plan_pub_gen(t, kind, *shift, tok, gr, st, hp, pe, Vec::new());
+                return true;
+            }
+        }
+        PubGen::GroupCol { rows_live, cols_live, row_stride, group_ids, .. } => {
+            if let (Some(rl), Some(cl), Some(rs)) = (u(*rows_live), u(*cols_live), u(*row_stride)) {
+                let vals: Vec<u64> = group_ids.iter().map(|&v| u64::from(v)).collect();
+                mt.plan_pub_gen(t, MetalTables::PUB_GEN_GROUP_COL, 0, rl, cl, rs, 0, 0, vals);
+                return true;
+            }
+        }
+        PubGen::CausalMask { t_pad, .. } => {
+            if let Some(tp) = u(*t_pad) {
+                mt.plan_pub_gen(t, MetalTables::PUB_GEN_CAUSAL, 0, 0, 0, tp, 0, 0, Vec::new());
+                return true;
+            }
+        }
+        PubGen::GammaRepeat { vals, .. } => {
+            if u(vals.len()).is_some() {
+                mt.plan_pub_gen(t, MetalTables::PUB_GEN_REPEAT, 0, 0, 0, 0, 0, 0, vals.clone());
+                return true;
+            }
+        }
+    }
+    false
+}
+
+#[cfg(feature = "gpu-metal")]
 pub(super) fn build_tables_device(tabs: &[Tab], n_vars: usize, pd: &ProverData, mt: &mut crate::gpu::MetalTables, base: &[bool], defer: bool, views: bool) -> Result<bool, String> {
+    build_tables_device_with(tabs, &[], n_vars, pd, mt, base, defer, views)
+}
+
+#[cfg(feature = "gpu-metal")]
+#[allow(clippy::too_many_arguments)]
+fn build_tables_device_with(tabs: &[Tab], pub_gens: &[(usize, PubGen)], n_vars: usize, pd: &ProverData, mt: &mut crate::gpu::MetalTables, base: &[bool], defer: bool, views: bool) -> Result<bool, String> {
     for (t, tab) in tabs.iter().enumerate() {
+        if let Some(g) = pub_gen_at(pub_gens, t) {
+            if plan_pub_gen_on(mt, t, g) {
+                crate::zk::record_host_fast_hit(crate::zk::HF_H6_PUB_GEN);
+            }
+            continue;
+        }
         match tab {
             // (a violated eq precondition stays with the host builder, which refuses it)
             Tab::Eq { point, start } if start + point.len() <= n_vars => {
@@ -923,7 +1283,7 @@ pub(super) fn build_tables_device(tabs: &[Tab], n_vars: usize, pd: &ProverData, 
     }
     mt.build_planned(pd.data, base, defer, views, |host| {
         use rayon::prelude::*;
-        host.into_par_iter().for_each(|(t, o)| table_into(&tabs[t], n_vars, pd, o));
+        host.into_par_iter().for_each(|(t, o)| table_into_with(&tabs[t], pub_gen_at(pub_gens, t), n_vars, pd, o, None));
     })
 }
 
@@ -1150,7 +1510,11 @@ fn a26_mle_on() -> bool {
     *ON.get_or_init(|| std::env::var("HL_A26_MLE").map(|v| v != "0").unwrap_or(true))
 }
 
-pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Transcript) -> Result<(), String> {
+pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Transcript) -> Result<(), String> {
+    run_slot_with(side, acc, def, tr, None)
+}
+
+fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Transcript, mut fold_cache: Option<&mut FoldCache>) -> Result<(), String> {
     let s = def.slot;
     let sh = def.sh.clone();
     let (n, ext, degree) = sh.slots()[s];
@@ -1168,7 +1532,13 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
     // where a verifier owes a refusal. Public tables are shape-driven and no
     // frame can choose one, so this is robustness and not a reachable attack;
     // the refusal names a length, which is a function of the shape.
-    if def.tabs.iter().any(|t| matches!(t, Tab::Pub(v) if v.len() != 1usize << n)) {
+    if def.tabs.iter().enumerate().any(|(i, t)| match t {
+        Tab::Pub(v) => match def.pub_gen(i) {
+            Some(g) => g.len() != 1usize << n,
+            None => v.len() != 1usize << n,
+        },
+        _ => false,
+    }) {
         return Err(format!("private block: slot {s} public table length"));
     }
     #[cfg(test)]
@@ -1206,7 +1576,10 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
             #[cfg(feature = "gpu-metal")]
             let mut dev_tables: Option<crate::gpu::MetalTables> = None;
             #[cfg(feature = "gpu-metal")]
-            let direct = def.metal.is_some() && kind != SlotKind::Private && (def.tabs.len() << n) > METAL_DIRECT_MIN && !super::timing::census_on(s);
+            let direct = def.metal.is_some()
+                && (kind != SlotKind::Private || def.direct_total.is_some())
+                && (def.tabs.len() << n) > METAL_DIRECT_MIN
+                && !super::timing::census_on(s);
             #[cfg(test)]
             #[allow(unused_mut)]
             let (t_tables, mut on_device) = (std::time::Instant::now(), false);
@@ -1221,7 +1594,7 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                         let mode = device_tables_mode();
                         let dev = mode != DT_HOST && {
                             let base = &def.metal.as_ref().expect("a direct device build has the slot's kernels").2;
-                            match build_tables_device(&def.tabs, n, pd, &mut mt, base, mode == DT_DEVICE, false) {
+                            match build_tables_device_with(&def.tabs, &def.pub_gens, n, pd, &mut mt, base, mode == DT_DEVICE, false) {
                                 Ok(taken) => taken,
                                 Err(e) => {
                                     crate::gpu::declined("[ZK60-METAL A12] slot tables on the device", &e);
@@ -1230,7 +1603,7 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                             }
                         };
                         if !dev {
-                            build_tables_into(&def.tabs, n, pd, mt.tables_mut());
+                            build_tables_into_with(&def.tabs, &def.pub_gens, n, pd, mt.tables_mut(), s, fold_cache.as_deref_mut());
                         }
                         #[cfg(test)]
                         {
@@ -1240,7 +1613,7 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                         return Vec::new();
                     }
                 }
-                build_tables_at(&mut def.tabs, n, pd, TABLES_PAR_MIN)
+                build_tables_at_with(&mut def.tabs, &def.pub_gens, n, pd, TABLES_PAR_MIN, s, fold_cache.as_deref_mut())
             });
             #[cfg(test)]
             {
@@ -1263,9 +1636,16 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                 let labels: Vec<String> = def
                     .tabs
                     .iter()
-                    .map(|t| match t {
+                    .enumerate()
+                    .map(|(i, t)| match t {
                         Tab::Eq { point, start } => format!("Eq (challenge-weighted) |point|={} start={start}", point.len()),
-                        Tab::Pub(_) => "Pub (public table)".to_string(),
+                        Tab::Pub(_) => {
+                            if def.pub_gen(i).is_some() {
+                                "PubGen (public table)".to_string()
+                            } else {
+                                "Pub (public table)".to_string()
+                            }
+                        }
                         Tab::Priv(p) => format!(
                             "Priv cm={:?} log={} slices={} fixed={} ext_round={}",
                             p.cm,
@@ -1280,7 +1660,18 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
             }
             let mask = &pd.masks[s];
             let scalar = super::timing::slot_step(s, "claimed sum: total (argument.rs)", 1u64 << n, || match kind {
-                SlotKind::Private => total(&tables, &def.poly).add(c.mul(mask.total())),
+                SlotKind::Private => {
+                    #[cfg(feature = "gpu-metal")]
+                    let base_total = if dev_tables.is_some() {
+                        crate::zk::record_host_fast_hit(crate::zk::HF_H6_PUB_GEN);
+                        (def.direct_total.as_ref().expect("direct private slot needs direct_total"))(pd)
+                    } else {
+                        total(&tables, &def.poly)
+                    };
+                    #[cfg(not(feature = "gpu-metal"))]
+                    let base_total = total(&tables, &def.poly);
+                    base_total.add(c.mul(mask.total()))
+                }
                 SlotKind::Standalone => c.mul(mask.total()),
                 SlotKind::Host => def.hosted.iter().fold(c.mul(mask.total()), |g, (hs, coef)| g.sub(coef.mul(acc.cs[*hs]).mul(pd.masks[*hs].total()))),
             });
@@ -1458,9 +1849,19 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
             let vals: Vec<Fp2> = def
                 .tabs
                 .iter()
-                .map(|t| match t {
+                .enumerate()
+                .map(|(i, t)| match t {
                     Tab::Eq { point, start } => sel.mul(eq_point(point, &rho[*start..*start + point.len()])),
-                    Tab::Pub(v) => sel.mul(match &split { Some(s) => s.eval_ext(v), None => eval_mle_ext(v, &rho) }),
+                    Tab::Pub(v) => {
+                        let eval = match def.pub_gen(i) {
+                            Some(g) => {
+                                let mat = g.to_vec();
+                                match &split { Some(s) => s.eval_ext(&mat), None => eval_mle_ext(&mat, &rho) }
+                            }
+                            None => match &split { Some(s) => s.eval_ext(v), None => eval_mle_ext(v, &rho) },
+                        };
+                        sel.mul(eval)
+                    }
                     Tab::Priv(_) => {
                         k += 1;
                         sp.terms[k - 1]
@@ -1520,6 +1921,8 @@ struct B<'a> {
     lay: &'a Layout,
     slot: usize,
     tabs: Vec<Tab>,
+    pub_gen_on: bool,
+    pub_gens: Vec<(usize, PubGen)>,
     ak: usize,
     hk: usize,
     /// **STEP C.** SHAPED plane id -> table index, filled by [`B::a_range`].
@@ -1540,12 +1943,17 @@ fn cat(parts: &[&Vec<Fp2>]) -> Vec<Fp2> {
 }
 
 impl<'a> B<'a> {
-    fn new(lay: &'a Layout, slot: usize) -> Self {
-        B { lay, slot, tabs: Vec::new(), ak: 0, hk: 0, shaped: Vec::new() }
+    fn new(lay: &'a Layout, slot: usize, pub_gen_on: bool) -> Self {
+        B { lay, slot, tabs: Vec::new(), pub_gen_on, pub_gens: Vec::new(), ak: 0, hk: 0, shaped: Vec::new() }
     }
     fn push(&mut self, t: Tab) -> usize {
         self.tabs.push(t);
         self.tabs.len() - 1
+    }
+    fn pub_gen(&mut self, g: PubGen) -> usize {
+        let idx = self.push(Tab::Pub(Vec::new()));
+        self.pub_gens.push((idx, g));
+        idx
     }
     fn eq(&mut self, point: &[Fp2], start: usize) -> usize {
         self.push(Tab::Eq { point: point.to_vec(), start })
@@ -1566,6 +1974,48 @@ impl<'a> B<'a> {
     }
     fn public(&mut self, v: Vec<Fp2>) -> usize {
         self.push(Tab::Pub(v))
+    }
+    fn causal_mask(&mut self, sh: &Shape) -> usize {
+        if self.pub_gen_on {
+            self.pub_gen(PubGen::CausalMask { len: sh.size(Dom::S), t_pad: sh.t_pad })
+        } else {
+            self.public(causal_mask_at(sh))
+        }
+    }
+    fn repeat_vals<T: Copy + Into<i64>>(&mut self, len: usize, vals: &[T]) -> usize {
+        if self.pub_gen_on && !vals.is_empty() {
+            let words: Vec<u64> = vals.iter().map(|&v| k(v.into()).c0.0).collect();
+            self.pub_gen(PubGen::GammaRepeat { len, vals: words })
+        } else {
+            let m = vals.len();
+            self.public((0..len).map(|x| k(vals[x % m].into())).collect())
+        }
+    }
+    fn group_col(&mut self, sh: &Shape, data: &crate::private_block::accuracy_public::AccuracyPublic) -> Result<usize, String> {
+        if self.pub_gen_on {
+            let geometry = crate::private_block::accuracy_public::Geometry {
+                width: sh.width,
+                query_width: sh.q_width(),
+                kv_width: sh.kv_heads * sh.head_dim,
+                hidden: sh.hidden,
+            };
+            if geometry != data.geometry() {
+                return Err("R13 ACT: geometry context mismatch".into());
+            }
+            let group_ids: Vec<u32> = data.group_ids()[..sh.hidden]
+                .iter()
+                .map(|&g| u32::try_from(g).expect("group id fits in u32"))
+                .collect();
+            Ok(self.pub_gen(PubGen::GroupCol {
+                len: sh.size(Dom::F),
+                rows_live: sh.tokens,
+                cols_live: sh.hidden,
+                row_stride: sh.f_pad,
+                group_ids,
+            }))
+        } else {
+            Ok(self.public(crate::private_block::accuracy_act::group_column(sh, data)?))
+        }
     }
     fn a_slice(&mut self, off: usize, log: usize, coords: Vec<Coord>, ext_round: usize) -> Result<usize, String> {
         let mask_row = self.lay.a_site(self.slot, self.ak)?;
@@ -1663,6 +2113,31 @@ impl<'a> B<'a> {
         if !sh.carries_pad_rule() || !sh.pads(dom) {
             return Ok(None);
         }
+        if self.pub_gen_on {
+            let t_len = sh.size(dom);
+            let rep = tile_rep(t_len, cube_len)?;
+            if rep.is_power_of_two() {
+                let shift = rep.trailing_zeros();
+                let per = sh.slots_per_kv_group();
+                let group = sh.q_heads / sh.kv_heads;
+                let gen = match dom {
+                    Dom::T => PubGen::BoxSupp { len: cube_len, shift, rows_live: 1, cols_live: sh.tokens, row_stride: t_len },
+                    Dom::D => PubGen::BoxSupp { len: cube_len, shift, rows_live: sh.tokens, cols_live: sh.width, row_stride: sh.d_pad },
+                    Dom::F => PubGen::BoxSupp { len: cube_len, shift, rows_live: sh.tokens, cols_live: sh.hidden, row_stride: sh.f_pad },
+                    Dom::Kv => {
+                        let kvw = sh.kv_heads * sh.head_dim;
+                        PubGen::BoxSupp { len: cube_len, shift, rows_live: sh.tokens, cols_live: kvw, row_stride: kvw }
+                    }
+                    Dom::L => PubGen::BoxSupp { len: cube_len, shift, rows_live: 3 * super::shape::LIMBS_ISQRT, cols_live: sh.tokens, row_stride: sh.t_pad },
+                    Dom::Tab => PubGen::BoxSupp { len: cube_len, shift, rows_live: 1, cols_live: U8_LEN, row_stride: t_len },
+                    Dom::Dd => PubGen::BoxSupp { len: cube_len, shift, rows_live: 1, cols_live: t_len, row_stride: t_len },
+                    Dom::Q => PubGen::HeadSupp { len: cube_len, shift, mode: 0, tokens: sh.tokens, h_pad: sh.h_pad, per, group, stride: sh.head_dim },
+                    Dom::Ht => PubGen::HeadSupp { len: cube_len, shift, mode: 1, tokens: sh.tokens, h_pad: sh.h_pad, per, group, stride: sh.t_pad },
+                    Dom::S => PubGen::HeadSupp { len: cube_len, shift, mode: 2, tokens: sh.tokens, h_pad: sh.h_pad, per, group, stride: sh.t_pad },
+                };
+                return Ok(Some(self.pub_gen(gen)));
+            }
+        }
         let t = super::pad::indicator_table(sh, dom);
         let rep = tile_rep(t.len(), cube_len)?;
         Ok(Some(self.public((0..cube_len).map(|x| k(t[x / rep])).collect())))
@@ -1677,6 +2152,9 @@ impl<'a> B<'a> {
             poly,
             groups: None,
             hosted,
+            pub_gens: self.pub_gens,
+            #[cfg(feature = "gpu-metal")]
+            direct_total: None,
             sh: self.lay.shape().clone(),
             #[cfg(feature = "gpu-metal")]
             metal: None,
@@ -2010,7 +2488,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
     let lay = ctx.lay;
     let (sh, ids, hids) = (lay.shape(), lay.ids(), lay.hids());
     let (alpha, beta, g_u8, g_exp, g_act) = (ctx.alpha, ctx.beta, ctx.g_u8, ctx.g_exp, ctx.g_act);
-    let mut b = B::new(lay, slot);
+    let mut b = B::new(lay, slot, pts.pub_gen_prove);
     let (p1, p2) = (pow256(1), pow256(2));
     // the axis logs, once: tokens, head slots, head dimension, width, hidden,
     // and the key-value group bits that sit at the TOP of the head slot (C-1)
@@ -2034,18 +2512,66 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
         SC_SS => {
             pts.r_t = tr.challenge_fp2_vec(lt);
             b.eq(&pts.r_t, 0);
-            b.a(ids.at(A_X))?;
-            let g = Gate(b.supp(Dom::D, cube)?);
-            b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1]).mul(v[1])), vec![])
+            let plane = ids.at(A_X);
+            b.a(plane)?;
+            let supp = b.supp(Dom::D, cube)?;
+            let g = Gate(supp);
+            #[allow(unused_mut)]
+            let mut def = b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1]).mul(v[1])), vec![])?;
+            #[cfg(feature = "gpu-metal")]
+            if pts.pub_gen_prove && sh.size(Dom::D) == sh.t_pad * sh.d_pad {
+                let r_t = pts.r_t.clone();
+                let a_off = lay.a_off[plane];
+                let d_pad = sh.d_pad;
+                let (rows_live, cols_live) = if supp.is_some() { (sh.tokens, sh.width) } else { (sh.t_pad, sh.d_pad) };
+                def.direct_total = Some(Box::new(move |pd: &ProverData| {
+                    use rayon::prelude::*;
+                    let eq = eq_table_msb(&r_t);
+                    let a = pd.data[Cm::A as usize];
+                    (0..rows_live)
+                        .into_par_iter()
+                        .map(|t| {
+                            let row = &a[a_off + t * d_pad..a_off + t * d_pad + cols_live];
+                            let sum_sq = row.iter().fold(Fp::ZERO, |acc, &v| acc.add(v.mul(v)));
+                            eq[t].mul_base(sum_sq)
+                        })
+                        .reduce(|| Fp2::ZERO, |x, y| x.add(y))
+                }));
+            }
+            Ok(def)
         }
         // norm_m's row sums: the identical private claimed sum, over xres1
         // instead of x_in, at its own row point (T1 section C.1)
         SC_SSM => {
             pts.r_t2 = tr.challenge_fp2_vec(lt);
             b.eq(&pts.r_t2, 0);
-            b.a(ids.at(A_X1))?;
-            let g = Gate(b.supp(Dom::D, cube)?);
-            b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1]).mul(v[1])), vec![])
+            let plane = ids.at(A_X1);
+            b.a(plane)?;
+            let supp = b.supp(Dom::D, cube)?;
+            let g = Gate(supp);
+            #[allow(unused_mut)]
+            let mut def = b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1]).mul(v[1])), vec![])?;
+            #[cfg(feature = "gpu-metal")]
+            if pts.pub_gen_prove && sh.size(Dom::D) == sh.t_pad * sh.d_pad {
+                let r_t2 = pts.r_t2.clone();
+                let a_off = lay.a_off[plane];
+                let d_pad = sh.d_pad;
+                let (rows_live, cols_live) = if supp.is_some() { (sh.tokens, sh.width) } else { (sh.t_pad, sh.d_pad) };
+                def.direct_total = Some(Box::new(move |pd: &ProverData| {
+                    use rayon::prelude::*;
+                    let eq = eq_table_msb(&r_t2);
+                    let a = pd.data[Cm::A as usize];
+                    (0..rows_live)
+                        .into_par_iter()
+                        .map(|t| {
+                            let row = &a[a_off + t * d_pad..a_off + t * d_pad + cols_live];
+                            let sum_sq = row.iter().fold(Fp::ZERO, |acc, &v| acc.add(v.mul(v)));
+                            eq[t].mul_base(sum_sq)
+                        })
+                        .reduce(|| Fp2::ZERO, |x, y| x.add(y))
+                }));
+            }
+            Ok(def)
         }
         SC_TZC => {
             let tau = tr.challenge_fp2_vec(lt);
@@ -2149,15 +2675,55 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             pts.lam_z = tr.challenge_fp2();
             let lam = pts.lam_z;
             b.eq(&pts.p_ht, 0);
-            b.public(causal_mask_at(sh));
-            b.a(ids.at(A_E))?;
-            b.a(ids.at(A_ZSEL))?;
+            b.causal_mask(sh);
+            let plane_e = ids.at(A_E);
+            let plane_z = ids.at(A_ZSEL);
+            b.a(plane_e)?;
+            b.a(plane_z)?;
             // P-1: the row sums run over the padded `Dom::S` cube, so the
             // SUMMAND takes `supp_S`; `SC_SZC`'s matching host term takes
             // `supp_Ht`, which is constant in `j` and so leaves `per_row`
             // alone.
-            let g = Gate(b.supp(Dom::S, cube)?);
-            b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1].mul(v[2]).add(lam.mul(v[3])))), vec![])
+            let supp = b.supp(Dom::S, cube)?;
+            let g = Gate(supp);
+            #[allow(unused_mut)]
+            let mut def = b.finish(Box::new(move |v: &[Fp2]| g.at(v).mul(v[0]).mul(v[1].mul(v[2]).add(lam.mul(v[3])))), vec![])?;
+            #[cfg(feature = "gpu-metal")]
+            if pts.pub_gen_prove
+                && sh.size(Dom::S) == sh.h_pad * sh.t_pad * sh.t_pad
+                && sh.size(Dom::Ht) == sh.h_pad * sh.t_pad
+            {
+                let p_ht = pts.p_ht.clone();
+                let off_e = lay.a_off[plane_e];
+                let off_z = lay.a_off[plane_z];
+                let (h_pad, t_pad, tokens) = (sh.h_pad, sh.t_pad, sh.tokens);
+                let (per, group) = (sh.slots_per_kv_group(), sh.q_heads / sh.kv_heads);
+                let has_supp = supp.is_some();
+                def.direct_total = Some(Box::new(move |pd: &ProverData| {
+                    use rayon::prelude::*;
+                    let eq = eq_table_msb(&p_ht);
+                    let a = pd.data[Cm::A as usize];
+                    let n_ht = h_pad * t_pad;
+                    let j_live = if has_supp { tokens } else { t_pad };
+                    (0..n_ht)
+                        .into_par_iter()
+                        .map(|ht| {
+                            let h = ht / t_pad;
+                            let t = ht % t_pad;
+                            if has_supp && ((h % per) >= group || t >= tokens) {
+                                return Fp2::ZERO;
+                            }
+                            let base = ht * t_pad;
+                            let row_e = &a[off_e + base..off_e + base + t + 1];
+                            let row_z = &a[off_z + base..off_z + base + j_live];
+                            let sum_e = row_e.iter().fold(Fp::ZERO, |acc, &v| acc.add(v));
+                            let sum_z = row_z.iter().fold(Fp::ZERO, |acc, &v| acc.add(v));
+                            eq[ht].mul(Fp2::from_base(sum_e).add(lam.mul_base(sum_z)))
+                        })
+                        .reduce(|| Fp2::ZERO, |x, y| x.add(y))
+                }));
+            }
+            Ok(def)
         }
         SC_QMM | SC_KMM | SC_VMM | SC_WO => {
             if slot == SC_QMM || slot == SC_WO {
@@ -2355,8 +2921,8 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // off the width's support, so a padded column contributes nothing
             // to the gain factor of the norm relation.
             let (dp, nd) = (sh.d_pad, sh.size(Dom::D));
-            let ig = b.public((0..nd).map(|x| k(i64::from(ctx.public.gamma_a[x % dp]))).collect());
-            let igm = b.public((0..nd).map(|x| k(i64::from(ctx.ff.gamma_m[x % dp]))).collect());
+            let ig = b.repeat_vals(nd, &ctx.public.gamma_a[..dp]);
+            let igm = b.repeat_vals(nd, &ctx.ff.gamma_m[..dp]);
             let idx = b.a_range(ids.at(A_X), ids.at(A_RDL))?;
             let (i_nr, i_ns): (Vec<usize>, Vec<usize>) = ((0..ln).map(|kk| b.tab(ids.nr(kk))).collect(), (0..ln).map(|kk| b.tab(ids.ns(kk))).collect());
             let (i_mr, i_ms): (Vec<usize>, Vec<usize>) = ((0..ln).map(|kk| b.tab(ids.mr(kk))).collect(), (0..ln).map(|kk| b.tab(ids.ms(kk))).collect());
@@ -2640,7 +3206,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.eq(&tau, 0);
             b.eq(&pts.p_ht, 0);
             b.eq(&pts.p_s, 0);
-            let im = b.public(causal_mask_at(sh));
+            let im = b.causal_mask(sh);
             let idx = b.a_range(ids.at(A_S8), ids.at(A_P))?;
             let lht = sh.log(Dom::Ht);
             let imx = b.a_slice(lay.a_off[ids.at(A_MX)], lht, rho(0..lht), 0)?;
@@ -2688,7 +3254,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.eq(&tau, 0);
             b.eq(&pts.p_ht, 0);
             b.eq(&pts.p_s, 0);
-            let im = b.public(causal_mask_at(sh));
+            let im = b.causal_mask(sh);
             // the `Dom::S` block runs to the LAST `sigma_s` limb, which the toy
             // has no name for when `limbs_sigma_s` is three (S8)
             let idx = b.a_range(ids.at(A_S8), ids.sg(ls - 1))?;
@@ -2918,7 +3484,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // the public e column, constant in (h, t): slot k's value
             let ecol = ctx.public.dd_e_column(sh.dd_cap)?;
             let cap = sh.dd_cap;
-            let ie = b.public((0..(1usize << ldd)).map(|x| k(ecol[x % cap])).collect());
+            let ie = b.repeat_vals(1usize << ldd, &ecol[..cap]);
             let h0 = b.h(hids.first_helper(Dom::Dd))?;
             for j in 1..n_help {
                 b.h(hids.helper(Dom::Dd, j))?;
@@ -2988,6 +3554,13 @@ pub(crate) fn argument_with(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph:
     let mut pts = Points::default();
     let sh = ctx.lay.shape();
     pts.registry_checked = checked.is_some_and(|c| c.covers_accuracy(ctx.accuracy, sh));
+    // [HOST-FAST H6] use compact PubGen descriptors + direct_total on the proving
+    // path only when HL_HOST_FAST=1; Side::Verify and direct define() callers keep
+    // materialized Tab::Pub vectors untouched.
+    pts.pub_gen_prove = matches!(side, Side::Prove { .. }) && crate::zk::host_fast_on();
+    // [HOST-FAST H5] per-block cache of folded contiguous-prefix private planes
+    // (`A_Y` across SC_QMM/KMM/VMM and `A_YM` across SC_GMM/UMM).
+    let mut fold_cache = FoldCache::default();
     // NATIVE R9: THIS profile's slots — the twenty-three, plus the
     // dictionary zero-check on a DD profile (appended last)
     // [ZK60-METAL M3] the IR's own point record, carried beside `pts`
@@ -3062,7 +3635,7 @@ pub(crate) fn argument_with(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph:
         // `2^(main + extension rounds)` times its table count — a function of
         // the shape and the declared schedule, nothing private
         let n_tabs = def.tabs.len() as u64;
-        run_slot(side, &mut acc, def, tr)?;
+        run_slot_with(side, &mut acc, def, tr, Some(&mut fold_cache))?;
         let (main, ext, _) = sh.slots()[slot];
         ph.slot_work(slot, (1u64 << (main + ext)) * n_tabs);
     }

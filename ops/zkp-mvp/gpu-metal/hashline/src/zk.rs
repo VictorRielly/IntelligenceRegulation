@@ -108,6 +108,82 @@
 //! caveat class as the lattice line's lemmas Q4.7-Q4.9).
 
 use crate::field::{Fp, Fp2};
+use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
+use std::sync::OnceLock;
+
+/// [HOST-FAST] Opt-in host-gap acceleration switch (`HL_HOST_FAST=1`, default OFF):
+/// H1 table-lookup exp/act LogUp helpers, H2 parallel `mask_commit_tagged`,
+/// H3 parallel chunked `range16::denominator_inverses`, H4 fused SIMD `accuracy_fold::fold`,
+/// H5 tiled row-major `priv_table_fill` + `A_Y`/`A_YM` fold dedup,
+/// H6 device `Tab::PubGen` prelude + direct base-field claimed sum for `SC_SS`/`SC_SSM`/`SC_RS`.
+/// Changes zero proof bytes, zero RNG draw order, and zero refusal semantics.
+static HOST_FAST_TEST: AtomicUsize = AtomicUsize::new(0);
+/// Per-component anti-vacuity hit counters: [H1_exp_act, H2_mask, H3_range16, H4_acc_fold, H5_priv_fold, H6_pub_gen_direct]
+static HOST_FAST_HITS: [AtomicU64; 6] = [
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+    AtomicU64::new(0),
+];
+static HOST_FAST_LOGGED: AtomicBool = AtomicBool::new(false);
+
+pub const HF_H1_EXP_ACT: usize = 0;
+pub const HF_H2_MASK_COMMIT: usize = 1;
+pub const HF_H3_RANGE16: usize = 2;
+pub const HF_H4_ACC_FOLD: usize = 3;
+pub const HF_H5_PRIV_FOLD: usize = 4;
+pub const HF_H6_PUB_GEN: usize = 5;
+
+pub fn host_fast_on() -> bool {
+    match HOST_FAST_TEST.load(Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => {
+            static ENV: OnceLock<bool> = OnceLock::new();
+            *ENV.get_or_init(|| std::env::var("HL_HOST_FAST").map(|v| v == "1").unwrap_or(false))
+        }
+    }
+}
+
+pub fn set_host_fast_for_test(on: Option<bool>) -> Option<bool> {
+    let v = match on {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    match HOST_FAST_TEST.swap(v, Ordering::Relaxed) {
+        1 => Some(false),
+        2 => Some(true),
+        _ => None,
+    }
+}
+
+pub fn host_fast_for_test() -> bool {
+    host_fast_on()
+}
+
+pub fn record_host_fast_hit(idx: usize) {
+    HOST_FAST_HITS[idx].fetch_add(1, Ordering::Relaxed);
+    if !HOST_FAST_LOGGED.load(Ordering::Relaxed)
+        && std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false)
+        && !HOST_FAST_LOGGED.swap(true, Ordering::Relaxed)
+    {
+        eprintln!("[ZK60-HOST-FAST] HL_HOST_FAST=1 active (same-words host-gap path)");
+    }
+}
+
+pub fn host_fast_hits_for_test() -> [u64; 6] {
+    [
+        HOST_FAST_HITS[0].load(Ordering::Relaxed),
+        HOST_FAST_HITS[1].load(Ordering::Relaxed),
+        HOST_FAST_HITS[2].load(Ordering::Relaxed),
+        HOST_FAST_HITS[3].load(Ordering::Relaxed),
+        HOST_FAST_HITS[4].load(Ordering::Relaxed),
+        HOST_FAST_HITS[5].load(Ordering::Relaxed),
+    ]
+}
 
 // ===========================================================================
 // [UPERF3-AM] THE STATEMENT HEADER: WHICH PRIVACY CLAIM, AND WHAT IS CLAIMED
@@ -507,6 +583,44 @@ pub fn mask_commit_tagged(specs: &[(usize, usize)], ntt: &NttTables, rng: &mut Z
     let n_base = 2 * masks.len() + 4;
     let mut encoded = vec![Fp::ZERO; n_base * dom];
     let mut a_coefs = Vec::with_capacity(2 * masks.len());
+    if host_fast_on() {
+        record_host_fast_hit(HF_H2_MASK_COMMIT);
+        // [H2] Exact same sequential RNG draw order (masks -> per-row pads -> b -> u -> salts),
+        // then parallel independent row inverse-NTT + coset RS encoding across the ~50 rows.
+        for mk in &masks {
+            let re: Vec<Fp> = mk.coeffs.iter().map(|c| c.c0).collect();
+            let im: Vec<Fp> = mk.coeffs.iter().map(|c| c.c1).collect();
+            for part in [re, im] {
+                assert!(part.len() + MASK_Q <= m, "mask row: {} coefficients + {MASK_Q} pads > {m}", part.len());
+                let mut msg = vec![Fp::ZERO; m];
+                msg[..part.len()].copy_from_slice(&part);
+                let pads = rng.fp_vec(MASK_Q);
+                msg[part.len()..part.len() + MASK_Q].copy_from_slice(&pads);
+                a_coefs.push(msg);
+            }
+        }
+        let mut b_re = rng.fp_vec(2 * m);
+        let mut b_im = rng.fp_vec(2 * m);
+        b_re[m] = b_re[0].neg();
+        b_im[m] = b_im[0].neg();
+        let u_re = rng.fp_vec(2 * m);
+        let u_im = rng.fp_vec(2 * m);
+        let salts: Vec<[u8; 32]> = (0..dom).map(|_| rng.bytes32()).collect();
+        let base0 = 2 * masks.len();
+        let (enc_a, enc_bu) = encoded.split_at_mut(base0 * dom);
+        a_coefs.par_iter_mut().zip(enc_a.par_chunks_mut(dom)).for_each(|(msg, dst)| {
+            ntt.inverse(msg);
+            encode_coeffs_coset(ntt, msg, &pows, dst);
+        });
+        let bu_refs = [&b_re, &b_im, &u_re, &u_im];
+        bu_refs.par_iter().zip(enc_bu.par_chunks_mut(dom)).for_each(|(c, dst)| {
+            encode_coeffs_coset(ntt, c, &pows, dst);
+        });
+        let leaves = pcs::hash_columns_keyed(&encoded, n_base, dom, tag.column_key());
+        let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| pcs::salt_leaf_keyed(l, s, tag.leaf_key())).collect();
+        let tree = MerkleTree::build_keyed(salted, tag.node_key());
+        return MaskCommit { specs: specs.to_vec(), masks, a_coefs, encoded, b: (b_re, b_im), u: (u_re, u_im), salts, tree };
+    }
     for (s, mk) in masks.iter().enumerate() {
         let re: Vec<Fp> = mk.coeffs.iter().map(|c| c.c0).collect();
         let im: Vec<Fp> = mk.coeffs.iter().map(|c| c.c1).collect();

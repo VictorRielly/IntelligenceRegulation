@@ -3697,6 +3697,70 @@ kernel void k_tab_plane(device ulong *tabs [[buffer(0)]],
     tabs[o + 1UL] = v.c1;
     if (a.check != 0u && v.c1 != 0UL) { atomic_fetch_or_explicit(flag, 1u, memory_order_relaxed); }
 }
+
+struct TabPubGenArgs {
+    ulong out_off;    // the table's first word in `tabs`
+    ulong cap;        // its length, elements
+    uint kind;        // 0=Box, 1=GroupCol, 2=Causal, 3=Repeat, 4=HeadQ, 5=HeadHt, 6=HeadS
+    uint shift;       // right-shift for lifted support indicators (rep = 1 << shift)
+    uint rows_live;   // live rows (Box/GroupCol) or tokens (Head*)
+    uint cols_live;   // live cols (Box/GroupCol) or group = q_heads / kv_heads (Head*)
+    uint row_stride;  // row stride (Box/GroupCol), t_pad (Causal/HeadHt/HeadS), or head_dim (HeadQ)
+    uint vals_off;    // offset into `aux64` (GroupCol/Repeat)
+    uint vals_len;    // length in `aux64` (GroupCol/Repeat)
+    uint aux_a;       // h_pad (Head*)
+    uint aux_b;       // slots_per_kv_group = h_pad / kv_heads (Head*)
+    uint pad0;
+};
+kernel void k_tab_pub_gen(device ulong *tabs [[buffer(0)]],
+                          device const ulong *aux64 [[buffer(1)]],
+                          constant TabPubGenArgs &a [[buffer(2)]],
+                          uint gid [[thread_position_in_grid]]) {
+    ulong x = ulong(gid);
+    if (x >= a.cap) { return; }
+    ulong val = 0UL;
+    if (a.kind == 0u) {
+        ulong idx = x >> a.shift;
+        ulong rs = ulong(a.row_stride);
+        ulong r = idx / rs;
+        ulong c = idx % rs;
+        val = (r < ulong(a.rows_live) && c < ulong(a.cols_live)) ? 1UL : 0UL;
+    } else if (a.kind == 1u) {
+        ulong rs = ulong(a.row_stride);
+        ulong r = x / rs;
+        ulong c = x % rs;
+        val = (r < ulong(a.rows_live) && c < ulong(a.cols_live)) ? aux64[ulong(a.vals_off) + c] : 0UL;
+    } else if (a.kind == 2u) {
+        ulong t = ulong(a.row_stride);
+        val = ((x % t) <= ((x / t) % t)) ? 1UL : 0UL;
+    } else if (a.kind == 3u) {
+        val = aux64[ulong(a.vals_off) + (x % ulong(a.vals_len))];
+    } else if (a.kind == 4u) {
+        ulong idx = x >> a.shift;
+        ulong dh = ulong(a.row_stride);
+        ulong hp = ulong(a.aux_a);
+        ulong q_pad = hp * dh;
+        ulong t = idx / q_pad;
+        ulong sl = (idx / dh) % hp;
+        val = (t < ulong(a.rows_live) && (sl % ulong(a.aux_b)) < ulong(a.cols_live)) ? 1UL : 0UL;
+    } else if (a.kind == 5u) {
+        ulong idx = x >> a.shift;
+        ulong tp = ulong(a.row_stride);
+        ulong h = idx / tp;
+        ulong t = idx % tp;
+        val = (h < ulong(a.aux_a) && (h % ulong(a.aux_b)) < ulong(a.cols_live) && t < ulong(a.rows_live)) ? 1UL : 0UL;
+    } else if (a.kind == 6u) {
+        ulong idx = x >> a.shift;
+        ulong tp = ulong(a.row_stride);
+        ulong j = idx % tp;
+        ulong t = (idx / tp) % tp;
+        ulong h = idx / (tp * tp);
+        val = (h < ulong(a.aux_a) && (h % ulong(a.aux_b)) < ulong(a.cols_live) && t < ulong(a.rows_live) && j < ulong(a.rows_live)) ? 1UL : 0UL;
+    }
+    ulong o = a.out_off + 2UL * x;
+    tabs[o] = val;
+    tabs[o + 1UL] = 0UL;
+}
 "#;
 
 #[repr(C)]
@@ -3730,17 +3794,34 @@ struct TabPlaneArgs {
     check: u32,
 }
 
+#[repr(C)]
+struct TabPubGenArgs {
+    out_off: u64,
+    cap: u64,
+    kind: u32,
+    shift: u32,
+    rows_live: u32,
+    cols_live: u32,
+    row_stride: u32,
+    vals_off: u32,
+    vals_len: u32,
+    aux_a: u32,
+    aux_b: u32,
+    pad0: u32,
+}
+
 /// [A12] one table of a slot the device builds ([`MetalTables::plan_eq`],
-/// [`MetalTables::plan_plane`])
+/// [`MetalTables::plan_plane`], [`MetalTables::plan_pub_gen`])
 enum TabJob {
     Eq { t: usize, hi: Vec<Fp2>, lo: Vec<Fp2>, shift: u32, p: u32 },
     Plane { t: usize, src: usize, log: u32, slices: Vec<(usize, Fp2)>, used: u64, xlo: u32, inv_lo: Vec<u32>, inv_hi: Vec<u32>, zbits: Vec<u32>, eqf: Vec<Fp2> },
+    PubGen { t: usize, kind: u32, shift: u32, rows_live: u32, cols_live: u32, row_stride: u32, aux_a: u32, aux_b: u32, vals: Vec<u64> },
 }
 
 impl TabJob {
     fn table(&self) -> usize {
         match self {
-            TabJob::Eq { t, .. } | TabJob::Plane { t, .. } => *t,
+            TabJob::Eq { t, .. } | TabJob::Plane { t, .. } | TabJob::PubGen { t, .. } => *t,
         }
     }
 }
@@ -3748,11 +3829,12 @@ impl TabJob {
 struct TabPipes {
     eq: ComputePipelineState,
     plane: ComputePipelineState,
+    pub_gen: ComputePipelineState,
 }
 
 static TAB_PIPES: OnceLock<Result<TabPipes, String>> = OnceLock::new();
 
-/// [A12] the two table kernels, compiled once (the field code of the commit
+/// [A12] the table kernels, compiled once (the field code of the commit
 /// and round kernels: `gl_header`, `SC_PRELUDE`)
 fn tab_pipes(c: &Ctx) -> Result<&'static TabPipes, String> {
     TAB_PIPES
@@ -3764,7 +3846,7 @@ fn tab_pipes(c: &Ctx) -> Result<&'static TabPipes, String> {
                     let f = lib.get_function(name, None).map_err(|e| format!("metal table function {name}: {e}"))?;
                     c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal table pipeline {name}: {e}"))
                 };
-                Ok(TabPipes { eq: mk("k_tab_eq")?, plane: mk("k_tab_plane")? })
+                Ok(TabPipes { eq: mk("k_tab_eq")?, plane: mk("k_tab_plane")?, pub_gen: mk("k_tab_pub_gen")? })
             })
         })
         .as_ref()
@@ -3881,6 +3963,8 @@ enum TabArg {
     Eq(TabEqArgs),
     /// (the data source, the args with its base word filled in)
     Plane(usize, TabPlaneArgs),
+    /// [HOST-FAST H6] generated base-field public table
+    PubGen(TabPubGenArgs),
 }
 
 /// **[A12] A device table build, ready to encode**: the dispatches, their
@@ -3928,6 +4012,14 @@ impl TabBuild {
                     enc.set_buffer(4, Some(&self.flag), 0);
                     set_args(enc, 5, pa);
                     let tg = pipes.plane.max_total_threads_per_threadgroup().min(256).min(self.cap);
+                    enc.dispatch_threads(MTLSize::new(self.cap, 1, 1), MTLSize::new(tg, 1, 1));
+                }
+                TabArg::PubGen(ga) => {
+                    enc.set_compute_pipeline_state(&pipes.pub_gen);
+                    enc.set_buffer(0, Some(tabs), 0);
+                    enc.set_buffer(1, Some(&self.a64), 0);
+                    set_args(enc, 2, ga);
+                    let tg = pipes.pub_gen.max_total_threads_per_threadgroup().min(256).min(self.cap);
                     enc.dispatch_threads(MTLSize::new(self.cap, 1, 1), MTLSize::new(tg, 1, 1));
                 }
             }
@@ -3995,6 +4087,22 @@ impl MetalTables {
     #[allow(clippy::too_many_arguments)]
     pub fn plan_plane(&mut self, t: usize, src: usize, log: usize, slices: Vec<(usize, Fp2)>, used: usize, xlo: usize, inv_lo: Vec<u32>, inv_hi: Vec<u32>, zbits: Vec<u32>, eqf: Vec<Fp2>) {
         self.plan.push(TabJob::Plane { t, src, log: log as u32, slices, used: used as u64, xlo: xlo as u32, inv_lo, inv_hi, zbits, eqf });
+    }
+
+    pub const PUB_GEN_BOX: u32 = 0;
+    pub const PUB_GEN_GROUP_COL: u32 = 1;
+    pub const PUB_GEN_CAUSAL: u32 = 2;
+    pub const PUB_GEN_REPEAT: u32 = 3;
+    pub const PUB_GEN_HEAD_Q: u32 = 4;
+    pub const PUB_GEN_HEAD_HT: u32 = 5;
+    pub const PUB_GEN_HEAD_S: u32 = 6;
+
+    /// **[HOST-FAST H6]** plan table `t` as a generated base-field (`c1 = 0`)
+    /// public table materialized on the device by `k_tab_pub_gen` inside A12's
+    /// prelude (`aux64` carries small `vals` for `GroupCol`/`Repeat`).
+    #[allow(clippy::too_many_arguments)]
+    pub fn plan_pub_gen(&mut self, t: usize, kind: u32, shift: u32, rows_live: u32, cols_live: u32, row_stride: u32, aux_a: u32, aux_b: u32, vals: Vec<u64>) {
+        self.plan.push(TabJob::PubGen { t, kind, shift, rows_live, cols_live, row_stride, aux_a, aux_b, vals });
     }
 
     /// the number of tables planned so far
@@ -4108,6 +4216,21 @@ impl MetalTables {
                         && inv_lo.iter().chain(inv_hi.iter()).chain(zbits.iter()).all(fits)
                         && slices.iter().all(|(off, _)| off.checked_add(1usize << log).is_some_and(|e| e <= data[*src].len()))
                 }
+                TabJob::PubGen { kind, shift, cols_live, row_stride, aux_a, aux_b, vals, .. } => {
+                    // Always base-field (`c1 = 0`) by construction.
+                    vals.len() <= u32::MAX as usize
+                        && vals.iter().all(|&w| w < crate::field::P)
+                        && match *kind {
+                            Self::PUB_GEN_BOX => *row_stride > 0 && *shift < 64,
+                            Self::PUB_GEN_GROUP_COL => *row_stride > 0 && vals.len() >= *cols_live as usize,
+                            Self::PUB_GEN_CAUSAL => *row_stride > 0,
+                            Self::PUB_GEN_REPEAT => !vals.is_empty(),
+                            Self::PUB_GEN_HEAD_Q => *row_stride > 0 && *aux_a > 0 && *aux_b > 0 && *shift < 64,
+                            Self::PUB_GEN_HEAD_HT => *row_stride > 0 && *aux_b > 0 && *shift < 64,
+                            Self::PUB_GEN_HEAD_S => *row_stride > 0 && *aux_b > 0 && *shift < 64,
+                            _ => false,
+                        }
+                }
             };
             if !ok {
                 return Err(format!("metal tables: table {t}'s plan does not fit its slot or its data"));
@@ -4158,6 +4281,24 @@ impl MetalTables {
                         let base_word = views[*src].as_ref().map(|v| v.1).unwrap_or(0);
                         let a = TabPlaneArgs { out_off, cap: cap as u64, used: *used, base: base_word, xlo: *xlo, nz: eqf.len() as u32, ns: slices.len() as u32, one, inv_lo: il, inv_hi: ih, zb, sl, eqf: ef, check };
                         args.push(TabArg::Plane(*src, a));
+                    }
+                    TabJob::PubGen { kind, shift, rows_live, cols_live, row_stride, aux_a, aux_b, vals, .. } => {
+                        let vals_off = aux64.len() as u32;
+                        aux64.extend_from_slice(vals);
+                        args.push(TabArg::PubGen(TabPubGenArgs {
+                            out_off,
+                            cap: cap as u64,
+                            kind: *kind,
+                            shift: *shift,
+                            rows_live: *rows_live,
+                            cols_live: *cols_live,
+                            row_stride: *row_stride,
+                            vals_off,
+                            vals_len: vals.len() as u32,
+                            aux_a: *aux_a,
+                            aux_b: *aux_b,
+                            pad0: 0,
+                        }));
                     }
                 }
             }
