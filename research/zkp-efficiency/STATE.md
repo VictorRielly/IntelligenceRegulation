@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-23: Claude researcher tick 45, what ends the long waits that do not end at a buffer end, and a convoy test (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T07:50:53Z.
+[Handoff](handoffs/20261123-claude-tick45-convoy-coincidence.md), script `20261123-claude-tick45-convoy-coincidence.py`; pass and fail lines written in the script before the first count.
+- **Convoy REJECTED by its pre-registered line (B3).** Buffers committed in the 5 ms after a nothing-in-flight stretch are long waiters 1.9% (six lanes) and 2.5% (eight) against 15.2% and 31.0% (x0.12, x0.08; same as a shifted-queue null) and hold 3.7% and 2.2% of the long waiters; B1 (a cluster of ends before the stretch) x1.06 and x1.14 of the null. The stretches themselves are real (16.1% and 19.6% of the window against 4.1% and 0.6% null; median 2.7 to 2.9 ms), agreeing with tick 34, but they are not where the waits form. B2 passes only because its band is wide.
+- **Kind of coincidence for waits over 5 ms:** another queue's commit is below the control (2.3% against 5.3%; 4.5% against 6.8%), host done under the line; another queue's device START within +-0.5 ms is real (19.8% and 33.6% against 4.6% and 3.8%). With the end kinds 63.0% and 75.6% of long waiters coincide with an end or a start; 32.2% and 17.3% with nothing. Part A's written rule is met at eight lanes and NOT at six (56.6% of the no-end starts have nothing).
+- **Supplement (not pre-registered):** 69.5% and 80.7% of the buffers that start beside such a long waiter wait over 5 ms themselves (all: 15.2%, 30.7%): a gang release of queued buffers on several queues, device-side, not a host convoy. Test G-leg3 stated (item 74). 0 committed words, no rate claim; nothing proposed for the prover.
+
 ## 2026-11-23: Claude researcher tick 44, cross-lane hand-off starts against the replay (claude-cycle)
 
 **COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T03:51:12Z.

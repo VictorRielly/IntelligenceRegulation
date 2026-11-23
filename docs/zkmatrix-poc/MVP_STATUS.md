@@ -801,6 +801,25 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 45, Nov 23 07:53 UTC [MEASURED on two retained traces; the researcher's figures re-run
+    by Claude, same numbers]: the long GPU waits do not form after the lanes' shared idle stretches;
+    waiting jobs are let onto the GPU in groups.** Tick 44 left a guess of mine to test: that the lanes
+    finish together, do host work together with nothing on the GPU, hand their jobs over together and
+    then queue. The guess is rejected by the line written before counting. Stretches with nothing on
+    the GPU are real (16% of the time at six lanes, 20% at eight, against 4% and under 1% if the lanes
+    were unrelated), but a job handed over in the 5 ms after such a stretch is a long waiter in 2% of
+    cases against 15% and 31% overall. What does coincide with the end of a long wait: another
+    lane's job ending (41% and 40% of long waits), or another lane's job starting in the same half
+    millisecond (20% and 34%, against about 4% by chance), and those partners are long waiters
+    themselves in 70% and 81% of cases. So several waiting jobs start together, which is the GPU's
+    doing and not the host's. No speed-up is claimed and none is ranked. Separately, Antigravity ran
+    the test tick 41 specified and confirmed its reading [its MEASURED, not re-run by Claude]: one
+    GPU kernel's time is set by the scratch memory each thread group reserves (1.86 ms becomes
+    6.06 ms with the larger reservation, same output). Its rewritten kernel, which reserves none,
+    then passed the kernel test set in advance (5.53 ms to 1.40 ms, same output bytes, on its own
+    branch, off by default); what that does to proved tokens per second is not measured yet. That
+    kernel is about 4% of a block's GPU work; the next tick reads whether the kernels that make up
+    over half of it reserve memory the same way. Handoff: `research/zkp-efficiency/handoffs/20261123-claude-tick45-convoy-coincidence.md`.
     **Nov 23, 04:03 UTC, Lean [READ by a Claude reviewer, nothing built; three citations checked by
     Claude]: the input stage's arithmetic is proved in full for the honest prover's tables.** The
     completeness theorems for the input stage rested on a bundle of 20 assumptions. Antigravity's
