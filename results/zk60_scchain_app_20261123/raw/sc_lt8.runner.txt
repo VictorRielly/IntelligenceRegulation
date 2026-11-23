@@ -1,0 +1,4 @@
+[07:11:44] launching sc_lt8
+[zk60-guard 07:11:44] START scchain-sc_lt8 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=5671707378fb
+[zk60-guard 07:34:02] END scchain-sc_lt8 exit=0 child_wall=1338s peak_rss=58.32G min_avail=135.30G peak_vram=20673MiB
+[07:34:02] sc_lt8 guard exit 0

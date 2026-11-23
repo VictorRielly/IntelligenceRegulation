@@ -814,8 +814,10 @@ item was re-checked against the source by the coordinator.
     the steady gap by 2.2% (5 of 6 passes). It is the first GPU change since the fused encoder to
     pass at six lanes; it came from running fewer separate GPU jobs per block (428 instead of
     555), not from making one job faster. The switch is offered to the app's lane (Astra) with the
-    two merged yesterday. Not yet measured: the switch at six lanes by eight threads, the best
-    setting measured so far (48.6 tok/s without it). Record:
+    two merged yesterday. **At six lanes by eight threads** (the best setting measured so far;
+    measured at 15:34 UTC, four legs) the switch gains less, +1.7% and +1.9%: 48.9 and 49.6 tok/s
+    with it against 48.1 and 48.7 without. Those are the highest rates measured at the installed
+    profile so far, and they are still just under 50. Record:
     `results/zk60_scchain_app_20261123/README.md`.
     **Nov 23, 13:37 UTC, speed [timing MEASURED by Antigravity, the 8B gaps recomputed by Claude;
     code READ by a Claude reviewer, nothing built]: a new candidate, a faster sumcheck chain on the

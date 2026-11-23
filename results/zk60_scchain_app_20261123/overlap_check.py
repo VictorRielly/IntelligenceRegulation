@@ -18,7 +18,7 @@ def ts(s):
 
 
 legs = []
-for sub in ('sc_smoke', 'sc_set1', 'sc_set2', 'sc_trace'):
+for sub in ('sc_smoke', 'sc_set1', 'sc_set2', 'sc_trace', 'sc_lt8'):
     p = raw / sub / 't2_results.json'
     if p.exists():
         for l in json.load(open(p))['legs']:

@@ -56,13 +56,28 @@ All 324 requests were proved; 216 B1 receipts were checked by B0 and accepted; n
 
 **Other jobs.** `overlap_check.py` (`raw/overlap_check.txt`): no other guarded job overlapped any timed leg. Antigravity held the GPU and heavy builds idle. No agent and no research tick of the tester ran beside the set.
 
+## Addendum, 15:12 to 15:34 UTC: the switch at six lanes by eight threads (guard `5671707378fb`, exit 0; no verdict on the merge, which was already made)
+
+Defined in the coordination file at 15:11:07Z and pushed (`a7faf0dd`) before the run: four legs X, Y, Y, X with B1 only (the merge did not change the prover source), X = `frs1 sf1` at `--lanes 6 --lane-threads 8`, Y = the same plus `HL_METAL_SC_CHAIN_FAST=1`, every receipt of both arms checked by B0. Six lanes by eight threads is the best setting of the 2026-11-22 sweep (48.6 tok/s without the switch).
+
+| leg | arm | rate, tok/s | mean prove call, s | receipts | start to end, UTC |
+|---|---|---|---|---|---|
+| 1 | X | 48.115 | 12.819 | 54 of 54 checked | 15:12:09 to 15:15:06 |
+| 2 | Y | 48.946 | 12.515 | 54 of 54 checked | 15:17:38 to 15:20:34 |
+| 3 | Y | 49.637 | 12.328 | 54 of 54 checked | 15:23:07 to 15:26:01 |
+| 4 | X | 48.694 | 12.640 | 54 of 54 checked | 15:28:33 to 15:31:30 |
+
+**Y over X (DERIVED): pair (1, 2) +1.73%, pair (4, 3) +1.94%.** By the reading fixed before the run ("holds at eight threads" if both are at least +2%, "does not hold" if either is under +1%) neither label applies: the switch gains about 1.8% at eight threads, about half of what it gains at five. **The two Y rates, 48.9 and 49.6 tok/s, are the highest measured at this profile so far, and are under 50.** All 216 requests proved, all 216 receipts accepted by B0, no other guarded job inside a leg. Raw: `raw/sc_lt8/`.
+
+So the two improvements overlap in part: more threads per lane and fewer GPU dispatches both shorten the same stretches of a block. Not measured: the tail-round option (`HL_METAL_BATCH_TAIL_US=250`, +1.5 to +2% at this setting on 2026-11-22) together with the switch.
+
 ## Reading (interpretation)
 
 The second bundle of the same day shortened work inside two kernels and gave about 1% here. This change removes 127 of 555 small serial dispatches per block and shortens another 141, and gives about 3.7%. At six lanes the cost of a block's GPU work is driven by how many separate pieces the lanes interleave, not only by the time of each piece; Antigravity's bench of the chain under six competing queues (25% less) pointed the same way before this set. The set does not say how much of the gain comes from each of the three parts.
 
 ## Not measured
 
-A second set (not needed by the rule); a traced pair; the three parts separately; other lane and thread counts (the best measured setting, six lanes by eight threads, was not re-run with the switch); the switch together with the earlier bundle's two switches; private content.
+A second set at five threads (not needed by the rule); a traced pair; the three parts separately; lane and thread counts other than six by five and six by eight; the switch together with the tail-round option or with the earlier bundle's two switches; private content.
 
 ## Files
 
