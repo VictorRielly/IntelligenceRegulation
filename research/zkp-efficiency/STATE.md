@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-23: Claude researcher tick 50, what the smallness test's 2^18 cells do to the block's no-wrap arguments (claude-cycle, queue item 23, H156)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T19:53:47Z.
+[Handoff](handoffs/20261123-claude-tick50-relaxed-cell-wrap.md), script `20261123-claude-tick50-relaxed-cell-wrap.py`, output `...relaxed-cell-wrap.out.txt`.
+- **No no-wrap argument uses the byte bound; each uses the class of a combined word** (int16, 24-bit product word, 13-bit quotient), so the word-class lookups must stay, keyed on the recombined `lo + 256 hi`. Words rebuilt from relaxed cells reach 2^26.0 (two cells) or 2^34.0 (three): at the Lean class bounds **five sites exceed 2^62 and p/2** (down 2^69, scores 2^64, PV 2^76, sum of squares 2^64, norm division 2^67 at tn = 16); Q, K, V, O, gate, up, RoPE, the SiLU product stay under with 3 or more bits. At the 8B shape as built only the sum of squares wraps (2^64.01); down, norm division, scores and PV sit within 1 to 3 bits. TOY: 4,096 legal relaxed words with sum of squares p + 16,503,937 (hosted value looks honest).
+- **Cells at 2^18 as every operand never wrap** (largest 2^60, PV at the class bound); recombination is what costs the 2^8. Packing at radix 2^20 stays injective (2^58 < p/2). Remainders need their exact range for exactness (floor identity), not for wrap.
+- **Costing:** tick 6's "+480 helper rows" is not forced if a lookup key may be the recombined limb (ASSUMED; test H156c, a read of the helper clause); bracket whole block 0.78 to 0.85 against 0.86. B needs no new wrap lemma beyond `noWrap_class_bounds`; one extraction-layer statement (cells to words without wrap). H156b (Lean `norm_num` negations) added. 0 committed words changed; no rate claim.
+
 ## 2026-11-23: Claude researcher tick 49, the claims the Theta tie leaves on packed A (claude-cycle, queue item 21, H155)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T16:41:00Z.

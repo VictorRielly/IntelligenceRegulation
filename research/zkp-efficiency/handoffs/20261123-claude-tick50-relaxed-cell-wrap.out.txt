@@ -1,0 +1,47 @@
+relaxed word bound: 2 byte cells 2^26.0056, 3 byte cells 2^34.0056
+honest: int16 2^15, 24-bit 2^23, P 2^12; relaxed/honest: int16 x2^11.01, 24-bit x2^11.01
+
+limits: Lean premise 2^62; wrap limit p/2 = 2^63.0000
+
+site                                                         class      8B |   relaxed cells@2^18 | verdict (relaxed words)
+---------------------------------------------------------------------------------------------------------------------------
+Q,K,V  (N 4096, M<=2^6 8B / 2^14 class)                    2^48.0  2^40.0  | 2^59.0    2^51.0    | OK (3.0 bits under 2^62)
+O      (N 4096, M<=2^8)                                    2^48.0  2^42.0  | 2^59.0    2^51.0    | OK (3.0 bits under 2^62)
+gate,up (N 4096, M<=2^6)                                   2^48.0  2^40.0  | 2^59.0    2^51.0    | OK (3.0 bits under 2^62)
+down   (N 14336 / 16384 class, H 24-bit, M<=2^6)           2^58.0  2^49.8  | 2^69.0    2^53.0    | WRAPS (over p/2 by 6.0 bits)
+score  (N 128 head dim / 4096 class, int16 x int16)        2^42.0  2^37.0  | 2^64.0    2^48.0    | WRAPS (over p/2 by 1.0 bits)
+PV     (N 128 tokens / 2^24 class, P<=2^12 x int16)        2^51.0  2^34.0  | 2^76.0    2^60.0    | WRAPS (over p/2 by 13.0 bits)
+SC_SS  (N 4096, x*x, + ceps 2^24)                          2^42.0  2^42.0  | 2^64.0    2^48.0    | WRAPS (over p/2 by 1.0 bits)
+RoPE   (2 * 2^7 * x)                                       2^23.0  2^23.0  | 2^34.0    2^26.0    | OK (28.0 bits under 2^62)
+SiLU product a*u (|a|<=2^31 from the ACT table)            2^46.0  2^46.0  | 2^57.0    2^49.0    | OK (5.0 bits under 2^62)
+NormDiv 2^(tn+1)*d*y, d<2^24, tn<=16 class / 10 (ASSUMED)  2^56.0  2^50.0  | 2^67.0    2^59.0    | WRAPS (over p/2 by 4.0 bits)
+NormDiv g*x*2cn (g 127, cn<=2^24)                          2^47.0  2^47.0  | 2^58.0    2^50.0    | OK (4.0 bits under 2^62)
+SoftmaxDiv P*sum (sum<=2^24)                               2^36.0  2^36.0  | 2^50.0    2^42.0    | OK (12.0 bits under 2^62)
+
+worst 'cells at 2^18 as every operand' value: 2^60.00 (limit 2^62: never reached)
+sites over 2^62 once words are rebuilt from relaxed cells: 5
+  - down   (N 14336 / 16384 class, H 24-bit, M<=2^6)
+  - score  (N 128 head dim / 4096 class, int16 x int16)
+  - PV     (N 128 tokens / 2^24 class, P<=2^12 x int16)
+  - SC_SS  (N 4096, x*x, + ceps 2^24)
+  - NormDiv 2^(tn+1)*d*y, d<2^24, tn<=16 class / 10 (ASSUMED)
+
+Relaxed words at the 8B shape (N and M as built, not class):
+  Q,K,V                          2^50.99  ok
+  O                              2^52.99  ok
+  gate                           2^50.99  ok
+  up                             2^48.99  ok
+  down                           2^60.80  ok
+  score                          2^59.01  ok
+  PV                             2^59.01  ok
+  SC_SS                          2^64.01  WRAPS
+  NormDiv 2^(tn+1) d y, tn=10    2^61.01  ok
+
+packing (f1) at the relaxed bound: sum |cell|*radix^j < 2^58.000; need < p/2 = 2^63.000: True; lane gap: |cell|<2^18 < radix/2 = 2^19: True
+
+exactness, not wrap: a remainder R rebuilt from relaxed byte cells reaches |R| < 2^26.0 (2 cells) / 2^34.0 (3 cells);
+the floor identity 2^s q + R - 2^(s-1) = hosted fixes q only when R lies in [0, 2^s): s runs 8 to 24, so every remainder needs its exact range lookup.
+
+TOY SC_SS witness: 4096 entries, max |x| = 67112926 (< 2^26.0001, cell-bound ok: True)
+  sum x^2 = p + 16503937  (honest ss window is below 2^42; this residue is 2^24.0), so ss mod p = 16503937
+  honest int16 inputs could never give this: max honest sum of squares is 2^42.0

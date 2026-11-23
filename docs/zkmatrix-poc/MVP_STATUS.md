@@ -801,6 +801,16 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 50, Nov 23 19:56 UTC [DERIVED by the researcher from the Lean bounds and the registered
+    sizes, its script re-run by Claude; nothing measured]:** a second count for the same
+    future-protocol candidate (candidate B). Its new range test only shows that each committed
+    cell is below 2^18, where honest cells are bytes. The question was whether that weaker bound
+    lets any sum inside a block overflow the field. Answer: not for cells used directly, but yes
+    once 16-bit and 24-bit words are rebuilt from such cells (five sums pass the limit at the
+    Lean bounds; at the 8B sizes one does, and the script builds a concrete example). So the
+    candidate must keep today's range checks on the rebuilt words, and needs no extra per-byte
+    check and no new overflow lemma in Lean. Whether that costs it 480 extra helper rows
+    depends on one reading question, queued for the next tick. No speed changes from this.
     **Nov 23, 19:50 UTC, speed [MEASURED by Claude; gains DERIVED from the raw completions]: the
     host-side speed-up is merged (off by default), and the installed profile now runs at about 50
     tok/s with all four switches on.** The two code reviews found no fault that gives a wrong
