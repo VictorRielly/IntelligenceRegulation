@@ -1,0 +1,10 @@
+leg1_armA.prover.log.err: arm A
+       3818  batched no kind printed
+    fast-chain sumchecks 0, others 3818, fall-back lines 0: as required for arm A
+leg2_armB.prover.log.err: arm B
+       3785  batched std
+    fast-chain sumchecks 0, others 3785, fall-back lines 0: as required for arm B
+leg3_armC.prover.log.err: arm C
+       3780  batched sc-chain-fast
+    fast-chain sumchecks 3780, others 0, fall-back lines 0: as required for arm C
+condition (a): MET

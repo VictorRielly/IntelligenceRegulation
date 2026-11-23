@@ -1,0 +1,4 @@
+[06:16:32] launching sc_smoke
+[zk60-guard 06:16:32] START scchain-sc_smoke class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=e7f5d1bac28d
+[zk60-guard 06:22:36] END scchain-sc_smoke exit=0 child_wall=364s peak_rss=60.59G min_avail=133.93G peak_vram=21778MiB
+[06:22:36] sc_smoke guard exit 0

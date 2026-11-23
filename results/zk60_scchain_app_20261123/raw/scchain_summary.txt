@@ -1,0 +1,19 @@
+== sc_set1: six legs A, B, C, C, B, A (6 lanes x 5 threads, per-thread queues, N + 48)
+leg 1 arm A: rate 46.638 tok/s | mean prove call 13.384 s | all proved True | arm A: receipts deleted unverified | 2026-11-23T14:23:15Z to 2026-11-23T14:26:16Z
+leg 2 arm B: rate 46.389 tok/s | mean prove call 13.435 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-23T14:26:17Z to 2026-11-23T14:29:20Z
+leg 3 arm C: rate 48.477 tok/s | mean prove call 12.783 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-23T14:31:50Z to 2026-11-23T14:34:48Z
+leg 4 arm C: rate 47.834 tok/s | mean prove call 13.021 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-23T14:37:18Z to 2026-11-23T14:40:18Z
+leg 5 arm B: rate 46.242 tok/s | mean prove call 13.562 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-23T14:42:48Z to 2026-11-23T14:45:52Z
+leg 6 arm A: rate 46.252 tok/s | mean prove call 13.518 s | all proved True | arm A: receipts deleted unverified | 2026-11-23T14:48:22Z to 2026-11-23T14:51:25Z
+PRIMARY, C over A: pair (leg 1, leg 3) +3.94%, pair (leg 6, leg 4) +3.42%
+secondary, B over A: pair (1, 2) -0.53%, pair (6, 5) -0.02%; C over B: pair (2, 3) +4.50%, pair (5, 4) +3.44%
+verdict of this set by the 03:01:33Z rule: PASS
+guard 65e8b14f820c: exit 0, peak RSS 59.0 GiB, peak VRAM 20594 MiB, waited 0.1 s
+
+== primary pair gains of the sets read: +3.94%, +3.42%; mean +3.68%
+
+== smoke legs (not timed measurements; evidence for which paths are taken) (sc_smoke), no verdict
+leg 1 arm A: no GPU trace was taken in this leg
+leg 2 arm B: no GPU trace was taken in this leg
+leg 3 arm C: no GPU trace was taken in this leg
+

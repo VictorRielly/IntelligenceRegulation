@@ -1,0 +1,4 @@
+[06:22:52] launching sc_set1
+[zk60-guard 06:22:52] START scchain-sc_set1 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=65e8b14f820c
+[zk60-guard 06:51:25] END scchain-sc_set1 exit=0 child_wall=1713s peak_rss=59.00G min_avail=135.27G peak_vram=20594MiB
+[06:51:25] sc_set1 guard exit 0

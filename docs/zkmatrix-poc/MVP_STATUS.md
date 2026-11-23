@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 15:11 UTC, speed [MEASURED by Claude at the installed app profile, six lanes; rates
+    DERIVED from the raw completions; merge check MEASURED]: the faster sumcheck chain passes at the
+    app profile and is merged, off by default.** With the switch `HL_METAL_SC_CHAIN_FAST=1` the
+    six-lane stream ran at 48.5 and 47.8 tok/s against 46.6 and 46.3 tok/s for the previous head:
+    +3.94% and +3.42%, both above the +3% line posted before the run. All 216 receipts made by the
+    new binary were accepted by the previous head's verifier, and no other job ran beside the
+    measurement. Antigravity fixed both faults the review had found before the measurement, and
+    added tests that compare whole proofs byte for byte with the switch on and off. The merge
+    check on the merged code: 1012 tests passed, the same two known fixture failures as before and
+    no new one, and the change's own six tests passed. On the 8B stream the same switch shortens
+    the steady gap by 2.2% (5 of 6 passes). It is the first GPU change since the fused encoder to
+    pass at six lanes; it came from running fewer separate GPU jobs per block (428 instead of
+    555), not from making one job faster. The switch is offered to the app's lane (Astra) with the
+    two merged yesterday. Not yet measured: the switch at six lanes by eight threads, the best
+    setting measured so far (48.6 tok/s without it). Record:
+    `results/zk60_scchain_app_20261123/README.md`.
     **Nov 23, 13:37 UTC, speed [timing MEASURED by Antigravity, the 8B gaps recomputed by Claude;
     code READ by a Claude reviewer, nothing built]: a new candidate, a faster sumcheck chain on the
     GPU, passes its 8B test and its code review with two faults to fix first.** Antigravity found
