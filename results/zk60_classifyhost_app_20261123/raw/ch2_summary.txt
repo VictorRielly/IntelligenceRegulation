@@ -1,0 +1,20 @@
+== ch2_set5: six lanes by 5 threads, legs A, B, C, C, B, A; guard 812bf8d01094 exit 0, peak RSS 57.5 GiB, peak VRAM 21699 MiB
+leg 1 arm A: 49.642 tok/s | all proved True | receipts deleted unverified (arm A) | 2026-11-23T22:17:12Z to 2026-11-23T22:20:05Z
+leg 2 arm B: 50.240 tok/s | all proved True | receipts checked 54 of 54, other 0 | 2026-11-23T22:20:06Z to 2026-11-23T22:22:59Z
+leg 3 arm C: 54.684 tok/s | all proved True | receipts checked 54 of 54, other 0 | 2026-11-23T22:25:31Z to 2026-11-23T22:28:12Z
+leg 4 arm C: 53.528 tok/s | all proved True | receipts checked 54 of 54, other 0 | 2026-11-23T22:30:45Z to 2026-11-23T22:33:29Z
+leg 5 arm B: 51.819 tok/s | all proved True | receipts checked 54 of 54, other 0 | 2026-11-23T22:36:01Z to 2026-11-23T22:38:49Z
+leg 6 arm A: 51.011 tok/s | all proved True | receipts deleted unverified (arm A) | 2026-11-23T22:41:21Z to 2026-11-23T22:44:12Z
+C over A: pair (1,3) +10.16%, pair (6,4) +4.93% | A legs apart 2.69%
+B over A: pair (1,2) +1.21%, pair (6,5) +1.58% | C over B: pair (2,3) +8.85%, pair (5,4) +3.30%
+C legs over the higher A leg: +7.20%, +4.93%
+== ch2_set8: six lanes by 8 threads, legs A, B, C, C, B, A; guard 918489a7db32 exit 0, peak RSS 57.1 GiB, peak VRAM 20992 MiB
+leg 1 arm A: 50.583 tok/s | all proved True | receipts deleted unverified (arm A) | 2026-11-23T22:44:38Z to 2026-11-23T22:47:29Z
+leg 2 arm B: 50.343 tok/s | all proved True | receipts checked 54 of 54, other 0 | 2026-11-23T22:47:29Z to 2026-11-23T22:50:22Z
+leg 3 arm C: 53.407 tok/s | all proved True | receipts checked 54 of 54, other 0 | 2026-11-23T22:52:54Z to 2026-11-23T22:55:38Z
+leg 4 arm C: 53.479 tok/s | all proved True | receipts checked 54 of 54, other 0 | 2026-11-23T22:58:11Z to 2026-11-23T23:00:54Z
+leg 5 arm B: 52.112 tok/s | all proved True | receipts checked 54 of 54, other 0 | 2026-11-23T23:03:26Z to 2026-11-23T23:06:14Z
+leg 6 arm A: 52.096 tok/s | all proved True | receipts deleted unverified (arm A) | 2026-11-23T23:08:47Z to 2026-11-23T23:11:35Z
+C over A: pair (1,3) +5.58%, pair (6,4) +2.66% | A legs apart 2.90%
+B over A: pair (1,2) -0.47%, pair (6,5) +0.03% | C over B: pair (2,3) +6.09%, pair (5,4) +2.62%
+C legs over the higher A leg: +2.52%, +2.66%

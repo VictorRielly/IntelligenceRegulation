@@ -1,0 +1,14 @@
+2026-11-23T22:44:38Z
+RAM   206.14 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 125.0 of 252.5 GiB committed by guarded jobs
+  job  classifyhost-ch2_set8        gpu   need 125G since 2026-11-23T22:44:14Z
+LOCKS heavy HELD, build free
+GPU   14 of 196608 MiB used
+DISK  /System/Volumes/VM 77.1 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16727 MiB  pid 48978   agy
+  rss   4747 MiB  pid 1578    claude
+  rss   1910 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1450 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1357 MiB  pid 17265   claude
+  rss   1034 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/

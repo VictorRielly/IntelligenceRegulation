@@ -1,1 +1,1 @@
-17 timed legs checked against 5173 history records; 0 overlaps by jobs other than this test's own
+32 timed legs checked against 5180 history records; 0 overlaps by jobs other than this test's own

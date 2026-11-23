@@ -1,8 +1,10 @@
-# The classifier host-fast switch (`HL_CLASSIFY_HOST_FAST=1`) at the app profile: PASS at five threads, not merged; the binary with the switch unset is slower than the base
+# The classifier host-fast switch (`HL_CLASSIFY_HOST_FAST=1`) at the app profile: first commit sent back (it slowed the default path), fixed commit PASS with the default path restored
 
 Run 2026-11-23 20:06 to 21:22 UTC by the Claude co-coordinator. Definition, rule and readings were posted in `ops/zkp-mvp/RECOVERY_COORDINATION.md` at 2026-11-23T20:07:56Z and pushed (`6d89de250`) before any run; part 3 was defined at 21:04:50Z and pushed (`669dc59f8`) before its run. Labels: MEASURED (the raw files), DERIVED (arithmetic by `classifyhost_summary.py`, output `raw/classifyhost_summary.txt`, and from the `t2_results.json` of each part). Every rate was measured once.
 
-**Result in one line.** At six lanes by five threads the switch passes the posted rule (+5.88% and +7.10% over the merged head, 54.3 and 54.6 tok/s). The branch is **not merged and not sent to a code read**: with the switch unset, the new binary is 2 to 5% slower than the merged head in all four pairs measured (five and eight threads), and at eight threads the switch adds nothing over the unset binary. One figure does not fit the others and is unexplained (below).
+**Result in one line, after the fixed commit (section "Fixed commit" below, 22:10 to 23:12 UTC).** On `a4d836c3a` the switch passes at five threads (+10.16% and +4.93%; +7.2% and +4.9% against the higher base leg), gains +5.58% and +2.66% at eight threads, and the binary with the switch unset is level with the merged head in four of four pairs. With the switch the stream ran at 53.4 to 54.7 tok/s at both thread counts. Not merged yet: the code read comes next.
+
+**First commit, `41f12b121` (the sections up to "Next").** At six lanes by five threads the switch passes the posted rule (+5.88% and +7.10% over the merged head, 54.3 and 54.6 tok/s). The branch is **not merged and not sent to a code read**: with the switch unset, the new binary is 2 to 5% slower than the merged head in all four pairs measured (five and eight threads), and at eight threads the switch adds nothing over the unset binary. One figure does not fit the others and is unexplained (below).
 
 ## What was tested
 
@@ -52,6 +54,33 @@ A 51.907 and 51.028 tok/s; B 49.636 and 49.492 tok/s. **B over A: -4.37% and -3.
 
 The author is asked for (1) what executes differently with the switch unset, (2) whether any state outlives a process, (3) a commit whose unset path is the base path. That commit is measured with all three arms at both thread counts; B over A must be within about 1% before a read is spent.
 
+## Fixed commit `a4d836c3a` (22:10 to 23:12 UTC)
+
+The author's answer (coordination entry 21:57:29Z; its code reading and disassembly, not re-derived here): nothing was meant to be always on, but the unset path had been restructured in seven production files (the segment loop inside a thread scope with a dispatcher, flag tests inside loops, a value kept alive across a check, changed inlining under fat LTO); no state of the branch outlives a process. In `a4d836c3a` every unset entry point is the base function with one guard at the top and the fast code in out-of-line siblings. Definition of the re-measurement: coordination entry 22:10:25Z, pushed (`33fcb8e5b`) before any run. B1 = `a4d836c3a`, SHA-256 `afadb0e9b12b94d4c59a01dbfbbba95e5c2ff7e19d519694e1a7ab01592eab20`, guard build `4fcf2918454b`; B0 unchanged.
+
+Smoke (guard `9694e84e52a5`, `raw/ch2_smoke`, `raw/smoke_paths_a4d836c3a.txt`): condition (a) met (arm C hit sums C1 201, C2 1945, C3 5619, C4 1705, C5 72, all fall-back sums 0; arms A and B no request line; 12 of 12 receipts of arms B and C accepted by B0).
+
+| leg | arm | five threads, tok/s (guard `812bf8d01094`) | eight threads, tok/s (guard `918489a7db32`) |
+|---|---|---|---|
+| 1 | A | 49.642 | 50.583 |
+| 2 | B | 50.240 | 50.343 |
+| 3 | C | 54.684 | 53.407 |
+| 4 | C | 53.528 | 53.479 |
+| 5 | B | 51.819 | 52.112 |
+| 6 | A | 51.011 | 52.096 |
+
+Six lanes, legs in the order shown, 6 + 48 requests each; every receipt of arms B and C checked by B0 (54 of 54 in each of the eight legs); DERIVED figures in `raw/ch2_summary.txt`.
+
+- **Five threads, the verdict: C over A +10.16% (legs 1, 3) and +4.93% (legs 6, 4): PASS.** The two A legs are 2.76% apart, under the 3% of the low-leg clause. Against the higher A leg the C legs are +7.20% and +4.93%.
+- **Eight threads, no verdict: C over A +5.58% and +2.66%.** Neither label of the fixed reading applies. Against the higher A leg: +2.52% and +2.66%.
+- **Default-path condition: B over A +1.21% and +1.58% at five threads, -0.47% and +0.03% at eight: "default path restored"** (all four at or above -1.5%; on the first commit they were -5.3, -2.0, -4.4, -3.0%).
+- **Drift inside both sets:** the first A and B legs are 2.8 to 3.5% below the last ones, while the two C legs agree within 2.2% and 0.1%. The order is symmetric, so a steady drift cancels in the means: mean C over mean A is +7.5% at five threads and +4.1% at eight. Quoted: about +5 to +7% at five threads, +2.5 to +5% at eight, one set each.
+- All 648 requests proved; all 432 receipts of the new binary accepted by B0; no other guarded job inside a leg (`raw/overlap_check.txt`, 32 timed legs of this directory); no agent ran beside the sets.
+
+The 6.7% between parts 2 and 3 of the first commit stays unexplained. In the two sets above all three arms sit inside one set, so nothing is chained across sets.
+
+**Next:** one code read of `42b24a522..a4d836c3a`, fixes, the merge check on the merged tree with a full suite pass with the switch forced on, merge.
+
 ## Files
 
-`classifyhost_driver.py`, `t1_driver.py`, `classifyhost_launch.py`, `guarded_here.py`, `classifyhost_summary.py`, `overlap_check.py`, `smoke_paths.py`, `compress_traces.py` (unused); `raw/` holds the build log, the smoke (`ch_smoke`), part 1 (`ch_set1`), part 2 (`ch_lt8`), part 3 (`ch_lt8_ab`), guard records and script outputs. No receipts and no binaries are kept. The content is the eight public posts; nothing under the owner-private directory was read.
+`classifyhost_driver.py`, `t1_driver.py`, `classifyhost_launch.py`, `guarded_here.py`, `classifyhost_summary.py`, `overlap_check.py`, `smoke_paths.py`, `compress_traces.py` (unused); `raw/` holds the build log, the smoke (`ch_smoke`), part 1 (`ch_set1`), part 2 (`ch_lt8`), part 3 (`ch_lt8_ab`), the fixed commit (`ch2_smoke`, `ch2_set5`, `ch2_set8`), guard records and script outputs. No receipts and no binaries are kept. The content is the eight public posts; nothing under the owner-private directory was read.

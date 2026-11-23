@@ -801,6 +801,23 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 23:12 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED
+    from the raw completions]: the third candidate is fixed and now passes cleanly; not merged
+    yet, the code review is next.** Antigravity found why its classifier-side branch slowed the
+    default path (it had restructured the old code around the new switch) and delivered a
+    version in which the old path is the old code again. Re-measured with all three versions
+    inside each run: with the switch off the new binary is level with the merged head in four
+    of four comparisons (between -0.5% and +1.6%); with the switch on the six-lane stream ran
+    at 53.5 and 54.7 tok/s at five threads per lane against 49.6 and 51.0 for the merged head,
+    a PASS by the rule posted before the run, and at 53.4 and 53.5 at eight threads against
+    50.6 and 52.1. Quoted gain: about +5 to +7% at five threads and +2.5 to +5% at eight, one
+    run each (the base legs drifted by about 3% inside each run, so the single pair figures
+    are wider than that). All 432 proofs made by the new binary were accepted by the current
+    verifier. So the installed profile, with this fifth switch, measures about 53 to 55 tok/s
+    on public test posts with the trained 3B classifier; the day began at about 46.5. This is
+    not the private 8B target. Review starts after midnight UTC (today's agent budget is
+    used); the merge follows only after its findings are settled and the full suite passes on
+    the merged code.
     **Nov 23, 21:24 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED
     from the raw completions]: a third candidate of the day passes at five threads per lane but
     is not merged, because it slows the default path.** Antigravity's next branch speeds up the
