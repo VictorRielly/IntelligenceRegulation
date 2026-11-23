@@ -1,0 +1,18 @@
+leg1_armA.prover.log.err: arm A
+       3806  batched sc-chain-fast
+        312  [ZK60-HOST-FAST] block lines; fall-backs summed: h1a 0, h1e 0, h4 0, h5 0, h6 0
+          0  [ZK60-CLASSIFY-HOST-FAST] request lines
+    as required for arm A
+leg2_armB.prover.log.err: arm B
+       3807  batched sc-chain-fast
+        312  [ZK60-HOST-FAST] block lines; fall-backs summed: h1a 0, h1e 0, h4 0, h5 0, h6 0
+          0  [ZK60-CLASSIFY-HOST-FAST] request lines
+    as required for arm B
+leg3_armC.prover.log.err: arm C
+       3819  batched sc-chain-fast
+        312  [ZK60-HOST-FAST] block lines; fall-backs summed: h1a 0, h1e 0, h4 0, h5 0, h6 0
+         12  [ZK60-CLASSIFY-HOST-FAST] request lines
+             hits, sum over the leg:        C1 201, C2 1955, C3 5640, C4 1736, C5 72
+             fall-backs, sum over the leg:  C1 0, C2 0, C3 0, C4 0, C5 0
+    as required for arm C
+condition (a): MET

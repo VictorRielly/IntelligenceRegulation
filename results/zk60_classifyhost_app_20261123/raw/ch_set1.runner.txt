@@ -1,0 +1,4 @@
+[12:14:34] launching ch_set1
+[zk60-guard 12:14:34] START classifyhost-ch_set1 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=68a6158ff1e5
+[zk60-guard 12:42:02] END classifyhost-ch_set1 exit=0 child_wall=1648s peak_rss=56.80G min_avail=134.77G peak_vram=21801MiB
+[12:42:02] ch_set1 guard exit 0

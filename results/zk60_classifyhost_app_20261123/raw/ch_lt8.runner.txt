@@ -1,0 +1,4 @@
+[12:42:17] launching ch_lt8
+[zk60-guard 12:42:17] START classifyhost-ch_lt8 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=b7ae23006840
+[zk60-guard 13:03:49] END classifyhost-ch_lt8 exit=0 child_wall=1292s peak_rss=57.55G min_avail=136.01G peak_vram=19441MiB
+[13:03:49] ch_lt8 guard exit 0
