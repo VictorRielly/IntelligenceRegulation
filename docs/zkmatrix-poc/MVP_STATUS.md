@@ -801,6 +801,18 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 04:03 UTC, Lean [READ by a Claude reviewer, nothing built; three citations checked by
+    Claude]: the input stage's arithmetic is proved in full for the honest prover's tables.** The
+    completeness theorems for the input stage rested on a bundle of 20 assumptions. Antigravity's
+    module `HonestShieldStageInArith` (1,626 lines, on its branch) proves all 20 for concrete tables
+    and leaves none assumed; no proof leans on a degenerate case. Two things still separate it from
+    the top theorem's premise for the input stage. First, the top theorem speaks of an arbitrary
+    prover and nothing yet names the concrete one; that is a short corollary. Second, completeness
+    only covers runs in which the prover does not refuse, and nothing yet shows that the prover's
+    fixed checks pass on these tables; until that is shown the weight sits in a separate premise of
+    the top theorem. The output stage additionally assumes a property of the last block's boundary
+    table that is not proved. Review:
+    `results/zk60_claude_review_20261116/L68C_SECOND_READ_2_20261123.md`.
     **Tick 44, Nov 23 03:55 UTC [MEASURED on three retained traces; the researcher's figures re-run
     by Claude]: the waits of GPU jobs are never a lane waiting for itself, and a small number of long
     waits carry almost all of the waiting.** With six lanes, 15% of the prover's GPU jobs wait more
