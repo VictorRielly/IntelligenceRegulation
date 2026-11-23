@@ -386,7 +386,11 @@ pub(crate) fn prove_classify_run_with(
     }
     protocol::fits_the_ntt_tables(sh)?;
     // N-r13-1: the tables are bound to the statement's trained statement and are its own
-    st.check_tables_prover(tables)?;
+    if classify_host_fast_on() {
+        st.check_tables_prover(tables)?;
+    } else {
+        st.check_tables(tables)?;
+    }
     let tables = tables.tables();
     if owner.commitment().root != st.in_root() || owner.cm.rows != st.in_spec.commitment_rows() {
         return Err("classifier run: the input endpoint owner is not the statement's".into());
@@ -422,9 +426,143 @@ pub(crate) fn prove_classify_run_with(
     #[cfg(test)]
     CLASSIFY_HEADERS.with(|c| c.set(c.get() + 1));
     let binding = tr.state();
+    if classify_host_fast_on() {
+        return prove_classify_run_loop_fast(
+            st,
+            blocks,
+            kept,
+            tables,
+            src,
+            owner,
+            win,
+            b_in_plane,
+            wout,
+            out_lay,
+            cheating,
+            &ntt,
+            &mut rng,
+            &mut tr,
+            &tag,
+            binding,
+            sink,
+        );
+    }
+    let mut stats = ClassifyRunStats::default();
+
+    // ---- stage IN-C
+    let t0 = Instant::now();
+    let start = position_tag(&tr);
+    let in_lay = super::stage_in_c::layout(sh, cp);
+    let b0 = st.boundary_spec(0)?;
+    let inp = super::stage_in_c::prove(&in_lay, cp, tables, win, &b0, &b_in_plane, owner, &ntt, &mut rng, &mut tr, &tag)?;
+    let end = position_tag(&tr);
+    let bytes = st.in_geom(&in_lay).encode(&inp.seg, &binding, &start, &end)?;
+    stats.segment_bytes.push(bytes.len());
+    sink(0, bytes)?;
+    stats.prove_s.push(t0.elapsed().as_secs_f64());
+    let in_dec = inp.decommitment;
+    let mut pending: Vec<ZClaim> = inp.pending_b;
+    let mut prev: (BoundarySpec, PreparedBoundary) = (b0, inp.b_owner);
+
+    // ---- the blocks, unchanged
+    for k in 0..l {
+        let t0 = Instant::now();
+        let mut ph = timing::Phases::start();
+        let mut phases: Vec<(&'static str, f64)> = Vec::new();
+        let mut tick = Instant::now();
+        let start = position_tag(&tr);
+        tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
+        tr.absorb(b"pb-run-block", &st.block_digests[k]);
+        let blk = blocks.block(k)?;
+        // [A26] CS-1 / CS-4 / CS-6 as `stage_block_is_the_statements` (the same checks, order and
+        // refusals), keeping the record of the passed CS-1 / CS-4 check for `prove_core_with`
+        let checked = Some(stage_block_kept(st, k, &blk, !cheating, kept_of(k))?);
+        // [GPU-CLASSIFIER LANE, diagnostic only] phase marks (write-only recorder, inert unless HL_PB_TIMING=1)
+        ph.mark(timing::Half::Run, "run: block load + statement check", 1, "block");
+        let spec = st.boundary_spec(k + 1)?;
+        let plane = src.boundary_plane(k)?;
+        if plane.len() != spec.len() {
+            return Err(format!("classifier run: boundary {}'s plane is {} words, the padded plane is {}", k + 1, plane.len(), spec.len()));
+        }
+        let words: Vec<Fp> = plane.iter().map(|x| Fp::from_i64(i64::from(*x))).collect();
+        let cur = boundary::prepare(&spec, &words, &ntt, &mut rng, &tag)?;
+        ph.mark_bytes(timing::Half::Run, "run: boundary B_k commitment", spec.len() as u64, "words", 8 * spec.len() as u64);
+        protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
+        let lay = st.block_layout(k)?;
+        let ssh = st.stage_shape(k)?;
+        let wit = src.witness(k, &blk, &ssh)?;
+        ph.mark(timing::Half::Run, "run: witness (CliSource)", 1, "block");
+        // [A26] the record above stands in for `prove_core`'s own CS-1 / CS-4 re-check of this very
+        // block at this very shape and for `define`'s per-slot registry re-checks (A17 / A18's
+        // `CoreHints`: honoured only for the same object at an equal shape; `HL_A17_CHECKED=0` /
+        // `HL_A18_REGISTRY=0` or `HL_A26_RUN_RECORD=0` re-check as before). The same bytes.
+        let hints = protocol::CoreHints { checked: checked.as_ref().filter(|_| a26_run_record_on()) };
+        let core = protocol::prove_core_with(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints)?;
+        let [ic, oc] = core.io_claims;
+        let mut claims = std::mem::take(&mut pending);
+        claims.extend(ic);
+        let (pspec, powner) = prev;
+        let in_open = powner.into_opening(&pspec, &claims, &mut tr)?;
+        ph.mark(timing::Half::Open, "run: boundary B_(k-1) opening", claims.len() as u64, "claims");
+        pending = oc;
+        let end = position_tag(&tr);
+        let seg = Segment { b_root: Some(cur.root()), a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open, in_open, out_open: None };
+        let bytes = wire::encode_segment(&seg, &lay, st.block_geom(k)?, &binding, &start, &end)?;
+        drop(seg);
+        let nbytes = bytes.len() as u64;
+        ph.mark(timing::Half::Frame, "frame: encode segment", nbytes, "bytes");
+        stats.segment_bytes.push(bytes.len());
+        sink(k + 1, bytes)?;
+        ph.mark(timing::Half::Frame, "sink: segment to disk", nbytes, "bytes");
+        prev = (spec, cur);
+        drop(blk);
+        ph.mark(timing::Half::Run, "run: drop block", 1, "block");
+        ph.report("prove", st.profile());
+        stats.prove_s.push(t0.elapsed().as_secs_f64());
+    }
+
+    // ---- stage OUT-C
+    let t0 = Instant::now();
+    let start = position_tag(&tr);
+    let (bspec, bowner) = prev;
+    let outp = super::stage_out_c::prove(&out_lay, cp, tables, wout, st.verdict(), &bspec, bowner, pending, (l + 1) as u64, &ntt, &mut rng, &mut tr, &tag)?;
+    let end = position_tag(&tr);
+    let bytes = st.out_geom(&out_lay)?.encode(&outp.seg, &binding, &start, &end)?;
+    stats.segment_bytes.push(bytes.len());
+    sink(l + 1, bytes)?;
+    stats.prove_s.push(t0.elapsed().as_secs_f64());
+    Ok((stats, in_dec))
+}
+
+/// Out-of-line `HL_CLASSIFY_HOST_FAST=1` stage loop (`C2` bounded-1 scoped writer thread
+/// + `C3` `boundary::prepare_i16`), keeping [`prove_classify_run_with`] verbatim on the unset path.
+#[allow(clippy::too_many_arguments)]
+#[inline(never)]
+fn prove_classify_run_loop_fast(
+    st: &ClassifyRunStatement,
+    blocks: &mut dyn TokenBlocks,
+    kept: Option<&[std::sync::Arc<super::super::run::fork::KeptBlock>]>,
+    tables: &ClassifierTables,
+    src: &mut dyn ClassifyRunSource,
+    owner: CommittedZk,
+    win: StageInWitness,
+    b_in_plane: Vec<i16>,
+    wout: StageOutCWitness,
+    out_lay: StageLayout,
+    cheating: bool,
+    ntt: &NttTables,
+    rng: &mut ZkRng,
+    tr: &mut Transcript,
+    tag: &zkp_core::hashtag::HashTag,
+    binding: Digest,
+    sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
+) -> Result<(ClassifyRunStats, Decommitment), String> {
+    use std::time::Instant;
+    let kept_of = |k: usize| kept.filter(|_| a26_kept_on()).and_then(|v| v.get(k)).map(|a| &**a);
+    let (sh, l, cp) = (st.sh(), st.l(), &st.cp);
 
     let mut async_disk = ASYNC_DIR_SINK.with(|c| c.borrow_mut().take());
-    if classify_host_fast_on() && async_disk.is_none() {
+    if async_disk.is_none() {
         record_classify_host_fast_fallback(CHF_C2_ASYNC_SINK);
     }
     let abort = std::sync::atomic::AtomicBool::new(false);
@@ -470,11 +608,11 @@ pub(crate) fn prove_classify_run_with(
 
             // ---- stage IN-C
             let t0 = Instant::now();
-            let start = position_tag(&tr);
+            let start = position_tag(tr);
             let in_lay = super::stage_in_c::layout(sh, cp);
             let b0 = st.boundary_spec(0)?;
-            let inp = super::stage_in_c::prove(&in_lay, cp, tables, win, &b0, &b_in_plane, owner, &ntt, &mut rng, &mut tr, &tag)?;
-            let end = position_tag(&tr);
+            let inp = super::stage_in_c::prove(&in_lay, cp, tables, win, &b0, &b_in_plane, owner, ntt, rng, tr, tag)?;
+            let end = position_tag(tr);
             let bytes = st.in_geom(&in_lay).encode(&inp.seg, &binding, &start, &end)?;
             dispatcher.send_raw(0, bytes, &mut stats, &mut *sink)?;
             stats.prove_s.push(t0.elapsed().as_secs_f64());
@@ -488,46 +626,34 @@ pub(crate) fn prove_classify_run_with(
                 let mut ph = timing::Phases::start();
                 let mut phases: Vec<(&'static str, f64)> = Vec::new();
                 let mut tick = Instant::now();
-                let start = position_tag(&tr);
+                let start = position_tag(tr);
                 tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
                 tr.absorb(b"pb-run-block", &st.block_digests[k]);
                 let blk = blocks.block(k)?;
-                // [A26] CS-1 / CS-4 / CS-6 as `stage_block_is_the_statements` (the same checks, order and
-                // refusals), keeping the record of the passed CS-1 / CS-4 check for `prove_core_with`
                 let checked = Some(stage_block_kept(st, k, &blk, !cheating, kept_of(k))?);
-                // [GPU-CLASSIFIER LANE, diagnostic only] phase marks (write-only recorder, inert unless HL_PB_TIMING=1)
                 ph.mark(timing::Half::Run, "run: block load + statement check", 1, "block");
                 let spec = st.boundary_spec(k + 1)?;
                 let plane = src.boundary_plane(k)?;
                 if plane.len() != spec.len() {
                     return Err(format!("classifier run: boundary {}'s plane is {} words, the padded plane is {}", k + 1, plane.len(), spec.len()));
                 }
-                let cur = if classify_host_fast_on() {
-                    boundary::prepare_i16(&spec, &plane, &ntt, &mut rng, &tag)?
-                } else {
-                    let words: Vec<Fp> = plane.iter().map(|x| Fp::from_i64(i64::from(*x))).collect();
-                    boundary::prepare(&spec, &words, &ntt, &mut rng, &tag)?
-                };
+                let cur = boundary::prepare_i16(&spec, &plane, ntt, rng, tag)?;
                 ph.mark_bytes(timing::Half::Run, "run: boundary B_k commitment", spec.len() as u64, "words", 8 * spec.len() as u64);
-                protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
+                protocol::absorb_root(tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
                 let lay = st.block_layout(k)?;
                 let ssh = st.stage_shape(k)?;
                 let wit = src.witness(k, &blk, &ssh)?;
                 ph.mark(timing::Half::Run, "run: witness (CliSource)", 1, "block");
-                // [A26] the record above stands in for `prove_core`'s own CS-1 / CS-4 re-check of this very
-                // block at this very shape and for `define`'s per-slot registry re-checks (A17 / A18's
-                // `CoreHints`: honoured only for the same object at an equal shape; `HL_A17_CHECKED=0` /
-                // `HL_A18_REGISTRY=0` or `HL_A26_RUN_RECORD=0` re-check as before). The same bytes.
                 let hints = protocol::CoreHints { checked: checked.as_ref().filter(|_| a26_run_record_on()) };
-                let core = protocol::prove_core_with(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints)?;
+                let core = protocol::prove_core_with(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], ntt, rng, tr, &mut ph, &mut phases, &mut tick, hints)?;
                 let [ic, oc] = core.io_claims;
                 let mut claims = std::mem::take(&mut pending);
                 claims.extend(ic);
                 let (pspec, powner) = prev;
-                let in_open = powner.into_opening(&pspec, &claims, &mut tr)?;
+                let in_open = powner.into_opening(&pspec, &claims, tr)?;
                 ph.mark(timing::Half::Open, "run: boundary B_(k-1) opening", claims.len() as u64, "claims");
                 pending = oc;
-                let end = position_tag(&tr);
+                let end = position_tag(tr);
                 let seg = Segment { b_root: Some(cur.root()), a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open, in_open, out_open: None };
                 let geom = st.block_geom(k)?;
                 dispatcher.send_block(k + 1, seg, lay, geom, binding, start, end, &mut ph, &mut stats, &mut *sink)?;
@@ -540,10 +666,10 @@ pub(crate) fn prove_classify_run_with(
 
             // ---- stage OUT-C
             let t0 = Instant::now();
-            let start = position_tag(&tr);
+            let start = position_tag(tr);
             let (bspec, bowner) = prev;
-            let outp = super::stage_out_c::prove(&out_lay, cp, tables, wout, st.verdict(), &bspec, bowner, pending, (l + 1) as u64, &ntt, &mut rng, &mut tr, &tag)?;
-            let end = position_tag(&tr);
+            let outp = super::stage_out_c::prove(&out_lay, cp, tables, wout, st.verdict(), &bspec, bowner, pending, (l + 1) as u64, ntt, rng, tr, tag)?;
+            let end = position_tag(tr);
             let bytes = st.out_geom(&out_lay)?.encode(&outp.seg, &binding, &start, &end)?;
             dispatcher.send_raw(l + 1, bytes, &mut stats, &mut *sink)?;
             stats.prove_s.push(t0.elapsed().as_secs_f64());
@@ -574,6 +700,7 @@ pub(crate) fn prove_classify_run_with(
 /// `0..=L+1` on the calling (request) thread, and joining the writer thread before returning
 /// on both `Ok` and `Err`. When `HL_CLASSIFY_HOST_FAST` is off, runs synchronously.
 #[allow(clippy::too_many_arguments)]
+#[inline(never)]
 pub(crate) fn prove_classify_run_with_dir_sink(
     st: &ClassifyRunStatement,
     blocks: &mut dyn TokenBlocks,

@@ -685,6 +685,7 @@ mod emb_neon {
         Fp2::new(reduce_centered(sh0, sl0, sum_w), reduce_centered(sh1, sl1, sum_w))
     }
 
+    #[inline(never)]
     pub(super) fn fold_all(emb: &[i16], v: usize, d: usize, e: &[Fp2]) -> Vec<Fp2> {
         use rayon::prelude::*;
         assert!(d < (1 << 16) && e.len() >= d && emb.len() == v * d);
@@ -890,6 +891,9 @@ impl ClassifierTables {
     /// `E~(v, r)` for every true row (the verifier's O(V d) fold; parallel,
     /// exact field addition, as `TokenTables::emb_fold`)
     pub(crate) fn emb_fold(&self, r: &[Fp2]) -> Vec<Fp2> {
+        if classify_host_fast_on() {
+            return self.emb_fold_fast(r);
+        }
         use rayon::prelude::*;
         let e = eq_table_msb(r);
         // [A26] `HL_A26_EMB` (default on; `0`: the per-word field fold below). Each eq entry's two
@@ -899,17 +903,6 @@ impl ClassifierTables {
         // is the exact integer `sum w c` (in i128), reduced once. The field sum is that integer
         // mod p, so every entry is the per-word fold's field element.
         if a26_emb_on() && self.d < 1 << 16 && e.len() >= self.d {
-            if classify_host_fast_on() {
-                #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
-                {
-                    record_classify_host_fast_hit(CHF_C5_EMB_FOLD_NEON);
-                    return emb_neon::fold_all(&self.emb, self.v, self.d, &e);
-                }
-                #[cfg(not(all(target_arch = "aarch64", target_feature = "neon")))]
-                {
-                    record_classify_host_fast_fallback(CHF_C5_EMB_FOLD_NEON);
-                }
-            }
             let split = |x: u64| (i64::from((x >> 32) as u32), i64::from(x as u32));
             let limbs: Vec<[i64; 4]> = e[..self.d].iter().map(|c| {
                 let ((h0, l0), (h1, l1)) = (split(c.c0.0), split(c.c1.0));
@@ -933,9 +926,54 @@ impl ClassifierTables {
                     Fp2::new(reduce(s[0], s[1]), reduce(s[2], s[3]))
                 })
                 .collect();
-        } else if classify_host_fast_on() {
-            record_classify_host_fast_fallback(CHF_C5_EMB_FOLD_NEON);
         }
+        (0..self.v)
+            .into_par_iter()
+            .map(|v| self.emb_row(v).iter().zip(e.iter()).fold(Fp2::ZERO, |a, (w, c)| if *w == 0 { a } else { a.add(c.mul_base(Fp::from_i64(i64::from(*w)))) }))
+            .collect()
+    }
+
+    /// Out-of-line C5 (`HL_CLASSIFY_HOST_FAST=1`) embedding fold so the unset `emb_fold`
+    /// keeps the base binary's exact CFG and vectorization.
+    #[inline(never)]
+    fn emb_fold_fast(&self, r: &[Fp2]) -> Vec<Fp2> {
+        use rayon::prelude::*;
+        let e = eq_table_msb(r);
+        if a26_emb_on() && self.d < 1 << 16 && e.len() >= self.d {
+            #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+            {
+                record_classify_host_fast_hit(CHF_C5_EMB_FOLD_NEON);
+                return emb_neon::fold_all(&self.emb, self.v, self.d, &e);
+            }
+            #[cfg(not(all(target_arch = "aarch64", target_feature = "neon")))]
+            {
+                record_classify_host_fast_fallback(CHF_C5_EMB_FOLD_NEON);
+                let split = |x: u64| (i64::from((x >> 32) as u32), i64::from(x as u32));
+                let limbs: Vec<[i64; 4]> = e[..self.d].iter().map(|c| {
+                    let ((h0, l0), (h1, l1)) = (split(c.c0.0), split(c.c1.0));
+                    [h0, l0, h1, l1]
+                }).collect();
+                let reduce = |hi: i64, lo: i64| {
+                    let s = (i128::from(hi) << 32) + i128::from(lo);
+                    let m = Fp::from_u128(s.unsigned_abs());
+                    if s < 0 { Fp::ZERO.sub(m) } else { m }
+                };
+                return (0..self.v)
+                    .into_par_iter()
+                    .map(|v| {
+                        let mut s = [0i64; 4];
+                        for (w, l) in self.emb_row(v).iter().zip(limbs.iter()) {
+                            let w = i64::from(*w);
+                            for (a, b) in s.iter_mut().zip(l.iter()) {
+                                *a += w * b;
+                            }
+                        }
+                        Fp2::new(reduce(s[0], s[1]), reduce(s[2], s[3]))
+                    })
+                    .collect();
+            }
+        }
+        record_classify_host_fast_fallback(CHF_C5_EMB_FOLD_NEON);
         (0..self.v)
             .into_par_iter()
             .map(|v| self.emb_row(v).iter().zip(e.iter()).fold(Fp2::ZERO, |a, (w, c)| if *w == 0 { a } else { a.add(c.mul_base(Fp::from_i64(i64::from(*w)))) }))
@@ -986,18 +1024,31 @@ impl ClassifierProfile {
     /// **THE CLASSIFIER DOOR.** Refuses by name every constant outside its
     /// class, on the prover's AND the verifier's side.
     pub(crate) fn new(sh: &Shape, tables: &ClassifierTables, bos: u64, norm: FinalNorm, policy: &Policy, n: usize, tier: Tier) -> Result<ClassifierProfile, String> {
-        Self::new_inner(sh, tables, bos, norm, policy, n, tier, None)
+        Self::new_with_digests(sh, tables, bos, norm, policy, n, tier, || (tables.emb_digest(), tables.w_digest()))
     }
 
     /// Same validation and exact same profile as [`ClassifierProfile::new`]; when
     /// `HL_CLASSIFY_HOST_FAST=1`, reads the cached `emb_digest` and `w_digest` from
     /// `bound` instead of re-hashing the immutable table on every request.
+    #[inline(never)]
     pub(crate) fn new_bound(sh: &Shape, bound: &super::classify_tied::BoundClassifierTables, policy: &Policy, n: usize, tier: Tier) -> Result<ClassifierProfile, String> {
-        Self::new_inner(sh, bound.tables(), bound.bos(), bound.norm(), policy, n, tier, Some(bound))
+        if classify_host_fast_on() {
+            return Self::new_bound_fast(sh, bound, policy, n, tier);
+        }
+        Self::new(sh, bound.tables(), bound.bos(), bound.norm(), policy, n, tier)
+    }
+
+    #[inline(never)]
+    fn new_bound_fast(sh: &Shape, bound: &super::classify_tied::BoundClassifierTables, policy: &Policy, n: usize, tier: Tier) -> Result<ClassifierProfile, String> {
+        Self::new_with_digests(sh, bound.tables(), bound.bos(), bound.norm(), policy, n, tier, || {
+            record_classify_host_fast_hit(CHF_C1_DIGESTS);
+            (bound.emb_digest(), bound.w_digest())
+        })
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn new_inner(
+    #[inline(always)]
+    fn new_with_digests<F: FnOnce() -> (Digest, Digest)>(
         sh: &Shape,
         tables: &ClassifierTables,
         bos: u64,
@@ -1005,7 +1056,7 @@ impl ClassifierProfile {
         policy: &Policy,
         n: usize,
         tier: Tier,
-        bound: Option<&super::classify_tied::BoundClassifierTables>,
+        digests: F,
     ) -> Result<ClassifierProfile, String> {
         rulings_are_built()?;
         tier.check()?;
@@ -1084,13 +1135,7 @@ impl ClassifierProfile {
         if LAM_BASE + limbs > 1usize << clog2(2 * 3 * LIMBS_ISQRT).max(lt) {
             return Err("classifier: the margin limbs do not fit the isqrt-limb domain".into());
         }
-        let (emb_digest, w_digest) = match bound {
-            Some(b) if classify_host_fast_on() => {
-                record_classify_host_fast_hit(CHF_C1_DIGESTS);
-                (b.emb_digest(), b.w_digest())
-            }
-            _ => (tables.emb_digest(), tables.w_digest()),
-        };
+        let (emb_digest, w_digest) = digests();
         Ok(ClassifierProfile {
             v,
             v_pad,
@@ -1433,7 +1478,11 @@ impl ClassifyRunStatement {
         model.check_against(sh, rs.profile(), &block_digests, &vec![scales; l])?;
         // N-r13-1: the tables are bound to this trained statement and policy
         tables.check_for(sh, rs.profile(), model, policy)?;
-        let cp = ClassifierProfile::new_bound(sh, tables, policy, n, tier)?;
+        let cp = if classify_host_fast_on() {
+            ClassifierProfile::new_bound(sh, tables, policy, n, tier)?
+        } else {
+            ClassifierProfile::new(sh, tables.tables(), tables.bos(), tables.norm(), policy, n, tier)?
+        };
         let size = sh.tokens.checked_sub(policy.prefix.len() + policy.suffix.len()).filter(|x| *x > 0).ok_or("classifier run: the policy's template leaves no content position")?;
         let chunk = ChunkRef::derive(total, chunk_index, ChunkPlan { size, overlap: chunk_overlap_of(rs.profile())? })?;
         if chunk.b - chunk.a != n {
@@ -1486,6 +1535,7 @@ impl ClassifyRunStatement {
     /// `HL_CLASSIFY_HOST_FAST=1`, uses the cached digests on the immutable `BoundClassifierTables`
     /// instead of re-hashing the 805 MB embedding table a third time per request. When the switch
     /// is off, delegates directly to [`ClassifyRunStatement::check_tables`].
+    #[inline(never)]
     pub(crate) fn check_tables_prover(&self, t: &super::classify_tied::BoundClassifierTables) -> Result<(), String> {
         if classify_host_fast_on() {
             if t.model_identity() != self.model_identity || t.profile_sha256() != self.tables_profile_sha256 || t.is_derived() != self.tables_derived {
