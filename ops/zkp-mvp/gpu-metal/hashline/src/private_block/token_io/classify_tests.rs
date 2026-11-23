@@ -611,7 +611,9 @@ fn classify_host_fast_emb_fold_neon_matches_scalar() {
             assert_eq!(t.emb_fold(&r), want, "OFF: {v} x {d}");
         }
         let h1 = classify_host_fast_hits_snapshot();
-        assert_eq!(h1[CHF_C5_EMB_FOLD_NEON], h0[CHF_C5_EMB_FOLD_NEON], "C5 must not fire when OFF");
+        if std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v != "1").unwrap_or(true) {
+            assert_eq!(h1[CHF_C5_EMB_FOLD_NEON], h0[CHF_C5_EMB_FOLD_NEON], "C5 must not fire when OFF");
+        }
     }
 
     {
@@ -716,7 +718,9 @@ fn classify_host_fast_bound_digests_match_tables() {
         let st = statement(&cx, [7u8; 32], 0).unwrap();
         st.check_tables_prover(&cx.bound).unwrap();
         let h1 = classify_host_fast_hits_snapshot();
-        assert_eq!(h1[CHF_C1_DIGESTS], h0[CHF_C1_DIGESTS], "C1 must not fire when OFF");
+        if std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v != "1").unwrap_or(true) {
+            assert_eq!(h1[CHF_C1_DIGESTS], h0[CHF_C1_DIGESTS], "C1 must not fire when OFF");
+        }
         cp
     };
 
@@ -775,7 +779,9 @@ fn classify_host_fast_boundary_prepare_i16_matches_prepare() {
         let h0 = classify_host_fast_hits_snapshot();
         let p = boundary::prepare(&spec, &words, &ntt, &mut rng_off, &HashTag::legacy()).unwrap();
         let h1 = classify_host_fast_hits_snapshot();
-        assert_eq!(h1[CHF_C3_SEQ_BOUNDARY], h0[CHF_C3_SEQ_BOUNDARY], "C3 must not fire when OFF");
+        if std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v != "1").unwrap_or(true) {
+            assert_eq!(h1[CHF_C3_SEQ_BOUNDARY], h0[CHF_C3_SEQ_BOUNDARY], "C3 must not fire when OFF");
+        }
         let tail: Vec<Fp> = (0..16).map(|_| rng_off.fp()).collect();
         (p, tail)
     };

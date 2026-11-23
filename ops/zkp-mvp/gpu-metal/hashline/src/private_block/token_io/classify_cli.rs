@@ -871,6 +871,8 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
         st.whole_run().floor_bits,
         t_all.elapsed().as_secs_f64()
     ));
+    // Note: CLASSIFY_HOST_FAST_HITS/FALLBACKS are process-wide atomics, so in multi-lane runs
+    // `req_hits` deltas include concurrent lanes' hits; `total_hits`/`total_fallbacks` are exact process-wide totals.
     if fast_telemetry {
         let h_after = classify_host_fast_hits_snapshot();
         let f_after = classify_host_fast_fallbacks_snapshot();
