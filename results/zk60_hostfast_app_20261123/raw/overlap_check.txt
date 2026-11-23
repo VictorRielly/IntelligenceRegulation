@@ -1,0 +1,1 @@
+6 timed legs checked against 5156 history records; 0 overlaps by jobs other than this test's own

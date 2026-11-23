@@ -801,6 +801,23 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 18:08 UTC, speed [MEASURED by Claude at the installed app profile, six lanes by five
+    threads; gains DERIVED from the raw completions; the 8B figure MEASURED by Antigravity and
+    recomputed by Claude]: a host-side speed-up passes at the app profile, +5 to +8%; not merged
+    yet, the code reads are running.** Antigravity's switch `HL_HOST_FAST=1` (off by default; six
+    changes to work the CPU does between GPU jobs) was measured on top of everything merged so
+    far. The six-lane stream ran at 50.8 and 49.2 tok/s with it, against 46.9 tok/s for the
+    merged head in the clean base leg. The rule posted before the run asks for +3% in both pairs;
+    the pairs came out at +8.4% and +11.3%, a PASS. The second figure rests on a base leg that
+    ran 5.5% low for no known reason, so the gain is quoted as +5 to +8% (what the other
+    comparisons inside the set give), and the pass does not depend on that leg. All 216 proofs
+    made by the new binary were accepted by the current verifier. On the 8B stream the same
+    switch shortens the steady gap by 3.0% (6 of 6 passes, 39.3 to 40.3 tok/s). This time the
+    measurement came before the code review, because the change is large (about 3,700 lines)
+    and two reviewers are needed; they are reading now. Merge follows only after their findings
+    are settled and the full test suite passes on the merged code. Two legs near 50 do not mean
+    the profile runs at 50: rates drift by one to two percent between runs. Record:
+    `results/zk60_hostfast_app_20261123/README.md`.
     **Tick 49, Nov 23 16:43 UTC [DERIVED by the researcher from the code and earlier ticks, its
     script re-run by Claude; nothing measured]:** a count for one of the future-protocol candidates
     (candidate B, which packs a block's small values more tightly). The open question was how many
@@ -825,9 +842,11 @@ item was re-checked against the source by the coordinator.
     555), not from making one job faster. The switch is offered to the app's lane (Astra) with the
     two merged yesterday. **At six lanes by eight threads** (the best setting measured so far;
     measured at 15:34 UTC, four legs) the switch gains less, +1.7% and +1.9%: 48.9 and 49.6 tok/s
-    with it against 48.1 and 48.7 without. Those are the highest rates measured at the installed
-    profile so far, and they are still just under 50. Record:
-    `results/zk60_scchain_app_20261123/README.md`.
+    with it against 48.1 and 48.7 without. (Corrected 18:08 UTC: this paragraph first called
+    those the highest rates measured at the installed profile. They are not: on Nov 22 the
+    tail-round option at the same setting had legs between 49.5 and 50.8. Rates of different days
+    differ by one to two percent, so only the paired gains inside one measurement can be
+    compared.) Record: `results/zk60_scchain_app_20261123/README.md`.
     **Nov 23, 13:37 UTC, speed [timing MEASURED by Antigravity, the 8B gaps recomputed by Claude;
     code READ by a Claude reviewer, nothing built]: a new candidate, a faster sumcheck chain on the
     GPU, passes its 8B test and its code review with two faults to fix first.** Antigravity found

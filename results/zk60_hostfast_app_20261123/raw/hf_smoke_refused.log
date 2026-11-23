@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/victorrielly/IntelligenceRegulation/results/zk60_hostfast_app_20261123/hostfast_driver.py", line 228, in <module>
+    main()
+  File "/Users/victorrielly/IntelligenceRegulation/results/zk60_hostfast_app_20261123/hostfast_driver.py", line 95, in main
+    pool.write(scr / 'act-request.json', scr / 'act')
+  File "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/w16r2_resident_app_candidate_20261112/client.py", line 124, in write
+    result = client.call('write', source, output, timeout=max(0.001, timeout-queued))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/w16r2_resident_app_candidate_20261112/client.py", line 80, in call
+    raise WriterFailed('resident writer refused request')
+client.WriterFailed: resident writer refused request

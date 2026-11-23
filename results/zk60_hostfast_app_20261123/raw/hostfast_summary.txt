@@ -1,0 +1,14 @@
+== hf_set1: six legs A, B, C, C, B, A (6 lanes x 5 threads, per-thread queues, N + 48)
+leg 1 arm A: rate 46.858 tok/s | mean prove call 13.295 s | all proved True | arm A: receipts deleted unverified | 2026-11-23T17:38:38Z to 2026-11-23T17:41:39Z
+leg 2 arm B: rate 47.153 tok/s | mean prove call 13.265 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-23T17:41:40Z to 2026-11-23T17:44:41Z
+leg 3 arm C: rate 50.778 tok/s | mean prove call 12.053 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-23T17:47:13Z to 2026-11-23T17:50:04Z
+leg 4 arm C: rate 49.244 tok/s | mean prove call 12.221 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-23T17:52:36Z to 2026-11-23T17:55:30Z
+leg 5 arm B: rate 46.737 tok/s | mean prove call 13.141 s | all proved True | receipts checked by B0 check-serve 54 of 54, other 0 | 2026-11-23T17:58:02Z to 2026-11-23T18:01:05Z
+leg 6 arm A: rate 44.257 tok/s | mean prove call 14.110 s | all proved True | arm A: receipts deleted unverified | 2026-11-23T18:03:37Z to 2026-11-23T18:06:48Z
+PRIMARY, C over A: pair (leg 1, leg 3) +8.37%, pair (leg 6, leg 4) +11.27%
+secondary, B over A: pair (1, 2) +0.63%, pair (6, 5) +5.60%; C over B: pair (2, 3) +7.69%, pair (5, 4) +5.36%
+verdict of this set by the 03:01:33Z rule: PASS
+guard d52d3ed514f2: exit 0, peak RSS 58.8 GiB, peak VRAM 23518 MiB, waited 0.1 s
+
+== primary pair gains of the sets read: +8.37%, +11.27%; mean +9.82%
+

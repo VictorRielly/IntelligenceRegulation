@@ -1,0 +1,14 @@
+2026-11-23T17:35:17Z
+RAM   206.05 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 125.0 of 252.5 GiB committed by guarded jobs
+  job  hostfast-hf_smoke2           gpu   need 125G since 2026-11-23T17:31:25Z
+LOCKS heavy HELD, build free
+GPU   517 of 196608 MiB used
+DISK  /System/Volumes/VM 78.6 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16723 MiB  pid 48978   agy
+  rss   4670 MiB  pid 1578    claude
+  rss   1910 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1433 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1330 MiB  pid 17265   claude
+  rss   1068 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/

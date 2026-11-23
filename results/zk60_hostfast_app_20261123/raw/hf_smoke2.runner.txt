@@ -1,0 +1,4 @@
+[09:31:24] launching hf_smoke2
+[zk60-guard 09:31:25] START hostfast-hf_smoke2 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=8bf77d1bca68
+[zk60-guard 09:37:27] END hostfast-hf_smoke2 exit=0 child_wall=362s peak_rss=60.59G min_avail=131.37G peak_vram=24747MiB
+[09:37:27] hf_smoke2 guard exit 0

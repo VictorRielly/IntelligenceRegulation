@@ -1,0 +1,4 @@
+[09:38:15] launching hf_set1
+[zk60-guard 09:38:15] START hostfast-hf_set1 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=d52d3ed514f2
+[zk60-guard 10:06:48] END hostfast-hf_set1 exit=0 child_wall=1713s peak_rss=58.80G min_avail=130.87G peak_vram=23518MiB
+[10:06:48] hf_set1 guard exit 0
