@@ -801,6 +801,21 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 21:24 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED
+    from the raw completions]: a third candidate of the day passes at five threads per lane but
+    is not merged, because it slows the default path.** Antigravity's next branch speeds up the
+    classifier's own host work (table digests computed once, proof segments written by a helper
+    thread, and three smaller cuts), behind a new switch `HL_CLASSIFY_HOST_FAST=1`. With the
+    switch on, the six-lane stream ran at 54.3 and 54.6 tok/s against 51.3 and 51.0 for the
+    merged head: +5.9% and +7.1%, a PASS by the rule posted before the run, and every proof was
+    accepted by the current verifier. But the same new binary with the switch off is slower than
+    the merged head in all four comparisons made (2 to 5%, at five and at eight threads per
+    lane), and at eight threads the switch adds nothing. A switch that is off has to leave the
+    old path as it was, so the branch goes back to its author before any review or merge. One
+    measurement does not fit the others (the same setting ran 7% apart in two runs twenty
+    minutes apart) and is unexplained; it is recorded as such. This is the trained 3B classifier
+    profile on public test posts, not the private 8B target. Record:
+    `results/zk60_classifyhost_app_20261123/README.md`.
     **Tick 50, Nov 23 19:56 UTC [DERIVED by the researcher from the Lean bounds and the registered
     sizes, its script re-run by Claude; nothing measured]:** a second count for the same
     future-protocol candidate (candidate B). Its new range test only shows that each committed
