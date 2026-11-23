@@ -41,7 +41,7 @@ Three legs A, B, C of 6 + 6 requests with `HL_METAL_TIMING=1`, read by `smoke_pa
 | B | 3823, all `sc-chain-fast` | 0 | 0 |
 | C | 3814, all `sc-chain-fast` | 312 block lines (12 requests of 26 blocks) | 0 in every one of the five fall-back counters |
 
-In arm C every one of the eight hit counters was non-zero in all 312 blocks (sums over the leg: h1 2753, h2 1306, h3 5262, h4 10237, h5 11733, h6g 14168, h6c 1437, h6d 4119). All 36 requests proved; B0's `check-serve` accepted 12 of 12 receipts of arm B and of arm C. Condition (a) of the definition: met.
+In arm C every one of the eight hit counters was non-zero in all 312 block lines (sums over the leg: h1 2753, h2 1306, h3 5262, h4 10237, h5 11733, h6g 14168, h6c 1437, h6d 4119). What that shows (CORRECTED after the code read, finding L1 of `HOST_FAST_READ_A_20261123.md`): the counters are process-wide and a block line prints the change during that block, so with six lanes in one process a line also counts the other lanes' hits. Established: every component ran in the process, and no fall-back happened anywhere in the leg (any fall-back in any lane raises a counter). Not established: that every component ran in each single block. All 36 requests proved; B0's `check-serve` accepted 12 of 12 receipts of arm B and of arm C. Condition (a) of the definition: met.
 
 ## Set of record: A, B, C, C, B, A (guard `d52d3ed514f2`, exit 0, peak RSS 58.8 GiB, peak VRAM 23.0 GiB)
 
