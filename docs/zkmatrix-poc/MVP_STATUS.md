@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 08:13 UTC, speed [timing MEASURED by Antigravity, not re-run by Claude; code READ by a
+    Claude reviewer, nothing built; three citations checked by Claude]: a faster opening step passes
+    its 8B test and its code review; not merged yet.** Antigravity's change (two switches, off by
+    default, on its own branch) skips two tables the opening never reads and gathers the opened
+    columns on the host instead of in three GPU jobs per block. On the synthetic 8B stream, on top of
+    the two switches merged yesterday, the steady gap was 1.99% shorter in a first set (6 of 6
+    passes, a hair under the 2.0% bar set in advance, so not counted) and 2.32% shorter in the one
+    repeat the rule allowed (6 of 6), about 39.9 to 40.8 tok/s. The review found no way for the
+    fast path to emit different proof bytes and no new use of private data, and asks for two things
+    before use: the test that pins the order of the opening's steps must also cover the new copy,
+    and the call sites outside the main block proof need a byte-comparison test with the switches
+    on. Next it is bundled with a rewritten GPU kernel and measured once at the installed app
+    profile. Review: `results/zk60_claude_review_20261116/OPEN_FAST_READ_20261123.md`.
     **Tick 45, Nov 23 07:53 UTC [MEASURED on two retained traces; the researcher's figures re-run
     by Claude, same numbers]: the long GPU waits do not form after the lanes' shared idle stretches;
     waiting jobs are let onto the GPU in groups.** Tick 44 left a guess of mine to test: that the lanes
