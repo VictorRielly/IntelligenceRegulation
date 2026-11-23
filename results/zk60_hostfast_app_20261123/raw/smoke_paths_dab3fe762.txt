@@ -1,0 +1,14 @@
+leg1_armA.prover.log.err: arm A
+       3799  batched sc-chain-fast
+    host-fast lines 0, fast-chain sumchecks 3799, other sumchecks 0, chain fall-back lines 0: as required for arm A
+leg2_armB.prover.log.err: arm B
+       3803  batched sc-chain-fast
+    host-fast lines 0, fast-chain sumchecks 3803, other sumchecks 0, chain fall-back lines 0: as required for arm B
+leg3_armC.prover.log.err: arm C
+       3809  batched sc-chain-fast
+        312  [ZK60-HOST-FAST] block lines
+             hits, sum over the leg:        h1 2766, h2 1390, h3 5474, h4 9837, h5 11294, h6g 13403, h6c 1366, h6d 3890
+             blocks with a non-zero count:  h1 312, h2 312, h3 312, h4 312, h5 312, h6g 312, h6c 312, h6d 312
+             fall-backs, sum over the leg:  h1e 0, h1a 0, h4 0, h5 0, h6 0
+    host-fast lines 312, fast-chain sumchecks 3809, other sumchecks 0, chain fall-back lines 0: as required for arm C
+condition (a): MET

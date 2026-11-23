@@ -37,6 +37,7 @@ GATES = [
     ("hf-golden", "host_fast_w16r2_rung_golden", {"HL_GPU": "1", "HL_GPU_REQUIRED": "1", "HL_METAL_TIMING": "1"}),
     ("hf-flag-matrix", "host_fast_m3_flag_matrix_golden", {"HL_GPU": "1", "HL_GPU_REQUIRED": "1"}),
     ("hf-call-sites", "host_fast_all_call_sites_byte_identical", {"HL_GPU": "1", "HL_GPU_REQUIRED": "1"}),
+    ("hf-r13-shield", "host_fast_m2_r13_shield_byte_identical", {"HL_GPU": "1", "HL_GPU_REQUIRED": "1"}),
     ("sc-golden-hf1", "sc_chain_fast_w16r2_rung_golden", {"HL_GPU": "1", "HL_GPU_REQUIRED": "1", "HL_HOST_FAST": "1"}),
     ("sc-golden", "sc_chain_fast_w16r2_rung_golden", {"HL_GPU_REQUIRED": "1"}),
     ("sc-call-sites", "sc_chain_fast_all_call_sites_byte_identical", {"HL_GPU_REQUIRED": "1"}),

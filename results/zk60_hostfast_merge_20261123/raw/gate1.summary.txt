@@ -1,0 +1,14 @@
+done marker: 0
+suite: exit 101; 1023 passed, 2 failed, 146 ignored; failed tests: ['private_block::review_tests::a_toy_receipt_made_before_f12_is_refused', 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces'] -> only known fixture failures
+suite-hf1: exit 101; 1023 passed, 2 failed, 146 ignored; failed tests: ['private_block::review_tests::a_toy_receipt_made_before_f12_is_refused', 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces'] -> only known fixture failures
+hf-pub-gen: exit 0; 1 passed, 0 failed -> ok
+hf-golden: exit 0; 1 passed, 0 failed -> ok
+hf-flag-matrix: exit 0; 1 passed, 0 failed -> ok
+hf-call-sites: exit 0; 1 passed, 0 failed -> ok
+hf-r13-shield: exit 0; 1 passed, 0 failed -> ok
+sc-golden-hf1: exit 0; 1 passed, 0 failed -> ok
+sc-golden: exit 0; 1 passed, 0 failed -> ok
+sc-call-sites: exit 0; 1 passed, 0 failed -> ok
+metal-commit: exit 0; 8 passed, 0 failed -> ok
+metal-commit-hf1: exit 0; 8 passed, 0 failed -> ok
+GATE: GREEN

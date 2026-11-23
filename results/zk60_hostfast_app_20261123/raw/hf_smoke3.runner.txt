@@ -1,0 +1,4 @@
+[10:52:51] launching hf_smoke3
+[zk60-guard 10:52:51] START hostfast-hf_smoke3 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=e4a53364b4e5
+[zk60-guard 10:58:53] END hostfast-hf_smoke3 exit=0 child_wall=362s peak_rss=60.57G min_avail=133.62G peak_vram=21910MiB
+[10:58:53] hf_smoke3 guard exit 0
