@@ -460,7 +460,7 @@ private theorem openingGroupsAt_foldl_inv (rows logN : ℕ) :
     · simp only [pure, Except.pure, Bind.bind, Except.bind] at h
       have hcne : c.parts ≠ [] := hne c List.mem_cons_self
       cases hp : c.parts with
-      | nil => exact absurd hp hcne
+      | nil => cases hcne hp
       | cons p0 ps =>
         have hw2 : (claimWeights (toZClaim c) rows logN).2 =
             toZKey (partKeyAt (c.parts.headD ⟨0, 0, Fp2.zero, []⟩) logN) := by

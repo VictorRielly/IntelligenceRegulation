@@ -37,66 +37,82 @@ variable (tag : MTag) (ioIn ioOut : ℕ)
   (checkOpening : (HIn → Dig) → Cm → List Exec.Block.ZClaim → Tr → Except String Unit)
   (Rp : ClassifyRunPublicP shieldS0) (hR : ShieldRun Rp) (k : ℕ) (hk : k < 26)
 
+include hR hk in
 theorem shdP_Pk0_logCols :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).logCols = 14 := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_endpointLogN :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).endpointLogN = 14 := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_aRows :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).aRows = 4577 := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_hRows :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).hRows = 4390 := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_aPath :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).aPath = 16 := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_hPath :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).hPath = 16 := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_maskPath :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).maskPath = 12 := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_preChecks :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).preChecks = .ok () := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_draws :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).draws = Exec.Block.R13.shieldDraws := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_nFunctionals :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).nFunctionals = 34 := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_maskVerify :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).maskVerify = maskField tag 23 := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_pcsVerify :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).pcsVerify = ZK60.Exec.R13.pcsFieldR13 tag shdP_rowsOf := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_slots :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).geom.slots = Exec.Block.R13.shieldSlots := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_terms :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).geom.terms = Exec.Block.R13.shieldTerms := by
   rw [shdP_Pk0_eq_blkParams tag ioIn ioOut checkOpening Rp hR k hk]; rfl
 
+include hR hk in
 theorem shdP_Pk0_slots_length :
     (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).geom.slots.length = 23 := by
   rw [shdP_Pk0_slots tag ioIn ioOut checkOpening Rp hR k hk]; decide
 
+include hR hk in
 theorem shdP_Pk0_slotD_bounds (s : ℕ)
     (hs : s < (shdP_Pk0 tag ioIn ioOut checkOpening Rp k).geom.slots.length) :
     1 ≤ slotD (shdP_Pk0 tag ioIn ioOut checkOpening Rp k) s
@@ -124,9 +140,13 @@ theorem shdP_sgeom50_facts (k : ℕ) (hk : k < 26) :
   have hcl : sg.closes = false := by
     simp [sg, Exec.Block.SegGeom.closes, Exec.Block.R13.segGeom]; omega
   have hinc : sg.incoming = (2, 38) := rfl
-  refine ⟨by decide, by decide, by decide, by decide, hcm, hcl, hinc, ?_⟩
+  have hgEq : sg.g = shdP_blkGeom50 := rfl
+  have hedEq : sg.ed = Exec.Block.R13.blkDim := rfl
+  have herEq : sg.eRows = 0 := rfl
+  refine ⟨by rw [hgEq]; decide, by rw [hgEq]; decide, by rw [hgEq]; decide, by rw [hedEq]; decide,
+    hcm, hcl, hinc, ?_⟩
   unfold Exec.Block.SegGeom.len
-  rw [hcm, hcl, hinc]
+  rw [hcm, hcl, hinc, hgEq, hedEq, herEq]
   decide
 
 end Pk0Accessors
@@ -223,13 +243,15 @@ theorem shdP_blockVerify_of_tables_r13 (H : HIn → Dig) (tag : MTag) (P : Block
     congrArg Prod.fst hao
   have ha2 : R.t6 = (bOpen H tag Exec.R13.r13Prm 16 C.TA R.acc.claims.a R.t5).2 :=
     congrArg Prod.snd hao
-  have hTH := C.TH (coreB H P D t).1 (coreG H P D t).1 (coreA H P D t).1
-  have hho' : (R.core.hOpen, R.t7) = bOpen H tag Exec.R13.r13Prm 16 hTH (R.acc.claims.h ++ [P.logupSumClaim]) R.t6 := hho
+  let hTH := C.TH (coreB H P D t).1 (coreG H P D t).1 (coreA H P D t).1
+  have hho' : (R.core.hOpen, R.t7) = bOpen H tag Exec.R13.r13Prm 16 hTH (R.acc.claims.h ++ [P.logupSumClaim]) R.t6 := by
+    dsimp only [D, coreDataAt] at hho; exact hho
   have hh1 : R.core.hOpen = (bOpen H tag Exec.R13.r13Prm 16 hTH (R.acc.claims.h ++ [P.logupSumClaim]) R.t6).1 :=
     congrArg Prod.fst hho'
   have hh2 : R.t7 = (bOpen H tag Exec.R13.r13Prm 16 hTH (R.acc.claims.h ++ [P.logupSumClaim]) R.t6).2 :=
     congrArg Prod.snd hho'
-  have hhR' : R.core.hRoot = rootOf H tag 16 hTH := hhR
+  have hhR' : R.core.hRoot = rootOf H tag 16 hTH := by
+    dsimp only [D, coreDataAt] at hhR; exact hhR
   have hnn : Exec.R13.r13Prm.nn = 2 ^ 16 := by norm_num [PcsPrm.nn, Exec.R13.r13Prm]
   have hnQ : 0 < Exec.R13.r13Prm.nQ := by norm_num [Exec.R13.r13Prm]
   refine blockVerify_of_prove_bd H P shdP_U shdP_hU D t R h hdeg hpre ?_ ?_ ?_ hslots ?_ ?_ ?_
@@ -249,8 +271,8 @@ structure ShdBlkTables (Pk : ℕ → BlockParams) (k : ℕ) where
   TB_next : Table
   coreT : CoreTables (Pk k)
 
-/-- Transcript-aware honest block segment prover (fixes L32-1 & L25-1 `own` cleanly). -/
 open Classical in
+/-- Transcript-aware honest block segment prover (fixes L32-1 & L25-1 `own` cleanly). -/
 noncomputable def shdP_blkSegP {St X Coins : Type} (tag : MTag) (Pk : ℕ → BlockParams)
     (sgeom : St → ℕ → SegGeom) (check : St → ℕ → Except String Unit)
     (paths : St → Segment → Except String Unit) (digest : St → ℕ → Dig)
@@ -278,12 +300,13 @@ noncomputable def shdP_blkSegP {St X Coins : Type} (tag : MTag) (Pk : ℕ → Bl
             ⟨R.acc.claims.out, bRoot⟩, io.2)
     else .error ()
 
+open Classical in
 /-- **Block `k` `SegComplete` bridge** (`k < 26`): discharges `hsegBlk k` of
 `RunShieldOpenShell.sshC_productionReadyL_epP_openShell` from per-block table & slot arithmetic contracts!
 Parameterizes `hgeom50 : (Pk k).geom = shdP_blkGeom50` (becomes `rfl` once `RunShieldBlkInst.lean:504` flips `23 → 50`). -/
-theorem shdP_blk_segComplete {Γ Hdr Coins : Type} (tag : MTag) (ioIn ioOut : ℕ)
-    (checkOpening : (HIn → Dig) → Cm → List Exec.Block.ZClaim → Tr → Except String Unit)
-    (Rp : ClassifyRunPublicP shieldS0) (hR : ShieldRun Rp)
+theorem shdP_blk_segComplete {Γ Hdr Coins : Type} (tag : MTag) (_ioIn _ioOut : ℕ)
+    (_checkOpening : (HIn → Dig) → Cm → List Exec.Block.ZClaim → Tr → Except String Unit)
+    (Rp : ClassifyRunPublicP shieldS0) (_hR : ShieldRun Rp)
     (check : ClsStmt Hdr → ℕ → Except String Unit)
     (digest : ClsStmt Hdr → ℕ → Dig)
     (bndCheck : ClsStmt Hdr → ℕ → List Exec.Block.ZClaim → Tr → Except String Unit)
@@ -298,7 +321,7 @@ theorem shdP_blk_segComplete {Γ Hdr Coins : Type} (tag : MTag) (ioIn ioOut : �
     (hpre : (Pk k).preChecks = .ok ())
     (W : (HIn → Dig) → ClsStmt Hdr → (shieldS0.Tok → ℕ) → Coins → (k' : ℕ) → ShdBlkTables Pk k')
     (hCheck : ∀ g x c, adm x → check (stOf g x c) k = .ok ())
-    (hArith : ∀ g x c cr t R, adm x →
+    (hArith : ∀ g x c (cr : Carry) t R, adm x →
       let H := hOf g
       let st := stOf g x c
       let w := W H st x c k
@@ -359,7 +382,8 @@ theorem shdP_blk_segComplete {Γ Hdr Coins : Type} (tag : MTag) (ioIn ioOut : �
   | error _ => rw [hR'] at hrun; cases hrun
   | ok R =>
     rw [hR'] at hrun
-    cases hbc : bndCheck st k (cr.pending ++ R.acc.claims.inp) R.t7 with
+    dsimp only at hrun
+    cases hbc : bndCheck (stOf g x c) k (cr.pending ++ R.acc.claims.inp) R.t7 with
     | error _ => rw [hbc] at hrun; cases hrun
     | ok _ =>
       rw [hbc] at hrun
@@ -373,7 +397,8 @@ theorem shdP_blk_segComplete {Γ Hdr Coins : Type} (tag : MTag) (ioIn ioOut : �
         congrArg Prod.fst hmo
       have ha1 : R.core.aOpen = (bOpen H tag Exec.R13.r13Prm 16 w.coreT.TA R.acc.claims.a R.t5).1 :=
         congrArg Prod.fst hao
-      have hho' : (R.core.hOpen, R.t7) = bOpen H tag Exec.R13.r13Prm 16 TH (R.acc.claims.h ++ [(Pk k).logupSumClaim]) R.t6 := hho
+      have hho' : (R.core.hOpen, R.t7) = bOpen H tag Exec.R13.r13Prm 16 TH (R.acc.claims.h ++ [(Pk k).logupSumClaim]) R.t6 := by
+        dsimp only [D, coreDataAt] at hho; exact hho
       have hh1 : R.core.hOpen = (bOpen H tag Exec.R13.r13Prm 16 TH (R.acc.claims.h ++ [(Pk k).logupSumClaim]) R.t6).1 :=
         congrArg Prod.fst hho'
       let io := HonestOpen.bOpen H tag Exec.R13.r13Prm 16 w.TB_prev (cr.pending ++ R.acc.claims.inp) R.t7
@@ -423,8 +448,8 @@ theorem shdP_blk_segComplete {Γ Hdr Coins : Type} (tag : MTag) (ioIn ioOut : �
             exact ⟨haSh.2.2.1, haSh.2.1, haSh.2.2.2.1, fun col hcol => ⟨(haSh.2.2.2.2 col hcol).1, (haSh.2.2.2.2 col hcol).2.2⟩⟩
           · rw [hh1]
             exact ⟨hhSh.2.2.1, hhSh.2.1, hhSh.2.2.2.1, fun col hcol => ⟨(hhSh.2.2.2.2 col hcol).1, (hhSh.2.2.2.2 col hcol).2.2⟩⟩
-        · rw [ha1, haSh.1, hgA]; rfl
-        · rw [hh1, hhSh.1, hgH]; rfl
+        · rw [ha1, haSh.1, show Exec.R13.r13Prm.logCols = 14 from rfl, hgA]; rfl
+        · rw [hh1, hhSh.1, show Exec.R13.r13Prm.logCols = 14 from rfl, hgH]; rfl
         · intro col hcol; rw [ha1] at hcol
           exact (haSh.2.2.2.2 col hcol).2.1.trans hrA.symm
         · intro col hcol; rw [hh1] at hcol

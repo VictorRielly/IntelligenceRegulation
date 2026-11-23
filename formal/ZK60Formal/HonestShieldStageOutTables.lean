@@ -23,10 +23,11 @@ open ZK60.HonestClassify ZK60.HonestOpen ZK60.HonestRun
 open ZK60.ProtocolClassify ZK60.ProtocolClassify.RunShapeP
 open ZK60.RunShape
 open ZK60.RunShape.Shield (shieldS0)
-open ZK60.Circuit (gP GF)
+open ZK60.Circuit (gP GF ssOf NormOK)
+open ZK60.Block (i16)
 open ZK60.Model (isqrtWitness inIsqrtWindow fnormElem verdictOf)
-open ZK60.Out (OutCPublic margin marginMax margin_abs_le fnormTok fnormElem_eq_some fnormTok_class
-  ssOf NormOK ss_bounds40 sigOf)
+open ZK60.Out (OutCPublic outCSpec margin marginMax margin_abs_le fnormTok fnormElem_eq_some fnormTok_class
+  ss_bounds40 sigOf)
 open ZK60.Exec.Block (BlockParams SlotDef Hist Acc Claims4 Cm Tab)
 
 /-! ## 1. Blinding randomness, shared boundary table contract, and `OutcWitness` extraction -/
@@ -109,7 +110,7 @@ theorem shdP_outcBndTable_spec (y25 : shieldS0.Pos → ℤ) (row : shieldS0.Tok)
     rw [dite_eq_left r.isLt]
     by_cases hc : (r.val * 16384 + col.val) % 4096 < 3072
     · rw [dite_eq_left hc, dite_eq_left hc]
-      congr 2; exact Prod.ext (Fin.ext ht) rfl
+      exact congrArg Fp.fromI64 (congrArg y25 (Prod.ext (Fin.ext ht) rfl))
     · rw [dite_eq_right hc, dite_eq_right hc]
 
 /-- Complete integer witness extracted from `(classifyModelP Rp).admissible x` and `Rp.out.Valid`. -/
@@ -127,7 +128,7 @@ structure OutcWitness (Rp : ClassifyRunPublicP shieldS0) (x : shieldS0.Tok → �
   v : ℕ
   Δ : ℤ
   δ : ℤ
-  hxRow : ∀ i : Fin 3072, ZK60.i16 (y25 (Rp.row, i))
+  hxRow : ∀ i : Fin 3072, i16 (y25 (Rp.row, i))
   hd_lo : 1 ≤ d
   hd_hi : d < 2 ^ 24
   ha1_lo : 0 ≤ a1
@@ -165,17 +166,17 @@ noncomputable def outcWitness_of_adm (Rp : ClassifyRunPublicP shieldS0) (hOut : 
     cases hin : inSpec Rp.inp x with
     | none => rw [hin] at hv; cases hv
     | some x0 =>
-      rw [hin] at hv
+      rw [hin, Option.bind_some] at hv
       cases hrun : runSpecP Rp.blks x0 with
       | none => rw [hrun] at hv; cases hv
       | some y25 =>
-        rw [hrun] at hv
+        rw [hrun, Option.bind_some] at hv
         change outCSpec Rp.out (fun i => y25 (Rp.row, i)) = some v at hv
         unfold outCSpec at hv
         obtain ⟨⟨dd, yy⟩, hft, hveq⟩ := Option.map_eq_some_iff.mp hv
         have hft' := hft
         unfold fnormTok at hft
-        by_cases hok : (∀ i : Fin 3072, ZK60.i16 (y25 (Rp.row, i))) ∧ NormOK (ssOf Rp.out.ceps (fun i => y25 (Rp.row, i)))
+        by_cases hok : (∀ i : Fin shieldS0.d, i16 ((fun i => y25 (Rp.row, i)) i)) ∧ NormOK (ssOf Rp.out.ceps (fun i => y25 (Rp.row, i)))
         · rw [ite_eq_left hok] at hft
           obtain ⟨hxRow, hss0, hdne0, hw0, hw1, hw2⟩ := hok
           obtain ⟨vfn, hvfn, hpair⟩ := Option.map_eq_some_iff.mp hft
@@ -193,7 +194,7 @@ noncomputable def outcWitness_of_adm (Rp : ClassifyRunPublicP shieldS0) (hOut : 
           have helem : ∀ i : Fin 3072, ∃ r s : ℤ,
               fnormElem Rp.out.tn Rp.out.cn Rp.out.g0 32 iw.1 (y25 (Rp.row, i)) = some (yy i, r, s) := by
             intro i
-            have he := liftO_eq_some.mp hvfn i
+            have he := Circuit.liftO_eq_some.mp hvfn i
             cases hn : fnormElem Rp.out.tn Rp.out.cn Rp.out.g0 32 iw.1 (y25 (Rp.row, i)) with
             | none => rw [hn] at he; cases he
             | some e =>
@@ -242,7 +243,7 @@ noncomputable def outcWitness_of_adm (Rp : ClassifyRunPublicP shieldS0) (hOut : 
           have hΔ_abs : |Δ| ≤ marginMax 3072 := margin_abs_le Rp.out hOut yy hq_bounds
           have hΔ_bd := abs_le.mp hΔ_abs
           have hc_bd := abs_le.mp hOut.c
-          have hwin := hOut.win
+          have hwin : marginMax 3072 + 2 ^ 33 + 1 ≤ 2 ^ (8 * Rp.out.limbs) := hOut.win
           let δ : ℤ := if v = 1 then Δ - Rp.out.c - 1 else Rp.out.c - Δ
           have hδ_lo : 0 ≤ δ := by
             dsimp only [δ]
@@ -256,7 +257,7 @@ noncomputable def outcWitness_of_adm (Rp : ClassifyRunPublicP shieldS0) (hOut : 
           have hδ_rel : (if v = 1 then (1 : ℤ) else -1) * δ + ((v : ℤ) + Rp.out.c) = Δ := by
             dsimp only [δ]
             rcases Nat.le_one_iff_eq_zero_or_eq_one.mp hv_le with h0 | h1
-            · rw [h0]; norm_num; ring
+            · rw [h0]; norm_num
             · rw [h1]; norm_num; ring
           refine ⟨⟨x0, y25, hin, hrun, iw.1, iw.2.1, iw.2.2, yy, rFn, sFn, v, Δ, δ,
             hxRow, hd_lo, hd_win.2, ha1_win.1, ha1_win.2, ha2_win.1, ha2_win.2,
@@ -296,7 +297,8 @@ theorem sum_bytes_eq : ∀ (m n : ℕ), n < 2 ^ (8 * m) →
         rw [show 8 * (k + 1) = 8 + 8 * k by omega, pow_add]; norm_num
       have hdiv : n / 2 ^ (8 * (k + 1)) = (n / 256) / 2 ^ (8 * k) := by
         rw [hpow, Nat.div_div_eq_div_mul]
-      simp only [byteOf, hpow, hdiv]
+      simp only [byteOf]
+      rw [hdiv, hpow]
       ring
     rw [hshift, ih]
     simp only [byteOf, Nat.mul_zero, pow_zero, Nat.div_one]
@@ -307,6 +309,7 @@ theorem sum_bytes_3 (n : ℕ) (hn : n < 2 ^ 24) :
     (byteOf 0 n).val + (byteOf 1 n).val * 256 + (byteOf 2 n).val * 65536 = n := by
   have h := sum_bytes_eq 3 n (by simpa using hn)
   simp only [Finset.sum_range_succ, Finset.range_zero, Finset.sum_empty, zero_add] at h
+  norm_num at h
   linarith
 
 theorem sum_bytes_4 (n : ℕ) (hn : n < 2 ^ 32) :
@@ -586,7 +589,7 @@ noncomputable def shdP_outcSlotData (v : ℕ) {x : shieldS0.Tok → ℕ} (w : Ou
   let mRow := mRowKOf 8 rnd.mA
   let G : ℕ → shdP_K := fun s => cubeSum (Link.maskPoly mRow s (slotN P s) (slotD P s))
   polySlotData P shdP_U shdP_hbij
-    (fun s hist acc df ch0 =>
+    (fun s _hist acc df ch0 =>
       match P.kind s with
       | .standalone => ofK shdP_U shdP_hbij (ch0.toK shdP_U * G s)
       | .priv => ofK shdP_U shdP_hbij (outcPrivSum Rp w s + ch0.toK shdP_U * G s)
@@ -704,7 +707,10 @@ theorem data_slice_narrow1 (R r0 c0 : ℕ) (hr0 : r0 < R) (hc0 : c0 + 2 ≤ 4096
     simp only [show ¬ ((1 : ℕ) ≥ 12) by norm_num, ↓reduceIte, hmod, show (2 : ℕ) ^ 1 = 2 by norm_num]
     by_cases hlt : c0 ≤ t.val ∧ t.val < c0 + 2
     · rw [ite_eq_left hlt]
-      have hfn : (fun a : Fin 1 => pt a.val) = fun a : Fin 1 => (bit (b a) : shdP_K) := by
+      simp only [show ¬ ((1 : ℕ) - 0 = 0) by norm_num, ↓reduceIte,
+        ite_eq_left (show t.val - c0 < 2 by omega)]
+      change eqPoly (fun a : Fin 1 => pt (0 + a.val)) (Block.bitsK 1 (t.val - c0)) = _
+      have hfn : (fun a : Fin 1 => pt (0 + a.val)) = fun a : Fin 1 => (bit (b a) : shdP_K) := by
         funext a; fin_cases a; exact hpt
       rw [hfn, eqPoly_bit_bitsK 1 b (t.val - c0) (by omega)]
       by_cases heq : t.val = c0 + msbIndex 1 b
@@ -737,7 +743,7 @@ theorem outc_h_plane_at {x : shieldS0.Tok → ℕ} (w : OutcWitness Rp x) (rnd :
   intro TH
   have hcol_eq : ∀ t : Fin (2 ^ 12 + 0),
       dataKeyColK ((2 * p.val) * 4096) 12 12 12 pt t = dataKeyColK ((2 * p.val + 1) * 4096) 12 12 12 pt t := by
-    intro t; rfl
+    intro t; unfold dataKeyColK; simp
   have hsplit : (∑ row : Fin 38,
         ((Fp2.one.toK shdP_U * dataRowK ((2 * p.val) * 4096) 12 12 12 pt row)
           + (Block.fp2U.toK shdP_U * dataRowK ((2 * p.val + 1) * 4096) 12 12 12 pt row))
@@ -756,24 +762,25 @@ theorem outc_h_plane_at {x : shieldS0.Tok → ℕ} (w : OutcWitness Rp x) (rnd :
   have hp2 : 2 * p.val + 1 < 38 := by have := p.isLt; omega
   have h1 := data_slice_single_row 38 12 (2 * p.val) hp1 (tabMat 38 12 TH.rows) b pt hpt
   have h2 := data_slice_single_row 38 12 (2 * p.val + 1) hp2 (tabMat 38 12 TH.rows) b pt hpt
-  change (∑ row : Fin 38, dataRowK (2 * p.val * 2 ^ 12) 12 12 12 pt row * _)
-    + shdP_U * (∑ row : Fin 38, dataRowK ((2 * p.val + 1) * 2 ^ 12) 12 12 12 pt row * _) = _
-  rw [h1, h2]
+  rw [show (2 * p.val) * 4096 = (2 * p.val) * 2 ^ 12 by norm_num,
+    show (2 * p.val + 1) * 4096 = (2 * p.val + 1) * 2 ^ 12 by norm_num, h1, h2]
   have hm1 : tabMat (K := shdP_K) 38 12 TH.rows ⟨2 * p.val, hp1⟩ ⟨msbIndex 12 b, by have := msbIndex_lt 12 b; omega⟩
       = algebraMap GF shdP_K (ofK shdP_U shdP_hbij (shdP_outcHValK Rp w gamma alpha p ⟨msbIndex 12 b, msbIndex_lt 12 b⟩)).c0.toGF := by
-    rw [tabMat_mkRows 38 12 256]
+    rw [show TH.rows = mkRows 38 (2 ^ 12) 256 (shdP_outcTHData Rp w rnd gamma alpha) rnd.hPads from rfl,
+      tabMat_mkRows 38 12 256]
     unfold shdP_outcTHData
     dsimp only
     rw [dite_eq_left (by have := p.isLt; omega), ite_eq_left (by omega)]
-    have hdiv : (⟨2 * p.val / 2, by have := p.isLt; omega⟩ : Fin 8) = p := Fin.ext (by omega)
+    have hdiv : (⟨2 * p.val / 2, by have := p.isLt; omega⟩ : Fin 8) = p := Fin.ext (by dsimp only; omega)
     rw [hdiv]
   have hm2 : tabMat (K := shdP_K) 38 12 TH.rows ⟨2 * p.val + 1, hp2⟩ ⟨msbIndex 12 b, by have := msbIndex_lt 12 b; omega⟩
       = algebraMap GF shdP_K (ofK shdP_U shdP_hbij (shdP_outcHValK Rp w gamma alpha p ⟨msbIndex 12 b, msbIndex_lt 12 b⟩)).c1.toGF := by
-    rw [tabMat_mkRows 38 12 256]
+    rw [show TH.rows = mkRows 38 (2 ^ 12) 256 (shdP_outcTHData Rp w rnd gamma alpha) rnd.hPads from rfl,
+      tabMat_mkRows 38 12 256]
     unfold shdP_outcTHData
     dsimp only
     rw [dite_eq_left (by have := p.isLt; omega), ite_eq_right (by omega)]
-    have hdiv : (⟨(2 * p.val + 1) / 2, by have := p.isLt; omega⟩ : Fin 8) = p := Fin.ext (by omega)
+    have hdiv : (⟨(2 * p.val + 1) / 2, by have := p.isLt; omega⟩ : Fin 8) = p := Fin.ext (by dsimp only; omega)
     rw [hdiv]
   rw [hm1, hm2]
   exact toK_ofK shdP_U shdP_hbij _
@@ -791,7 +798,8 @@ theorem outc_h_u_at (rnd : OutcRand) {x : shieldS0.Tok → ℕ} (w : OutcWitness
       + shdP_U * algebraMap GF shdP_K (shdP_outcHUVal rnd ⟨msbIndex 12 b, msbIndex_lt 12 b⟩).2 := by
   intro TH
   have hcol_eq : ∀ t : Fin (2 ^ 12 + 0),
-      dataKeyColK (16 * 4096) 12 12 12 pt t = dataKeyColK (17 * 4096) 12 12 12 pt t := fun _ => rfl
+      dataKeyColK (16 * 4096) 12 12 12 pt t = dataKeyColK (17 * 4096) 12 12 12 pt t := by
+    intro t; unfold dataKeyColK; simp
   have hsplit : (∑ row : Fin 38,
         ((Fp2.one.toK shdP_U * dataRowK (16 * 4096) 12 12 12 pt row)
           + (Block.fp2U.toK shdP_U * dataRowK (17 * 4096) 12 12 12 pt row))
@@ -808,21 +816,24 @@ theorem outc_h_u_at (rnd : OutcRand) {x : shieldS0.Tok → ℕ} (w : OutcWitness
   rw [hsplit]
   have h1 := data_slice_single_row 38 12 16 (by norm_num) (tabMat 38 12 TH.rows) b pt hpt
   have h2 := data_slice_single_row 38 12 17 (by norm_num) (tabMat 38 12 TH.rows) b pt hpt
-  change (∑ row : Fin 38, dataRowK (16 * 2 ^ 12) 12 12 12 pt row * _)
-    + shdP_U * (∑ row : Fin 38, dataRowK (17 * 2 ^ 12) 12 12 12 pt row * _) = _
-  rw [h1, h2]
+  rw [show (16 * 4096 : ℕ) = 16 * 2 ^ 12 by norm_num,
+    show (17 * 4096 : ℕ) = 17 * 2 ^ 12 by norm_num, h1, h2]
   have hm1 : tabMat (K := shdP_K) 38 12 TH.rows ⟨16, by norm_num⟩ ⟨msbIndex 12 b, by have := msbIndex_lt 12 b; omega⟩
       = algebraMap GF shdP_K (shdP_outcHUVal rnd ⟨msbIndex 12 b, msbIndex_lt 12 b⟩).1 := by
-    rw [tabMat_mkRows 38 12 256]
-    have : shdP_outcTHData Rp w rnd gamma alpha ⟨16, by norm_num⟩ ⟨msbIndex 12 b, msbIndex_lt 12 b⟩
-        = Fp.ofGF (shdP_outcHUVal rnd ⟨msbIndex 12 b, msbIndex_lt 12 b⟩).1 := rfl
-    rw [this, Fp.toGF_ofGF]
+    rw [show TH.rows = mkRows 38 (2 ^ 12) 256 (shdP_outcTHData Rp w rnd gamma alpha) rnd.hPads from rfl,
+      tabMat_mkRows 38 12 256]
+    have h16 : shdP_outcTHData Rp w rnd gamma alpha ⟨16, by norm_num⟩ ⟨msbIndex 12 b, msbIndex_lt 12 b⟩
+        = Fp.ofGF (shdP_outcHUVal rnd ⟨msbIndex 12 b, msbIndex_lt 12 b⟩).1 := by
+      unfold shdP_outcTHData; dsimp only; rw [dite_eq_right (by norm_num), ite_eq_left rfl]
+    rw [h16, Fp.toGF_ofGF]
   have hm2 : tabMat (K := shdP_K) 38 12 TH.rows ⟨17, by norm_num⟩ ⟨msbIndex 12 b, by have := msbIndex_lt 12 b; omega⟩
       = algebraMap GF shdP_K (shdP_outcHUVal rnd ⟨msbIndex 12 b, msbIndex_lt 12 b⟩).2 := by
-    rw [tabMat_mkRows 38 12 256]
-    have : shdP_outcTHData Rp w rnd gamma alpha ⟨17, by norm_num⟩ ⟨msbIndex 12 b, msbIndex_lt 12 b⟩
-        = Fp.ofGF (shdP_outcHUVal rnd ⟨msbIndex 12 b, msbIndex_lt 12 b⟩).2 := rfl
-    rw [this, Fp.toGF_ofGF]
+    rw [show TH.rows = mkRows 38 (2 ^ 12) 256 (shdP_outcTHData Rp w rnd gamma alpha) rnd.hPads from rfl,
+      tabMat_mkRows 38 12 256]
+    have h17 : shdP_outcTHData Rp w rnd gamma alpha ⟨17, by norm_num⟩ ⟨msbIndex 12 b, msbIndex_lt 12 b⟩
+        = Fp.ofGF (shdP_outcHUVal rnd ⟨msbIndex 12 b, msbIndex_lt 12 b⟩).2 := by
+      unfold shdP_outcTHData; dsimp only; rw [dite_eq_right (by norm_num), ite_eq_right (by norm_num), ite_eq_left rfl]
+    rw [h17, Fp.toGF_ofGF]
   rw [hm1, hm2]
 
 /-- Evaluate `TB_25` at `(fixedBits Rp.row.val 7 ++ rho)` (verdict row, channel `b : Fin 12 → Bool`). -/
@@ -851,36 +862,37 @@ theorem shdP_outcTB_verdictRow_at {y25 : shieldS0.Pos → ℤ} {TB : Table}
   have hmul := data_slice_multi_row 38 14 5 0 (by norm_num) (by norm_num) (by norm_num)
     (tabMat 38 14 TB.rows) cFull pt hpt
   dsimp only at hmul
-  rw [Nat.zero_mul, Nat.zero_add] at hmul
-  change (∑ row : Fin 38, dataRowK 0 (5 + 14) 14 (5 + 14) pt row * _) = _
-  rw [hmul]
+  rw [Nat.zero_mul] at hmul
+  have hrowFin : (⟨0 + msbIndex 5 (fun a : Fin 5 => cFull ⟨a.val, by omega⟩), by
+      have := msbIndex_lt 5 (fun a : Fin 5 => cFull ⟨a.val, by omega⟩); omega⟩ : Fin 38)
+      = ⟨msbIndex 5 (fun a : Fin 5 => cFull ⟨a.val, by omega⟩), by
+        have := msbIndex_lt 5 (fun a : Fin 5 => cFull ⟨a.val, by omega⟩); omega⟩ :=
+    Fin.ext (Nat.zero_add _)
+  rw [hrowFin] at hmul
+  rw [show (19 : ℕ) = 5 + 14 by norm_num, hmul]
   -- Split the 19-bit index `r * 16384 + col = Rp.row * 4096 + msbIndex 12 b`!
   set cHi : Fin 5 → Bool := fun a => cFull ⟨a.val, by omega⟩
   set cLo : Fin 14 → Bool := fun a => cFull ⟨5 + a.val, by omega⟩
   have hflat : msbIndex 5 cHi * 16384 + msbIndex 14 cLo = Rp.row.val * 4096 + msbIndex 12 b := by
     have hsplit1 := msbIndex_split 5 14 cFull
     have hsplit2 := msbIndex_split 7 12 (fun a : Fin (7 + 12) => cFull ⟨a.val, by omega⟩)
-    have h19 : msbIndex (5 + 14) cFull = msbIndex (7 + 12) (fun a : Fin (7 + 12) => cFull ⟨a.val, by omega⟩) := by
-      unfold msbIndex
-      refine Finset.sum_bij (fun (i : Fin (5 + 14)) _ => (⟨i.val, by omega⟩ : Fin (7 + 12)))
-        (fun _ _ => Finset.mem_univ _)
-        (fun a _ b _ h => Fin.ext (congrArg Fin.val h))
-        (fun j _ => ⟨⟨j.val, by omega⟩, Finset.mem_univ _, Fin.ext rfl⟩)
-        (fun i _ => rfl)
+    have h19 : msbIndex (5 + 14) cFull = msbIndex (7 + 12) (fun a : Fin (7 + 12) => cFull ⟨a.val, by omega⟩) :=
+      rfl
     have h7eq : msbIndex 7 (fun a : Fin 7 => cFull ⟨a.val, by omega⟩) = Rp.row.val := by
       have hf : (fun a : Fin 7 => cFull ⟨a.val, by omega⟩) = msbBits 7 Rp.row.val := by
         funext a; dsimp only [cFull]; rw [dite_eq_left a.isLt]
-      rw [hf, msbIndex_msbBits 7 Rp.row.val (by have := Rp.row.isLt; exact lt_of_lt_of_eq this (by norm_num))]
+      rw [hf, msbIndex_msbBits 7 Rp.row.val (by have hlt : Rp.row.val < 128 := Rp.row.isLt; omega)]
     have h12eq : msbIndex 12 (fun a : Fin 12 => cFull ⟨7 + a.val, by omega⟩) = msbIndex 12 b := by
       have hf : (fun a : Fin 12 => cFull ⟨7 + a.val, by omega⟩) = b := by
         funext a; dsimp only [cFull]; rw [dite_eq_right (by omega)]
-        congr 1; exact Fin.ext (by omega)
+        exact congrArg b (Fin.ext (by dsimp only; omega))
       rw [hf]
     rw [h19] at hsplit1
     have hpow14 : (2 : ℕ) ^ 14 = 16384 := by norm_num
     have hpow12 : (2 : ℕ) ^ 12 = 4096 := by norm_num
     rw [hpow14] at hsplit1
     rw [hpow12, h7eq, h12eq] at hsplit2
+    dsimp only [cHi, cLo]
     omega
   have hrLt : msbIndex 5 cHi < 32 := msbIndex_lt 5 cHi
   have hcolLt : msbIndex 14 cLo < 16384 := msbIndex_lt 14 cLo
@@ -921,7 +933,7 @@ theorem shdP_outc_logupSumClaim_true (v : ℕ) {x : shieldS0.Tok → ℕ}
     have hltab' : (rcVerdict (shdP_outcPub Rp wDigest) v).ltab = 12 := hltab
     have hlt' : (rcVerdict (shdP_outcPub Rp wDigest) v).lt = 12 := rfl
     have heq : L.hLog = List.replicate 9 12 := by
-      simp only [L, outcLay, hllo', hldo', hltab', hlt', List.replicate]
+      simp [L, outcLay, hllo', hldo', hltab', hlt']
     rw [heq, List.getD_eq_getElem?_getD, List.getElem?_replicate, ite_eq_left hp, Option.getD_some]
   let mkParts : ℕ → List Block.ZPart := fun p =>
     [⟨(L.hOff p).1, L.hLog.getD p 0, kI (L.hSign.getD p 0), []⟩,
@@ -960,27 +972,33 @@ theorem shdP_outc_logupSumClaim_true (v : ℕ) {x : shieldS0.Tok → ℕ}
   have hk1U : ((kI 1).mul Block.fp2U).toK shdP_U = shdP_U := by
     rw [Fp2.toK_mul shdP_U shdP_hU, hk1, Block.toK_fp2U, one_mul]
   have hkm1U : ((kI (-1)).mul Block.fp2U).toK shdP_U = -shdP_U := by
-    rw [Fp2.toK_mul shdP_U shdP_hU, hkm1, Block.toK_fp2U]; ring
+    rw [Fp2.toK_mul shdP_U shdP_hU, hkm1, Block.toK_fp2U, neg_one_mul]
   have hrowS : ∀ i : Fin 38, Block.Join.W16.Look.rowS 12 38 0 (tabMat 38 12 TH.rows) i
       = ∑ col : Fin 4096, algebraMap GF shdP_K (shdP_outcTHData Rp w rnd gamma alpha i col).toGF := by
     intro i
     unfold Block.Join.W16.Look.rowS
     refine Finset.sum_congr rfl (fun col _ => ?_)
-    rw [ite_eq_left col.isLt, mul_one]
+    rw [ite_eq_left (show col.val < 2 ^ 12 by have := col.isLt; omega), mul_one,
+      show TH.rows = mkRows 38 (2 ^ 12) 256 (shdP_outcTHData Rp w rnd gamma alpha) rnd.hPads from rfl]
     exact tabMat_mkRows 38 12 256 _ _ i col
   have hin1 : ∀ (r0 : ℕ) (hr0 : r0 < 38) (f : Fin 38 → shdP_K),
       ∑ i : Fin 38, Block.Join.W16.Look.inRows (K := shdP_K) 12 (r0 * 4096) 12 i * f i = f ⟨r0, hr0⟩ := by
     intro r0 hr0 f
     rw [Finset.sum_eq_single_of_mem ⟨r0, hr0⟩ (Finset.mem_univ _)]
     · unfold Block.Join.W16.Look.inRows
-      have hdiv : r0 * 4096 / 2 ^ 12 = r0 := by norm_num
-      rw [hdiv, Nat.sub_self, pow_zero, ite_eq_left (by omega), one_mul]
+      have hdiv : r0 * 4096 / 2 ^ 12 = r0 := by omega
+      rw [hdiv, Nat.sub_self, pow_zero, ite_eq_left (by dsimp only; omega), one_mul]
     · intro i _ hne
       unfold Block.Join.W16.Look.inRows
-      have hdiv : r0 * 4096 / 2 ^ 12 = r0 := by norm_num
-      rw [hdiv, Nat.sub_self, pow_zero, ite_eq_right (by intro h; exact hne (Fin.ext (by omega))), zero_mul]
+      have hdiv : r0 * 4096 / 2 ^ 12 = r0 := by omega
+      rw [hdiv, Nat.sub_self, pow_zero, ite_eq_right (by intro h; exact hne (Fin.ext (by dsimp only at h ⊢; omega))), zero_mul]
   -- Rewrite the `flatMap` sum as a sum over `p : Fin 9`
-  rw [List.map_flatMap, List.sum_flatten, List.map_map, list_range_sum, Finset.sum_range]
+  have hflatSum : ∀ {α : Type} (l : List α) (f : α → List shdP_K),
+      (l.flatMap f).sum = (l.map (fun a => (f a).sum)).sum := fun l f => by
+    induction l with
+    | nil => rfl
+    | cons a tl ih => simp only [List.flatMap_cons, List.map_cons, List.sum_append, List.sum_cons, ih]
+  rw [List.map_flatMap, hflatSum, list_range_sum, Finset.sum_range]
   -- Evaluate each plane pair `p : Fin 8`
   have hpair : ∀ p : Fin 8,
       Block.Join.W16.Look.rowS 12 38 0 (tabMat 38 12 TH.rows) ⟨2 * p.val, by have := p.isLt; omega⟩
@@ -993,13 +1011,13 @@ theorem shdP_outc_logupSumClaim_true (v : ℕ) {x : shieldS0.Tok → ℕ}
         = (ofK shdP_U shdP_hbij (shdP_outcHValK Rp w gamma alpha p col)).c0 := by
       unfold shdP_outcTHData; dsimp only
       rw [dite_eq_left (by have := p.isLt; omega), ite_eq_left (by omega)]
-      have hdiv : (⟨2 * p.val / 2, by have := p.isLt; omega⟩ : Fin 8) = p := Fin.ext (by omega)
+      have hdiv : (⟨2 * p.val / 2, by have := p.isLt; omega⟩ : Fin 8) = p := Fin.ext (by dsimp only; omega)
       rw [hdiv]
     have him : shdP_outcTHData Rp w rnd gamma alpha ⟨2 * p.val + 1, by have := p.isLt; omega⟩ col
         = (ofK shdP_U shdP_hbij (shdP_outcHValK Rp w gamma alpha p col)).c1 := by
       unfold shdP_outcTHData; dsimp only
       rw [dite_eq_left (by have := p.isLt; omega), ite_eq_right (by omega)]
-      have hdiv : (⟨(2 * p.val + 1) / 2, by have := p.isLt; omega⟩ : Fin 8) = p := Fin.ext (by omega)
+      have hdiv : (⟨(2 * p.val + 1) / 2, by have := p.isLt; omega⟩ : Fin 8) = p := Fin.ext (by dsimp only; omega)
       rw [hdiv]
     rw [hre, him]
     exact toK_ofK shdP_U shdP_hbij _
@@ -1010,15 +1028,17 @@ theorem shdP_outc_logupSumClaim_true (v : ℕ) {x : shieldS0.Tok → ℕ}
       have heq : ∀ col : Fin 4096,
           algebraMap GF shdP_K (shdP_outcTHData Rp w rnd gamma alpha ⟨16, by norm_num⟩ col).toGF
             = algebraMap GF shdP_K (shdP_outcHUVal rnd col).1 := fun col => by
-        have : shdP_outcTHData Rp w rnd gamma alpha ⟨16, by norm_num⟩ col = Fp.ofGF (shdP_outcHUVal rnd col).1 := rfl
-        rw [this, Fp.toGF_ofGF]
+        have h16d : shdP_outcTHData Rp w rnd gamma alpha ⟨16, by norm_num⟩ col = Fp.ofGF (shdP_outcHUVal rnd col).1 := by
+          unfold shdP_outcTHData; dsimp only; rw [dite_eq_right (by omega), ite_eq_left rfl]
+        rw [h16d, Fp.toGF_ofGF]
       simp_rw [heq]; rw [← map_sum, shdP_outcHUVal_sum_re, map_zero]
     have h17 : (∑ col : Fin 4096, algebraMap GF shdP_K (shdP_outcTHData Rp w rnd gamma alpha ⟨17, by norm_num⟩ col).toGF) = 0 := by
       have heq : ∀ col : Fin 4096,
           algebraMap GF shdP_K (shdP_outcTHData Rp w rnd gamma alpha ⟨17, by norm_num⟩ col).toGF
             = algebraMap GF shdP_K (shdP_outcHUVal rnd col).2 := fun col => by
-        have : shdP_outcTHData Rp w rnd gamma alpha ⟨17, by norm_num⟩ col = Fp.ofGF (shdP_outcHUVal rnd col).2 := rfl
-        rw [this, Fp.toGF_ofGF]
+        have h17d : shdP_outcTHData Rp w rnd gamma alpha ⟨17, by norm_num⟩ col = Fp.ofGF (shdP_outcHUVal rnd col).2 := by
+          unfold shdP_outcTHData; dsimp only; rw [dite_eq_right (by omega), ite_eq_right (by omega), ite_eq_left rfl]
+        rw [h17d, Fp.toGF_ofGF]
       simp_rw [heq]; rw [← map_sum, shdP_outcHUVal_sum_im, map_zero]
     rw [h16, h17, mul_zero, add_zero]
   -- Simplify each summand `p : Fin 9`
@@ -1032,8 +1052,10 @@ theorem shdP_outc_logupSumClaim_true (v : ℕ) {x : shieldS0.Tok → ℕ}
           (if p.val = 7 then (-1 : shdP_K) else 1) * ∑ col : Fin 4096, shdP_outcHValK Rp w gamma alpha ⟨p.val, hp⟩ col
         else 0 := by
     intro p
+    have hoff : L.hOff p.val = (2 * p.val * 4096, (2 * p.val + 1) * 4096) :=
+      shdP_outcLay_hOff Rp wDigest v p.val p.isLt
     simp only [mkParts, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero,
-      shdP_outcLay_hOff Rp wDigest v p.val p.isLt, hlog p.val p.isLt, hsign p.val p.isLt]
+      hoff, hlog p.val p.isLt, hsign p.val p.isLt]
     rw [hin1 (2 * p.val) (by have := p.isLt; omega), hin1 (2 * p.val + 1) (by have := p.isLt; omega)]
     by_cases hp : p.val < 8
     · rw [dite_eq_left hp]
@@ -1049,11 +1071,10 @@ theorem shdP_outc_logupSumClaim_true (v : ℕ) {x : shieldS0.Tok → ℕ}
         exact hpair ⟨p.val, hp⟩
     · have hp8 : p.val = 8 := by have := p.isLt; omega
       rw [dite_eq_right hp, ite_eq_right (by omega), hk1, hk1U, one_mul]
-      have h16 : (⟨2 * p.val, by have := p.isLt; omega⟩ : Fin 38) = ⟨16, by norm_num⟩ := Fin.ext (by omega)
-      have h17 : (⟨2 * p.val + 1, by have := p.isLt; omega⟩ : Fin 38) = ⟨17, by norm_num⟩ := Fin.ext (by omega)
+      have h16 : (⟨2 * p.val, by have := p.isLt; omega⟩ : Fin 38) = ⟨16, by norm_num⟩ := Fin.ext (by dsimp only; omega)
+      have h17 : (⟨2 * p.val + 1, by have := p.isLt; omega⟩ : Fin 38) = ⟨17, by norm_num⟩ := Fin.ext (by dsimp only; omega)
       rw [h16, h17]
       exact hU0
-  simp only [Function.comp_apply]
   have hsum9 : (∑ p : Fin 9,
       ((List.map (fun q : Block.ZPart =>
           q.coef.toK shdP_U * ∑ i : Fin 38,
@@ -1077,7 +1098,9 @@ theorem shdP_outc_logupSumClaim_true (v : ℕ) {x : shieldS0.Tok → ℕ}
         else 0)
         = - ∑ z : Fin 256, (outcMult w z : shdP_K) * (α - ((z.val : shdP_K) + gU8K))⁻¹ := by
       rw [dite_eq_left (by simp), ite_eq_left (by simp), neg_one_mul]
-      congr 1
+      apply congrArg Neg.neg
+      have h7fin : (⟨(Fin.castSucc (Fin.last 7)).val, by simp⟩ : Fin 8) = ⟨7, by norm_num⟩ := Fin.ext rfl
+      rw [h7fin]
       have hval7 : ∀ col : Fin 4096, shdP_outcHValK Rp w gamma alpha ⟨7, by norm_num⟩ col
           = if hc : col.val < 256 then (outcMult w ⟨col.val, hc⟩ : shdP_K) * (α - ((col.val : shdP_K) + gU8K))⁻¹ else 0 := fun col => rfl
       simp_rw [hval7]
@@ -1089,7 +1112,7 @@ theorem shdP_outc_logupSumClaim_true (v : ℕ) {x : shieldS0.Tok → ℕ}
       refine Finset.sum_bij (fun (col : Fin 4096) (hcol : col ∈ Finset.univ.filter _) =>
           (⟨col.val, (Finset.mem_filter.mp hcol).2⟩ : Fin 256))
         (fun _ _ => Finset.mem_univ _)
-        (fun a _ b _ h => Fin.ext (congrArg Fin.val h))
+        (fun a _ b _ h => Fin.ext (congrArg (Fin.val : Fin 256 → ℕ) h))
         (fun z _ => ⟨⟨z.val, by have := z.isLt; omega⟩,
           Finset.mem_filter.mpr ⟨Finset.mem_univ _, z.isLt⟩, Fin.ext rfl⟩)
         (fun col hcol => dite_eq_left (Finset.mem_filter.mp hcol).2)
@@ -1123,10 +1146,15 @@ theorem shdP_outc_logupSumClaim_true (v : ℕ) {x : shieldS0.Tok → ℕ}
         rw [ite_eq_right (by omega), dite_eq_left (by omega)]
         have hsub : k.val + 1 - 1 = k.val := by omega
         simp only [hsub]
+        rfl
       simp_rw [hpair6]
-      -- Expand both sides explicitly over `Fin 6` and `Fin 12` (12 tiny terms)
-      simp only [Fin.sum_univ_succ, Fin.sum_univ_zero, Fin.val_zero, Fin.val_succ, add_zero]
-      ring
+      have hpairSum : ∀ (F : Fin 12 → shdP_K),
+          (∑ k : Fin 6, (F ⟨2 * k.val, by omega⟩ + F ⟨2 * k.val + 1, by omega⟩)) = ∑ l : Fin 12, F l := by
+        intro F
+        simp only [Fin.sum_univ_castSucc, Fin.sum_univ_zero, Fin.val_castSucc,
+          zero_add, Fin.castSucc_mk, Fin.last]
+        ring
+      exact hpairSum (fun l => ∑ col : Fin 4096, (α - ((doLook w l col).val + gU8K))⁻¹)
     rw [hD]
     ring
   rw [hsum9]

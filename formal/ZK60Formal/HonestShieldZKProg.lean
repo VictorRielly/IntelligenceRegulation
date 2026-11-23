@@ -21,7 +21,7 @@ What this file defines and proves (standard Lean foundations `propext`, `Classic
    `trAbsorbProg`, `trChallengeFp2Prog`, `trChallengeFp2VecProg`, `posTagProg` (`2` `.pt`s per segment
    boundary, `29 * 2 = 58` total), `zkRhosProg`, `openingAuditProveProg` (draws `zkRhos` ONCE, runs pure
    `openingAuditOk` equivalent to `openingChallenges`, and builds `OpeningZk` from cached `MerkleLevels`
-   with `0` duplicate draws and `0` Merkle queries), `bOpenProg`, `bMaskProg`, and `shdP_hdrPProg`.
+   with `0` duplicate draws and `0` Merkle queries), `zkBOpenProg`, `zkBMaskProg`, and `shdP_hdrPProg`.
 4. **Full 112-tree + 28-segment budget arithmetic (`shdP_zkProg_counts`), `ShdRunDepSet`, and
    `shdP_zk_of_prog_res`**:
    verifies `112` trees, `L = 5,359,616`, `N = 5,359,504`, `283,821` main transcript `.pt`s + `58` deduped
@@ -56,7 +56,7 @@ def shdP_zkPadMsg (idx : ℕ) (prev : Dig) : List UInt8 :=
   prev.toList ++ (shdP_zkPadTag ++ le64 (UInt64.ofNat idx))
 
 theorem shdP_zkPadMsg_length (idx : ℕ) (prev : Dig) : (shdP_zkPadMsg idx prev).length = 49 := by
-  simp only [shdP_zkPadMsg, List.length_append, prev.2, le64_length]
+  simp only [shdP_zkPadMsg, List.length_append, List.Vector.toList_length, le64_length]
   rfl
 
 /-- Domain-separated unkeyed padding query in `QB Lq` for `PProg.ptsOf` early-refusal slots. -/
@@ -109,7 +109,8 @@ theorem shdP_zkPad_ne_absorb (Lq : ℕ) (hL20 : 2 ^ 20 ≤ Lq) (idx : ℕ) (prev
   have hdrop : shdP_zkPadTag ++ le64 (UInt64.ofNat idx) =
       le64 (UInt64.ofNat label.length) ++ (label ++ (le64 (UInt64.ofNat data.length) ++ data)) := by
     have hd := congrArg (List.drop 32) hm
-    rw [shdP_zkPadMsg, absorbMsg, List.drop_left' prev.2, List.drop_left' st.2] at hd
+    rw [shdP_zkPadMsg, absorbMsg, List.drop_left' (List.Vector.toList_length prev),
+      List.drop_left' (List.Vector.toList_length st)] at hd
     exact hd
   have h0 := congrArg (fun l : List UInt8 => l[0]?) hdrop
   have hlhs : (shdP_zkPadTag ++ le64 (UInt64.ofNat idx))[0]? = some (122 : UInt8) := rfl
@@ -146,18 +147,20 @@ theorem shdP_zkPad_injective_idx (Lq : ℕ) (hL20 : 2 ^ 20 ≤ Lq)
   have hm : shdP_zkPadMsg i₁ d₁ = shdP_zkPadMsg i₂ d₂ := congrArg (fun q : QB Lq => q.2.1) h
   have hd : d₁ = d₂ := by
     have ht := congrArg (List.take 32) hm
-    rw [shdP_zkPadMsg, shdP_zkPadMsg, List.take_left' d₁.2, List.take_left' d₂.2] at ht
+    rw [shdP_zkPadMsg, shdP_zkPadMsg, List.take_left' (List.Vector.toList_length d₁),
+      List.take_left' (List.Vector.toList_length d₂)] at ht
     exact Subtype.ext ht
   have hi : i₁ = i₂ := by
     have hdrop1 := congrArg (List.drop 32) hm
-    rw [shdP_zkPadMsg, shdP_zkPadMsg, List.drop_left' d₁.2, List.drop_left' d₂.2] at hdrop1
+    rw [shdP_zkPadMsg, shdP_zkPadMsg, List.drop_left' (List.Vector.toList_length d₁),
+      List.drop_left' (List.Vector.toList_length d₂)] at hdrop1
     have hdrop2 := congrArg (List.drop 9) hdrop1
     have htag : shdP_zkPadTag.length = 9 := rfl
     rw [List.drop_left' htag, List.drop_left' htag] at hdrop2
     have h64 : UInt64.ofNat i₁ = UInt64.ofNat i₂ := by
       rw [← ofLE64_le64 (UInt64.ofNat i₁), hdrop2, ofLE64_le64]
     have hn := congrArg UInt64.toNat h64
-    rw [UInt64.toNat_ofNat', UInt64.toNat_ofNat', Nat.mod_eq_of_lt hi₁, Nat.mod_eq_of_lt hi₂] at hn
+    simp only [UInt64.toNat_ofNat', Nat.mod_eq_of_lt hi₁, Nat.mod_eq_of_lt hi₂] at hn
     exact hn
   exact ⟨hi, hd⟩
 
@@ -214,7 +217,7 @@ theorem depIn_mono {S₁ S₂ : Set Q} (hsub : S₁ ⊆ S₂) :
 theorem depIn_andThen {S : Set Q} :
     ∀ (p : PProg Q D α) (f : α → PProg Q D β),
       p.DepIn S → (∀ a, (f a).DepIn S) → (p.andThen f).DepIn S
-  | .ret a, f, _, hf => hf a
+  | .ret a, _, _, hf => hf a
   | .dep _ k, f, hp, hf => ⟨hp.1, fun d => depIn_andThen (k d) f (hp.2 d) hf⟩
   | .pt _ k, f, hp, hf => fun d => depIn_andThen (k d) f (hp d) hf
 
@@ -301,7 +304,7 @@ private theorem sibIdx_lt {d j : ℕ} (hj : j < 2 ^ (d + 1)) : sibIdx j < 2 ^ (d
 def MerkleLevels.path : {d : ℕ} → MerkleLevels d → (j : ℕ) → j < 2 ^ d → List Dig
   | 0, .root _, _, _ => []
   | d + 1, .layer lv up, j, hj =>
-    lv ⟨sibIdx j, sibIdx_lt hj⟩ :: up.path (j / 2) (by have : 2 ^ (d + 1) = 2 * 2 ^ d := by ring; omega)
+    lv ⟨sibIdx j, sibIdx_lt hj⟩ :: up.path (j / 2) (by have hpow : 2 ^ (d + 1) = 2 * 2 ^ d := Nat.pow_succ'; omega)
 
 /-- Total authentication-path lookup (`0` oracle queries). -/
 def MerkleLevels.pathD {d : ℕ} (tr : MerkleLevels d) (j : ℕ) : List Dig :=
@@ -309,8 +312,8 @@ def MerkleLevels.pathD {d : ℕ} (tr : MerkleLevels d) (j : ℕ) : List Dig :=
 
 /-- Emit `n` leaves as `.dep colQ → .pt leafQ`, returning the `n` salted leaf digests. -/
 def leafLayerAux (Lq : ℕ) (h64 : 64 ≤ Lq) (tag : MTag) :
-    ∀ (n : ℕ) (colOf : Fin n → List UInt8) (hcol : ∀ j, (colOf j).length ≤ Lq)
-      (saltOf : Fin n → Dig), PProg (QB Lq) Dig (Fin n → Dig)
+    ∀ (n : ℕ) (colOf : Fin n → List UInt8), (∀ j, (colOf j).length ≤ Lq) →
+      (Fin n → Dig) → PProg (QB Lq) Dig (Fin n → Dig)
   | 0, _, _, _ => .ret (fun _ => zeroDig)
   | n + 1, colOf, hcol, saltOf =>
     .dep (tag.col, ⟨colOf 0, hcol 0⟩) fun cd =>
@@ -349,17 +352,17 @@ private theorem leafLayerAux_spec (Lq : ℕ) (h64 : 64 ≤ Lq) (tag : MTag) :
       ⟨rfl, fun _ _ => depIn_andThen _ _ ih.2.2.2 (fun _ => trivial)⟩⟩
 
 private theorem leafLayerAux_depIn_col8 (Lq : ℕ) (h64 : 64 ≤ Lq) (tag : MTag) :
-    ∀ (n : ℕ) (colOf : Fin n → List UInt8) (hcol : ∀ j, (colOf j).length ≤ Lq)
-      (h8 : ∀ j, (colOf j).length % 8 = 0) (saltOf : Fin n → Dig),
+    ∀ (n : ℕ) (colOf : Fin n → List UInt8) (hcol : ∀ j, (colOf j).length ≤ Lq),
+      (∀ j, (colOf j).length % 8 = 0) → (saltOf : Fin n → Dig) →
       (leafLayerAux Lq h64 tag n colOf hcol saltOf).DepIn {q : QB Lq | q.1 = tag.col ∧ q.2.1.length % 8 = 0}
   | 0, _, _, _, _ => trivial
-  | n + 1, colOf, hcol, h8, saltOf =>
+  | n + 1, _, _, h8, _ =>
     ⟨⟨rfl, h8 0⟩, fun _ _ => depIn_andThen _ _
       (leafLayerAux_depIn_col8 Lq h64 tag n _ _ (fun j => h8 j.succ) _) (fun _ => trivial)⟩
 
 /-- Emit `m` internal `hashPair` `.pt` queries on sibling pairs `(leftOf i, rightOf i)`. -/
 def nodeLayerAux (Lq : ℕ) (h64 : 64 ≤ Lq) (tag : MTag) :
-    ∀ (m : ℕ) (leftOf rightOf : Fin m → Dig), PProg (QB Lq) Dig (Fin m → Dig)
+    ∀ (m : ℕ), (Fin m → Dig) → (Fin m → Dig) → PProg (QB Lq) Dig (Fin m → Dig)
   | 0, _, _ => .ret (fun _ => zeroDig)
   | m + 1, leftOf, rightOf =>
     .pt (tag.node, ⟨(leftOf 0).toList ++ (rightOf 0).toList, by rw [digPair_length]; exact h64⟩) fun nd =>
@@ -388,7 +391,7 @@ theorem nodeLayerAux_purePt (Lq : ℕ) (h64 : 64 ≤ Lq) (tag : MTag) :
 
 /-- Bottom-up Merkle tree construction from `2^d` leaf digests (`2^d - 1` internal `.pt` queries). -/
 def buildLevelsProg (Lq : ℕ) (h64 : 64 ≤ Lq) (tag : MTag) :
-    ∀ (d : ℕ) (lv : Fin (2 ^ d) → Dig), PProg (QB Lq) Dig (MerkleLevels d)
+    ∀ (d : ℕ), (Fin (2 ^ d) → Dig) → PProg (QB Lq) Dig (MerkleLevels d)
   | 0, lv => .ret (.root (lv ⟨0, by norm_num⟩))
   | d + 1, lv =>
     have hpow : 2 ^ (d + 1) = 2 * 2 ^ d := by ring
@@ -421,7 +424,9 @@ theorem buildLevelsProg_run (Lq : ℕ) (h64 : 64 ≤ Lq) (tag : MTag) (G : QB Lq
     have ih := buildLevelsProg_run Lq h64 tag G d parent v' hpar
     have hrun : (buildLevelsProg Lq h64 tag (d + 1) lv).run G =
         .layer lv ((buildLevelsProg Lq h64 tag d parent).run G) := by
-      unfold buildLevelsProg; rw [PProg.run_andThen, PProg.run_andThen, run_ret]
+      conv_lhs => unfold buildLevelsProg
+      dsimp only
+      rw [PProg.run_andThen, PProg.run_andThen, run_ret]
     rw [hrun]
     refine ⟨ih.1, fun j hj => ?_⟩
     show lv ⟨sibIdx j, sibIdx_lt hj⟩ :: ((buildLevelsProg Lq h64 tag d parent).run G).path (j / 2) _ =
@@ -561,6 +566,7 @@ def trAbsorbProg (Lq : ℕ) (t : Tr) (label data : List UInt8) : PProg (QB Lq) D
 theorem trAbsorbProg_run (Lq : ℕ) (t : Tr) (label data : List UInt8) (G : QB Lq → Dig) :
     (trAbsorbProg Lq t label data).run G = t.absorb (liftH G) label data := by
   unfold trAbsorbProg Tr.absorb liftH
+  dsimp only
   by_cases h : (absorbMsg t.state label data).length ≤ Lq
   · rw [dite_eq_left h, dite_eq_left h, run_pt, run_ret]
   · rw [dite_eq_right h, dite_eq_right h, run_ret]
@@ -610,6 +616,7 @@ def trSqueezeProg (Lq : ℕ) (h47 : 47 ≤ Lq) (t : Tr) : PProg (QB Lq) Dig (Dig
 theorem trSqueezeProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (t : Tr) (G : QB Lq → Dig) :
     (trSqueezeProg Lq h47 t).run G = t.squeeze (liftH G) := by
   unfold trSqueezeProg Tr.squeeze
+  dsimp only
   rw [run_pt, run_ret, liftH_eq G t.key _ (by rw [squeezeMsg_length]; exact h47)]
 
 theorem trSqueezeProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq) (t : Tr) : PurePt (trSqueezeProg Lq h47 t) 1 :=
@@ -621,6 +628,7 @@ def trChallengeFp2Prog (Lq : ℕ) (h47 : 47 ≤ Lq) (t : Tr) : PProg (QB Lq) Dig
 theorem trChallengeFp2Prog_run (Lq : ℕ) (h47 : 47 ≤ Lq) (t : Tr) (G : QB Lq → Dig) :
     (trChallengeFp2Prog Lq h47 t).run G = t.challengeFp2 (liftH G) := by
   unfold trChallengeFp2Prog Tr.challengeFp2
+  dsimp only
   rw [PProg.run_andThen, trSqueezeProg_run, run_ret]
 
 theorem trChallengeFp2Prog_purePt (Lq : ℕ) (h47 : 47 ≤ Lq) (t : Tr) : PurePt (trChallengeFp2Prog Lq h47 t) 1 :=
@@ -694,7 +702,9 @@ def posTagProg (Lq : ℕ) (h47 : 47 ≤ Lq) (t : Tr) : PProg (QB Lq) Dig Dig :=
 theorem posTagProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (t : Tr) (G : QB Lq → Dig) :
     (posTagProg Lq h47 t).run G = Exec.Block.posTag (liftH G) t := by
   unfold posTagProg Exec.Block.posTag
-  rw [PProg.run_andThen, trChallengeFp2Prog_run, PProg.run_andThen, trChallengeFp2Prog_run, run_ret]
+  dsimp only
+  rw [PProg.run_andThen, trChallengeFp2Prog_run, PProg.run_andThen, trChallengeFp2Prog_run]
+  rfl
 
 theorem posTagProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq) (t : Tr) : PurePt (posTagProg Lq h47 t) 2 :=
   ((trChallengeFp2Prog_purePt Lq h47 t).andThen fun a =>
@@ -772,19 +782,20 @@ private theorem bumpKey_pushAt_counts {α β : Type} (key : List Fp2 × ℕ × �
     simp only [List.map_cons, List.cons.injEq] at hcnt
     obtain ⟨hc, hrest⟩ := hcnt
     rw [List.map_cons, List.findIdx?_cons] at hfi
+    dsimp only at hfi
     by_cases hk : k = key
     · have hp : decide (zkToKey k = zkToKey key) = true := decide_eq_true (congrArg zkToKey hk)
       rw [ite_eq_left hp] at hfi; cases hfi
-      rw [bumpKey, ite_eq_left hk, pushAt, List.map_cons, List.map_cons, List.length_append,
-        List.length_singleton, hc, hrest]
+      rw [bumpKey, ite_eq_left hk, pushAt]
+      simp only [List.map_cons, List.length_append, List.length_singleton, hc, hrest]
     · have hp : decide (zkToKey k = zkToKey key) = false := decide_eq_false (fun h => hk (zkToKey_injective h))
       rw [hp, ite_eq_right Bool.false_ne_true] at hfi
       cases hsub : (rest.map (fun x => zkToKey x.1)).findIdx? (fun k' => decide (k' = zkToKey key)) with
       | none => rw [hsub] at hfi; cases hfi
       | some gi' =>
         rw [hsub] at hfi; cases hfi
-        rw [bumpKey, ite_eq_right hk, pushAt, List.map_cons, List.map_cons, hc,
-          bumpKey_pushAt_counts key m rest xs gi' hrest hsub]
+        rw [bumpKey, ite_eq_right hk, pushAt]
+        simp only [List.map_cons, hc, bumpKey_pushAt_counts key m rest xs gi' hrest hsub]
 
 private theorem openingGroupsAt_foldl_counts_inv (rows logN : ℕ) :
     ∀ (cs : List Exec.Block.ZClaim) (gs gs' : List ((List Fp2 × ℕ × ℕ) × ℕ))
@@ -827,8 +838,7 @@ private theorem openingGroupsAt_foldl_counts_inv (rows logN : ℕ) :
               rw [decide_eq_true rfl] at hnone; cases hnone
             rw [bumpKey_not_mem key gs hnot]
             exact ⟨by rw [List.map_append, List.map_singleton, hmap],
-              by rw [List.map_append, List.map_singleton, List.map_append, List.map_singleton,
-                List.length_singleton, hcnt]⟩
+              by simp only [List.map_append, List.map_singleton, List.length_singleton, hcnt]⟩
           | some gi =>
             have hfi : (gs.map (fun x => zkToKey x.1)).findIdx? (fun k' => decide (k' = zkToKey key)) = some gi := by
               rw [hmap]; exact hki
@@ -885,7 +895,8 @@ theorem zkRhosProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (rows : ℕ) (G : QB Lq → 
     rw [run_ret]
     have hadd := chalVec_add (liftH G) g.2.length (gs.map (fun x => x.2.length)).sum t
     refine ⟨by dsimp only; rw [h1], by dsimp only; rw [h2],
-      by dsimp only; rw [h3, hadd], by dsimp only; rw [h4, hadd], h5⟩
+      by dsimp only; rw [List.map_cons, List.sum_cons, h3, hadd],
+      by dsimp only; rw [List.map_cons, List.sum_cons, h4, hadd], h5⟩
 
 theorem zkRhosProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq) (rows : ℕ) :
     ∀ (gs : List (List Fp2 × List (List Fp2 × Fp2))) (t : Tr),
@@ -928,7 +939,9 @@ private theorem groupDraws_ok_iff (H : HIn → Dig) : ∀ (n : ℕ) (t t' : Tr),
     have hvec2 : (t.challengeFp2Vec H (n + 1)).2 = ((t.challengeFp2 H).2.challengeFp2Vec H n).2 := rfl
     rw [heq, hvec1, hvec2, List.any_cons]
     cases hz : (t.challengeFp2 H).1.isZero with
-    | true => rw [ite_eq_left rfl, Bool.true_or]; exact ⟨fun h => by cases h, fun h => by cases h.1⟩
+    | true =>
+      rw [ite_eq_left rfl, Bool.true_or]
+      exact ⟨fun h => (by cases h), fun h => (by cases h.1)⟩
     | false => rw [ite_eq_right Bool.false_ne_true, Bool.false_or]; exact groupDraws_ok_iff H n (t.challengeFp2 H).2 t'
 
 private theorem foldDraws_ok_iff (H : HIn → Dig) : ∀ (counts : List ℕ) (t t' : Tr),
@@ -942,13 +955,16 @@ private theorem foldDraws_ok_iff (H : HIn → Dig) : ∀ (counts : List ℕ) (t 
     rw [hstep, List.sum_cons, chalVec_add H c cs.sum t, List.any_append]
     cases hg : Exec.Block.groupDraws H c t with
     | error e =>
-      refine ⟨fun h => by have h' : (Except.error e : Except String Tr) = .ok t' := h; cases h', ?_⟩
-      rintro ⟨h0, _⟩
-      cases h1 : (t.challengeFp2Vec H c).1.any Fp2.isZero with
-      | true => rw [h1, Bool.true_or] at h0; cases h0
-      | false =>
-        have hok := (groupDraws_ok_iff H c t (t.challengeFp2Vec H c).2).mpr ⟨h1, rfl⟩
-        rw [hg] at hok; cases hok
+      constructor
+      · intro h
+        have h' : (Except.error e : Except String Tr) = .ok t' := h
+        cases h'
+      · rintro ⟨h0, _⟩
+        cases h1 : (t.challengeFp2Vec H c).1.any Fp2.isZero with
+        | true => rw [h1, Bool.true_or] at h0; cases h0
+        | false =>
+          have hok := (groupDraws_ok_iff H c t (t.challengeFp2Vec H c).2).mpr ⟨h1, rfl⟩
+          rw [hg] at hok; cases hok
     | ok t1 =>
       obtain ⟨h1, ht1⟩ := (groupDraws_ok_iff H c t t1).mp hg
       rw [h1, Bool.false_or, ← ht1]; exact foldDraws_ok_iff H cs t1 t'
@@ -960,18 +976,23 @@ theorem openingChallenges_ok_iff (H : HIn → Dig) (counts : List ℕ) (rows pro
   rw [openingChallenges_eq]; unfold openingAuditOk
   cases hf : counts.foldlM (fun t c => Exec.Block.groupDraws H c t) t with
   | error e =>
-    refine ⟨fun h => by have h' : (Except.error e : Except String Unit) = .ok () := h; cases h', fun h => ?_⟩
-    cases h1 : (t.challengeFp2Vec H counts.sum).1.any Fp2.isZero with
-    | true => rw [h1] at h; cases h
-    | false =>
-      have hok := (foldDraws_ok_iff H counts t (t.challengeFp2Vec H counts.sum).2).mpr ⟨h1, rfl⟩
-      rw [hf] at hok; cases hok
+    constructor
+    · intro h
+      have h' : (Except.error e : Except String Unit) = .ok () := h
+      cases h'
+    · intro h
+      cases h1 : (t.challengeFp2Vec H counts.sum).1.any Fp2.isZero with
+      | true => rw [h1] at h; cases h
+      | false =>
+        have hok := (foldDraws_ok_iff H counts t (t.challengeFp2Vec H counts.sum).2).mpr ⟨h1, rfl⟩
+        rw [hf] at hok; cases hok
   | ok t1 =>
     obtain ⟨h1, ht1⟩ := (foldDraws_ok_iff H counts t t1).mp hf
     rw [h1, ← ht1]; simp only [Bind.bind, Except.bind, Bool.not_false, Bool.true_and]
     by_cases hc : prox + 1 ≥ rows ∨ (Exec.Block.det ((t1.challengeFp2Vec H rows).1.getD prox Fp2.zero)
         ((t1.challengeFp2Vec H rows).1.getD (prox + 1) Fp2.zero)).v = 0
-    · rw [ite_eq_left hc, decide_eq_true hc]; exact ⟨fun h => by cases h, fun h => by cases h⟩
+    · rw [ite_eq_left hc, decide_eq_true hc]
+      exact ⟨fun h => (by cases h), fun h => (by cases h)⟩
     · rw [ite_eq_right hc, decide_eq_false hc]; exact ⟨fun _ => rfl, fun _ => rfl⟩
 
 /-- Post-`zkRhos` PCS opening tail using cached `MerkleLevels depth` (`0` extra Merkle queries). -/
@@ -995,8 +1016,11 @@ theorem pcsOpenTailProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (tag : MTag) (prm : Pcs
         (pRhos (liftH G) prm T (cl.map toZClaim) t).1 (pRhos (liftH G) prm T (cl.map toZClaim) t).2.2).run G =
       bOpen (liftH G) tag prm depth T cl t := by
   unfold pcsOpenTailProg
+  dsimp only
   rw [PProg.run_andThen, trAbsorbVecsProg_run, PProg.run_andThen, trAbsorbFp2Prog_run,
-    PProg.run_andThen, trSqueezeVecProg_run, run_ret]
+    PProg.run_andThen, trSqueezeVecProg_run]
+  dsimp only
+  rw [run_ret]
   have hsq := challengeIndices_sqDs (liftH G) prm.nQ prm.nn (pT2 (liftH G) prm T (cl.map toZClaim) t)
     (by rw [hnn]; exact isPow2_two_pow depth) hnQ
   obtain ⟨idx, t3, hidx, _, hlt, hpcs⟩ := pcsProve_eq (liftH G) tag prm depth hnn hnQ T (cl.map toZClaim) t
@@ -1007,7 +1031,7 @@ theorem pcsOpenTailProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (tag : MTag) (prm : Pcs
     congrArg Prod.snd hpair
   unfold bOpen; rw [hpcs]
   refine Prod.ext ?_ ht3_eq.symm
-  unfold ofOZ; rw [List.map_map]
+  unfold ofOZ; dsimp only; rw [List.map_map]
   refine congrArg (Exec.Block.OpeningZk.mk _ _) ?_
   change (idxOf prm.nn prm.nQ (sqDs (liftH G) (pT2 (liftH G) prm T (cl.map toZClaim) t) ((prm.nQ + 3) / 4))).map _ = _
   rw [← hidx_eq]
@@ -1028,47 +1052,47 @@ theorem pcsOpenTailProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (dept
     (by omega)
 
 /-- Standalone `bOpen` `PProg` using cached `MerkleLevels depth` (`0` extra Merkle queries). -/
-def bOpenProg (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
+def zkBOpenProg (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
     (T : Table) (tree : MerkleLevels depth) (cl : List Exec.Block.ZClaim) (t : Tr) :
     PProg (QB Lq) Dig (Exec.Block.OpeningZk × Tr) :=
   let gs := pGroups prm T (cl.map toZClaim)
   (zkRhosProg Lq h47 T.rows.length gs t).andThen fun r =>
     pcsOpenTailProg Lq h47 prm depth T tree gs.length r.1 r.2.2.2.2
 
-theorem bOpenProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (tag : MTag) (prm : PcsPrm) (depth : ℕ)
+theorem zkBOpenProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (tag : MTag) (prm : PcsPrm) (depth : ℕ)
     (hnn : prm.nn = 2 ^ depth) (hnQ : 0 < prm.nQ) (T : Table) (tree : MerkleLevels depth)
     (cl : List Exec.Block.ZClaim) (t : Tr) (G : QB Lq → Dig)
     (htree : ∀ (j : ℕ) (hj : j < 2 ^ depth), tree.path j hj = pathOf (liftH G) tag depth T j) :
-    (bOpenProg Lq h47 prm depth T tree cl t).run G = bOpen (liftH G) tag prm depth T cl t := by
-  unfold bOpenProg; rw [PProg.run_andThen]
+    (zkBOpenProg Lq h47 prm depth T tree cl t).run G = bOpen (liftH G) tag prm depth T cl t := by
+  unfold zkBOpenProg; dsimp only; rw [PProg.run_andThen]
   have hz := zkRhosProg_run Lq h47 T.rows.length G (pGroups prm T (cl.map toZClaim)) t
   dsimp only at hz; rw [hz.1, hz.2.2.2.2]
   exact pcsOpenTailProg_run Lq h47 tag prm depth hnn hnQ T tree cl t G htree
 
-theorem bOpenProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
+theorem zkBOpenProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
     (T : Table) (tree : MerkleLevels depth) (cl : List Exec.Block.ZClaim) (t : Tr) :
-    PurePt (bOpenProg Lq h47 prm depth T tree cl t)
+    PurePt (zkBOpenProg Lq h47 prm depth T tree cl t)
       (((pGroups prm T (cl.map toZClaim)).map (fun g => g.2.length)).sum + T.rows.length
         + (pGroups prm T (cl.map toZClaim)).length + 1 + (prm.nQ + 3) / 4) :=
   ((zkRhosProg_purePt Lq h47 T.rows.length _ t).andThen fun r =>
     pcsOpenTailProg_purePt Lq h47 prm depth T tree _ r.1 r.2.2.2.2).mono (by omega)
 
-theorem bOpenProg_ptLE (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
+theorem zkBOpenProg_ptLE (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
     (T : Table) (tree : MerkleLevels depth) (cl : List Exec.Block.ZClaim) (t : Tr) :
-    (bOpenProg Lq h47 prm depth T tree cl t).PtLE
+    (zkBOpenProg Lq h47 prm depth T tree cl t).PtLE
       (((pGroups prm T (cl.map toZClaim)).map (fun g => g.2.length)).sum + T.rows.length
         + (pGroups prm T (cl.map toZClaim)).length + 1 + (prm.nQ + 3) / 4) :=
-  (bOpenProg_purePt Lq h47 prm depth T tree cl t).1
-theorem bOpenProg_qLE (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
+  (zkBOpenProg_purePt Lq h47 prm depth T tree cl t).1
+theorem zkBOpenProg_qLE (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
     (T : Table) (tree : MerkleLevels depth) (cl : List Exec.Block.ZClaim) (t : Tr) :
-    (bOpenProg Lq h47 prm depth T tree cl t).QLE
+    (zkBOpenProg Lq h47 prm depth T tree cl t).QLE
       (((pGroups prm T (cl.map toZClaim)).map (fun g => g.2.length)).sum + T.rows.length
         + (pGroups prm T (cl.map toZClaim)).length + 1 + (prm.nQ + 3) / 4) :=
-  (bOpenProg_purePt Lq h47 prm depth T tree cl t).2.1
-theorem bOpenProg_depAbsorbed (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
+  (zkBOpenProg_purePt Lq h47 prm depth T tree cl t).2.1
+theorem zkBOpenProg_depAbsorbed (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
     (T : Table) (tree : MerkleLevels depth) (cl : List Exec.Block.ZClaim) (t : Tr) :
-    DepAbsorbed (bOpenProg Lq h47 prm depth T tree cl t) :=
-  (bOpenProg_purePt Lq h47 prm depth T tree cl t).depAbsorbed
+    DepAbsorbed (zkBOpenProg Lq h47 prm depth T tree cl t) :=
+  (zkBOpenProg_purePt Lq h47 prm depth T tree cl t).depAbsorbed
 
 /-- **Deduplicated `checkOpeningExec` + `bOpen` `PProg`**: draws `zkRhos` ONCE, runs the pure
 `openingAuditOk` check on those exact draws, returns `none` on refusal, and otherwise builds `OpeningZk`
@@ -1108,9 +1132,9 @@ theorem openingAuditProveProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (tag : MTag) (prm
     | ok og =>
       by_cases hgl : og.length ≠ g.groups
       · simp [hgl, Bind.bind, Except.bind, throw, throwThe, MonadExceptOf.throw, PProg.run]
-      · simp only [hgl, ↓reduceIte, Bind.bind, Except.bind, pure, Except.pure]
+      · simp only [hgl, ↓reduceIte, Bind.bind, Except.bind]
         rw [PProg.run_andThen]
-        have hcounts : og.map (·.2) = (pGroups prm T (cl.map toZClaim)).map (fun x => x.2.length) :=
+        have hcounts : og.map Prod.snd = (pGroups prm T (cl.map toZClaim)).map (fun x => x.2.length) :=
           openingGroupsAt_counts_eq_groupZclaims cl T.rows.length prm.logCols og
             (auditClaims_parts_nonempty cl (2 ^ prm.logCols) g.rows g.siteRows g.sumRows g.prox haud) hog
         have hz := zkRhosProg_run Lq h47 T.rows.length G (pGroups prm T (cl.map toZClaim)) t
@@ -1119,18 +1143,18 @@ theorem openingAuditProveProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (tag : MTag) (prm
             ((zkRhosProg Lq h47 T.rows.length (pGroups prm T (cl.map toZClaim)) t).run G).2.2.1
             ((zkRhosProg Lq h47 T.rows.length (pGroups prm T (cl.map toZClaim)) t).run G).2.2.2.1
             g.rows g.prox =
-          openingAuditOk (t.challengeFp2Vec (liftH G) (og.map (·.2)).sum).1
-            ((t.challengeFp2Vec (liftH G) (og.map (·.2)).sum).2.challengeFp2Vec (liftH G) g.rows).1
+          openingAuditOk (t.challengeFp2Vec (liftH G) (og.map Prod.snd).sum).1
+            ((t.challengeFp2Vec (liftH G) (og.map Prod.snd).sum).2.challengeFp2Vec (liftH G) g.rows).1
             g.rows g.prox := by
           rw [hz.2.2.1, hz.2.2.2.1, ← hcounts, ← hrows]
-        cases hch : Exec.Block.openingChallenges (liftH G) (og.map (·.2)) g.rows g.prox t with
+        cases hch : Exec.Block.openingChallenges (liftH G) (og.map Prod.snd) g.rows g.prox t with
         | error _ =>
           have hfalse : openingAuditOk
               ((zkRhosProg Lq h47 T.rows.length (pGroups prm T (cl.map toZClaim)) t).run G).2.2.1
               ((zkRhosProg Lq h47 T.rows.length (pGroups prm T (cl.map toZClaim)) t).run G).2.2.2.1
               g.rows g.prox ≠ true := by
             intro ht; rw [haudEq] at ht
-            have hok := (openingChallenges_ok_iff (liftH G) (og.map (·.2)) g.rows g.prox t).mpr ht
+            have hok := (openingChallenges_ok_iff (liftH G) (og.map Prod.snd) g.rows g.prox t).mpr ht
             rw [hch] at hok; cases hok
           dsimp only; rw [ite_eq_right hfalse, run_ret]
         | ok u' =>
@@ -1139,10 +1163,10 @@ theorem openingAuditProveProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (tag : MTag) (prm
               ((zkRhosProg Lq h47 T.rows.length (pGroups prm T (cl.map toZClaim)) t).run G).2.2.1
               ((zkRhosProg Lq h47 T.rows.length (pGroups prm T (cl.map toZClaim)) t).run G).2.2.2.1
               g.rows g.prox = true := by
-            rw [haudEq]; exact (openingChallenges_ok_iff (liftH G) (og.map (·.2)) g.rows g.prox t).mp hch
+            rw [haudEq]; exact (openingChallenges_ok_iff (liftH G) (og.map Prod.snd) g.rows g.prox t).mp hch
           dsimp only
-          rw [ite_eq_left htrue, PProg.run_andThen, run_ret, hz.1, hz.2.2.2.2,
-            pcsOpenTailProg_run Lq h47 tag prm depth hnn hnQ T tree cl t G htree]
+          rw [ite_eq_left htrue, PProg.run_andThen, run_ret, hz.1, hz.2.2.2.2]
+          exact congrArg some (pcsOpenTailProg_run Lq h47 tag prm depth hnn hnQ T tree cl t G htree)
 
 theorem openingAuditProveProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) (depth : ℕ)
     (g : OpenGeom) (T : Table) (tree : MerkleLevels depth) (cl : List Exec.Block.ZClaim) (t : Tr) :
@@ -1157,6 +1181,7 @@ theorem openingAuditProveProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm)
     cases openingGroupsAt cl prm.logCols with
     | error _ => exact (PurePt.ret _).mono (Nat.zero_le _)
     | ok og =>
+      dsimp only
       by_cases hgl : og.length ≠ g.groups
       · rw [ite_eq_left hgl]; exact (PurePt.ret _).mono (Nat.zero_le _)
       · rw [ite_eq_right hgl]
@@ -1190,7 +1215,7 @@ theorem openingAuditProveProg_depIn (Lq : ℕ) (h47 : 47 ≤ Lq) (prm : PcsPrm) 
   (openingAuditProveProg_purePt Lq h47 prm depth g T tree cl t).2.2.2 S
 
 /-- **Honest `M` opening (`bMask`) as a `PProg` using cached `MerkleLevels 12`** (`2 * S + 69` `.pt` queries). -/
-noncomputable def bMaskProg (Lq : ℕ) (h47 : 47 ≤ Lq)
+noncomputable def zkBMaskProg (Lq : ℕ) (h47 : 47 ≤ Lq)
     {K : Type} [Field K] [Algebra GF K] (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
     (M : MTable) (S : ℕ) (tree : MerkleLevels 12) (fs : List Exec.Block.MaskFunctional) (t : Tr) :
     PProg (QB Lq) Dig (Exec.Block.MaskOpening × Tr) :=
@@ -1206,15 +1231,17 @@ noncomputable def bMaskProg (Lq : ℕ) (h47 : 47 ≤ Lq)
               ofOCol (j, mCol S (cosetPt (rootFp 12)) M j, M.salts j, tree.pathD j))
             .ret (⟨qw, pw, cols⟩, sq.2)
 
-theorem bMaskProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (tag : MTag)
+theorem zkBMaskProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (tag : MTag)
     {K : Type} [Field K] [Algebra GF K] (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
     (M : MTable) (S : ℕ) (tree : MerkleLevels 12) (fs : List Exec.Block.MaskFunctional) (t : Tr) (G : QB Lq → Dig)
     (htree : ∀ (j : ℕ) (hj : j < 2 ^ 12), tree.path j hj = pathOf (liftH G) tag 12 (mTab S (cosetPt (rootFp 12)) M) j) :
-    (bMaskProg Lq h47 U hbij M S tree fs t).run G = bMask (liftH G) tag U hbij M S fs t := by
-  unfold bMaskProg
-  rw [PProg.run_andThen, trChallengeFp2Prog_run, PProg.run_andThen, trAbsorbFp2Prog_run,
-    PProg.run_andThen, trChallengeFp2VecProg_run, PProg.run_andThen, trAbsorbFp2Prog_run,
-    PProg.run_andThen, trSqueezeVecProg_run, run_ret]
+    (zkBMaskProg Lq h47 U hbij M S tree fs t).run G = bMask (liftH G) tag U hbij M S fs t := by
+  unfold zkBMaskProg
+  dsimp only
+  rw [PProg.run_andThen, trChallengeFp2Prog_run]
+  rw [PProg.run_andThen, trAbsorbFp2Prog_run, PProg.run_andThen, trChallengeFp2VecProg_run]
+  rw [PProg.run_andThen, trAbsorbFp2Prog_run, PProg.run_andThen, trSqueezeVecProg_run]
+  rw [run_ret]
   have hsq := challengeIndices_sqDs (liftH G) mQ mDom (mT2 (liftH G) U hbij (rootFp 9) M S (fs.map toMF) t)
     (isPow2_two_pow 12) (by norm_num [mQ])
   obtain ⟨idx, t3, hidx, _, hlt, hmp⟩ := maskProve_eq (liftH G) tag U hbij (rootFp 9) (rootFp 12) M S (fs.map toMF) t
@@ -1224,22 +1251,37 @@ theorem bMaskProg_run (Lq : ℕ) (h47 : 47 ≤ Lq) (tag : MTag)
   have ht3_eq : t3 = runOps (liftH G) (mT2 (liftH G) U hbij (rootFp 9) M S (fs.map toMF) t) (List.replicate ((mQ + 3) / 4) Op.squeeze) :=
     congrArg Prod.snd hpair
   unfold bMask; rw [hmp]
-  refine Prod.ext ?_ ht3_eq.symm
-  unfold ofMO; rw [List.map_map]
+  have hmT2 :
+      Tr.absorbFp2 (liftH G)
+        (Tr.challengeFp2Vec (liftH G)
+          (Tr.absorbFp2 (liftH G) (Tr.challengeFp2 (liftH G) t).2 maskQLabel
+            (polyWords U hbij (qPoly U (algebraMap GF K (rootFp 9).toGF) M S (fs.map toMF)
+              ((Tr.challengeFp2 (liftH G) t).1.toK U))))
+          (2 * S + 2)).2
+        maskProxLabel
+        (polyWords U hbij (pPoly U M S
+          (Tr.challengeFp2Vec (liftH G)
+            (Tr.absorbFp2 (liftH G) (Tr.challengeFp2 (liftH G) t).2 maskQLabel
+              (polyWords U hbij (qPoly U (algebraMap GF K (rootFp 9).toGF) M S (fs.map toMF)
+                ((Tr.challengeFp2 (liftH G) t).1.toK U))))
+            (2 * S + 2)).1))
+        = mT2 (liftH G) U hbij (rootFp 9) M S (fs.map toMF) t := rfl
+  refine Prod.ext ?_
+    ((congrArg (fun tr => runOps (liftH G) tr (List.replicate ((mQ + 3) / 4) Op.squeeze)) hmT2).trans ht3_eq.symm)
+  unfold ofMO; dsimp only; rw [List.map_map]
   refine congrArg (Exec.Block.MaskOpening.mk _ _) ?_
-  change (idxOf mDom mQ (sqDs (liftH G) (mT2 (liftH G) U hbij (rootFp 9) M S (fs.map toMF) t) ((mQ + 3) / 4))).map _ = _
-  rw [← hidx_eq]
+  rw [hmT2, ← hidx_eq]
   refine List.map_congr_left (fun j hj => ?_)
   have hj' : j < 2 ^ 12 := show j < 2 ^ 12 from hlt j hj
   show ofOCol (j, mCol S (cosetPt (rootFp 12)) M j, M.salts j, tree.pathD j) =
     ofOCol (j, mCol S (cosetPt (rootFp 12)) M j, M.salts j, pathOf (liftH G) tag 12 (mTab S (cosetPt (rootFp 12)) M) j)
   unfold MerkleLevels.pathD; rw [dite_eq_left hj', htree j hj']
 
-theorem bMaskProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq)
+theorem zkBMaskProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq)
     {K : Type} [Field K] [Algebra GF K] (U : K) (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
     (M : MTable) (S : ℕ) (tree : MerkleLevels 12) (fs : List Exec.Block.MaskFunctional) (t : Tr) :
-    PurePt (bMaskProg Lq h47 U hbij M S tree fs t) (2 * S + 69) := by
-  unfold bMaskProg
+    PurePt (zkBMaskProg Lq h47 U hbij M S tree fs t) (2 * S + 69) := by
+  unfold zkBMaskProg
   refine ((trChallengeFp2Prog_purePt Lq h47 t).andThen fun th =>
     (trAbsorbProg_purePt Lq th.2 _ _).andThen fun t1 =>
       (trChallengeFp2VecProg_purePt Lq h47 (2 * S + 2) t1).andThen fun rs =>
@@ -1248,22 +1290,22 @@ theorem bMaskProg_purePt (Lq : ℕ) (h47 : 47 ≤ Lq)
   have hmQ : (mQ + 3) / 4 = 64 := by norm_num [mQ]
   omega
 
-theorem bMaskProg_ptLE (Lq : ℕ) (h47 : 47 ≤ Lq) {K : Type} [Field K] [Algebra GF K] (U : K)
+theorem zkBMaskProg_ptLE (Lq : ℕ) (h47 : 47 ≤ Lq) {K : Type} [Field K] [Algebra GF K] (U : K)
     (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
     (M : MTable) (S : ℕ) (tree : MerkleLevels 12) (fs : List Exec.Block.MaskFunctional) (t : Tr) :
-    (bMaskProg Lq h47 U hbij M S tree fs t).PtLE (2 * S + 69) := (bMaskProg_purePt Lq h47 U hbij M S tree fs t).1
-theorem bMaskProg_qLE (Lq : ℕ) (h47 : 47 ≤ Lq) {K : Type} [Field K] [Algebra GF K] (U : K)
+    (zkBMaskProg Lq h47 U hbij M S tree fs t).PtLE (2 * S + 69) := (zkBMaskProg_purePt Lq h47 U hbij M S tree fs t).1
+theorem zkBMaskProg_qLE (Lq : ℕ) (h47 : 47 ≤ Lq) {K : Type} [Field K] [Algebra GF K] (U : K)
     (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
     (M : MTable) (S : ℕ) (tree : MerkleLevels 12) (fs : List Exec.Block.MaskFunctional) (t : Tr) :
-    (bMaskProg Lq h47 U hbij M S tree fs t).QLE (2 * S + 69) := (bMaskProg_purePt Lq h47 U hbij M S tree fs t).2.1
-theorem bMaskProg_depAbsorbed (Lq : ℕ) (h47 : 47 ≤ Lq) {K : Type} [Field K] [Algebra GF K] (U : K)
+    (zkBMaskProg Lq h47 U hbij M S tree fs t).QLE (2 * S + 69) := (zkBMaskProg_purePt Lq h47 U hbij M S tree fs t).2.1
+theorem zkBMaskProg_depAbsorbed (Lq : ℕ) (h47 : 47 ≤ Lq) {K : Type} [Field K] [Algebra GF K] (U : K)
     (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
     (M : MTable) (S : ℕ) (tree : MerkleLevels 12) (fs : List Exec.Block.MaskFunctional) (t : Tr) :
-    DepAbsorbed (bMaskProg Lq h47 U hbij M S tree fs t) := (bMaskProg_purePt Lq h47 U hbij M S tree fs t).depAbsorbed
-theorem bMaskProg_depIn (Lq : ℕ) (h47 : 47 ≤ Lq) {K : Type} [Field K] [Algebra GF K] (U : K)
+    DepAbsorbed (zkBMaskProg Lq h47 U hbij M S tree fs t) := (zkBMaskProg_purePt Lq h47 U hbij M S tree fs t).depAbsorbed
+theorem zkBMaskProg_depIn (Lq : ℕ) (h47 : 47 ≤ Lq) {K : Type} [Field K] [Algebra GF K] (U : K)
     (hbij : Function.Bijective (ZK60.Hiding.fp2 (F := GF) U))
     (M : MTable) (S : ℕ) (tree : MerkleLevels 12) (fs : List Exec.Block.MaskFunctional) (t : Tr) (Sq : Set (QB Lq)) :
-    (bMaskProg Lq h47 U hbij M S tree fs t).DepIn Sq := (bMaskProg_purePt Lq h47 U hbij M S tree fs t).2.2.2 Sq
+    (zkBMaskProg Lq h47 U hbij M S tree fs t).DepIn Sq := (zkBMaskProg_purePt Lq h47 U hbij M S tree fs t).2.2.2 Sq
 
 /-! ### Run-header `PProg` (`2` public `.dep`s + `7` `.pt`s, `DepStrict.dep2Pt`) -/
 
@@ -1321,9 +1363,8 @@ theorem shdP_hdrPProg_run {Hdr : Type} (Lq : ℕ) (key : Option Dig) (domain : L
   rw [run_dep, run_dep, run_pt,
     PProg.run_andThen, trAbsorbProg_run, PProg.run_andThen, trAbsorbProg_run,
     PProg.run_andThen, trAbsorbProg_run, PProg.run_andThen, trAbsorbProg_run,
-    PProg.run_andThen, trAbsorbProg_run, trAbsorbProg_run,
-    G_eq_liftH, G_eq_liftH, G_eq_liftH]
-  rfl
+    PProg.run_andThen, trAbsorbProg_run, trAbsorbProg_run]
+  simp only [G_eq_liftH, runOps, Tr.absorb]
 
 theorem shdP_hdrPProg_ptLE (Lq : ℕ) (key : Option Dig) (domain : List UInt8) (hdom : (startMsg domain).length ≤ Lq)
     (w : ClsHdrW) (hfit : 64 + (w.shape.length + w.params.length + w.chunk.length + 84) ≤ Lq)
@@ -1355,7 +1396,7 @@ end OpeningCombinators
 
 section ShdRunBudget
 
-open ZK60.ZKW16 ZK60.TokenRun ZK60.RunShape ZK60.ProtocolClassify.RunShapeP
+open ZK60.ZKW16 ZK60.ZKCount ZK60.TokenRun ZK60.RunShape ZK60.ProtocolClassify.RunShapeP
 
 /-- Tree counts for the 28-segment Shieldstral T128 R13 run (`1` `TE`, `4` stage `TA/TH`,
 `79` block `TA/TH` + boundary `B_0..26`, `28` `M` trees = `112` trees). -/
@@ -1392,10 +1433,22 @@ theorem shdP_zkProg_counts :
       ∧ shdP_zkPts = 11002999 ∧ shdP_zkDeps = 5359618 ∧ shdP_zkQueries = 16362617
       ∧ shdP_zkResPts = 11767696 ∧ shdP_zkTrPts ≤ 2 ^ 20
       ∧ shdP_zkPts ≤ shdP_zkResPts ∧ shdP_zkResPts < 2 ^ 64 := by
-  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
-    norm_num [shdP_zkTrees_total, shdP_zkTrees_ep, shdP_zkTrees_stg, shdP_zkTrees_blk, shdP_zkTrees_mask,
-      shdP_zkLeaves, shdP_zkNodes, shdP_zkMainTrPts, shdP_zkPosTagPts, shdP_zkTrPts,
-      shdP_zkPts, shdP_zkDeps, shdP_zkQueries, shdP_zkResT, shdP_zkResPts]
+  have hT : shdP_zkTrees_total = 112 := by
+    unfold shdP_zkTrees_total shdP_zkTrees_ep shdP_zkTrees_stg shdP_zkTrees_blk shdP_zkTrees_mask; norm_num
+  have hL : shdP_zkLeaves = 5359616 := by
+    unfold shdP_zkLeaves shdP_zkTrees_ep shdP_zkTrees_stg shdP_zkTrees_blk shdP_zkTrees_mask; norm_num
+  have hN : shdP_zkNodes = 5359504 := by
+    unfold shdP_zkNodes shdP_zkTrees_ep shdP_zkTrees_stg shdP_zkTrees_blk shdP_zkTrees_mask; norm_num
+  have hM : shdP_zkMainTrPts = 283821 := by unfold shdP_zkMainTrPts; norm_num
+  have hP : shdP_zkPosTagPts = 58 := by unfold shdP_zkPosTagPts; norm_num
+  have hTr : shdP_zkTrPts = 283879 := by unfold shdP_zkTrPts; rw [hM, hP]
+  have hPts : shdP_zkPts = 11002999 := by unfold shdP_zkPts; rw [hL, hN, hTr]
+  have hDeps : shdP_zkDeps = 5359618 := by unfold shdP_zkDeps; rw [hL]
+  have hQ : shdP_zkQueries = 16362617 := by unfold shdP_zkQueries; rw [hPts, hDeps]
+  have hRes : shdP_zkResPts = 11767696 := by unfold shdP_zkResPts shdP_zkResT; rw [hL, hN]; norm_num
+  have h20 : (2 : ℕ) ^ 20 = 1048576 := by norm_num
+  have h64 : (2 : ℕ) ^ 64 = 18446744073709551616 := by norm_num
+  exact ⟨hT, hL, hN, hM, hP, hTr, hPts, hDeps, hQ, hRes, by omega, by omega, by omega⟩
 
 theorem shdP_zkProg_ptLE_res {Q D α : Type} {p : PProg Q D α} (hp : p.PtLE shdP_zkPts) :
     p.PtLE shdP_zkResPts :=

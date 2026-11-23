@@ -46,7 +46,7 @@ theorem fp2_isZero_iff (a : Fp2) : a.isZero = true ↔ a = Fp2.zero := by
   rcases a with ⟨⟨v0⟩, ⟨v1⟩⟩; simp [Fp2.isZero, Fp2.zero, Fp.zero]
 
 theorem fp2_isZero_false_iff (a : Fp2) : a.isZero = false ↔ a ≠ Fp2.zero := by
-  rw [← fp2_isZero_iff]; cases a.isZero <;> simp
+  rw [ne_eq, ← fp2_isZero_iff]; cases a.isZero <;> simp
 
 theorem canon_fp2U : Block.fp2U.Canon := ⟨Fp2.canon_zero.1, Fp2.canon_one.1⟩
 theorem fp2_one_ne_zero : Fp2.one ≠ Fp2.zero := by decide
@@ -55,10 +55,10 @@ theorem fp2U_ne_zero : Block.fp2U ≠ Fp2.zero := by decide
 theorem fp2_mul_one (a : Fp2) (ha : a.Canon) : a.mul Fp2.one = a := by
   have hc : (a.mul Fp2.one).Canon := Fp2.canon_mul a Fp2.one
   refine fp2_eq_of_parts (Fp.toGF_injective hc.1 ha.1 ?_) (Fp.toGF_injective hc.2 ha.2 ?_)
-  · change ((a.c0.mul Fp.one).add ((a.c1.mul Fp.zero).mul seven)).toGF = a.c0.toGF
+  · unfold Fp2.mul Fp2.one; dsimp only
     rw [Fp.toGF_add _ _ (Fp.mul_canon _ _) (Fp.mul_canon _ _),
       Fp.toGF_mul, Fp.toGF_mul, Fp.toGF_mul, Fp.one_toGF, fp_zero_toGF, seven_toGF]; ring
-  · change ((a.c0.mul Fp.zero).add (a.c1.mul Fp.one)).toGF = a.c1.toGF
+  · unfold Fp2.mul Fp2.one; dsimp only
     rw [Fp.toGF_add _ _ (Fp.mul_canon _ _) (Fp.mul_canon _ _),
       Fp.toGF_mul, Fp.toGF_mul, Fp.one_toGF, fp_zero_toGF]; ring
 
@@ -110,11 +110,11 @@ theorem fp2_one_sub_ne_zero (e : Fp2) (he : e.Canon) (hne : e ≠ Fp2.one) : Fp2
 /-- `det(cm, cm * u)` equals the `Fp2` norm `cm.c0² - 7 · cm.c1²` in `GF`. -/
 theorem fp2_det_mulU_toGF (cm : Fp2) : (Block.det cm (cm.mul Block.fp2U)).toGF = cm.norm.toGF := by
   have hc0 : (cm.mul Block.fp2U).c0.toGF = 7 * cm.c1.toGF := by
-    change ((cm.c0.mul Fp.zero).add ((cm.c1.mul Fp.one).mul seven)).toGF = _
+    unfold Fp2.mul Block.fp2U; dsimp only
     rw [Fp.toGF_add _ _ (Fp.mul_canon _ _) (Fp.mul_canon _ _),
       Fp.toGF_mul, Fp.toGF_mul, Fp.toGF_mul, fp_zero_toGF, Fp.one_toGF, seven_toGF]; ring
   have hc1 : (cm.mul Block.fp2U).c1.toGF = cm.c0.toGF := by
-    change ((cm.c0.mul Fp.one).add (cm.c1.mul Fp.zero)).toGF = _
+    unfold Fp2.mul Block.fp2U; dsimp only
     rw [Fp.toGF_add _ _ (Fp.mul_canon _ _) (Fp.mul_canon _ _),
       Fp.toGF_mul, Fp.toGF_mul, Fp.one_toGF, fp_zero_toGF]; ring
   unfold Block.det
@@ -142,6 +142,7 @@ theorem noDeg_of_any_false (es : List Fp2) (h : es.any (fun x => x.isZero || dec
     intro ht
     have htrue : es.any (fun x => x.isZero || decide (x = Fp2.one)) = true := List.any_eq_true.mpr ⟨e, he, ht⟩
     rw [h] at htrue; cases htrue
+  rw [ne_eq] at hne
   simp only [Bool.or_eq_true, fp2_isZero_iff, decide_eq_true_eq, not_or] at hne
   exact hne
 
@@ -230,13 +231,14 @@ theorem zpartRowWeight_emptyPoint (p : Block.ZPart) (logN r : ℕ)
   · rw [ite_eq_left hlt]
     have hhi' : partHi p (2 ^ logN) = partLo p (2 ^ logN) + 1 := by
       unfold partHi partLo; rw [ceil_two_pow_div_of_le p.logSize logN (by omega)]
-    exact ite_eq_left (by unfold partLo at hlo hhi hhi'; omega)
+    exact ite_eq_left (by unfold partLo at hlo hhi'; omega)
   · rw [ite_eq_right hlt]
     have hhi' : partHi p (2 ^ logN) = partLo p (2 ^ logN) + 2 ^ (p.logSize - logN) := by
       unfold partHi partLo; rw [ceil_two_pow_div_of_ge p.logSize logN (by omega)]
     have hin : ¬ (r < p.offset / 2 ^ logN ∨ p.offset / 2 ^ logN + 2 ^ (p.logSize - logN) ≤ r) := by
-      unfold partLo at hlo hhi hhi'; omega
-    rw [ite_eq_right hin, hemp, ite_eq_left rfl]
+      unfold partLo at hlo hhi'; omega
+    rw [ite_eq_right hin, hemp]
+    exact ite_eq_left (show ([] : List Fp2).isEmpty = true from rfl)
 
 private theorem foldl_add_zero {α : Type} (f : α → Fp2) :
     ∀ (l : List α) (init : Fp2), init.Canon → (∀ x ∈ l, f x = Fp2.zero) →
@@ -274,14 +276,12 @@ private theorem claimTouchedStep_ok (n prox : ℕ) (siteRows : List ℕ) (acc : 
   simp only [Bind.bind, Except.bind, pure, Except.pure]
   have h1 : ¬ (partHi p n > prox) := by omega
   rw [ite_eq_right h1]
-  dsimp only [Except.bind]
   have h2 : (!(partSiteRows n siteRows p).isEmpty && p.coef.isZero) = false := by
     cases hemp : (partSiteRows n siteRows p).isEmpty with
     | true => rfl
-    | false => rw [fp2_isZero_false_iff.mpr (hnz hemp)]; rfl
+    | false => rw [(fp2_isZero_false_iff _).mpr (hnz hemp)]; rfl
   unfold partSiteRows at h2 ⊢
   rw [h2, ite_eq_right Bool.false_ne_true]
-  rfl
 
 private theorem claimTouched_foldlM (n prox : ℕ) (siteRows : List ℕ) :
     ∀ (ps : List Block.ZPart) (acc : List ℕ),
@@ -370,11 +370,12 @@ theorem auditOne_ok_of_surviving (logN rows prox : ℕ) (siteRows : List ℕ)
     rw [hT]; dsimp only
     have hg1 : ¬ (([t0, t0 + 1] : List ℕ).length ≠ 2
         ∨ ([t0, t0 + 1] : List ℕ).getD 1 0 ≠ ([t0, t0 + 1] : List ℕ).getD 0 0 + 1
-        ∨ (([t0, t0 + 1] : List ℕ).getD 0 0 - siteRows.getD 0 0) % 2 ≠ 0) := by simp [heven0]
+        ∨ (([t0, t0 + 1] : List ℕ).getD 0 0 - siteRows.getD 0 0) % 2 ≠ 0) := by
+      simp only [List.length_cons, List.length_nil, List.getD_cons_zero, List.getD_cons_succ, heven0]; omega
     have hg2 : (Block.det (claimWeight logN c (([t0, t0 + 1] : List ℕ).getD 0 0))
         (claimWeight logN c (([t0, t0 + 1] : List ℕ).getD 1 0))).v ≠ 0 := by
       simp only [List.getD_cons_zero, List.getD_cons_succ, hw0, hw1]; exact fp2_det_mulU_ne_zero cm hcmC hcm0
-    rw [ite_eq_right hg1]; dsimp only [Except.bind]; rw [ite_eq_right hg2]; rfl
+    rw [ite_eq_right hg1, ite_eq_right hg2]
   | true =>
     rw [his, ite_eq_left rfl] at hbody
     obtain ⟨u0, u1, cm, hsum, hlast, hT, ⟨p0, hp0M, hp0Lo, hp0Hi, hp0Ne⟩,
@@ -382,16 +383,14 @@ theorem auditOne_ok_of_surviving (logN rows prox : ℕ) (siteRows : List ℕ)
     rw [hsum, hT]; dsimp only; rw [ite_eq_left hlast]
     have hc0 : c.parts.any (fun p => decide (partLo p (2 ^ logN) ≤ u0 ∧ u0 < partHi p (2 ^ logN))
         && !p.coef.isZero) = true :=
-      List.any_eq_true.mpr ⟨p0, hp0M, by simp [hp0Lo, hp0Hi, fp2_isZero_false_iff.mpr hp0Ne]⟩
+      List.any_eq_true.mpr ⟨p0, hp0M, by simp [hp0Lo, hp0Hi, (fp2_isZero_false_iff _).mpr hp0Ne]⟩
     have hc1 : c.parts.any (fun p => decide (partLo p (2 ^ logN) ≤ u1 ∧ u1 < partHi p (2 ^ logN))
         && !p.coef.isZero) = true :=
-      List.any_eq_true.mpr ⟨p1, hp1M, by simp [hp1Lo, hp1Hi, fp2_isZero_false_iff.mpr hp1Ne]⟩
-    have hg1 : ¬ ((!([] : List ℕ).isEmpty || !true || !true) = true) := by decide
-    rw [hc0, hc1, ite_eq_right hg1]
-    dsimp only [Except.bind]
+      List.any_eq_true.mpr ⟨p1, hp1M, by simp [hp1Lo, hp1Hi, (fp2_isZero_false_iff _).mpr hp1Ne]⟩
+    rw [ite_eq_right (by rw [hc0, hc1]; decide)]
     have hg2 : (Block.det (claimWeight logN c u0) (claimWeight logN c u1)).v ≠ 0 := by
       rw [hw0, hw1]; exact fp2_det_mulU_ne_zero cm hcmC hcm0
-    rw [ite_eq_right hg2]; rfl
+    rw [ite_eq_right hg2]
 
 theorem auditLoop_ok_of_surviving (logN rows prox : ℕ) (siteRows : List ℕ)
     (sumRows : Option (ℕ × ℕ)) (nClaims : ℕ) :
@@ -426,13 +425,9 @@ theorem auditClaims_ok_of_surviving (claims : List Block.ZClaim) (logN rows : �
   have hg1 : ¬ (prox + 2 ≠ rows ∨ siteRows.length % 2 ≠ 0) := by omega
   have hg2 : ¬ ((!isPow2 (2 ^ logN)) = true) := by
     rw [HonestOpen.isPow2_two_pow]; exact Bool.false_ne_true
-  rw [ite_eq_right hg1]
-  dsimp only [Except.bind]
-  rw [ite_eq_right hg2]
-  dsimp only [Except.bind]
+  rw [ite_eq_right hg1, ite_eq_right hg2]
   rw [auditLoop_ok_of_surviving logN rows prox siteRows sumRows claims.length 0 claims
     (List.replicate rows 0) (fun j hj => by have h' := hclaims j hj; rwa [Nat.zero_add])]
-  dsimp only [Except.bind]
   set uses := (claims.flatMap (fun c => c.parts.flatMap (partSiteRows (2 ^ logN) siteRows))).foldl incAt
     (List.replicate rows 0) with huses
   have hany : siteRows.any (fun r => decide (uses.getD r 0 ≠ 1)) = false := by
@@ -444,6 +439,7 @@ theorem auditClaims_ok_of_surviving (claims : List Block.ZClaim) (logN rows : �
       have hget : uses.getD r 0 = 1 := by
         rw [huses, foldl_incAt_getD _ _ r hrLt, getD_replicate_zero_nat, Nat.zero_add, hcov r hrMem]
       have hf : False := (of_decide_eq_true hrNe) hget; cases hf
+  dsimp only
   rw [hany, ite_eq_right Bool.false_ne_true]
 
 /-- **Finding L32-4 closure for `StageVerifyExec.checkTokenEp`**: on a surviving singleton `INC-00`
@@ -457,7 +453,7 @@ theorem checkTokenEp_header_ok_of_surviving (H : HIn → Dig) (P : Block.BlockPa
         data (2 ^ P.endpointLogN) t
       = Block.openingChallenges H [1] (data + epMaskRows) (data + 2) t := by
   rcases p with ⟨cm, slices, log, coords, maskRow, extRound⟩
-  dsimp only at hcm hslices hmask hdata hr; subst hcm hslices hmask
+  dsimp only at hcm hslices hmask hdata hr; subst hcm hslices; rw [hmask]
   have hc0 : (if log < P.endpointLogN then 0 % 2 ^ P.endpointLogN else 0) = 0 := by
     by_cases hlt : log < P.endpointLogN
     · rw [ite_eq_left hlt, Nat.zero_mod]
@@ -465,11 +461,11 @@ theorem checkTokenEp_header_ok_of_surviving (H : HIn → Dig) (P : Block.BlockPa
   have ⟨hcdC, hcd0⟩ := oneMinusProd_ne_zero_of_noDeg es hcan (fun e he => (hnoDeg e he).2)
   have ⟨hcmC, hcm0⟩ := maskCoef_ne_zero_of_noDeg es extRound hr hcan hnoDeg
   have hp0 : (Fp2.one.mul (Block.oneMinusProd es)).isZero = false :=
-    fp2_isZero_false_iff.mpr (fp2_mul_ne_zero _ _ Fp2.canon_one hcdC fp2_one_ne_zero hcd0)
+    (fp2_isZero_false_iff _).mpr (fp2_mul_ne_zero _ _ Fp2.canon_one hcdC fp2_one_ne_zero hcd0)
   have hp1 : ((Block.maskCoef es extRound).mul Fp2.one).isZero = false :=
-    fp2_isZero_false_iff.mpr (fp2_mul_ne_zero _ _ hcmC Fp2.canon_one hcm0 fp2_one_ne_zero)
+    (fp2_isZero_false_iff _).mpr (fp2_mul_ne_zero _ _ hcmC Fp2.canon_one hcm0 fp2_one_ne_zero)
   have hp2 : ((Block.maskCoef es extRound).mul Block.fp2U).isZero = false :=
-    fp2_isZero_false_iff.mpr (fp2_mul_ne_zero _ _ hcmC canon_fp2U hcm0 fp2U_ne_zero)
+    (fp2_isZero_false_iff _).mpr (fp2_mul_ne_zero _ _ hcmC canon_fp2U hcm0 fp2U_ne_zero)
   unfold checkTokenEp Block.buildClaim
   dsimp only [Block.rowLog, List.map_cons, List.map_nil, List.cons_append, List.nil_append, List.headD_cons]
   refine ite_eq_left ⟨?_, ?_, ?_, ?_⟩
@@ -480,7 +476,7 @@ theorem checkTokenEp_header_ok_of_surviving (H : HIn → Dig) (P : Block.BlockPa
   · unfold partRows partLo partHi
     rw [hc0, Nat.add_zero, Nat.mul_div_cancel (data + 1) (Nat.two_pow_pos P.endpointLogN),
       ceil_two_pow_div_of_le (min log P.endpointLogN) P.endpointLogN (min_le_right _ _)]
-  · simp only [List.all_cons, List.all_nil, hp0, hp1, hp2, Bool.not_false, Bool.and_self]
+  · simp [hp0, hp1, hp2]
 
 /-- Specialization of `checkTokenEp_header_ok_of_surviving` to `ext = 1` (`es = [e0]`, `p.extRound = 0`). -/
 theorem checkTokenEp_header_ok_of_ext1 (H : HIn → Dig) (P : Block.BlockParams) (p : Block.Priv)

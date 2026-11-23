@@ -699,7 +699,7 @@ theorem shdP_incTB_eval_rEmb (Rp : ClassifyRunPublicP shieldS0) (hP : Rp.inp.Val
             congr 3
             obtain ⟨iv, hiv⟩ := i
             dsimp only
-            interval_cases iv <;> norm_num <;> omega
+            interval_cases iv <;> (norm_num; try omega)
           have hp2 : Block.bitsK (K := shdP_K) 14 col.val (Fin.castAdd 12 i)
               = Block.bitsK (K := shdP_K) 2 (col.val / 4096) i := by
             unfold Block.bitsK msbBits

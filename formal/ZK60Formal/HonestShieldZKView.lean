@@ -34,9 +34,11 @@ namespace ZK60.HonestShield
 open scoped ENNReal
 open Finset ZK60 ZK60.ZKW16 ZK60.ZKLinks ZK60.ZKHonest ZK60.HonestClassify
 open ZK60.Circuit (gP GF)
+open ZK60.Exec (QB Dig HIn Tr liftH PlaneCommit)
+open ZK60.Exec.Block (posTag)
 open ZK60.Exec.Slot.W16R2 (Kind kindOf nSlots)
 open ZK60.ProtocolClassify (shdP_K shdP_U shdP_hU ClsStmt ClsReceipt RunV RunP SegP Carry
-  proveSegs honestSegs runProve posTag PlaneCommit honestRoot)
+  proveSegs honestSegs runProve honestRoot)
 open ZK60.RunShape (ClassifyRunPublicP classifyModelP classifySpecP)
 open ZK60.ProtocolClassify.RunShapeP (classifyProtocolP classifyProtocolUP)
 
@@ -185,6 +187,25 @@ abbrev ShdL1View (F K : Type) (L1 : ShdL1Spec) (ks : ShdL1OpenK) : Type :=
   PcsStdView F K L1.te ks.te × ((k : Fin 27) → PcsStdView F K (L1.bnd k) (ks.bnd k))
     × ((s : Fin 28) → PcsAHView F K (L1.ah s) (ks.kA s) (ks.kH s))
 
+instance instFintypeHidingCoins (F : Type) [Fintype F] (n Q : ℕ) (Dat Γ : Type)
+    [Fintype Dat] [DecidableEq Dat] [Fintype Γ] [DecidableEq Γ] :
+    Fintype (Hiding.Coins F n Q Dat Γ) :=
+  inferInstanceAs (Fintype ((Dat → Fin Q → F) × (Γ × Bool → Hiding.Row F n Q) × (Bool → Hiding.Row F n Q)))
+
+instance instFintypeHidingCoinsH (F : Type) [Fintype F] (n Q : ℕ) (Dat Γ : Type)
+    [Fintype Dat] [DecidableEq Dat] [Fintype Γ] [DecidableEq Γ] :
+    Fintype (Hiding.CoinsH F n Q Dat Γ) :=
+  inferInstanceAs (Fintype ((Dat → Fin Q → F) × (Bool → Hiding.Row F n Q)
+    × (Γ × Bool → Hiding.Row F n Q) × (Bool → Hiding.Row F n Q)))
+
+instance instNonemptyHidingCoins (F : Type) [Zero F] (n Q : ℕ) (Dat Γ : Type) :
+    Nonempty (Hiding.Coins F n Q Dat Γ) :=
+  ⟨(fun _ _ => 0, fun _ _ => 0, fun _ _ => 0)⟩
+
+instance instNonemptyHidingCoinsH (F : Type) [Zero F] (n Q : ℕ) (Dat Γ : Type) :
+    Nonempty (Hiding.CoinsH F n Q Dat Γ) :=
+  ⟨(fun _ _ => 0, fun _ _ => 0, fun _ _ => 0, fun _ _ => 0)⟩
+
 /-- Opening parameters and hiding hypotheses for one standard PCS table (`TE` or `B_k`). -/
 structure PcsStdData (F K Dt : Type) [Field F] [Fintype F] [Field K] [Algebra F K]
     (T : PcsTableSpec) (kOpen : ℕ) where
@@ -256,19 +277,66 @@ theorem pcsAH_law_eq {F K Dt : Type} [Field F] [Fintype F] [Field K] [Algebra F 
     (ZKLinks.openingsAH_law_eq hK D.EA D.ωA D.habA D.hpA D.hEA D.EH D.Z D.hZadd D.hZ D.ωH
       D.hsH D.habH D.hpH D.hEH D.dA D.dH D.hdH e e') rfl
 
+private theorem law_eq_prod_any {Ω Ω' β γ : Type} {i1 : Fintype Ω} [Nonempty Ω] {i2 : Fintype Ω'} [Nonempty Ω']
+    {i12 : Fintype (Ω × Ω')} [Nonempty (Ω × Ω')] (f f' : Ω → β) (g g' : Ω' → γ)
+    (hf : (@PMF.uniformOfFintype Ω i1 _).map f = (@PMF.uniformOfFintype Ω i1 _).map f')
+    (hg : (@PMF.uniformOfFintype Ω' i2 _).map g = (@PMF.uniformOfFintype Ω' i2 _).map g') :
+    (@PMF.uniformOfFintype (Ω × Ω') i12 _).map (fun p => (f p.1, g p.2))
+      = (@PMF.uniformOfFintype (Ω × Ω') i12 _).map (fun p => (f' p.1, g' p.2)) := by
+  cases Subsingleton.elim i12 (@instFintypeProd Ω Ω' i1 i2)
+  exact @ZKW16.law_eq_prod Ω Ω' β γ i1 _ i2 _ f f' g g' hf hg
+
+private theorem shdL1_view_eq {F K Dt : Type} [Field F] [Fintype F] [Field K] [Algebra F K]
+    {L1 : ShdL1Spec} {ks : ShdL1OpenK} (D : ShdL1Data F K Dt L1 ks) (e : Dt) :
+    D.view e = fun p => (D.te.view e p.1, (fun q => ((fun c k => (D.bnd k).view e (c k)) q.1,
+      (fun c s => (D.ah s).view e (c s)) q.2)) p.2) := rfl
+
+private theorem shdL1_law_eq_aux {F K : Type} [Field F] [Fintype F] [Field K] [Algebra F K]
+    {L1 : ShdL1Spec} {ks : ShdL1OpenK}
+    (vte vte' : PcsStdCoins F L1.te → PcsStdView F K L1.te ks.te)
+    (vbnd vbnd' : (k : Fin 27) → PcsStdCoins F (L1.bnd k) → PcsStdView F K (L1.bnd k) (ks.bnd k))
+    (vah vah' : (s : Fin 28) → PcsAHCoins F (L1.ah s) → PcsAHView F K (L1.ah s) (ks.kA s) (ks.kH s))
+    (hte : (PMF.uniformOfFintype (PcsStdCoins F L1.te)).map vte
+      = (PMF.uniformOfFintype (PcsStdCoins F L1.te)).map vte')
+    (hbnd : ∀ k, (PMF.uniformOfFintype (PcsStdCoins F (L1.bnd k))).map (vbnd k)
+      = (PMF.uniformOfFintype (PcsStdCoins F (L1.bnd k))).map (vbnd' k))
+    (hah : ∀ s, (PMF.uniformOfFintype (PcsAHCoins F (L1.ah s))).map (vah s)
+      = (PMF.uniformOfFintype (PcsAHCoins F (L1.ah s))).map (vah' s)) :
+    (PMF.uniformOfFintype (ShdL1Coins F L1)).map
+        (fun p => (vte p.1, (fun q => ((fun c k => vbnd k (c k)) q.1, (fun c s => vah s (c s)) q.2)) p.2))
+      = (PMF.uniformOfFintype (ShdL1Coins F L1)).map
+        (fun p => (vte' p.1, (fun q => ((fun c k => vbnd' k (c k)) q.1, (fun c s => vah' s (c s)) q.2)) p.2)) := by
+  let _ : ∀ k, DecidableEq (PcsStdView F K (L1.bnd k) (ks.bnd k)) := fun _ => Classical.decEq _
+  let _ : ∀ s, DecidableEq (PcsAHView F K (L1.ah s) (ks.kA s) (ks.kH s)) := fun _ => Classical.decEq _
+  have hB := ZKLinks.law_eq_pi vbnd vbnd' hbnd
+  have hA := ZKLinks.law_eq_pi vah vah' hah
+  have hBA := law_eq_prod_any (i12 := @instFintypeProd _ _ _ _)
+    (fun (c : (k : Fin 27) → PcsStdCoins F (L1.bnd k)) k => vbnd k (c k))
+    (fun (c : (k : Fin 27) → PcsStdCoins F (L1.bnd k)) k => vbnd' k (c k))
+    (fun (c : (s : Fin 28) → PcsAHCoins F (L1.ah s)) s => vah s (c s))
+    (fun (c : (s : Fin 28) → PcsAHCoins F (L1.ah s)) s => vah' s (c s)) hB hA
+  exact law_eq_prod_any vte vte'
+    (fun (q : ((k : Fin 27) → PcsStdCoins F (L1.bnd k)) × ((s : Fin 28) → PcsAHCoins F (L1.ah s))) =>
+      ((fun (c : (k : Fin 27) → PcsStdCoins F (L1.bnd k)) k => vbnd k (c k)) q.1,
+       (fun (c : (s : Fin 28) → PcsAHCoins F (L1.ah s)) s => vah s (c s)) q.2))
+    (fun (q : ((k : Fin 27) → PcsStdCoins F (L1.bnd k)) × ((s : Fin 28) → PcsAHCoins F (L1.ah s))) =>
+      ((fun (c : (k : Fin 27) → PcsStdCoins F (L1.bnd k)) k => vbnd' k (c k)) q.1,
+       (fun (c : (s : Fin 28) → PcsAHCoins F (L1.ah s)) s => vah' s (c s)) q.2))
+    hte hBA
+
 /-- **Level-1 joint law independence across all 84 PCS openings** (`TE`, `B_0..26`, `A_0..27`, `H_0..27` + leaf salts),
 composing `ZKLinks.law_eq_pi` (over `Fin 27` and `Fin 28`) with `pcsStd_law_eq`, `pcsAH_law_eq`, and `ZKW16.law_eq_prod`. -/
 theorem shdL1_law_eq {F K Dt : Type} [Field F] [Fintype F] [Field K] [Algebra F K]
     (hK : Module.finrank F K = 2) {L1 : ShdL1Spec} {ks : ShdL1OpenK} (D : ShdL1Data F K Dt L1 ks) (e e' : Dt) :
     (PMF.uniformOfFintype (ShdL1Coins F L1)).map (D.view e)
       = (PMF.uniformOfFintype (ShdL1Coins F L1)).map (D.view e') := by
-  classical
-  exact ZKW16.law_eq_prod _ _ _ _ (pcsStd_law_eq hK D.te e e')
-    (ZKW16.law_eq_prod _ _ _ _
-      (ZKLinks.law_eq_pi (fun k => (D.bnd k).view e) (fun k => (D.bnd k).view e')
-        (fun k => pcsStd_law_eq hK (D.bnd k) e e'))
-      (ZKLinks.law_eq_pi (fun s => (D.ah s).view e) (fun s => (D.ah s).view e')
-        (fun s => pcsAH_law_eq hK (D.ah s) e e')))
+  rw [shdL1_view_eq D e, shdL1_view_eq D e']
+  exact shdL1_law_eq_aux (D.te.view e) (D.te.view e')
+    (fun k => (D.bnd k).view e) (fun k => (D.bnd k).view e')
+    (fun s => (D.ah s).view e) (fun s => (D.ah s).view e')
+    (pcsStd_law_eq hK D.te e e')
+    (fun k => pcsStd_law_eq hK (D.bnd k) e e')
+    (fun s => pcsAH_law_eq hK (D.ah s) e e')
 
 end Level1
 
@@ -304,6 +372,18 @@ abbrev ShdL2View (F K : Type) (L2 : ShdL2Spec) (qs : Fin 28 → ℕ) : Type := (
 (84 PCS tables' polynomial coins + leaf salts × 28 segments' sumcheck mask + `M` coins + `M` leaf salts). -/
 abbrev ShdViewCoins (F K : Type) (L1 : ShdL1Spec) (L2 : ShdL2Spec) : Type :=
   ShdL1Coins F L1 × ShdL2Coins F K L2
+
+instance instFintypeSegL2Coins (F K : Type) [Fintype F] [Fintype K] {ns : ℕ} (S : SegL2Spec ns) :
+    Fintype (SegL2Coins F K S) :=
+  inferInstanceAs (Fintype ((((t : Fin ns) → Hiding.CfsCoeffs K (S.n t) (S.d t))
+    × Hiding.MCoins F S.mm S.r S.Q) × S.MSalt))
+
+instance instNonemptySegL2Coins (F K : Type) [Zero F] [Zero K] {ns : ℕ} (S : SegL2Spec ns) :
+    Nonempty (SegL2Coins F K S) := by
+  let _ : Inhabited F := ⟨0⟩
+  let _ : Inhabited K := ⟨0⟩
+  let _ : Inhabited S.MSalt := ⟨Classical.choice S.neMSalt⟩
+  exact inferInstance
 
 /-- Full two-level composed honest view `V₁ × V₂`. -/
 abbrev ShdView (F K : Type) (L1 : ShdL1Spec) (L2 : ShdL2Spec) (ks : ShdL1OpenK) (qs : Fin 28 → ℕ) : Type :=
@@ -473,12 +553,21 @@ theorem twoLevel_law_eq_of_cond {E Ω₁ Ω₂ V₁ V₂ : Type} [Fintype Ω₁]
   have hprod : PMF.uniformOfFintype (Ω₁ × Ω₂)
       = (PMF.uniformOfFintype Ω₁).bind (fun ω₁ => (PMF.uniformOfFintype Ω₂).map (fun ω₂ => (ω₁, ω₂))) := by
     ext ⟨ω₁, ω₂⟩
-    simp [PMF.uniformOfFintype_apply, PMF.bind_apply, PMF.map_apply, tsum_fintype, Fintype.card_prod, ENNReal.mul_inv]
+    simp only [PMF.uniformOfFintype_apply, PMF.bind_apply, PMF.map_apply, tsum_fintype, Fintype.card_prod,
+      Nat.cast_mul, ENNReal.mul_inv (Or.inl (Nat.cast_ne_zero.mpr Fintype.card_ne_zero))
+        (Or.inl (ENNReal.natCast_ne_top _)), Prod.mk.injEq]
+    rw [Finset.sum_eq_single ω₁]
+    · simp only [true_and, Finset.sum_ite_eq, Finset.mem_univ, ↓reduceIte]
+    · intro a _ hne
+      have h0 : (∑ a_1 : Ω₂, if ω₁ = a ∧ ω₂ = a_1 then ((Fintype.card Ω₂ : ℝ≥0∞)⁻¹) else 0) = 0 :=
+        Finset.sum_eq_zero (fun _ _ => ite_eq_right (fun h => hne h.1.symm))
+      rw [h0, mul_zero]
+    · intro h; have hf : False := h (Finset.mem_univ _); cases hf
   have hrew : ∀ d : E,
       (PMF.uniformOfFintype (Ω₁ × Ω₂)).map (fun p => (X₁ d p.1, X₂ d p.1 p.2))
         = (PMF.uniformOfFintype (Ω₁ × Ω₂)).map (fun p => (X₁ d p.1, S₂ (X₁ d p.1) p.2)) := by
     intro d
-    rw [hprod, PMF.bind_map, PMF.bind_map]; congr 1; funext ω₁; rw [PMF.map_comp, PMF.map_comp]
+    rw [hprod, PMF.map_bind, PMF.map_bind]; congr 1; funext ω₁; rw [PMF.map_comp, PMF.map_comp]
     have hsub1 : (PMF.uniformOfFintype Ω₂).map ((fun p : Ω₁ × Ω₂ => (X₁ d p.1, X₂ d p.1 p.2)) ∘ fun ω₂ => (ω₁, ω₂))
         = ((PMF.uniformOfFintype Ω₂).map (X₂ d ω₁)).map (fun x₂ => (X₁ d ω₁, x₂)) := by rw [PMF.map_comp]; rfl
     have hsub2 : (PMF.uniformOfFintype Ω₂).map ((fun p : Ω₁ × Ω₂ => (X₁ d p.1, S₂ (X₁ d p.1) p.2)) ∘ fun ω₂ => (ω₁, ω₂))
@@ -486,6 +575,33 @@ theorem twoLevel_law_eq_of_cond {E Ω₁ Ω₂ V₁ V₂ : Type} [Fintype Ω₁]
     rw [hsub1, hsub2, hS d ω₁]
   rw [hrew e, hrew e']
   exact twoLevel_law_eq X₁ (fun _ x₁ ω₂ => S₂ x₁ ω₂) e e' h1 (fun _ => rfl)
+
+private theorem twoLevel_law_eq_of_cond_any {E Ω₁ Ω₂ V₁ V₂ : Type}
+    {i1 : Fintype Ω₁} [Nonempty Ω₁] {i2 : Fintype Ω₂} [Nonempty Ω₂] {i12 : Fintype (Ω₁ × Ω₂)} [Nonempty (Ω₁ × Ω₂)]
+    (X₁ : E → Ω₁ → V₁) (X₂ : E → Ω₁ → Ω₂ → V₂) (e e' : E)
+    (h1 : (@PMF.uniformOfFintype Ω₁ i1 _).map (X₁ e) = (@PMF.uniformOfFintype Ω₁ i1 _).map (X₁ e'))
+    (hcond : ∀ (d₁ d₂ : E) (ω₁ ω₁' : Ω₁), X₁ d₁ ω₁ = X₁ d₂ ω₁' →
+      (@PMF.uniformOfFintype Ω₂ i2 _).map (X₂ d₁ ω₁) = (@PMF.uniformOfFintype Ω₂ i2 _).map (X₂ d₂ ω₁')) :
+    (@PMF.uniformOfFintype (Ω₁ × Ω₂) i12 _).map (fun p => (X₁ e p.1, X₂ e p.1 p.2))
+      = (@PMF.uniformOfFintype (Ω₁ × Ω₂) i12 _).map (fun p => (X₁ e' p.1, X₂ e' p.1 p.2)) := by
+  cases Subsingleton.elim i12 (@instFintypeProd Ω₁ Ω₂ i1 i2)
+  exact @twoLevel_law_eq_of_cond E Ω₁ Ω₂ V₁ V₂ i1 _ i2 _ X₁ X₂ e e' h1 hcond
+
+private theorem shdP_twoLevel_law_eq_aux {F K Dt : Type} [Field F] [Fintype F] [Field K] [Fintype K] [Algebra F K]
+    {L1 : ShdL1Spec} {L2 : ShdL2Spec} {ks : ShdL1OpenK} {qs : Fin 28 → ℕ}
+    (X₁ : Dt → ShdL1Coins F L1 → ShdL1View F K L1 ks)
+    (X₂ : (s : Fin 28) → Dt → ShdL1Coins F L1 → SegL2Coins F K (L2 s) → SegL2View F K (L2 s) (qs s))
+    (e e' : Dt)
+    (h1 : (PMF.uniformOfFintype (ShdL1Coins F L1)).map (X₁ e)
+      = (PMF.uniformOfFintype (ShdL1Coins F L1)).map (X₁ e'))
+    (h2 : ∀ (d₁ d₂ : Dt) (ω₁ ω₁' : ShdL1Coins F L1), X₁ d₁ ω₁ = X₁ d₂ ω₁' →
+      (PMF.uniformOfFintype (ShdL2Coins F K L2)).map (fun ω₂ s => X₂ s d₁ ω₁ (ω₂ s))
+        = (PMF.uniformOfFintype (ShdL2Coins F K L2)).map (fun ω₂ s => X₂ s d₂ ω₁' (ω₂ s))) :
+    (PMF.uniformOfFintype (ShdViewCoins F K L1 L2)).map
+        (fun p => (X₁ e p.1, fun s => X₂ s e p.1 (p.2 s)))
+      = (PMF.uniformOfFintype (ShdViewCoins F K L1 L2)).map
+        (fun p => (X₁ e' p.1, fun s => X₂ s e' p.1 (p.2 s))) :=
+  twoLevel_law_eq_of_cond_any X₁ (fun d ω₁ (ω₂ : ShdL2Coins F K L2) s => X₂ s d ω₁ (ω₂ s)) e e' h1 h2
 
 /-- **Full 28-segment two-level honest-view law equality** (`shdL1_law_eq` + `shdL2_cond_law_eq` via `twoLevel_law_eq`). -/
 theorem shdP_twoLevel_law_eq {F K Dt : Type} [Field F] [Fintype F] [Field K] [Fintype K] [Algebra F K]
@@ -500,7 +616,7 @@ theorem shdP_twoLevel_law_eq {F K Dt : Type} [Field F] [Fintype F] [Field K] [Fi
         (fun p => (D1.view e p.1, fun s => (D2 s).view e p.1 (p.2 s)))
       = (PMF.uniformOfFintype (ShdViewCoins F K L1 L2)).map
         (fun p => (D1.view e' p.1, fun s => (D2 s).view e' p.1 (p.2 s))) :=
-  twoLevel_law_eq_of_cond D1.view (fun d ω₁ ω₂ s => (D2 s).view d ω₁ (ω₂ s)) e e'
+  shdP_twoLevel_law_eq_aux D1.view (fun s => (D2 s).view) e e'
     (shdL1_law_eq hK D1 e e') (fun d₁ d₂ ω₁ ω₁' hX => shdL2_cond_law_eq h2 hU hU2 hc D2 d₁ d₂ ω₁ ω₁' hX)
 
 /-- Admissible inputs of `classifyModelP R` with a fixed public verdict `verdict`. -/
@@ -539,7 +655,7 @@ theorem shdP_twoLevel_hHV {S : ZK60.Block.BlockShape} {Hdr Coins : Type} [Fintyp
   let verdict : ℕ := (classifySpecP R x.1).getD 0
   let FM : FSModel Unit Dig (AdmAt R verdict) Coins (ClsStmt Hdr × ClsReceipt) :=
     { k := 0, dep := fun _ _ => ∅, pts := fun _ _ _ _ _ => (), out := fun y c _ => PProg.outOf (prog y.1 c) v,
-      vis := fun _ _ => False, vp := fun _ _ _ _ _ => (),
+      vis := fun _ _ => False, vp := fun _ _ _ _ => (),
       causal := fun _ _ _ _ _ _ _ => rfl, sep := fun _ _ _ _ _ _ => rfl, vis_pts := fun _ _ _ _ _ h => by cases h }
   exact hHV_rel_of_view FM π hπ (fun _ : AdmAt R verdict => ())
     (fun y _ ω => ((D1 verdict v hg).view y ω.1, fun s => (D2 verdict v hg s).view y ω.1 (ω.2 s)))

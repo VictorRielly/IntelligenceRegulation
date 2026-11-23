@@ -30,6 +30,7 @@ section StageOutSlotArith2
 variable (tag : MTag) (Rp : ClassifyRunPublicP shieldS0) (hOut : Rp.out.Valid) (wDigest : Dig) (bOutRow : ℕ)
   {x : shieldS0.Tok → ℕ} (w : OutcWitness Rp x) (TB : Table) (hTB : BndTableSpec w.y25 Rp.row TB) (rnd : OutcRand)
 
+include hOut in
 /-- Slot 5 (`OUTC-05 DZC`, `.standalone`): `IndDegLE 5`, `cubeSum = 0`, `df.hosted = []`. -/
 theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
     (halphaNe : ∀ z : ℕ, z < 256 →
@@ -45,9 +46,10 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
       ∧ ∀ vals, (df.poly vals).Canon := by
   intro V P cs
   let O := V.pub; let L := outcLay O 14
+  have hGb : V.geo.bLogN = 14 := rfl
   have hldo : O.ldo = 12 := (shdP_outcPub_logs Rp wDigest).2.1
   have hdf := outcDefDZC_eq_of_ok O V.geo hist hldo dr hlen hdrCan df hdef
-  dsimp only at hdf; subst hdf
+  dsimp only at hdf
   let mu := (dr.drop O.ldo).take 10
   let zeta := dr.getD (O.ldo + 10) Fp2.zero
   let gU8 := hist.gamma.mulBase (Fp.new (UInt64.ofNat tagU8))
@@ -55,8 +57,9 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
   let kDv := kI (2 ^ O.tn)
   let kDen := kI (2 ^ (O.tn + 1))
   have hsh5 : Exec.Block.slotShape P 5 = (12, 1, 5) := shdP_outc_slotShape tag Rp wDigest bOutRow w.v 5
-  have hN5 : slotN P 5 = 13 := by unfold slotN; rw [hsh5]
-  have hDlog : L.aLog.getD ocC_D 0 = 1 := by rw [shdP_outcLay_aLog Rp wDigest w.v ocC_D (by norm_num [ocC_D])]; rfl
+  have hN5 : slotN P 5 = 13 := by unfold slotN; rw [hsh5]; rfl
+  have hDlog : L.aLog.getD ocC_D 0 = 1 :=
+    (shdP_outcLay_aLog Rp wDigest w.v ocC_D (by norm_num [ocC_D])).trans (ite_eq_left (by norm_num [ocC_D]))
   have hDoff : L.aOff ocC_D = 0 * 4096 := shdP_outcLay_aOff Rp wDigest w.v ocC_D (by norm_num [ocC_D])
   let tabs : List Tab :=
     .eq (dr.take O.ldo) 0 :: (
@@ -68,16 +71,17 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
             fixedC (List.replicate OutcPub.toLog Fp2.zero),
             L.aMaskBase + 2 * (L.prefixA 5 + (0 + (List.range' ocC_X (ocC_MULT - ocC_X)).length)), 0⟩]
         ++ ((List.range 6).zipIdx 0).map (fun p =>
-          let pl := ocH_D0 + p.1
-          Block.Tab.priv ⟨.h, [((L.hOff pl).1, Fp2.one), ((L.hOff pl).2, Block.fp2U)],
-            L.hLog.getD pl 0, rhoC 0 (L.hLog.getD pl 0),
+          Block.Tab.priv ⟨.h, [((L.hOff (ocH_D0 + p.1)).1, Fp2.one), ((L.hOff (ocH_D0 + p.1)).2, Block.fp2U)],
+            L.hLog.getD (ocH_D0 + p.1) 0, rhoC 0 (L.hLog.getD (ocH_D0 + p.1) 0),
             L.hMaskBase + 2 * (L.prefixH 5 + p.2), 0⟩)))
+  have htabs : df.tabs = tabs := by rw [hdf]; dsimp only [tabs, L]; rw [hGb]
+  have hpolyEq : df.poly = dzcPoly mu zeta hist.alpha gU8 kNum kDv kDen := by rw [hdf]
   have hfit : tabsFit 12 tabs := by
     intro t ht
     rcases List.mem_cons.mp ht with rfl | ht
     · show 0 + (dr.take O.ldo).length ≤ 12; rw [hldo, Nat.zero_add]; exact List.length_take_le _ _
     · rcases List.mem_cons.mp ht with rfl | ht
-      · show (supp O.d (2 ^ O.ldo)).length = 2 ^ 12; simp [supp, hldo]
+      · show (supp O.d (2 ^ O.ldo)).length = 2 ^ 12; simp only [supp, List.length_map, List.length_range, hldo]
       · rcases List.mem_append.mp ht with ht12 | ht3
         · rcases List.mem_append.mp ht12 with ht1 | ht2
           · obtain ⟨_, _, rfl⟩ := List.mem_map.mp ht1; trivial
@@ -99,7 +103,7 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
   let g : ℕ → (Fin 13 → shdP_K) → shdP_K := fun j z =>
     (tabs.map (stgTabK shdP_U shdP_hbij P cs 12 1 z)).getD j 0
   have hpoly : ∀ z : Fin (slotN P 5) → shdP_K,
-      slotPolyK P (fun _ => 14) cs 5 ⟨tabs, dzcPoly mu zeta hist.alpha gU8 kNum kDv kDen, []⟩ z
+      slotPolyK P (fun _ => 14) cs 5 df z
         = let gz := fun i => g i (fun j => z (Fin.cast hN5.symm j))
           let rh := lbK gz 4
           let sg := lbK gz 8
@@ -116,26 +120,103 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
           let padK := (1 - gz 1) * (∑ r ∈ Finset.range 12, gz (2 + r) * (zeta.toK shdP_U) ^ r)
           gz 0 * (((gz 1 * clauses) + hsK) + ((vg mu 9).toK shdP_U * padK)) := by
     intro z
-    unfold slotPolyK; rw [shdVo_atLog_14]
+    unfold slotPolyK
+    have hatP : atLog P 14 = P := shdVo_atLog_14 tag Rp wDigest bOutRow w.v
     have hs : (Exec.Block.slotShape P 5).1 = 12 := by rw [hsh5]
-    dsimp only; rw [hs]
+    dsimp only; rw [hatP, hs, htabs]
     obtain ⟨vals, htv, hvcan, hvmap⟩ := tabVals_stgTabK shdP_U shdP_hbij shdP_hU P cs 12 1 hN5 z tabs hfit hcan
-    rw [htv]
+    rw [htv]; dsimp only; rw [hpolyEq]
     have hvg : ∀ i, (vg vals i).toK shdP_U = g i (fun j => z (Fin.cast hN5.symm j)) := fun i => by
       rw [vg_toK_map, hvmap]
       simp only [g, List.getD_eq_getElem?_getD, List.getElem?_map]
       cases h : tabs[i]? with
       | none => rfl
-      | some tb => simp only [Option.map_some, Option.getD_some]; congr 1; funext j; rfl
+      | some tb => simp only [Option.map_some, Option.getD_some]; exact stgTabK_cast hN5 z tb
+    have hmapFn : (fun idx => (vals.map (Fp2.toK shdP_U)).getD idx 0)
+        = fun i => g i (fun j => z (Fin.cast hN5.symm j)) :=
+      funext (fun i => by rw [← vg_toK_map, hvg i])
     unfold dzcPoly
-    obtain ⟨hzc, hzeq⟩ := zfoldW_toK shdP_U shdP_hU vals zeta
-    let denF := fun (l : ℕ × ℤ × ℤ) => denW vals hist.alpha gU8 (2 + l.1) l.2.1 l.2.2
+    dsimp only
+    obtain ⟨_, hzeq⟩ := zfoldW_toK shdP_U shdP_hU vals zeta
     obtain ⟨hhsc, hhseq⟩ := foldl_range_add_toK shdP_U
       (fun kk =>
-        let d1 := denF (dzcLks.getD (2 * kk) (0, 0, 0))
-        let d2 := denF (dzcLks.getD (2 * kk + 1) (0, 0, 0))
-        (vg mu (3 + kk)).mul ((((vg vals (15 + kk)).mul d1).mul d2).sub (d1.add d2)))
+        (vg mu (3 + kk)).mul
+          ((((vg vals (15 + kk)).mul
+            (denW vals hist.alpha gU8 (2 + (dzcLks.getD (2 * kk) (0, 0, 0)).1)
+              (dzcLks.getD (2 * kk) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk) (0, 0, 0)).2.2)).mul
+            (denW vals hist.alpha gU8 (2 + (dzcLks.getD (2 * kk + 1) (0, 0, 0)).1)
+              (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.2)).sub
+          ((denW vals hist.alpha gU8 (2 + (dzcLks.getD (2 * kk) (0, 0, 0)).1)
+              (dzcLks.getD (2 * kk) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk) (0, 0, 0)).2.2).add
+            (denW vals hist.alpha gU8 (2 + (dzcLks.getD (2 * kk + 1) (0, 0, 0)).1)
+              (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.2))))
       (fun _ => Fp2.canon_mul _ _) 6
+    have hc0K : (((((vg vals 2).mul kNum).add ((vg vals 14).mul kDv)).sub (((vg vals 14).mul kDen).mul (vg vals 5))).sub (lbW vals 4)).toK shdP_U
+        = (((g 2 (fun j => z (Fin.cast hN5.symm j)) * kNum.toK shdP_U)
+            + (g 14 (fun j => z (Fin.cast hN5.symm j)) * kDv.toK shdP_U))
+            - ((g 14 (fun j => z (Fin.cast hN5.symm j)) * kDen.toK shdP_U)
+                * g 5 (fun j => z (Fin.cast hN5.symm j))))
+            - lbK (fun i => g i (fun j => z (Fin.cast hN5.symm j))) 4 := by
+      rw [Fp2.toK_sub shdP_U _ _ (Fp2.canon_sub _ _ (Fp2.canon_add _ _) (Fp2.canon_mul _ _)) (lbW_canon _ _),
+          Fp2.toK_sub shdP_U _ _ (Fp2.canon_add _ _) (Fp2.canon_mul _ _),
+          Fp2.toK_add shdP_U _ _ (Fp2.canon_mul _ _) (Fp2.canon_mul _ _),
+          Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU,
+          lbW_toK shdP_U vals 4, hmapFn, hvg 2, hvg 5, hvg 14]
+    have hc1K : ((((lbW vals 8).add (lbW vals 4)).add Fp2.one).sub ((vg vals 14).mul kDen)).toK shdP_U
+        = ((lbK (fun i => g i (fun j => z (Fin.cast hN5.symm j))) 8
+            + lbK (fun i => g i (fun j => z (Fin.cast hN5.symm j))) 4) + 1)
+            - (g 14 (fun j => z (Fin.cast hN5.symm j)) * kDen.toK shdP_U) := by
+      rw [Fp2.toK_sub shdP_U _ _ (Fp2.canon_add _ _) (Fp2.canon_mul _ _),
+          Fp2.toK_add shdP_U _ _ (Fp2.canon_add _ _) Fp2.canon_one,
+          Fp2.toK_add shdP_U _ _ (lbW_canon _ _) (lbW_canon _ _),
+          Fp2.toK_one, Fp2.toK_mul shdP_U shdP_hU,
+          lbW_toK shdP_U vals 8, lbW_toK shdP_U vals 4, hmapFn, hvg 14]
+    have hc2K : ((((vg vals 2).add (kI 32768)).sub (vg vals 3)).sub (mb (vg vals 4) 256)).toK shdP_U
+        = ((g 2 (fun j => z (Fin.cast hN5.symm j)) + (kI 32768).toK shdP_U)
+            - g 3 (fun j => z (Fin.cast hN5.symm j)))
+            - (g 4 (fun j => z (Fin.cast hN5.symm j)) * mbC 256) := by
+      rw [Fp2.toK_sub shdP_U _ _ (Fp2.canon_sub _ _ (Fp2.canon_add _ _) (vg_canon hvcan 3)) (mb_canon _ _),
+          Fp2.toK_sub shdP_U _ _ (Fp2.canon_add _ _) (vg_canon hvcan 3),
+          Fp2.toK_add shdP_U _ _ (vg_canon hvcan 2) (kI_canon _),
+          mb_toK, hvg 2, hvg 3, hvg 4]
+    have hhsEq' : (∑ kk ∈ Finset.range 6,
+        ((vg mu (3 + kk)).mul
+          ((((vg vals (15 + kk)).mul
+            (denW vals hist.alpha gU8 (2 + (dzcLks.getD (2 * kk) (0, 0, 0)).1)
+              (dzcLks.getD (2 * kk) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk) (0, 0, 0)).2.2)).mul
+            (denW vals hist.alpha gU8 (2 + (dzcLks.getD (2 * kk + 1) (0, 0, 0)).1)
+              (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.2)).sub
+          ((denW vals hist.alpha gU8 (2 + (dzcLks.getD (2 * kk) (0, 0, 0)).1)
+              (dzcLks.getD (2 * kk) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk) (0, 0, 0)).2.2).add
+            (denW vals hist.alpha gU8 (2 + (dzcLks.getD (2 * kk + 1) (0, 0, 0)).1)
+              (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.2)))).toK shdP_U)
+      = ∑ kk ∈ Finset.range 6,
+        (vg mu (3 + kk)).toK shdP_U *
+          (((g (15 + kk) (fun j => z (Fin.cast hN5.symm j)) *
+            denK shdP_U (hist.alpha.toK shdP_U) (gU8.toK shdP_U) (fun i => g i (fun j => z (Fin.cast hN5.symm j)))
+              (2 + (dzcLks.getD (2 * kk) (0, 0, 0)).1) (dzcLks.getD (2 * kk) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk) (0, 0, 0)).2.2) *
+            denK shdP_U (hist.alpha.toK shdP_U) (gU8.toK shdP_U) (fun i => g i (fun j => z (Fin.cast hN5.symm j)))
+              (2 + (dzcLks.getD (2 * kk + 1) (0, 0, 0)).1) (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.2) -
+          (denK shdP_U (hist.alpha.toK shdP_U) (gU8.toK shdP_U) (fun i => g i (fun j => z (Fin.cast hN5.symm j)))
+              (2 + (dzcLks.getD (2 * kk) (0, 0, 0)).1) (dzcLks.getD (2 * kk) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk) (0, 0, 0)).2.2 +
+            denK shdP_U (hist.alpha.toK shdP_U) (gU8.toK shdP_U) (fun i => g i (fun j => z (Fin.cast hN5.symm j)))
+              (2 + (dzcLks.getD (2 * kk + 1) (0, 0, 0)).1) (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk + 1) (0, 0, 0)).2.2)) := by
+      refine Finset.sum_congr rfl (fun kk _ => ?_)
+      rw [Fp2.toK_mul shdP_U shdP_hU,
+          Fp2.toK_sub shdP_U _ _ (Fp2.canon_mul _ _) (Fp2.canon_add _ _),
+          Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU,
+          Fp2.toK_add shdP_U _ _ (denW_canon _ _ _ halphaCan _ _ _) (denW_canon _ _ _ halphaCan _ _ _),
+          denW_toK shdP_U vals hist.alpha gU8 halphaCan (Fp2.canon_mulBase _ _),
+          denW_toK shdP_U vals hist.alpha gU8 halphaCan (Fp2.canon_mulBase _ _),
+          hmapFn, hvg (15 + kk)]
+    have hzfEq' : (∑ j ∈ Finset.range 12, (vg vals (2 + j)).toK shdP_U * (zeta.toK shdP_U) ^ j)
+        = ∑ r ∈ Finset.range 12, g (2 + r) (fun j => z (Fin.cast hN5.symm j)) * (zeta.toK shdP_U) ^ r :=
+      Finset.sum_congr rfl (fun r _ => by rw [hvg (2 + r)])
+    have hpadK : ((Fp2.one.sub (vg vals 1)).mul (zfoldW vals zeta)).toK shdP_U
+        = (1 - g 1 (fun j => z (Fin.cast hN5.symm j)))
+            * (∑ r ∈ Finset.range 12, g (2 + r) (fun j => z (Fin.cast hN5.symm j)) * (zeta.toK shdP_U) ^ r) := by
+      rw [Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_sub shdP_U _ _ Fp2.canon_one (vg_canon hvcan 1), Fp2.toK_one,
+          hzeq, hzfEq', hvg 1]
     rw [Fp2.toK_mul shdP_U shdP_hU,
         Fp2.toK_add shdP_U _ _ (Fp2.canon_add _ _) (Fp2.canon_mul _ _),
         Fp2.toK_add shdP_U _ _ (Fp2.canon_mul _ _) hhsc,
@@ -143,55 +224,54 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
         Fp2.toK_add shdP_U _ _ (Fp2.canon_add _ _) (Fp2.canon_mul _ _),
         Fp2.toK_add shdP_U _ _ (Fp2.canon_mul _ _) (Fp2.canon_mul _ _),
         Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU,
-        Fp2.toK_sub shdP_U _ _ (Fp2.canon_sub _ _ (Fp2.canon_add _ _) (Fp2.canon_mul _ _)) (lbW_canon _ _),
-        Fp2.toK_sub shdP_U _ _ (Fp2.canon_add _ _) (Fp2.canon_mul _ _),
-        Fp2.toK_add shdP_U _ _ (Fp2.canon_mul _ _) (Fp2.canon_mul _ _),
-        Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU,
-        Fp2.toK_sub shdP_U _ _ (Fp2.canon_add _ _) (Fp2.canon_mul _ _),
-        Fp2.toK_add shdP_U _ _ (Fp2.canon_add _ _) Fp2.canon_one,
-        Fp2.toK_add shdP_U _ _ (lbW_canon _ _) (lbW_canon _ _), Fp2.toK_one, Fp2.toK_mul shdP_U shdP_hU,
-        Fp2.toK_sub shdP_U _ _ (Fp2.canon_sub _ _ (Fp2.canon_add _ _) (vg_canon hvcan 3)) (mb_canon _ _),
-        Fp2.toK_sub shdP_U _ _ (Fp2.canon_add _ _) (vg_canon hvcan 3),
-        Fp2.toK_add shdP_U _ _ (vg_canon hvcan 2) (kI_canon _), mb_toK,
-        hhseq,
-        Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU,
-        Fp2.toK_sub shdP_U _ _ Fp2.canon_one (vg_canon hvcan 1), Fp2.toK_one,
-        hzeq, lbW_toK shdP_U vals 4, lbW_toK shdP_U vals 8]
-    simp only [lbK, ← vg_toK_map, hvg]
-    congr 2
-    congr 1
-    refine Finset.sum_congr rfl (fun kk _ => ?_)
-    rw [Fp2.toK_mul shdP_U shdP_hU,
-        Fp2.toK_sub shdP_U _ _ (Fp2.canon_mul _ _) (Fp2.canon_add _ _),
-        Fp2.toK_mul shdP_U shdP_hU, Fp2.toK_mul shdP_U shdP_hU,
-        Fp2.toK_add shdP_U _ _ (denW_canon _ _ _ halphaCan _ _ _) (denW_canon _ _ _ halphaCan _ _ _),
-        denW_toK shdP_U vals hist.alpha gU8 halphaCan (Fp2.canon_mulBase _ _),
-        denW_toK shdP_U vals hist.alpha gU8 halphaCan (Fp2.canon_mulBase _ _)]
-    simp only [denK, ← vg_toK_map, hvg]
+        Fp2.toK_mul shdP_U shdP_hU,
+        hc0K, hc1K, hc2K, hhseq, hhsEq', hpadK, hvg 0, hvg 1]
   -- Tab indexing lemmas (using `dzcRest_getD_plane` / `dzcRest_getD_helper`)
-  have htabs_eq : tabs = .eq (dr.take O.ldo) 0 :: outcDzcRest O V.geo := rfl
+  have htabs_eq : tabs = .eq (dr.take O.ldo) 0 :: outcDzcRest O V.geo := by
+    dsimp only [tabs, L, outcDzcRest]; rw [hGb]
+  have hlen_tabs : tabs.length = 21 := by
+    rw [htabs_eq, List.length_cons, outcDzcRest_length]
+  have htabs_plane : ∀ (p : ℕ) (hp : p < 12),
+      tabs[2 + p]? = some (.priv ⟨.a, [(L.aOff (ocC_X + p), Fp2.one)], L.aLog.getD (ocC_X + p) 0,
+        rhoC 0 (L.aLog.getD (ocC_X + p) 0), L.aMaskBase + 2 * (L.prefixA 5 + p), 0⟩) := by
+    intro p hp
+    have hget := dzcRest_getD_plane O V.geo p hp
+    rw [List.getD_eq_getElem?_getD, List.getElem?_eq_getElem (by rw [outcDzcRest_length]; omega),
+      Option.getD_some] at hget
+    rw [htabs_eq, show 2 + p = (1 + p) + 1 by omega, List.getElem?_cons_succ,
+      List.getElem?_eq_getElem (by rw [outcDzcRest_length]; omega), hget, hGb]
   have hg_plane : ∀ (p : ℕ) (hp : p < 12),
       g (2 + p) = fun z => stgTabK shdP_U shdP_hbij P cs 12 1 z
         (.priv ⟨.a, [(L.aOff (ocC_X + p), Fp2.one)], L.aLog.getD (ocC_X + p) 0,
           rhoC 0 (L.aLog.getD (ocC_X + p) 0), L.aMaskBase + 2 * (L.prefixA 5 + p), 0⟩) := by
     intro p hp; funext z
-    have hget := dzcRest_getD_plane O V.geo p hp
-    simp only [g, htabs_eq, List.map_cons, List.getD_cons_succ]
-    rw [ProtocolClassify.getD_map_lt _ _ (1 + p) (by rw [outcDzcRest_length]; omega) (.pub []), hget]
+    exact map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) (2 + p) _ (htabs_plane p hp) z
+  have htabs_helper : ∀ (kk : ℕ) (hk : kk < 6),
+      tabs[15 + kk]? = some (.priv ⟨.h, [((L.hOff (ocH_D0 + kk)).1, Fp2.one), ((L.hOff (ocH_D0 + kk)).2, Block.fp2U)],
+        L.hLog.getD (ocH_D0 + kk) 0, rhoC 0 (L.hLog.getD (ocH_D0 + kk) 0),
+        L.hMaskBase + 2 * (L.prefixH 5 + kk), 0⟩) := by
+    intro kk hk
+    have hget := dzcRest_getD_helper O V.geo kk hk
+    rw [List.getD_eq_getElem?_getD, List.getElem?_eq_getElem (by rw [outcDzcRest_length]; omega),
+      Option.getD_some] at hget
+    rw [htabs_eq, show 15 + kk = (14 + kk) + 1 by omega, List.getElem?_cons_succ,
+      List.getElem?_eq_getElem (by rw [outcDzcRest_length]; omega), hget, hGb]
   have hg_helper : ∀ (kk : ℕ) (hk : kk < 6),
       g (15 + kk) = fun z => stgTabK shdP_U shdP_hbij P cs 12 1 z
         (.priv ⟨.h, [((L.hOff (ocH_D0 + kk)).1, Fp2.one), ((L.hOff (ocH_D0 + kk)).2, Block.fp2U)],
           L.hLog.getD (ocH_D0 + kk) 0, rhoC 0 (L.hLog.getD (ocH_D0 + kk) 0),
           L.hMaskBase + 2 * (L.prefixH 5 + kk), 0⟩) := by
     intro kk hk; funext z
-    have hget := dzcRest_getD_helper O V.geo kk hk
-    simp only [g, htabs_eq, List.map_cons, List.getD_cons_succ]
-    rw [ProtocolClassify.getD_map_lt _ _ (14 + kk) (by rw [outcDzcRest_length]; omega) (.pub []), hget]
+    exact map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) (15 + kk) _ (htabs_helper kk hk) z
+  have htabs_14 : tabs[14]? = some (.priv ⟨.a, [(L.aOff ocC_D, Fp2.one)], L.aLog.getD ocC_D 0,
+      fixedC (List.replicate OutcPub.toLog Fp2.zero),
+      L.aMaskBase + 2 * (L.prefixA 5 + 12), 0⟩) := rfl
   have hg14_eq : g 14 = fun z => stgTabK shdP_U shdP_hbij P cs 12 1 z
       (.priv ⟨.a, [(L.aOff ocC_D, Fp2.one)], L.aLog.getD ocC_D 0,
         fixedC (List.replicate OutcPub.toLog Fp2.zero),
         L.aMaskBase + 2 * (L.prefixA 5 + 12), 0⟩) := by
-    funext z; simp only [g, tabs, ocC_X, ocC_MULT]; rfl
+    funext z
+    exact map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 14 _ htabs_14 z
   have hg14_deg : IndDegLE 1 (g 14) := by
     rw [hg14_eq]
     exact indDegLE_claimSem_priv shdP_U shdP_hbij shdP_hU P 76 12 0
@@ -199,7 +279,7 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
       ⟨.a, [(L.aOff ocC_D, Fp2.one)], L.aLog.getD ocC_D 0,
         fixedC (List.replicate OutcPub.toLog Fp2.zero), L.aMaskBase + 2 * (L.prefixA 5 + 12), 0⟩
       (by simp) (by rw [hDlog]; change min 1 12 ≤ 12; norm_num)
-      (by decide)
+      (by dsimp only; rfl)
       (fun c hc _ hw => by
         obtain ⟨a, ha, hca⟩ := List.mem_map.mp hc
         rw [hw] at hca; injection hca with hca; subst hca
@@ -207,15 +287,17 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
   have hg_deg : ∀ idx, IndDegLE 1 (g idx) := by
     intro idx
     by_cases h0 : idx = 0
-    · subst h0; exact stgTabK_eq_indDeg _ _
+    · subst h0
+      exact indDegLE_map_getD tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 0 _ rfl (stgTabK_eq_indDeg _ _)
     · by_cases h1 : idx = 1
-      · subst h1; exact stgTabK_pub_indDeg _
+      · subst h1
+        exact indDegLE_map_getD tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 1 _ rfl (stgTabK_pub_indDeg _)
       · by_cases hp : idx < 14
         · have heq := hg_plane (idx - 2) (by omega)
           rw [show 2 + (idx - 2) = idx by omega] at heq
           rw [heq]
           exact (outc_tabA12_spec tag Rp wDigest bOutRow w.v w TB rnd hist.gamma hist.alpha
-            (ocC_X + (idx - 2)) _ (by norm_num [ocC_X]) (by norm_num [ocC_X]; omega)).1
+            (ocC_X + (idx - 2)) _ (by dsimp only [ocC_X]; omega) (by dsimp only [ocC_X]; omega)).1
         · by_cases h14 : idx = 14
           · subst h14; exact hg14_deg
           · by_cases hk : idx < 21
@@ -223,12 +305,14 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
               rw [show 15 + (idx - 15) = idx by omega] at heq
               rw [heq]
               exact (outc_tabH12_spec tag Rp wDigest bOutRow w.v w TB rnd hist.gamma hist.alpha
-                (ocH_D0 + (idx - 15)) _ (by norm_num [ocH_D0]; omega)).1
+                (ocH_D0 + (idx - 15)) _ (by dsimp only [ocH_D0]; omega)).1
             · have hzero : g idx = fun _ => 0 := by
                 funext z
-                have hlen_t : tabs.length = 21 := by rw [htabs_eq, List.length_cons, outcDzcRest_length]
-                simp only [g, List.getD_eq_getElem?_getD,
-                  List.getElem?_eq_none (by rw [List.length_map, hlen_t]; omega), Option.getD_none]
+                dsimp only [g]
+                rw [List.getD_eq_getElem?_getD,
+                  List.getElem?_eq_none (l := tabs.map (stgTabK shdP_U shdP_hbij P cs 12 1 z))
+                    (by rw [List.length_map, hlen_tabs]; omega),
+                  Option.getD_none]
               rw [hzero]; exact IndDegLE.const 0
   have hdeg5 : IndDegLE 5 (fun z : Fin 13 → shdP_K =>
       let gz := fun i => g i z
@@ -255,7 +339,12 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
       IndDegLE.mono (IndDegLE.sub (IndDegLE.add (IndDegLE.add hsg hrh) (IndDegLE.const 1)) hkd) (by norm_num)
     have hc2 : IndDegLE 2 (fun z => ((g 2 z + (kI 32768).toK shdP_U) - g 3 z) - (g 4 z * mbC 256)) :=
       IndDegLE.mono (IndDegLE.sub (IndDegLE.sub (IndDegLE.add (hg_deg 2) (IndDegLE.const _)) (hg_deg 3)) (IndDegLE_mulc (hg_deg 4) _)) (by norm_num)
-    have hcl := IndDegLE.add (IndDegLE.add (IndDegLE.cmul _ hc0) (IndDegLE.cmul _ hc1)) (IndDegLE.cmul _ hc2)
+    have hcl : IndDegLE 2 (fun z =>
+        ((vg mu 0).toK shdP_U * (((g 2 z * kNum.toK shdP_U + g 14 z * kDv.toK shdP_U) - g 14 z * kDen.toK shdP_U * g 5 z) - lbK (fun i => g i z) 4)
+        + (vg mu 1).toK shdP_U * ((lbK (fun i => g i z) 8 + lbK (fun i => g i z) 4 + 1) - g 14 z * kDen.toK shdP_U))
+        + (vg mu 2).toK shdP_U * (((g 2 z + (kI 32768).toK shdP_U) - g 3 z) - g 4 z * mbC 256)) :=
+      IndDegLE.add (IndDegLE.add (IndDegLE.cmul ((vg mu 0).toK shdP_U) hc0)
+        (IndDegLE.cmul ((vg mu 1).toK shdP_U) hc1)) (IndDegLE.cmul ((vg mu 2).toK shdP_U) hc2)
     have hhs : IndDegLE 3 (fun z => ∑ kk ∈ Finset.range 6,
         let d1 := denK shdP_U (hist.alpha.toK shdP_U) (gU8.toK shdP_U) (fun i => g i z)
           (2 + (dzcLks.getD (2 * kk) (0, 0, 0)).1) (dzcLks.getD (2 * kk) (0, 0, 0)).2.1 (dzcLks.getD (2 * kk) (0, 0, 0)).2.2
@@ -274,22 +363,50 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
     have hpad : IndDegLE 3 (fun z => (vg mu 9).toK shdP_U * ((1 - g 1 z) * (∑ r ∈ Finset.range 12, g (2 + r) z * (zeta.toK shdP_U) ^ r))) :=
       IndDegLE.mono (IndDegLE.cmul _ (IndDegLE.mul (IndDegLE.sub (IndDegLE.const 1) (hg_deg 1)) hzf)) (by norm_num)
     exact IndDegLE.mono (IndDegLE.mul (hg_deg 0) (IndDegLE.add (IndDegLE.add (IndDegLE.mul (hg_deg 1) hcl) hhs) hpad)) (by norm_num)
-  refine ⟨?_, ?_, rfl, fun _ => Fp2.canon_mul _ _⟩
-  · have heq := funext hpoly; rw [heq]; cases hN5; exact hdeg5
-  · cases hN5
-    have heq := funext hpoly; rw [heq]
+  refine ⟨?_, ?_, by rw [hdf], fun vals => by rw [hdf]; exact Fp2.canon_mul _ _⟩
+  · rw [funext hpoly]
+    exact indDegLE_cast hN5 (fun z : Fin 13 → shdP_K =>
+      let gz := fun i => g i z
+      let rh := lbK gz 4; let sg := lbK gz 8; let kd := gz 14 * kDen.toK shdP_U
+      let c0 := (((gz 2 * kNum.toK shdP_U) + (gz 14 * kDv.toK shdP_U)) - (kd * gz 5)) - rh
+      let c1 := ((sg + rh) + 1) - kd
+      let c2 := ((gz 2 + (kI 32768).toK shdP_U) - gz 3) - (gz 4 * mbC 256)
+      let clauses := (((vg mu 0).toK shdP_U * c0) + ((vg mu 1).toK shdP_U * c1)) + ((vg mu 2).toK shdP_U * c2)
+      let denAt := fun (l : ℕ × ℤ × ℤ) => denK shdP_U (hist.alpha.toK shdP_U) (gU8.toK shdP_U) gz (2 + l.1) l.2.1 l.2.2
+      let hsK := ∑ kk ∈ Finset.range 6,
+        let d1 := denAt (dzcLks.getD (2 * kk) (0, 0, 0))
+        let d2 := denAt (dzcLks.getD (2 * kk + 1) (0, 0, 0))
+        (vg mu (3 + kk)).toK shdP_U * (((gz (15 + kk) * d1) * d2) - (d1 + d2))
+      let padK := (1 - gz 1) * (∑ r ∈ Finset.range 12, gz (2 + r) * (zeta.toK shdP_U) ^ r)
+      gz 0 * (((gz 1 * clauses) + hsK) + ((vg mu 9).toK shdP_U * padK))) hdeg5
+  · rw [funext hpoly, cubeSum_cast hN5 (fun z : Fin 13 → shdP_K =>
+      let gz := fun i => g i z
+      let rh := lbK gz 4; let sg := lbK gz 8; let kd := gz 14 * kDen.toK shdP_U
+      let c0 := (((gz 2 * kNum.toK shdP_U) + (gz 14 * kDv.toK shdP_U)) - (kd * gz 5)) - rh
+      let c1 := ((sg + rh) + 1) - kd
+      let c2 := ((gz 2 + (kI 32768).toK shdP_U) - gz 3) - (gz 4 * mbC 256)
+      let clauses := (((vg mu 0).toK shdP_U * c0) + ((vg mu 1).toK shdP_U * c1)) + ((vg mu 2).toK shdP_U * c2)
+      let denAt := fun (l : ℕ × ℤ × ℤ) => denK shdP_U (hist.alpha.toK shdP_U) (gU8.toK shdP_U) gz (2 + l.1) l.2.1 l.2.2
+      let hsK := ∑ kk ∈ Finset.range 6,
+        let d1 := denAt (dzcLks.getD (2 * kk) (0, 0, 0))
+        let d2 := denAt (dzcLks.getD (2 * kk + 1) (0, 0, 0))
+        (vg mu (3 + kk)).toK shdP_U * (((gz (15 + kk) * d1) * d2) - (d1 + d2))
+      let padK := (1 - gz 1) * (∑ r ∈ Finset.range 12, gz (2 + r) * (zeta.toK shdP_U) ^ r)
+      gz 0 * (((gz 1 * clauses) + hsK) + ((vg mu 9).toK shdP_U * padK)))]
     rw [cubeSum_split_ext 12 _ (fun bv hbv => by
       have hs := selK_ext_true 12 bv hbv
-      have h0 : g 0 (fun i => (bit (bv i) : shdP_K)) = 0 := stgTabK_eq_zero_of_selK hs _ _
+      have h0 : g 0 (fun i => (bit (bv i) : shdP_K)) = 0 := by
+        dsimp only [g]; rw [map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 0 _ rfl]
+        exact stgTabK_eq_zero_of_selK hs _ _
       dsimp only; rw [h0, zero_mul])]
     refine Finset.sum_eq_zero (fun b _ => ?_)
     dsimp only
     set col : Fin 4096 := ⟨msbIndex 12 b, msbIndex_lt 12 b⟩
     have hsupp : g 1 (fun j => (bit (cptS 12 b j) : shdP_K)) = if col.val < 3072 then 1 else 0 := by
-      change stgTabK shdP_U shdP_hbij P cs 12 1 _ (.pub (supp O.d (2 ^ O.ldo))) = _
-      rw [HonestShield.stgTabK_pub_cptS _ (by simp [supp, hldo]) b]
-      unfold supp; rw [rangeMap_getD _ _ (by rw [hldo]; exact col.isLt)]
-      split_ifs <;> simp [Fp2.toK_one, Fp2.toK_zero]
+      dsimp only [g]; rw [map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 1 _ rfl]
+      rw [HonestShield.stgTabK_pub_cptS _ (by simp only [supp, List.length_map, List.length_range, hldo]) b]
+      rw [show O.d = 3072 from rfl, hldo, show (2 : ℕ) ^ 12 = 4096 by norm_num]
+      exact supp_getD_toK shdP_U 3072 4096 (msbIndex 12 b) (msbIndex_lt 12 b)
     have hD14 : g 14 (fun j => (bit (cptS 12 b j) : shdP_K)) = (w.d : shdP_K) := by
       rw [hg14_eq]
       change Link.claimSem shdP_U 76 12 0 (tabMat 76 12 (shdP_outcTA Rp w rnd).rows) _ = _
@@ -300,71 +417,93 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
           rw [hw] at hca; injection hca with hca; subst hca
           rw [List.eq_of_mem_replicate ha]; exact Fp2.canon_zero)]
       simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero, Fp2.toK_one, one_mul,
-        hDoff, hDlog, fixedC, OutcPub.toLog, List.replicate, List.length_map, List.length_cons, List.length_nil]
+        hDoff, hDlog, fixedC, OutcPub.toLog, List.replicate, List.length_cons, List.length_nil]
       have hpt0 : Block.ptK shdP_U (Block.xrK 12 (fun i : Fin 13 => (bit (cptS 12 b i) : shdP_K)))
           [Block.Coord.fixed Fp2.zero] 0 = (bit ((fun _ : Fin 1 => false) ⟨0, by norm_num⟩) : shdP_K) := by
-        simp [Block.ptK, Fp2.toK_zero, bit]
+        simp [Block.ptK, Block.coordK, Fp2.toK_zero, bit]
       have hnar := data_slice_narrow1 76 0 0 (by norm_num) (by norm_num) (tabMat 76 12 (shdP_outcTA Rp w rnd).rows)
         (fun _ => false) _ hpt0
       rw [Nat.add_zero] at hnar
-      rw [hnar, tabMat_mkRows 76 12 256]
+      rw [hnar, show (shdP_outcTA Rp w rnd).rows = mkRows 76 (2 ^ 12) 256 (shdP_outcTAData Rp w rnd) rnd.aPads from rfl,
+        tabMat_mkRows 76 12 256]
       have hm0 : msbIndex 1 (fun _ => false) = 0 := msbIndex_toLog_false
-      rw [shdP_outcTAData_0, ite_eq_left hm0]
+      rw [shdP_outcTAData_0]
+      dsimp only
+      rw [ite_eq_left (by rw [Nat.zero_add, hm0])]
       exact fp_fromI64_toK w.d (by linarith [w.hd_lo]) (by linarith [w.hd_hi])
     have hpl : ∀ (p : ℕ) (hp : p < 12),
         g (2 + p) (fun j => (bit (cptS 12 b j) : shdP_K))
         = algebraMap GF shdP_K (shdP_outcTAData Rp w rnd ⟨3 + p, by omega⟩ col).toGF := by
       intro p hp
-      rw [hg_plane p hp]
-      exact (outc_tabA12_spec tag Rp wDigest bOutRow w.v w TB rnd hist.gamma hist.alpha
-        (ocC_X + p) _ (by norm_num [ocC_X]) (by norm_num [ocC_X]; omega)).2 b
+      exact (congrFun (hg_plane p hp) _).trans
+        ((outc_tabA12_spec tag Rp wDigest bOutRow w.v w TB rnd hist.gamma hist.alpha
+          (ocC_X + p) _ (by dsimp only [ocC_X]; omega) (by dsimp only [ocC_X]; omega)).2 b)
     -- Key lookup evaluation: every `dzcLks[l]` denominator equals `α - (doLook w l col + gU8)`!
     have hden_eq : ∀ (l : Fin 12),
         let lk := dzcLks.getD l.val (0, 0, 0)
         denK shdP_U (hist.alpha.toK shdP_U) (gU8.toK shdP_U)
           (fun i => g i (fun j => (bit (cptS 12 b j) : shdP_K))) (2 + lk.1) lk.2.1 lk.2.2
         = hist.alpha.toK shdP_U - (((doLook w l col).val : shdP_K) + gU8.toK shdP_U) := by
-      intro l
-      fin_cases l
-      all_goals
-        dsimp only [dzcLks, List.getD, denK]
-      · -- l = 0: plane 1 (`XL0`), coef 1, cst 0
+      have hdzc : ∀ (k : ℕ), k < 12 → dzcLks.getD k (0, 0, 0) =
+          match k with
+          | 0 => (1, 1, 0) | 1 => (2, 1, 0) | 2 => (3, 1, 127) | 3 => (3, -1, 127)
+          | 4 => (4, 1, 0) | 5 => (5, 1, 0) | 6 => (6, 1, 0) | 7 => (7, 1, 0)
+          | 8 => (8, 1, 0) | 9 => (9, 1, 0) | 10 => (10, 1, 0) | _ => (11, 1, 0) := by
+        intro k hk; interval_cases k <;> rfl
+      intro ⟨lv, hlv⟩
+      dsimp only
+      rw [hdzc lv hlv]
+      interval_cases lv
+      all_goals simp only [denK]
+      · -- lv = 0: plane 1 (`XL0`), coef 1, cst 0
         rw [hpl 1 (by norm_num), kI_int_toK shdP_U 0 (by norm_num) (by norm_num),
-          fp_fromI64_toK 1 (by norm_num) (by norm_num)]
-        rw [shdP_outcTAData_4, Fp.toGF_ofGF, map_natCast]; ring
-      · -- l = 1: plane 2 (`XL1`), coef 1, cst 0
+          fp_fromI64_toK 1 (by norm_num) (by norm_num),
+          shdP_outcTAData_4, Fp.toGF_ofGF, map_natCast]
+        push_cast; ring
+      · -- lv = 1: plane 2 (`XL1`), coef 1, cst 0
         rw [hpl 2 (by norm_num), kI_int_toK shdP_U 0 (by norm_num) (by norm_num),
-          fp_fromI64_toK 1 (by norm_num) (by norm_num)]
-        rw [shdP_outcTAData_5, Fp.toGF_ofGF, map_natCast]; ring
-      · -- l = 2: plane 3 (`Y`), coef 1, cst 127
+          fp_fromI64_toK 1 (by norm_num) (by norm_num),
+          shdP_outcTAData_5, Fp.toGF_ofGF, map_natCast]
+        push_cast; ring
+      · -- lv = 2: plane 3 (`Y`), coef 1, cst 127
         rw [hpl 3 (by norm_num), kI_int_toK shdP_U 127 (by norm_num) (by norm_num),
           fp_fromI64_toK 1 (by norm_num) (by norm_num), shdP_outcTAData_6]
-        unfold doLook; dsimp only
         by_cases hc : col.val < 3072
-        · rw [dite_eq_left hc, dite_eq_left hc,
-            fp_fromI64_toK _ (by linarith [w.hq_lo ⟨col.val, hc⟩]) (by linarith [w.hq_hi ⟨col.val, hc⟩])]
+        · have hdo : (doLook w ⟨2, by norm_num⟩ col).val = (w.q ⟨col.val, hc⟩ + 127).toNat := by
+            unfold doLook; rw [dite_eq_left hc]; rfl
+          rw [dite_eq_left hc, hdo,
+            fp_fromI64_toK (w.q ⟨col.val, hc⟩) (by linarith [w.hq_lo ⟨col.val, hc⟩]) (by linarith [w.hq_hi ⟨col.val, hc⟩])]
           have hnn : (0 : ℤ) ≤ w.q ⟨col.val, hc⟩ + 127 := by linarith [w.hq_lo ⟨col.val, hc⟩]
           have hnat : (((w.q ⟨col.val, hc⟩ + 127).toNat : ℕ) : shdP_K) = (w.q ⟨col.val, hc⟩ : shdP_K) + 127 := by
             rw [← Int.cast_natCast, Int.toNat_of_nonneg hnn]; push_cast; ring
-          rw [hnat]; ring
-        · rw [dite_eq_right hc, dite_eq_right hc, fp_zero_toGF, map_zero]; norm_num; ring
-      · -- l = 3: plane 3 (`Y`), coef -1, cst 127
+          rw [hnat]; push_cast; ring
+        · have hdo : (doLook w ⟨2, by norm_num⟩ col).val = 127 := by
+            unfold doLook; rw [dite_eq_right hc, ite_eq_left (Or.inl rfl)]
+          rw [dite_eq_right hc, hdo, fp_zero_toGF, map_zero]
+          push_cast; ring
+      · -- lv = 3: plane 3 (`Y`), coef -1, cst 127
         rw [hpl 3 (by norm_num), kI_int_toK shdP_U 127 (by norm_num) (by norm_num),
           fp_fromI64_toK (-1) (by norm_num) (by norm_num), shdP_outcTAData_6]
-        unfold doLook; dsimp only
         by_cases hc : col.val < 3072
-        · rw [dite_eq_left hc, dite_eq_left hc,
-            fp_fromI64_toK _ (by linarith [w.hq_lo ⟨col.val, hc⟩]) (by linarith [w.hq_hi ⟨col.val, hc⟩])]
+        · have hdo : (doLook w ⟨3, by norm_num⟩ col).val = (-w.q ⟨col.val, hc⟩ + 127).toNat := by
+            unfold doLook; rw [dite_eq_left hc]; rfl
+          rw [dite_eq_left hc, hdo,
+            fp_fromI64_toK (w.q ⟨col.val, hc⟩) (by linarith [w.hq_lo ⟨col.val, hc⟩]) (by linarith [w.hq_hi ⟨col.val, hc⟩])]
           have hnn : (0 : ℤ) ≤ -w.q ⟨col.val, hc⟩ + 127 := by linarith [w.hq_hi ⟨col.val, hc⟩]
           have hnat : (((-w.q ⟨col.val, hc⟩ + 127).toNat : ℕ) : shdP_K) = -(w.q ⟨col.val, hc⟩ : shdP_K) + 127 := by
             rw [← Int.cast_natCast, Int.toNat_of_nonneg hnn]; push_cast; ring
-          rw [hnat]; ring
-        · rw [dite_eq_right hc, dite_eq_right hc, fp_zero_toGF, map_zero]; norm_num; ring
+          rw [hnat]; push_cast; ring
+        · have hdo : (doLook w ⟨3, by norm_num⟩ col).val = 127 := by
+            unfold doLook; rw [dite_eq_right hc, ite_eq_left (Or.inr rfl)]
+          rw [dite_eq_right hc, hdo, fp_zero_toGF, map_zero]
+          push_cast; ring
       all_goals
-        -- l = 4..11: planes 4..11 (`RHO0..3`, `SIG0..3`), coef 1, cst 0
+        -- lv = 4..11: planes 4..11 (`RHO0..3`, `SIG0..3`), coef 1, cst 0
         rw [hpl _ (by norm_num), kI_int_toK shdP_U 0 (by norm_num) (by norm_num),
-          fp_fromI64_toK 1 (by norm_num) (by norm_num)]
-        rw [shdP_outcTAData_do Rp w rnd _ (by norm_num) (by norm_num), Fp.toGF_ofGF, map_natCast]; ring
+          fp_fromI64_toK 1 (by norm_num) (by norm_num),
+          shdP_outcTAData_do Rp w rnd _ (by norm_num) (by norm_num), Fp.toGF_ofGF, map_natCast]
+        simp only [Nat.add_sub_cancel_left]
+        push_cast; ring
     -- 1. All 6 pair helper terms vanish at EVERY `col : Fin 4096`!
     have hhs0 : (∑ kk ∈ Finset.range 6,
         let d1 := denK shdP_U (hist.alpha.toK shdP_U) (gU8.toK shdP_U)
@@ -380,10 +519,24 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
       have hh : g (15 + kk) (fun j => (bit (cptS 12 b j) : shdP_K))
           = (hist.alpha.toK shdP_U - (((doLook w ⟨2 * kk, by omega⟩ col).val : shdP_K) + gU8.toK shdP_U))⁻¹
             + (hist.alpha.toK shdP_U - (((doLook w ⟨2 * kk + 1, by omega⟩ col).val : shdP_K) + gU8.toK shdP_U))⁻¹ := by
-        rw [hg_helper kk hk6,
-          (outc_tabH12_spec tag Rp wDigest bOutRow w.v w TB rnd hist.gamma hist.alpha (ocH_D0 + kk) _ (by norm_num [ocH_D0]; omega)).2 b]
-        unfold shdP_outcHValK; dsimp only [ocH_D0]
-        rw [ite_eq_right (by omega), dite_eq_left (by omega), show 1 + kk - 1 = kk by omega]
+        refine (congrFun (hg_helper kk hk6) _).trans
+          (((outc_tabH12_spec tag Rp wDigest bOutRow w.v w TB rnd hist.gamma hist.alpha
+            (ocH_D0 + kk) _ (by dsimp only [ocH_D0]; omega)).2 b).trans ?_)
+        have hp : (⟨ocH_D0 + kk, by dsimp only [ocH_D0]; omega⟩ : Fin 8) = ⟨1 + kk, by omega⟩ := Fin.ext rfl
+        rw [hp]
+        unfold shdP_outcHValK; dsimp only
+        have hne0 : ¬(1 + kk = 0) := by omega
+        have hlt7 : 1 + kk < 7 := by omega
+        rw [ite_eq_right hne0, dite_eq_left hlt7]
+        have hl1 : (⟨2 * (1 + kk - 1), by omega⟩ : Fin 12) = ⟨2 * kk, by omega⟩ :=
+          Fin.ext (by dsimp only; omega)
+        have hl2 : (⟨2 * (1 + kk - 1) + 1, by omega⟩ : Fin 12) = ⟨2 * kk + 1, by omega⟩ :=
+          Fin.ext (by dsimp only; omega)
+        have hcg : ∀ {a b a' b' α gv : shdP_K}, a = a' → b = b' →
+            (α - (a + gv))⁻¹ + (α - (b + gv))⁻¹ = (α - (a' + gv))⁻¹ + (α - (b' + gv))⁻¹ := by
+          intro a b a' b' α gv ha hb; rw [ha, hb]
+        exact hcg (congrArg (fun l : Fin 12 => ((doLook w l col).val : shdP_K)) hl1)
+          (congrArg (fun l : Fin 12 => ((doLook w l col).val : shdP_K)) hl2)
       have hd1 := hden_eq ⟨2 * kk, by omega⟩
       have hd2 := hden_eq ⟨2 * kk + 1, by omega⟩
       dsimp only at hd1 hd2
@@ -407,14 +560,19 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
       set i : Fin 3072 := ⟨col.val, hc⟩
       have hx_val : g 2 (fun j => (bit (cptS 12 b j) : shdP_K)) = (w.y25 (Rp.row, i) : shdP_K) := by
         rw [hpl 0 (by norm_num), shdP_outcTAData_3, dite_eq_left hc]
-        exact fp_fromI64_toK _ (by linarith [(w.hxRow i).1]) (by linarith [(w.hxRow i).2])
+        have hxr := w.hxRow i
+        have hlo : -(2 : ℤ) ^ 64 < w.y25 (Rp.row, i) := by
+          have h1 : -(2 : ℤ) ^ 15 ≤ w.y25 (Rp.row, i) := hxr.1; omega
+        have hhi : w.y25 (Rp.row, i) < (2 : ℤ) ^ 64 := by
+          have h2 : w.y25 (Rp.row, i) ≤ (2 : ℤ) ^ 15 - 1 := hxr.2; omega
+        exact fp_fromI64_toK (w.y25 (Rp.row, i)) hlo hhi
       have hy_val : g 5 (fun j => (bit (cptS 12 b j) : shdP_K)) = (w.q i : shdP_K) := by
         rw [hpl 3 (by norm_num), shdP_outcTAData_6, dite_eq_left hc]
-        exact fp_fromI64_toK _ (by linarith [w.hq_lo i]) (by linarith [w.hq_hi i])
+        exact fp_fromI64_toK (w.q i) (by linarith [w.hq_lo i]) (by linarith [w.hq_hi i])
       have hxl0 : g 3 (fun j => (bit (cptS 12 b j) : shdP_K)) = ((byteOf 0 (w.y25 (Rp.row, i) + 32768).toNat).val : shdP_K) := by
-        rw [hpl 1 (by norm_num), shdP_outcTAData_4]; unfold doLook; dsimp only; rw [dite_eq_left hc, Fp.toGF_ofGF, map_natCast]
+        rw [hpl 1 (by norm_num), shdP_outcTAData_4, Fp.toGF_ofGF, map_natCast]; unfold doLook; rw [dite_eq_left hc]; rfl
       have hxl1 : g 4 (fun j => (bit (cptS 12 b j) : shdP_K)) = ((byteOf 1 (w.y25 (Rp.row, i) + 32768).toNat).val : shdP_K) := by
-        rw [hpl 2 (by norm_num), shdP_outcTAData_5]; unfold doLook; dsimp only; rw [dite_eq_left hc, Fp.toGF_ofGF, map_natCast]
+        rw [hpl 2 (by norm_num), shdP_outcTAData_5, Fp.toGF_ofGF, map_natCast]; unfold doLook; rw [dite_eq_left hc]; rfl
       have hrh : lbK (fun idx => g idx (fun j => (bit (cptS 12 b j) : shdP_K))) 4 = (w.r i : shdP_K) := by
         unfold lbK
         have hterm : ∀ kk ∈ Finset.range 4,
@@ -427,15 +585,17 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
               have : 8 * kk ≤ 24 := by omega
               calc 2 ^ (8 * kk) ≤ 2 ^ 24 := Nat.pow_le_pow_right (by norm_num) this
                 _ < 2 ^ 32 := by norm_num), map_natCast]
-          rw [hmb, Nat.cast_mul]
-          congr 1
-          interval_cases kk
-          all_goals
-            rw [hpl _ (by norm_num), shdP_outcTAData_do Rp w rnd _ (by norm_num) (by norm_num)]
-            unfold doLook; dsimp only; rw [dite_eq_left hc, Fp.toGF_ofGF, map_natCast]
+          have hgval : g (2 + (4 + kk)) (fun j => (bit (cptS 12 b j) : shdP_K))
+              = ((byteOf kk (w.r i).toNat).val : shdP_K) := by
+            interval_cases kk
+            all_goals
+              rw [hpl _ (by norm_num), shdP_outcTAData_do Rp w rnd _ (by norm_num) (by norm_num),
+                Fp.toGF_ofGF, map_natCast]
+              unfold doLook; rw [dite_eq_left hc]; rfl
+          rw [hmb, Nat.cast_mul, hgval]
         rw [Finset.sum_congr rfl hterm, ← Nat.cast_sum,
           sum_bytes_4 (w.r i).toNat (by have := w.hr_lo i; have := w.hr_hi i; omega),
-          Int.cast_natCast, Int.toNat_of_nonneg (w.hr_lo i)]
+          ← Int.cast_natCast, Int.toNat_of_nonneg (w.hr_lo i)]
       have hsg : lbK (fun idx => g idx (fun j => (bit (cptS 12 b j) : shdP_K))) 8 = (w.s i : shdP_K) := by
         unfold lbK
         have hterm : ∀ kk ∈ Finset.range 4,
@@ -448,26 +608,28 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
               have : 8 * kk ≤ 24 := by omega
               calc 2 ^ (8 * kk) ≤ 2 ^ 24 := Nat.pow_le_pow_right (by norm_num) this
                 _ < 2 ^ 32 := by norm_num), map_natCast]
-          rw [hmb, Nat.cast_mul]
-          congr 1
-          interval_cases kk
-          all_goals
-            rw [hpl _ (by norm_num), shdP_outcTAData_do Rp w rnd _ (by norm_num) (by norm_num)]
-            unfold doLook; dsimp only; rw [dite_eq_left hc, Fp.toGF_ofGF, map_natCast]
+          have hgval : g (2 + (8 + kk)) (fun j => (bit (cptS 12 b j) : shdP_K))
+              = ((byteOf kk (w.s i).toNat).val : shdP_K) := by
+            interval_cases kk
+            all_goals
+              rw [hpl _ (by norm_num), shdP_outcTAData_do Rp w rnd _ (by norm_num) (by norm_num),
+                Fp.toGF_ofGF, map_natCast]
+              unfold doLook; rw [dite_eq_left hc]; rfl
+          rw [hmb, Nat.cast_mul, hgval]
         rw [Finset.sum_congr rfl hterm, ← Nat.cast_sum,
           sum_bytes_4 (w.s i).toNat (by have := w.hs_lo i; have := w.hs_hi i; omega),
-          Int.cast_natCast, Int.toNat_of_nonneg (w.hs_lo i)]
+          ← Int.cast_natCast, Int.toNat_of_nonneg (w.hs_lo i)]
       have hkNum : kNum.toK shdP_U = ((2 * Rp.out.g0 * Rp.out.cn : ℤ) : shdP_K) := by
         have hbd := outc_kN_bd Rp.out hOut
         exact kI_int_toK shdP_U _ hbd.1 hbd.2
       have hkDv : kDv.toK shdP_U = ((2 ^ Rp.out.tn : ℤ) : shdP_K) := by
         have hle : (2 : ℤ) ^ Rp.out.tn ≤ 2 ^ 16 := pow_le_pow_right₀ (by norm_num) hOut.tn
         have hpos : (0 : ℤ) < 2 ^ Rp.out.tn := by positivity
-        exact kI_int_toK shdP_U _ (by linarith) (by linarith)
+        exact kI_int_toK shdP_U (2 ^ Rp.out.tn) (by linarith) (by linarith)
       have hkDen : kDen.toK shdP_U = ((2 ^ (Rp.out.tn + 1) : ℤ) : shdP_K) := by
         have hle : (2 : ℤ) ^ (Rp.out.tn + 1) ≤ 2 ^ 17 := pow_le_pow_right₀ (by norm_num) (by have := hOut.tn; omega)
         have hpos : (0 : ℤ) < 2 ^ (Rp.out.tn + 1) := by positivity
-        exact kI_int_toK shdP_U _ (by linarith) (by linarith)
+        exact kI_int_toK shdP_U (2 ^ (Rp.out.tn + 1)) (by linarith) (by linarith)
       have hc0_0 : (((g 2 (fun j => (bit (cptS 12 b j) : shdP_K)) * kNum.toK shdP_U)
           + (g 14 (fun j => (bit (cptS 12 b j) : shdP_K)) * kDv.toK shdP_U))
           - ((g 14 (fun j => (bit (cptS 12 b j) : shdP_K)) * kDen.toK shdP_U)
@@ -475,27 +637,35 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
           - lbK (fun idx => g idx (fun j => (bit (cptS 12 b j) : shdP_K))) 4 = 0 := by
         rw [hx_val, hy_val, hD14, hrh, hkNum, hkDv, hkDen]
         have h := congrArg (Int.cast (R := shdP_K)) (w.hc0 i)
-        push_cast at h; exact h
+        push_cast at h ⊢; exact h
       have hc1_0 : ((lbK (fun idx => g idx (fun j => (bit (cptS 12 b j) : shdP_K))) 8
           + lbK (fun idx => g idx (fun j => (bit (cptS 12 b j) : shdP_K))) 4) + 1)
           - (g 14 (fun j => (bit (cptS 12 b j) : shdP_K)) * kDen.toK shdP_U) = 0 := by
         rw [hsg, hrh, hD14, hkDen]
         have h := congrArg (Int.cast (R := shdP_K)) (w.hc1 i)
-        push_cast at h; exact h
+        push_cast at h ⊢; exact h
       have hc2_0 : ((g 2 (fun j => (bit (cptS 12 b j) : shdP_K)) + (kI 32768).toK shdP_U)
           - g 3 (fun j => (bit (cptS 12 b j) : shdP_K)))
           - (g 4 (fun j => (bit (cptS 12 b j) : shdP_K)) * mbC 256) = 0 := by
         rw [hx_val, hxl0, hxl1, kI_int_toK shdP_U 32768 (by norm_num) (by norm_num),
-          mbC_nat 256 (by norm_num)]
+          mbC_nat 256 (by norm_num), map_natCast]
         have h2 := sum_bytes_eq 2 (w.y25 (Rp.row, i) + 32768).toNat (by
-          have hxr := w.hxRow i; omega)
+          have hxr : -(2 : ℤ) ^ 15 ≤ w.y25 (Rp.row, i) ∧ w.y25 (Rp.row, i) ≤ (2 : ℤ) ^ 15 - 1 := w.hxRow i
+          omega)
         simp only [Finset.sum_range_succ, Finset.range_zero, Finset.sum_empty, zero_add] at h2
+        have h2' : (byteOf 0 (w.y25 (Rp.row, i) + 32768).toNat).val
+            + (byteOf 1 (w.y25 (Rp.row, i) + 32768).toNat).val * 256
+            = (w.y25 (Rp.row, i) + 32768).toNat := by norm_num at h2; linarith
         have hcast : (((byteOf 0 (w.y25 (Rp.row, i) + 32768).toNat).val : shdP_K)
             + ((byteOf 1 (w.y25 (Rp.row, i) + 32768).toNat).val : shdP_K) * 256)
-            = ((w.y25 (Rp.row, i) + 32768).toNat : shdP_K) := by exact_mod_cast (by linarith : _ = _)
-        rw [Int.cast_natCast, Int.toNat_of_nonneg (by linarith [(w.hxRow i).1])] at hcast
-        push_cast at hcast
-        norm_num
+            = ((w.y25 (Rp.row, i) + 32768).toNat : shdP_K) := by
+          have := congrArg (Nat.cast (R := shdP_K)) h2'
+          push_cast at this; exact this
+        have hnat : (((w.y25 (Rp.row, i) + 32768).toNat : ℕ) : shdP_K) = (w.y25 (Rp.row, i) : shdP_K) + 32768 := by
+          rw [← Int.cast_natCast,
+            Int.toNat_of_nonneg (by have h1 : -(2 : ℤ) ^ 15 ≤ w.y25 (Rp.row, i) := (w.hxRow i).1; omega)]
+          push_cast; ring
+        rw [hnat] at hcast
         linear_combination -hcast
       rw [hc0_0, hc1_0, hc2_0]; ring
     · -- Pad channels `col.val ≥ 3072`: `supp = 0` and all 12 `Do` planes are `0`
@@ -507,12 +677,18 @@ theorem outc_slot5_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
           rw [hpl r hr12]
           interval_cases r
           · rw [shdP_outcTAData_3, dite_eq_right hc, fp_zero_toGF, map_zero]
-          · rw [shdP_outcTAData_4]; unfold doLook; dsimp only; rw [dite_eq_right hc, Fp.toGF_ofGF]; simp
-          · rw [shdP_outcTAData_5]; unfold doLook; dsimp only; rw [dite_eq_right hc, Fp.toGF_ofGF]; simp
+          · rw [shdP_outcTAData_4]; unfold doLook; dsimp only
+            rw [dite_eq_right hc, ite_eq_right (by omega), Fp.toGF_ofGF,
+              show (⟨0, by norm_num⟩ : Fin 256).val = 0 from rfl, Nat.cast_zero, map_zero]
+          · rw [shdP_outcTAData_5]; unfold doLook; dsimp only
+            rw [dite_eq_right hc, ite_eq_right (by omega), Fp.toGF_ofGF,
+              show (⟨0, by norm_num⟩ : Fin 256).val = 0 from rfl, Nat.cast_zero, map_zero]
           · rw [shdP_outcTAData_6, dite_eq_right hc, fp_zero_toGF, map_zero]
           all_goals
             rw [shdP_outcTAData_do Rp w rnd _ (by norm_num) (by norm_num)]
-            unfold doLook; dsimp only; rw [dite_eq_right hc, Fp.toGF_ofGF]; simp
+            unfold doLook; dsimp only
+            rw [dite_eq_right hc, ite_eq_right (by omega), Fp.toGF_ofGF,
+              show (⟨0, by norm_num⟩ : Fin 256).val = 0 from rfl, Nat.cast_zero, map_zero]
         rw [hzr, zero_mul]
       rw [hpad0, mul_zero, mul_zero, mul_zero]
 
@@ -531,14 +707,15 @@ theorem outc_slot6_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
       ∧ ∀ vals, (df.poly vals).Canon := by
   intro V P cs
   let O := V.pub; let L := outcLay O 14
+  have hGb : V.geo.bLogN = 14 := rfl
   have hltab : O.ltab = 12 := (shdP_outcPub_logs Rp wDigest).2.2.1
   have hdf := outcDefTAB_eq_of_ok O V.geo hist hltab dr hlen hdrCan df hdef
-  dsimp only at hdf; subst hdf
+  dsimp only at hdf
   let mu := (dr.drop O.ltab).take 2
   let zeta := dr.getD (O.ltab + 2) Fp2.zero
   let gU8 := hist.gamma.mulBase (Fp.new (UInt64.ofNat tagU8))
   have hsh6 : Exec.Block.slotShape P 6 = (12, 1, 3) := shdP_outc_slotShape tag Rp wDigest bOutRow w.v 6
-  have hN6 : slotN P 6 = 13 := by unfold slotN; rw [hsh6]
+  have hN6 : slotN P 6 = 13 := by unfold slotN; rw [hsh6]; rfl
   let tabs : List Tab := [
     .eq (dr.take O.ltab) 0,
     .pub (supp OutcPub.u8Len (2 ^ O.ltab)),
@@ -551,8 +728,8 @@ theorem outc_slot6_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
     intro t ht; simp only [tabs, List.mem_cons, List.not_mem_nil, or_false] at ht
     rcases ht with rfl | rfl | rfl | rfl | rfl
     · show 0 + (dr.take O.ltab).length ≤ 12; rw [hltab, Nat.zero_add]; exact List.length_take_le _ _
-    · show (supp _ _).length = 2 ^ 12; simp [supp, hltab]
-    · show (tvTab _ _).length = 2 ^ 12; simp [tvTab, hltab]
+    · show (supp _ _).length = 2 ^ 12; simp only [supp, List.length_map, List.length_range, hltab]
+    · show (tvTab _ _).length = 2 ^ 12; simp only [tvTab, List.length_map, List.length_range, hltab]
     · trivial
     · trivial
   have hcan : ∀ t ∈ tabs, ∀ pt st, t = .eq pt st → ∀ a ∈ pt, a.Canon := by
@@ -562,24 +739,27 @@ theorem outc_slot6_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
     all_goals cases he
   let g : ℕ → (Fin 13 → shdP_K) → shdP_K := fun j z =>
     (tabs.map (stgTabK shdP_U shdP_hbij P cs 12 1 z)).getD j 0
+  have htabs : df.tabs = tabs := by rw [hdf]; dsimp only [tabs, L, gU8]; rw [hGb]
+  have hpolyEq : df.poly = tabPoly mu zeta hist.alpha := by rw [hdf]
   have hpoly : ∀ z : Fin (slotN P 6) → shdP_K,
-      slotPolyK P (fun _ => 14) cs 6 ⟨tabs, tabPoly mu zeta hist.alpha, []⟩ z
+      slotPolyK P (fun _ => 14) cs 6 df z
         = let gz := fun i => g i (fun j => z (Fin.cast hN6.symm j))
           let rel := gz 4 * (hist.alpha.toK shdP_U - gz 2) - gz 3
           let pad := (1 - gz 1) * (gz 3 + zeta.toK shdP_U * gz 4)
           gz 0 * ((vg mu 0).toK shdP_U * rel + (vg mu 1).toK shdP_U * pad) := by
     intro z
-    unfold slotPolyK; rw [shdVo_atLog_14]
+    unfold slotPolyK
+    have hatP : atLog P 14 = P := shdVo_atLog_14 tag Rp wDigest bOutRow w.v
     have hs : (Exec.Block.slotShape P 6).1 = 12 := by rw [hsh6]
-    dsimp only; rw [hs]
+    dsimp only; rw [hatP, hs, htabs]
     obtain ⟨vals, htv, hvcan, hvmap⟩ := tabVals_stgTabK shdP_U shdP_hbij shdP_hU P cs 12 1 hN6 z tabs hfit hcan
-    rw [htv]
+    rw [htv]; dsimp only; rw [hpolyEq]
     have hvg : ∀ i, (vg vals i).toK shdP_U = g i (fun j => z (Fin.cast hN6.symm j)) := fun i => by
       rw [vg_toK_map, hvmap]
       simp only [g, List.getD_eq_getElem?_getD, List.getElem?_map]
       cases h : tabs[i]? with
       | none => rfl
-      | some tb => simp only [Option.map_some, Option.getD_some]; congr 1; funext j; rfl
+      | some tb => simp only [Option.map_some, Option.getD_some]; exact stgTabK_cast hN6 z tb
     unfold tabPoly
     rw [Fp2.toK_mul shdP_U shdP_hU,
         Fp2.toK_add shdP_U _ _ (Fp2.canon_mul _ _) (Fp2.canon_mul _ _),
@@ -596,42 +776,56 @@ theorem outc_slot6_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
     (L.aMaskBase + 2 * (L.prefixA 6 + 0)) (by norm_num [ocC_MULT]) (by norm_num [ocC_MULT])
   have hg4_spec := outc_tabH12_spec tag Rp wDigest bOutRow w.v w TB rnd hist.gamma hist.alpha ocH_GU8
     (L.hMaskBase + 2 * (L.prefixH 6 + 0)) (by norm_num [ocH_GU8])
-  have hg0 : IndDegLE 1 (g 0) := stgTabK_eq_indDeg _ _
-  have hg1 : IndDegLE 1 (g 1) := stgTabK_pub_indDeg _
-  have hg2 : IndDegLE 1 (g 2) := stgTabK_pub_indDeg _
+  have hg0 : IndDegLE 1 (g 0) :=
+    indDegLE_map_getD tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 0 _ rfl (stgTabK_eq_indDeg _ _)
+  have hg1 : IndDegLE 1 (g 1) :=
+    indDegLE_map_getD tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 1 _ rfl (stgTabK_pub_indDeg _)
+  have hg2 : IndDegLE 1 (g 2) :=
+    indDegLE_map_getD tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 2 _ rfl (stgTabK_pub_indDeg _)
+  have hg3 : IndDegLE 1 (g 3) :=
+    indDegLE_map_getD tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 3 _ rfl hg3_spec.1
+  have hg4 : IndDegLE 1 (g 4) :=
+    indDegLE_map_getD tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 4 _ rfl hg4_spec.1
   have hdeg6 : IndDegLE 3 (fun z : Fin 13 → shdP_K =>
       g 0 z * ((vg mu 0).toK shdP_U * (g 4 z * (hist.alpha.toK shdP_U - g 2 z) - g 3 z)
         + (vg mu 1).toK shdP_U * ((1 - g 1 z) * (g 3 z + zeta.toK shdP_U * g 4 z)))) := by
     have hrel : IndDegLE 2 (fun z => g 4 z * (hist.alpha.toK shdP_U - g 2 z) - g 3 z) :=
-      IndDegLE.sub (IndDegLE.mul hg4_spec.1 (IndDegLE.sub (IndDegLE.const _) hg2)) (IndDegLE.mono hg3_spec.1 (by norm_num))
+      IndDegLE.sub (IndDegLE.mul hg4 (IndDegLE.sub (IndDegLE.const _) hg2)) (IndDegLE.mono hg3 (by norm_num))
     have hpad : IndDegLE 2 (fun z => (1 - g 1 z) * (g 3 z + zeta.toK shdP_U * g 4 z)) :=
-      IndDegLE.mul (IndDegLE.sub (IndDegLE.const 1) hg1) (IndDegLE.add hg3_spec.1 (IndDegLE.cmul _ hg4_spec.1))
+      IndDegLE.mul (IndDegLE.sub (IndDegLE.const 1) hg1) (IndDegLE.add hg3 (IndDegLE.cmul _ hg4))
     exact IndDegLE.mul hg0 (IndDegLE.add (IndDegLE.cmul _ hrel) (IndDegLE.cmul _ hpad))
-  refine ⟨?_, ?_, rfl, fun _ => Fp2.canon_mul _ _⟩
-  · have heq := funext hpoly; rw [heq]; cases hN6; exact hdeg6
-  · cases hN6
-    have heq := funext hpoly; rw [heq]
+  refine ⟨?_, ?_, by rw [hdf], fun vals => by rw [hdf]; exact Fp2.canon_mul _ _⟩
+  · rw [funext hpoly]
+    exact indDegLE_cast hN6 (fun z : Fin 13 → shdP_K =>
+      g 0 z * ((vg mu 0).toK shdP_U * (g 4 z * (hist.alpha.toK shdP_U - g 2 z) - g 3 z)
+        + (vg mu 1).toK shdP_U * ((1 - g 1 z) * (g 3 z + zeta.toK shdP_U * g 4 z)))) hdeg6
+  · rw [funext hpoly, cubeSum_cast hN6 (fun z : Fin 13 → shdP_K =>
+      g 0 z * ((vg mu 0).toK shdP_U * (g 4 z * (hist.alpha.toK shdP_U - g 2 z) - g 3 z)
+        + (vg mu 1).toK shdP_U * ((1 - g 1 z) * (g 3 z + zeta.toK shdP_U * g 4 z))))]
     rw [cubeSum_split_ext 12 _ (fun bv hbv => by
       have hs := selK_ext_true 12 bv hbv
-      have h0 : g 0 (fun i => (bit (bv i) : shdP_K)) = 0 := stgTabK_eq_zero_of_selK hs _ _
-      dsimp only; rw [h0, zero_mul])]
+      have h0 : g 0 (fun i => (bit (bv i) : shdP_K)) = 0 := by
+        dsimp only [g]; rw [map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 0 _ rfl]
+        exact stgTabK_eq_zero_of_selK hs _ _
+      rw [h0, zero_mul])]
     refine Finset.sum_eq_zero (fun b _ => ?_)
-    dsimp only
     set col : Fin 4096 := ⟨msbIndex 12 b, msbIndex_lt 12 b⟩
     have h1 : g 1 (fun j => (bit (cptS 12 b j) : shdP_K)) = if col.val < 256 then 1 else 0 := by
-      change stgTabK shdP_U shdP_hbij P cs 12 1 _ (.pub (supp OutcPub.u8Len (2 ^ O.ltab))) = _
-      rw [HonestShield.stgTabK_pub_cptS _ (by simp [supp, hltab]) b]
-      unfold supp; rw [rangeMap_getD _ _ (by rw [hltab]; exact col.isLt)]
-      split_ifs <;> simp [Fp2.toK_one, Fp2.toK_zero]
+      dsimp only [g]; rw [map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 1 _ rfl,
+        HonestShield.stgTabK_pub_cptS _ (by simp only [supp, List.length_map, List.length_range, hltab]) b,
+        show OutcPub.u8Len = 256 from rfl, hltab, show (2 : ℕ) ^ 12 = 4096 by norm_num]
+      exact supp_getD_toK shdP_U 256 4096 (msbIndex 12 b) (msbIndex_lt 12 b)
     have h2 : g 2 (fun j => (bit (cptS 12 b j) : shdP_K)) = ((col.val % 256 : ℕ) : shdP_K) + gU8.toK shdP_U := by
-      change stgTabK shdP_U shdP_hbij P cs 12 1 _ (.pub (tvTab (2 ^ O.ltab) gU8)) = _
-      rw [HonestShield.stgTabK_pub_cptS _ (by simp [tvTab, hltab]) b]
-      unfold tvTab; rw [rangeMap_getD _ _ (by rw [hltab]; exact col.isLt)]
+      dsimp only [g]; rw [map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 2 _ rfl,
+        HonestShield.stgTabK_pub_cptS _ (by simp only [tvTab, List.length_map, List.length_range, hltab]) b]
+      unfold tvTab; rw [rangeMap_getD (2 ^ O.ltab) (msbIndex 12 b) (by rw [hltab]; exact col.isLt)]
+      change _ = ((msbIndex 12 b % 256 : ℕ) : shdP_K) + gU8.toK shdP_U
       rw [Fp2.toK_add shdP_U _ _ (kI_canon _) (Fp2.canon_mulBase _ _),
-        kI_nat_toK shdP_U (col.val % 256) (by omega)]
+        kI_nat_toK shdP_U (msbIndex 12 b % 256) (by omega)]
     have h3 : g 3 (fun j => (bit (cptS 12 b j) : shdP_K))
         = if hc : col.val < 256 then (outcMult w ⟨col.val, hc⟩ : shdP_K) else 0 := by
-      rw [hg3_spec.2 b]
+      dsimp only [g]; rw [map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 3 _ rfl]
+      refine (hg3_spec.2 b).trans ?_
       change algebraMap GF shdP_K (shdP_outcTAData Rp w rnd ⟨15, by norm_num⟩ col).toGF = _
       rw [shdP_outcTAData_15]
       by_cases hc : col.val < 256
@@ -641,13 +835,22 @@ theorem outc_slot6_arith (hist : Hist) (halphaCan : hist.alpha.Canon)
         = if hc : col.val < 256 then
             (outcMult w ⟨col.val, hc⟩ : shdP_K) * (hist.alpha.toK shdP_U - ((col.val : shdP_K) + gU8.toK shdP_U))⁻¹
           else 0 := by
-      rw [hg4_spec.2 b]; rfl
+      dsimp only [g]; rw [map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 4 _ rfl]
+      refine (hg4_spec.2 b).trans ?_
+      unfold shdP_outcHValK; dsimp only [ocH_GU8]; rfl
     rw [h1, h2, h3, h4]
     by_cases hc : col.val < 256
     · rw [ite_eq_left hc, dite_eq_left hc, dite_eq_left hc, Nat.mod_eq_of_lt hc]
-      have hne := sub_ne_zero.mpr (halphaNe col.val hc)
-      rw [mul_assoc, inv_mul_cancel₀ hne, mul_one, sub_self, sub_self]; ring
-    · rw [ite_eq_right hc, dite_eq_right hc, dite_eq_right hc]; ring
+      have halg : ∀ (a v0 v1 z m d : shdP_K), d ≠ 0 →
+          a * (v0 * (m * d⁻¹ * d - m) + v1 * ((1 - 1) * (m + z * (m * d⁻¹)))) = 0 := by
+        intro a v0 v1 z m d hd
+        rw [mul_assoc, inv_mul_cancel₀ hd, mul_one, sub_self, sub_self]; ring
+      exact halg _ _ _ _ _ _ (sub_ne_zero.mpr (halphaNe col.val hc))
+    · rw [ite_eq_right hc, dite_eq_right hc, dite_eq_right hc]
+      have hpad : ∀ (a v0 v1 z d : shdP_K),
+          a * (v0 * (0 * d - 0) + v1 * ((1 - 0) * (0 + z * 0))) = 0 := by
+        intro a v0 v1 z d; ring
+      exact hpad _ _ _ _ _
 
 /-- Slot 7 (`OUTC-07 ZS`, `.standalone`): `IndDegLE 2`, `cubeSum = 0`, `df.hosted = []`. -/
 theorem outc_slot7_arith (gamma alpha : Fp2)
@@ -660,18 +863,23 @@ theorem outc_slot7_arith (gamma alpha : Fp2)
       ∧ df.hosted = []
       ∧ ∀ vals, (df.poly vals).Canon := by
   intro V P cs
-  have hok := outcDefZS_ok V.pub V.geo
-  dsimp only at hok; rw [hok] at hdef
-  have hdf := (Except.ok.inj hdef).symm; subst hdf
   let O := V.pub; let L := outcLay O 14
+  have hGb : V.geo.bLogN = 14 := rfl
+  have hdef' : outcDefZS V.pub V.geo = .ok df := hdef
+  have hok := outcDefZS_ok V.pub V.geo
+  dsimp only at hok; rw [hok] at hdef'
+  have hdf := (Except.ok.inj hdef').symm
   have hUlog : L.hLog.getD ocH_U 0 = 12 := shdP_outcLay_hLog Rp wDigest w.v ocH_U (by norm_num [ocH_U])
   have hUoff : L.hOff ocH_U = (16 * 4096, 17 * 4096) := shdP_outcLay_hOff Rp wDigest w.v ocH_U (by norm_num [ocH_U])
   have hsh7 : Exec.Block.slotShape P 7 = (12, 1, 2) := shdP_outc_slotShape tag Rp wDigest bOutRow w.v 7
-  have hN7 : slotN P 7 = 13 := by unfold slotN; rw [hsh7]
+  have hN7 : slotN P 7 = 13 := by unfold slotN; rw [hsh7]; rfl
+  let p1 : Block.Priv := ⟨.h, [((L.hOff ocH_U).1, Fp2.one), ((L.hOff ocH_U).2, Block.fp2U)],
+    L.hLog.getD ocH_U 0, rhoC 0 (L.hLog.getD ocH_U 0), L.hMaskBase + 2 * (L.prefixH 7 + 0), 0⟩
   let tabs : List Tab := [
     .pub (List.replicate (2 ^ L.hLog.getD ocH_U 0) Fp2.one),
-    .priv ⟨.h, [((L.hOff ocH_U).1, Fp2.one), ((L.hOff ocH_U).2, Block.fp2U)],
-      L.hLog.getD ocH_U 0, rhoC 0 (L.hLog.getD ocH_U 0), L.hMaskBase + 2 * (L.prefixH 7 + 0), 0⟩]
+    .priv p1]
+  have htabs : df.tabs = tabs := by rw [hdf]; dsimp only [tabs, p1, L, O]; rw [hGb]
+  have hpolyEq : df.poly = zsPoly := by rw [hdf]
   have hfit : tabsFit 12 tabs := by
     intro t ht; simp only [tabs, List.mem_cons, List.not_mem_nil, or_false] at ht
     rcases ht with rfl | rfl
@@ -683,40 +891,38 @@ theorem outc_slot7_arith (gamma alpha : Fp2)
   let g : ℕ → (Fin 13 → shdP_K) → shdP_K := fun j z =>
     (tabs.map (stgTabK shdP_U shdP_hbij P cs 12 1 z)).getD j 0
   have hpoly : ∀ z : Fin (slotN P 7) → shdP_K,
-      slotPolyK P (fun _ => 14) cs 7 ⟨tabs, zsPoly, []⟩ z
+      slotPolyK P (fun _ => 14) cs 7 df z
         = g 0 (fun i => z (Fin.cast hN7.symm i)) * g 1 (fun i => z (Fin.cast hN7.symm i)) := by
     intro z
-    unfold slotPolyK; rw [shdVo_atLog_14]
+    unfold slotPolyK
+    have hatP : atLog P 14 = P := shdVo_atLog_14 tag Rp wDigest bOutRow w.v
     have hs : (Exec.Block.slotShape P 7).1 = 12 := by rw [hsh7]
-    dsimp only; rw [hs]
+    dsimp only; rw [hatP, hs, htabs]
     obtain ⟨vals, htv, _, hvmap⟩ := tabVals_stgTabK shdP_U shdP_hbij shdP_hU P cs 12 1 hN7 z tabs hfit hcan
-    rw [htv]
+    rw [htv]; dsimp only; rw [hpolyEq]
     have hvg : ∀ i, (vg vals i).toK shdP_U = g i (fun j => z (Fin.cast hN7.symm j)) := fun i => by
       rw [vg_toK_map, hvmap]
       simp only [g, List.getD_eq_getElem?_getD, List.getElem?_map]
       cases h : tabs[i]? with
       | none => rfl
-      | some tb => simp only [Option.map_some, Option.getD_some]; congr 1; funext j; rfl
+      | some tb => simp only [Option.map_some, Option.getD_some]; exact stgTabK_cast hN7 z tb
     unfold zsPoly
     rw [Fp2.toK_mul shdP_U shdP_hU, hvg 0, hvg 1]
-  have hg0 : IndDegLE 1 (g 0) := stgTabK_pub_indDeg _
+  have hg0 : IndDegLE 1 (g 0) := g0_pub_indDeg (List.replicate (2 ^ L.hLog.getD ocH_U 0) Fp2.one) _
   have hg1 : IndDegLE 1 (g 1) :=
-    indDegLE_claimSem_priv shdP_U shdP_hbij shdP_hU P 38 12 0
-      (tabMat 38 12 (shdP_outcTH Rp w rnd gamma alpha).rows) (N := 13) 12 1 rfl
-      ⟨.h, [((L.hOff ocH_U).1, Fp2.one), ((L.hOff ocH_U).2, Block.fp2U)],
-        L.hLog.getD ocH_U 0, rhoC 0 (L.hLog.getD ocH_U 0), L.hMaskBase + 2 * (L.prefixH 7 + 0), 0⟩
-      (by simp) (by rw [hUlog]; change min 12 12 ≤ 12; norm_num)
-      (by simpa using varsOKb_fixed_rho_fixed [] [] 0 (L.hLog.getD ocH_U 0)
+    indDegLE_map_getD_priv tabs 1 p1 rfl 38 12 0
+      (tabMat 38 12 (shdP_outcTH Rp w rnd gamma alpha).rows) (fun _ => rfl) rfl
+      (by simp [p1]) (by dsimp only [p1]; rw [hUlog]; change min 12 12 ≤ 12; norm_num)
+      (by dsimp only [p1]; simpa using varsOKb_fixed_rho_fixed [] [] 0 (L.hLog.getD ocH_U 0)
             (fun _ h => by cases h) (fun _ h => by cases h))
-      (fun c hc _ hw => by obtain ⟨_, _, h⟩ := List.mem_map.mp hc; rw [hw] at h; cases h)
-  refine ⟨?_, ?_, rfl, fun _ => Fp2.canon_mul _ _⟩
-  · have heq := funext hpoly; rw [heq]; cases hN7; exact IndDegLE.mul hg0 hg1
-  · cases hN7
-    have heq : slotPolyK P (fun _ => 14) cs 7 ⟨tabs, zsPoly, []⟩ = fun z => g 0 z * g 1 z := funext hpoly
-    rw [heq]
+      (fun c hc _ hw => by dsimp only [p1] at hc; obtain ⟨_, _, h⟩ := List.mem_map.mp hc; rw [hw] at h; cases h)
+  refine ⟨?_, ?_, by rw [hdf], fun vals => by rw [hdf]; exact Fp2.canon_mul _ _⟩
+  · rw [funext hpoly]; exact indDegLE_cast hN7 (fun z : Fin 13 → shdP_K => g 0 z * g 1 z) (IndDegLE.mul hg0 hg1)
+  · rw [funext hpoly, cubeSum_cast hN7 (fun z : Fin 13 → shdP_K => g 0 z * g 1 z)]
     rw [cubeSum_split_ext 12 _ (fun bv hbv => by
       have hs := selK_ext_true 12 bv hbv
-      have h0 : g 0 (fun i => (bit (bv i) : shdP_K)) = 0 := stgTabK_pub_zero_of_selK hs _
+      have h0 : g 0 (fun i => (bit (bv i) : shdP_K)) = 0 :=
+        g0_pub_zero_of_selK hs (List.replicate (2 ^ L.hLog.getD ocH_U 0) Fp2.one) _
       rw [h0, zero_mul])]
     have hpt : ∀ b : Fin 12 → Bool,
         g 0 (fun j => (bit (cptS 12 b j) : shdP_K)) * g 1 (fun j => (bit (cptS 12 b j) : shdP_K))
@@ -724,34 +930,38 @@ theorem outc_slot7_arith (gamma alpha : Fp2)
           + shdP_U * algebraMap GF shdP_K (shdP_outcHUVal rnd ⟨msbIndex 12 b, msbIndex_lt 12 b⟩).2 := by
       intro b
       have h0 : g 0 (fun j => (bit (cptS 12 b j) : shdP_K)) = 1 := by
-        change stgTabK shdP_U shdP_hbij P cs 12 1 _ (.pub (List.replicate (2 ^ L.hLog.getD ocH_U 0) Fp2.one)) = _
-        rw [HonestShield.stgTabK_pub_cptS _ (by rw [List.length_replicate, hUlog]) b]
-        rw [List.getD_eq_getElem?_getD, List.getElem?_replicate,
+        dsimp only [g]
+        rw [map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 0 (.pub (List.replicate (2 ^ L.hLog.getD ocH_U 0) Fp2.one)) rfl,
+          HonestShield.stgTabK_pub_cptS _ (by rw [List.length_replicate, hUlog]) b,
+          List.getD_eq_getElem?_getD, List.getElem?_replicate,
           ite_eq_left (by rw [hUlog]; exact msbIndex_lt 12 b), Option.getD_some, Fp2.toK_one]
       have h1 : g 1 (fun j => (bit (cptS 12 b j) : shdP_K))
           = algebraMap GF shdP_K (shdP_outcHUVal rnd ⟨msbIndex 12 b, msbIndex_lt 12 b⟩).1
             + shdP_U * algebraMap GF shdP_K (shdP_outcHUVal rnd ⟨msbIndex 12 b, msbIndex_lt 12 b⟩).2 := by
-        change Link.claimSem shdP_U 38 12 0 (tabMat 38 12 (shdP_outcTH Rp w rnd gamma alpha).rows) _ = _
-        rw [claimSem_priv_cube_y0 P 38 12 (tabMat 38 12 (shdP_outcTH Rp w rnd gamma alpha).rows) 12 rfl b _
+        dsimp only [g]
+        rw [map_getD_eq tabs (stgTabK shdP_U shdP_hbij P cs 12 1) 1 (.priv p1) rfl]
+        have hc := claimSem_priv_cube_y0 P 38 12 (tabMat 38 12 (shdP_outcTH Rp w rnd gamma alpha).rows) 12 rfl b p1
           ((L.hOff ocH_U).1, Fp2.one) [((L.hOff ocH_U).2, Block.fp2U)] rfl
-          (by rw [hUlog]; change min 12 12 ≤ 12; norm_num)
-          (fun c hc _ hw => by obtain ⟨_, _, h⟩ := List.mem_map.mp hc; rw [hw] at h; cases h)]
-        simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero,
-          hUoff, hUlog, rhoC, List.length_map, List.length_range', Nat.sub_zero]
-        have hpt' : ∀ a : Fin 12, Block.ptK shdP_U
-            (Block.xrK 12 (fun i : Fin 13 => (bit (cptS 12 b i) : shdP_K)))
-            ((List.range' 0 12).map Block.Coord.rho) a.val = (bit (b a) : shdP_K) := by
-          intro a; unfold Block.ptK
-          rw [List.getD_eq_getElem?_getD, List.getElem?_map,
-            List.getElem?_range' (by omega), Option.map_some, Option.getD_some, Nat.zero_add]
-          exact xrK_cptS 12 b a.val a.isLt (by omega)
-        exact outc_h_u_at Rp rnd w gamma alpha b _ hpt'
+          (by dsimp only [p1]; rw [hUlog]; change min 12 12 ≤ 12; norm_num)
+          (fun c hc _ hw => by dsimp only [p1] at hc; obtain ⟨_, _, h⟩ := List.mem_map.mp hc; rw [hw] at h; cases h)
+        exact hc.trans (by
+          have hrho12Len : (rhoC 0 12).length = 12 := by simp [rhoC]
+          simp only [p1, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero,
+            hUoff, hUlog, hrho12Len]
+          have hpt' : ∀ a : Fin 12, Block.ptK shdP_U
+              (Block.xrK 12 (fun i : Fin 13 => (bit (cptS 12 b i) : shdP_K)))
+              (rhoC 0 12) a.val = (bit (b a) : shdP_K) := by
+            intro a; unfold Block.ptK
+            simp only [rhoC, List.getElem?_map, List.getElem?_range' a.isLt, Option.map_some, Option.getD_some,
+              Block.coordK, Nat.zero_add, one_mul]
+            exact xrK_cptS (N := 13) 12 b a.val a.isLt (by norm_num)
+          exact outc_h_u_at Rp rnd w gamma alpha b _ hpt')
       rw [h0, one_mul, h1]
     simp_rw [hpt]
     rw [sum_fin12_bool_eq (fun col : Fin 4096 =>
       algebraMap GF shdP_K (shdP_outcHUVal rnd col).1 + shdP_U * algebraMap GF shdP_K (shdP_outcHUVal rnd col).2),
       Finset.sum_add_distrib, ← Finset.mul_sum, ← map_sum, ← map_sum,
-      shdP_outcHUVal_sum_re, shdP_outcHUVal_sum_im, map_zero, map_zero, mul_zero, add_zero]
+      shdP_outcHUVal_sum_re, shdP_outcHUVal_sum_im, map_zero, mul_zero, add_zero]
 
 end StageOutSlotArith2
 
@@ -800,20 +1010,17 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
     OutcAccInv Rp w P TA TH TB M rnd s acc →
       (∀ df, P.define s hist (t.challengeFp2Vec H (P.draws s)).1 = .ok df →
         SlotSum P shdP_U D s hist acc df (slotC H P s t))
-      ∧ ∀ sp r acc' t', slotProve H P D hist s acc t = .ok (sp, r, acc', t') →
+      ∧ ∀ sp r acc' t', slotProve H P D s hist acc t = .ok (sp, r, acc', t') →
           OutcAccInv Rp w P TA TH TB M rnd (s + 1) acc' := by
   intro V P TA TH M D hist hinv
   obtain ⟨hcsLen, hcsCan, hscLen, hscCan, hpriv1, hpriv3, hclA, hclH, hclB, hfsOk⟩ := hinv
   let cs := outcCs TA TH TB
   let mRow := mRowKOf 8 rnd.mA
   let G : ℕ → shdP_K := fun k => cubeSum (Link.maskPoly mRow k (slotN P k) (slotD P k))
-  have hgamma : hist.gamma = ch.getD 0 Fp2.zero := rfl
-  have halpha : hist.alpha = ch.getD 1 Fp2.zero := rfl
   have halphaCan : hist.alpha.Canon := Fp2.canon_getD hchCan 1
   have halphaNe : ∀ z : ℕ, z < 256 →
       hist.alpha.toK shdP_U ≠ (z : shdP_K) + (hist.gamma.mulBase (Fp.new (UInt64.ofNat tagU8))).toK shdP_U :=
     fun z hz => outcAlpha_ne_u8K ch hchCan hbad z hz
-  have hTH_hist : shdP_outcTH Rp w rnd hist.gamma hist.alpha = TH := rfl
   -- Per-slot numerical bounds
   have hN_bounds : ∀ k, k < 8 → 0 < slotN P k ∧ slotN P k < 64 ∧ 1 ≤ slotD P k ∧ slotD P k ≤ 5
       ∧ slotN P k * slotD P k + 2 ≤ 512 := by
@@ -822,19 +1029,6 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
     unfold slotN slotD; rw [hsh]
     interval_cases k <;> norm_num
   obtain ⟨hNpos, hN64, hd1, hd5, hW512⟩ := hN_bounds s hs
-  have hdraws : P.draws s = match s with | 0 => 12 | 1 => 0 | 2 => 7 | 3 => 0 | 4 => 15 | 5 => 23 | 6 => 15 | _ => 0 := by
-    have hlogs := shdP_outcPub_logs Rp wDigest
-    change outcDraws V.pub s = _
-    unfold outcDraws OutcPub.toLog
-    interval_cases s
-    · exact hlogs.2.2.2
-    · rfl
-    · rfl
-    · rfl
-    · rw [show V.pub.llo = 12 from hlogs.1]
-    · rw [show V.pub.ldo = 12 from hlogs.2.1]
-    · rw [show V.pub.ltab = 12 from hlogs.2.2.1]
-    · rfl
   -- Unified per-slot arithmetic result for the active slot `s`
   have hdefArith : ∀ (dr : List Fp2), dr.length = P.draws s → (∀ a ∈ dr, a.Canon) →
       ∀ (df : SlotDef), P.define s hist dr = .ok df →
@@ -856,9 +1050,6 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
                         hk.2.toK shdP_U * (acc.cs.getD hk.1 Fp2.zero).toK shdP_U * G hk.1).sum)
         ∧ ∀ vals, (df.poly vals).Canon := by
     intro dr hdrLen hdrCan df hdef
-    have hsh := shdP_outc_slotShape tag Rp wDigest bOutRow w.v s
-    have hkind : P.kind s = match s with | 1 | 3 => .priv | 2 | 4 => .host | _ => .standalone := by
-      interval_cases s <;> rfl
     have hhost_ok_sa : ∀ (c : Fp2), P.kind s = .standalone → df.hosted = [] →
         cubeSum (slotPolyK P (fun _ => 14) cs s df) = 0 →
         ∀ claimed, Exec.Block.hostedSum acc.scalars (D.scalar s hist acc df c) df.hosted = .ok claimed →
@@ -869,7 +1060,8 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
       have heq : claimed = D.scalar s hist acc df c := (Except.ok.inj hcl).symm
       subst heq
       have hsc : D.scalar s hist acc df c = ofK shdP_U shdP_hbij (c.toK shdP_U * G s) := by
-        change (match P.kind s with | _ => _) = _; rw [hk]
+        dsimp only [D, shdP_outcSlotData, polySlotData]
+        rw [show (shdVo tag Rp wDigest bOutRow w.v).bp.kind s = .standalone from hk]
       rw [hsc]
       refine ⟨ofK_canon shdP_U shdP_hbij _, ?_⟩
       rw [toK_ofK shdP_U shdP_hbij, cubeSum_add_smul, hcube, zero_add]
@@ -883,23 +1075,31 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
       have heq : claimed = D.scalar s hist acc df c := (Except.ok.inj hcl).symm
       subst heq
       have hsc : D.scalar s hist acc df c = ofK shdP_U shdP_hbij (outcPrivSum Rp w s + c.toK shdP_U * G s) := by
-        change (match P.kind s with | _ => _) = _; rw [hk]
+        dsimp only [D, shdP_outcSlotData, polySlotData]
+        rw [show (shdVo tag Rp wDigest bOutRow w.v).bp.kind s = .priv from hk]
       rw [hsc]
       refine ⟨ofK_canon shdP_U shdP_hbij _, ?_⟩
       rw [toK_ofK shdP_U shdP_hbij, cubeSum_add_smul, hcube]
     interval_cases s
     · -- Slot 0 (`.standalone`)
+      have hD : slotD P 0 = 2 := by
+        unfold slotD; rw [show Exec.Block.slotShape P 0 = (12, 1, 2) from shdP_outc_slotShape tag Rp wDigest bOutRow w.v 0]
       obtain ⟨hd0, hc0, hh0, hp0⟩ := outc_slot0_arith tag Rp wDigest bOutRow w TB hTB rnd hist.gamma hist.alpha dr hdrCan df hdef
-      refine ⟨by simpa [slotD, hsh] using hd0, fun sc c hsc claimed hcl => by rw [hsc]; exact hhost_ok_sa c rfl hh0 hc0 claimed hcl,
+      refine ⟨by rw [hD]; exact hd0, fun sc c hsc claimed hcl => by subst hsc; exact hhost_ok_sa c rfl hh0 hc0 claimed hcl,
         by intro c; change (ofK shdP_U shdP_hbij _).toK shdP_U = _; exact toK_ofK shdP_U shdP_hbij _, hp0⟩
     · -- Slot 1 (`.priv`)
+      have hD : slotD P 1 = 4 := by
+        unfold slotD; rw [show Exec.Block.slotShape P 1 = (12, 1, 4) from shdP_outc_slotShape tag Rp wDigest bOutRow w.v 1]
       obtain ⟨hd1', hc1', hh1, hp1⟩ := outc_slot1_arith tag Rp wDigest bOutRow w TB rnd hist.gamma hist.alpha df hdef
-      refine ⟨by simpa [slotD, hsh] using hd1', fun sc c hsc claimed hcl => by rw [hsc]; exact hhost_ok_priv c rfl hh1 hc1' claimed hcl,
+      refine ⟨by rw [hD]; exact hd1', fun sc c hsc claimed hcl => by subst hsc; exact hhost_ok_priv c rfl hh1 hc1' claimed hcl,
         by intro c; change (ofK shdP_U shdP_hbij _).toK shdP_U = _; exact toK_ofK shdP_U shdP_hbij _, hp1⟩
     · -- Slot 2 (`.host` of slot 1)
+      have hD : slotD P 2 = 3 := by
+        unfold slotD; rw [show Exec.Block.slotShape P 2 = (1, 1, 3) from shdP_outc_slotShape tag Rp wDigest bOutRow w.v 2]
+      have hdl : dr.length = 7 := by rw [hdrLen]; rfl
       obtain ⟨hd2, hc2, hh2, hp2⟩ := outc_slot2_arith tag Rp hOut wDigest bOutRow w TB rnd hist.gamma hist.alpha dr
-        (by rw [hdrLen, hdraws]) hdrCan df hdef
-      refine ⟨by simpa [slotD, hsh] using hd2, fun sc c hsc claimed hcl => ?_, fun c => ?_, hp2⟩
+        hdl hdrCan df hdef
+      refine ⟨by rw [hD]; exact hd2, fun sc c hsc claimed hcl => ?_, fun c => ?_, hp2⟩
       · subst hsc
         rw [hh2] at hcl
         have hlt1 : 1 < acc.scalars.length := by omega
@@ -913,23 +1113,32 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
         refine ⟨Fp2.canon_add _ _, ?_⟩
         rw [Fp2.toK_add shdP_U _ _ hscCan' (Fp2.canon_mul _ _), Fp2.toK_mul shdP_U shdP_hU, hpriv1 (by norm_num)]
         have hscK : (D.scalar 2 hist acc df c).toK shdP_U
-            = c.toK shdP_U * G 2 - (dr.getD 5 Fp2.zero).toK shdP_U * (acc.cs.getD 1 Fp2.zero).toK shdP_U * G 1 := by
-          change (ofK shdP_U shdP_hbij _).toK shdP_U = _
-          rw [toK_ofK shdP_U shdP_hbij, hh2]; simp [G]
-        rw [hscK, cubeSum_add_smul, hc2]; ring
+            = c.toK shdP_U * G 2 - (dr.getD 5 Fp2.zero).toK shdP_U * (acc.cs.getD 1 Fp2.zero).toK shdP_U * G 1 :=
+          (toK_ofK shdP_U shdP_hbij _).trans (by
+            change c.toK shdP_U * G 2 - (df.hosted.map fun hk =>
+              hk.2.toK shdP_U * (acc.cs.getD hk.1 Fp2.zero).toK shdP_U * G hk.1).sum = _
+            rw [hh2, List.map_singleton, List.sum_singleton])
+        have hc2' : cubeSum (slotPolyK P (fun _ => 14) cs 2 df) = (dr.getD 5 Fp2.zero).toK shdP_U * outcPrivSum Rp w 1 := hc2
+        rw [hscK, cubeSum_add_smul, hc2']; dsimp only [G, mRow]; ring
       · refine ⟨fun hk hhk => ?_, ?_⟩
         · rw [hh2, List.mem_singleton] at hhk; subst hhk
           exact ⟨by norm_num, by norm_num, Fp2.canon_getD hdrCan 5⟩
         · change (ofK shdP_U shdP_hbij _).toK shdP_U = _
           exact toK_ofK shdP_U shdP_hbij _
     · -- Slot 3 (`.priv`)
+      have hD : slotD P 3 = 2 := by
+        unfold slotD; rw [show Exec.Block.slotShape P 3 = (12, 1, 2) from shdP_outc_slotShape tag Rp wDigest bOutRow w.v 3]
       obtain ⟨hd3, hc3, hh3, hp3⟩ := outc_slot3_arith tag Rp hOut wDigest bOutRow w TB rnd hist.gamma hist.alpha df hdef
-      refine ⟨by simpa [slotD, hsh] using hd3, fun sc c hsc claimed hcl => by rw [hsc]; exact hhost_ok_priv c rfl hh3 hc3 claimed hcl,
+      refine ⟨by rw [hD]; exact hd3, fun sc c hsc claimed hcl => by subst hsc; exact hhost_ok_priv c rfl hh3 hc3 claimed hcl,
         by intro c; change (ofK shdP_U shdP_hbij _).toK shdP_U = _; exact toK_ofK shdP_U shdP_hbij _, hp3⟩
     · -- Slot 4 (`.host` of slot 3)
+      have hD : slotD P 4 = 4 := by
+        unfold slotD; rw [show Exec.Block.slotShape P 4 = (12, 1, 4) from shdP_outc_slotShape tag Rp wDigest bOutRow w.v 4]
+      have hdl : dr.length = 15 := by
+        rw [hdrLen]; show V.pub.llo + 2 + 1 = 15; have h : V.pub.llo = 12 := (shdP_outcPub_logs Rp wDigest).1; omega
       obtain ⟨hd4', hc4', hh4, hp4⟩ := outc_slot4_arith tag Rp hOut wDigest bOutRow w TB rnd hist halphaCan halphaNe dr
-        (by rw [hdrLen, hdraws]) hdrCan df hdef
-      refine ⟨by simpa [slotD, hsh] using hd4', fun sc c hsc claimed hcl => ?_, fun c => ?_, hp4⟩
+        hdl hdrCan df hdef
+      refine ⟨by rw [hD]; exact hd4', fun sc c hsc claimed hcl => ?_, fun c => ?_, hp4⟩
       · subst hsc
         rw [hh4] at hcl
         have hlt3 : 3 < acc.scalars.length := by omega
@@ -943,31 +1152,44 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
         refine ⟨Fp2.canon_add _ _, ?_⟩
         rw [Fp2.toK_add shdP_U _ _ hscCan' (Fp2.canon_mul _ _), Fp2.toK_mul shdP_U shdP_hU, hpriv3 (by norm_num)]
         have hscK : (D.scalar 4 hist acc df c).toK shdP_U
-            = c.toK shdP_U * G 4 - (dr.getD 14 Fp2.zero).toK shdP_U * (acc.cs.getD 3 Fp2.zero).toK shdP_U * G 3 := by
-          change (ofK shdP_U shdP_hbij _).toK shdP_U = _
-          rw [toK_ofK shdP_U shdP_hbij, hh4]; simp [G]
-        rw [hscK, cubeSum_add_smul, hc4']; ring
+            = c.toK shdP_U * G 4 - (dr.getD 14 Fp2.zero).toK shdP_U * (acc.cs.getD 3 Fp2.zero).toK shdP_U * G 3 :=
+          (toK_ofK shdP_U shdP_hbij _).trans (by
+            change c.toK shdP_U * G 4 - (df.hosted.map fun hk =>
+              hk.2.toK shdP_U * (acc.cs.getD hk.1 Fp2.zero).toK shdP_U * G hk.1).sum = _
+            rw [hh4, List.map_singleton, List.sum_singleton])
+        have hc4'' : cubeSum (slotPolyK P (fun _ => 14) cs 4 df) = (dr.getD 14 Fp2.zero).toK shdP_U * outcPrivSum Rp w 3 := hc4'
+        rw [hscK, cubeSum_add_smul, hc4'']; dsimp only [G, mRow]; ring
       · refine ⟨fun hk hhk => ?_, ?_⟩
         · rw [hh4, List.mem_singleton] at hhk; subst hhk
           exact ⟨by norm_num, by norm_num, Fp2.canon_getD hdrCan 14⟩
         · change (ofK shdP_U shdP_hbij _).toK shdP_U = _
           exact toK_ofK shdP_U shdP_hbij _
     · -- Slot 5 (`.standalone`)
+      have hD : slotD P 5 = 5 := by
+        unfold slotD; rw [show Exec.Block.slotShape P 5 = (12, 1, 5) from shdP_outc_slotShape tag Rp wDigest bOutRow w.v 5]
+      have hdl : dr.length = 23 := by
+        rw [hdrLen]; show V.pub.ldo + 10 + 1 = 23; have h : V.pub.ldo = 12 := (shdP_outcPub_logs Rp wDigest).2.1; omega
       obtain ⟨hd5', hc5', hh5, hp5⟩ := outc_slot5_arith tag Rp hOut wDigest bOutRow w TB rnd hist halphaCan halphaNe dr
-        (by rw [hdrLen, hdraws]) hdrCan df hdef
-      refine ⟨by simpa [slotD, hsh] using hd5', fun sc c hsc claimed hcl => by rw [hsc]; exact hhost_ok_sa c rfl hh5 hc5' claimed hcl,
+        hdl hdrCan df hdef
+      refine ⟨by rw [hD]; exact hd5', fun sc c hsc claimed hcl => by subst hsc; exact hhost_ok_sa c rfl hh5 hc5' claimed hcl,
         by intro c; change (ofK shdP_U shdP_hbij _).toK shdP_U = _; exact toK_ofK shdP_U shdP_hbij _, hp5⟩
     · -- Slot 6 (`.standalone`)
+      have hD : slotD P 6 = 3 := by
+        unfold slotD; rw [show Exec.Block.slotShape P 6 = (12, 1, 3) from shdP_outc_slotShape tag Rp wDigest bOutRow w.v 6]
+      have hdl : dr.length = 15 := by
+        rw [hdrLen]; show V.pub.ltab + 2 + 1 = 15; have h : V.pub.ltab = 12 := (shdP_outcPub_logs Rp wDigest).2.2.1; omega
       obtain ⟨hd6, hc6, hh6, hp6⟩ := outc_slot6_arith tag Rp wDigest bOutRow w TB rnd hist halphaCan halphaNe dr
-        (by rw [hdrLen, hdraws]) hdrCan df hdef
-      refine ⟨by simpa [slotD, hsh] using hd6, fun sc c hsc claimed hcl => by rw [hsc]; exact hhost_ok_sa c rfl hh6 hc6 claimed hcl,
+        hdl hdrCan df hdef
+      refine ⟨by rw [hD]; exact hd6, fun sc c hsc claimed hcl => by subst hsc; exact hhost_ok_sa c rfl hh6 hc6 claimed hcl,
         by intro c; change (ofK shdP_U shdP_hbij _).toK shdP_U = _; exact toK_ofK shdP_U shdP_hbij _, hp6⟩
     · -- Slot 7 (`.standalone`)
+      have hD : slotD P 7 = 2 := by
+        unfold slotD; rw [show Exec.Block.slotShape P 7 = (12, 1, 2) from shdP_outc_slotShape tag Rp wDigest bOutRow w.v 7]
       obtain ⟨hd7, hc7, hh7, hp7⟩ := outc_slot7_arith tag Rp wDigest bOutRow w TB rnd hist.gamma hist.alpha df hdef
-      refine ⟨by simpa [slotD, hsh] using hd7, fun sc c hsc claimed hcl => by rw [hsc]; exact hhost_ok_sa c rfl hh7 hc7 claimed hcl,
+      refine ⟨by rw [hD]; exact hd7, fun sc c hsc claimed hcl => by subst hsc; exact hhost_ok_sa c rfl hh7 hc7 claimed hcl,
         by intro c; change (ofK shdP_U shdP_hbij _).toK shdP_U = _; exact toK_ofK shdP_U shdP_hbij _, hp7⟩
   refine ⟨?_, ?_⟩
-  · -- Part 1: `SlotSum H P shdP_U D hist s acc t`
+  · -- Part 1: `SlotSum H P shdP_U D s hist acc df (slotC H P s t)`
     intro df hdef
     obtain ⟨hdeg0, hclaimed, _, _⟩ := hdefArith _ (chalVec_length H _ t) (chalVec_canon H _ t) df hdef
     refine ⟨fun z => slotPolyK P (fun _ => 14) cs s df z
@@ -979,11 +1201,10 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
   · -- Part 2: `slotProve = .ok (sp, r, acc', t') → OutcAccInv ... (s + 1) acc'`
     intro sp r acc' t' hprove
     unfold slotProve at hprove
-    cases hdef : P.define s hist (t.challengeFp2Vec H (P.draws s)).1 with
-    | error _ => simp [hdef] at hprove
-    | ok df =>
-      simp only [hdef] at hprove
-      split_ifs at hprove with hcZ hfinZ
+    split at hprove
+    · cases hprove
+    · rename_i df hdef
+      split_ifs at hprove with hcZ _
       cases hchk : Exec.Block.slotDefChecks P s acc df with
       | error _ => simp [hchk] at hprove
       | ok _ =>
@@ -1034,7 +1255,8 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
             have hfinEq : fin' = fin := (scVerify_fin_eq H claimed (slotD P s) (slotN P s) hd1 _ _ fin' _ hscV).1
             have hrhoLen : rhoFull.length = slotN P s := by
               show (scChal H (scProve H (slotN P s) _ _).1 _).1.length = slotN P s
-              rw [scChal_length, scProve_length]
+              rw [scChal_length]
+              exact scProve_length _ _ _ _
             have hrhoCan : ∀ a ∈ rhoFull, a.Canon := scChal_canon H _ _
             have hfinToK : fin.toK shdP_U = (df.poly vals).toK shdP_U
                 + c.toK shdP_U * Link.maskPoly mRow s (slotN P s) (slotD P s) (vecK shdP_U (slotN P s) rhoFull) := by
@@ -1053,40 +1275,46 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
             refine ⟨by simp [Exec.Block.slotAcc, hcsLen],
               fun c' hc' => by
                 simp only [Exec.Block.slotAcc, List.mem_append, List.mem_singleton] at hc'
-                rcases hc' with h1 | rfl; · exact hcsCan c' h1; · exact hcCan,
+                rcases hc' with h1 | rfl
+                · exact hcsCan c' h1
+                · exact hcCan,
               by simp [Exec.Block.slotAcc, hscLen],
               fun sc' hsc' => by
                 simp only [Exec.Block.slotAcc, List.mem_append, List.mem_singleton] at hsc'
-                rcases hsc' with h1 | rfl; · exact hscCan sc' h1; · exact hscNewCan,
+                rcases hsc' with h1 | rfl
+                · exact hscCan sc' h1
+                · exact hscNewCan,
               ?_, ?_, hcl'.1, hcl'.2.1, hcl'.2.2.1, ?_⟩
             · -- `priv1` (`1 < s + 1`)
               intro h1s
               by_cases hlt : 1 < s
-              · simp only [Exec.Block.slotAcc]
-                rw [List.getD_eq_getElem?_getD, List.getElem?_append_left (by omega), ← List.getD_eq_getElem?_getD,
-                  List.getD_eq_getElem?_getD, List.getElem?_append_left (by omega), ← List.getD_eq_getElem?_getD]
+              · simp only [Exec.Block.slotAcc, List.getD_eq_getElem?_getD]
+                rw [List.getElem?_append_left (by omega),
+                  List.getElem?_append_left (by omega)]
+                simp only [← List.getD_eq_getElem?_getD]
                 exact hpriv1 hlt
               · have hs1 : s = 1 := by omega
                 subst hs1
-                simp only [Exec.Block.slotAcc]
-                rw [List.getD_eq_getElem?_getD, List.getElem?_append_right (by omega), hscLen, Nat.sub_self,
+                simp only [Exec.Block.slotAcc, List.getD_eq_getElem?_getD]
+                rw [List.getElem?_append_right (by omega), hscLen, Nat.sub_self,
                   List.getElem?_cons_zero, Option.getD_some,
-                  List.getD_eq_getElem?_getD, List.getElem?_append_right (by omega), hcsLen, Nat.sub_self,
+                  List.getElem?_append_right (by omega), hcsLen, Nat.sub_self,
                   List.getElem?_cons_zero, Option.getD_some]
                 exact hscSpec c
             · -- `priv3` (`3 < s + 1`)
               intro h3s
               by_cases hlt : 3 < s
-              · simp only [Exec.Block.slotAcc]
-                rw [List.getD_eq_getElem?_getD, List.getElem?_append_left (by omega), ← List.getD_eq_getElem?_getD,
-                  List.getD_eq_getElem?_getD, List.getElem?_append_left (by omega), ← List.getD_eq_getElem?_getD]
+              · simp only [Exec.Block.slotAcc, List.getD_eq_getElem?_getD]
+                rw [List.getElem?_append_left (by omega),
+                  List.getElem?_append_left (by omega)]
+                simp only [← List.getD_eq_getElem?_getD]
                 exact hpriv3 hlt
               · have hs3 : s = 3 := by omega
                 subst hs3
-                simp only [Exec.Block.slotAcc]
-                rw [List.getD_eq_getElem?_getD, List.getElem?_append_right (by omega), hscLen, Nat.sub_self,
+                simp only [Exec.Block.slotAcc, List.getD_eq_getElem?_getD]
+                rw [List.getElem?_append_right (by omega), hscLen, Nat.sub_self,
                   List.getElem?_cons_zero, Option.getD_some,
-                  List.getD_eq_getElem?_getD, List.getElem?_append_right (by omega), hcsLen, Nat.sub_self,
+                  List.getElem?_append_right (by omega), hcsLen, Nat.sub_self,
                   List.getElem?_cons_zero, Option.getD_some]
                 exact hscSpec c
             · -- `fsOk` for `(slotAcc ...).fs ++ (slotAcc ...).hostFs`
@@ -1095,6 +1323,7 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
                   = ∑ s' : Fin 8, ∑ j : Fin 512,
                       fwt shdP_U (toMF ⟨[(s, Cfs.evalWeights rhoFull (slotD P s))], gVal⟩) s' j
                         * (mA shdP_U M 8 s').eval (mPts (algebraMap GF shdP_K (rootFp 9).toGF) j) := by
+                unfold M shdP_outcM
                 rw [mTrue_singleton_mdot 8 rnd.mA rnd.mBRe rnd.mBIm rnd.mURe rnd.mUIm rnd.mSalts s hs _ _,
                   mTrue_evalWeights_eq 8 rnd.mA s (slotN P s) (slotD P s) hNpos rhoFull hrhoLen hW512]
                 exact hgValToK
@@ -1105,9 +1334,9 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
                 simp only [Exec.Block.slotAcc, hk, List.mem_append, List.mem_singleton] at hmf
                 rcases hmf with ((hold | rfl) | rfl) | hhostOld
                 · exact hfsOk mf (List.mem_append_left _ hold)
-                · rw [mTrue_singleton_mdot 8 rnd.mA rnd.mBRe rnd.mBIm rnd.mURe rnd.mUIm rnd.mSalts s hs _ _,
-                    mTrue_sumWeights_eq 8 rnd.mA s (slotN P s) (slotD P s) hNpos hN64 hW512 c]
-                  exact hscSpecC
+                · unfold M shdP_outcM
+                  rw [mTrue_singleton_mdot 8 rnd.mA rnd.mBRe rnd.mBIm rnd.mURe rnd.mUIm rnd.mSalts s hs _ _]
+                  exact hscSpecC.trans (mTrue_sumWeights_eq 8 rnd.mA s (slotN P s) (slotD P s) hNpos hN64 hW512 c).symm
                 · exact heval_ok
                 · exact hfsOk mf (List.mem_append_right _ hhostOld)
               | priv =>
@@ -1125,28 +1354,34 @@ theorem outc_slot_step (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP s
                 · exact heval_ok
                 · exact hfsOk mf (List.mem_append_right _ hhostOld)
                 · -- New multi-term `.host` functional in `acc.hostFs` — discharged by `mTrue_terms_mdot`!
-                  rw [mTrue_terms_mdot 8 rnd.mA rnd.mBRe rnd.mBIm rnd.mURe rnd.mUIm rnd.mSalts _ sc
+                  unfold M shdP_outcM
+                  rw [mTrue_terms_mdot 8 rnd.mA rnd.mBRe rnd.mBIm rnd.mURe rnd.mUIm rnd.mSalts _ _
                     (by
                       intro tm htm
                       rcases List.mem_cons.mp htm with rfl | htm
                       · exact hs
                       · obtain ⟨hk', hhk', rfl⟩ := List.mem_map.mp htm
                         exact (hhkLt hk' hhk').1)]
-                  rw [List.map_cons, List.sum_cons, List.map_map,
-                    mTrue_sumWeights_eq 8 rnd.mA s (slotN P s) (slotD P s) hNpos hN64 hW512 c]
-                  have hmap : List.map (Block.mdot shdP_U mRow 512 ∘ fun hk' =>
+                  rw [List.map_cons, List.sum_cons, List.map_map]
+                  have hhead : Block.mdot shdP_U (mRowKOf 8 rnd.mA) 512
+                      (s, (Cfs.sumWeights ((Exec.Block.slotShape P s).1 + (Exec.Block.slotShape P s).2.1)
+                        (Exec.Block.slotShape P s).2.2).map (fun w => w.mul c))
+                      = c.toK shdP_U * G s :=
+                    mTrue_sumWeights_eq 8 rnd.mA s (slotN P s) (slotD P s) hNpos hN64 hW512 c
+                  have hmap : List.map (Block.mdot shdP_U (mRowKOf 8 rnd.mA) 512 ∘ fun hk' =>
                         (hk'.1, (Cfs.sumWeights ((Exec.Block.slotShape P hk'.1).1 + (Exec.Block.slotShape P hk'.1).2.1)
                           (Exec.Block.slotShape P hk'.1).2.2).map (fun w => w.mul (hk'.2.mul (acc.cs.getD hk'.1 Fp2.zero)).neg))) df.hosted
                       = List.map (fun hk' => -(hk'.2.toK shdP_U * (acc.cs.getD hk'.1 Fp2.zero).toK shdP_U * G hk'.1)) df.hosted := by
                     refine List.map_congr_left (fun hk' hhk' => ?_)
                     obtain ⟨h8, _, _⟩ := hhkLt hk' hhk'
                     obtain ⟨hNpos', hN64', _, _, hW512'⟩ := hN_bounds hk'.1 h8
-                    change Block.mdot shdP_U mRow 512 (hk'.1, (Cfs.sumWeights (slotN P hk'.1) (slotD P hk'.1)).map
-                      (fun w => w.mul (hk'.2.mul (acc.cs.getD hk'.1 Fp2.zero)).neg)) = _
-                    rw [mTrue_sumWeights_eq 8 rnd.mA hk'.1 (slotN P hk'.1) (slotD P hk'.1) hNpos' hN64' hW512',
+                    dsimp only [Function.comp_def]
+                    rw [show (Exec.Block.slotShape P hk'.1).1 + (Exec.Block.slotShape P hk'.1).2.1 = slotN P hk'.1 from rfl,
+                      show (Exec.Block.slotShape P hk'.1).2.2 = slotD P hk'.1 from rfl,
+                      mTrue_sumWeights_eq 8 rnd.mA hk'.1 (slotN P hk'.1) (slotD P hk'.1) hNpos' hN64' hW512',
                       Fp2.toK_neg shdP_U _ (Fp2.canon_mul _ _), Fp2.toK_mul shdP_U shdP_hU]
-                    ring
-                  rw [hmap]
+                    dsimp only [G, mRow]; ring
+                  rw [hhead, hmap]
                   have hsum_neg : ∀ (l : List (ℕ × Fp2)),
                       (l.map (fun hk' => -(hk'.2.toK shdP_U * (acc.cs.getD hk'.1 Fp2.zero).toK shdP_U * G hk'.1))).sum
                       = - (l.map (fun hk' => hk'.2.toK shdP_U * (acc.cs.getD hk'.1 Fp2.zero).toK shdP_U * G hk'.1)).sum := by
@@ -1241,10 +1476,10 @@ theorem shdP_outc_arith (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP 
   have hchCan : ∀ a ∈ R.ch, a.Canon := by
     rw [hch]; unfold outcCh; exact chalVec_canon H 2 _
   have hinv0 : OutcAccInv Rp w V.bp ct.TA (ct.TH R.ch) ct.TB ct.M rnd 0 {} :=
-    ⟨rfl, fun _ h => by cases h, rfl, fun _ h => by cases h,
-      fun h => by omega, fun h => by omega,
-      fun _ h => by cases h, fun _ h => by cases h, fun _ h => by cases h,
-      fun _ h => by cases h⟩
+    ⟨rfl, fun _ h => (by cases h), rfl, fun _ h => (by cases h),
+      fun h => (by omega), fun h => (by omega),
+      fun _ h => (by cases h), fun _ h => (by cases h), fun _ h => (by cases h),
+      fun _ h => (by cases h)⟩
   have hsl := shdP_outc_slots_ok H tag Rp hOut wDigest bOutRow w TB hTB rnd R.ch hchCan hbad
     8 0 (by norm_num) [] {} R.t3 hinv0
   obtain ⟨-, -, -, -, -, -, hclA, hclH, hclB, hfsOk⟩ := hsl.2 R.seg.core.slots R.recs R.acc R.t4 hslotsP
@@ -1263,7 +1498,7 @@ theorem shdP_outc_arith (H : HIn → Dig) (tag : MTag) (Rp : ClassifyRunPublicP 
     have hmem := List.getElem_mem (l := R.acc.fs ++ R.acc.hostFs) (n := i.val) (by simpa using i.isLt)
     have hget : ((R.acc.fs ++ R.acc.hostFs).map toMF).get i
         = toMF ((R.acc.fs ++ R.acc.hostFs)[i.val]'(by simpa using i.isLt)) := by
-      simp [List.get_eq_getElem]
+      simp only [List.get_eq_getElem, List.getElem_map]
     unfold mTrue wtOf
     rw [hget]
     exact hfsOk _ hmem
@@ -1322,7 +1557,7 @@ theorem shdP_outc_segComplete_of_adm {Hdr Coins : Type} (tag : MTag) (Lq : ℕ)
     rw [hVerdict G x c hx, w.hv_spec]; rfl
   have hct_eq : shdP_outcTables_total tag Rp hOut wDigest bOutRow TBOf rndOf (liftH G) (stOf G x c) x c
       = shdP_outcTables tag Rp wDigest bOutRow (stOf G x c).verdict w (TBOf (liftH G) (stOf G x c) x c) (rndOf c) := by
-    unfold shdP_outcTables_total; exact dif_pos hx
+    unfold shdP_outcTables_total; exact dite_eq_left hx
   rw [hct_eq] at hR ⊢
   revert hR
   rw [hv_eq]

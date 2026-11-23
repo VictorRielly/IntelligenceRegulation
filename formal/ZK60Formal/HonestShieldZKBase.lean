@@ -2,9 +2,8 @@
 D63 lane L68c, part 3b (`HonestShieldZKBase.lean`):
 1. **Conservative Shieldstral T128 R13 ZK budget with Sol's `23:41:55Z` framing/audit reserve (`T = 2^20`)**:
    `shdRunErrRes` (`T = 2^20`, `L = 5,359,616`, `N = 5,359,504`, `pts = 11,767,696`), **`shdRunErrRes_cap_86`**,
-   and **`shdRunErrRes_hzk`**, proving `shdRunErrRes q R ≤ εzkTarget q R` for all `R ≤ 2^86` (22 bits above
-   `ProductionReadyL`'s `2^64` cap) with ample room for all 112 `posTag` calls + 239,706 opening-audit draws
-   even before deduplication.
+   and **`shdRunErrRes_hzk`** (numeric dominance proof `shdRunErrRes q R ≤ εzkTarget q R` for all `R ≤ 2^86`,
+   22 bits above `ProductionReadyL`'s `2^64` cap, superseding `RunShieldOpenShell.shdRunErr`).
 2. **Stage IN-C & Stage OUT-C slot hand-off lemmas (`inc_hhosted`, `outc_hhosted`)**:
    exact stage analogues of `ZKHonestView.w16_hhosted` plugging straight into `ZKHonestView.honest_block_view_law_eq`.
 3. **2-level coupled-boundary view-law combinator (`twoLevel_law_eq`)**:

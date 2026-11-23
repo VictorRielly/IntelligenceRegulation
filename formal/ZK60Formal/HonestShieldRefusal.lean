@@ -81,8 +81,8 @@ def opsP : List Op → TProg Unit
 theorem final_opsP (H : HIn → Dig) : ∀ (ops : List Op) (t : Tr),
     (opsP ops).final H t = (runOps H t ops, ())
   | [], _ => rfl
-  | .absorb _ _ :: rest, t => final_opsP H rest _
-  | .squeeze :: rest, t => final_opsP H rest _
+  | .absorb _ _ :: rest, _ => final_opsP H rest _
+  | .squeeze :: rest, _ => final_opsP H rest _
 
 theorem sep_opsP (key : Option Dig) : ∀ (ops : List Op), TProg.Sep key (opsP ops)
   | [] => trivial
@@ -120,12 +120,24 @@ theorem sep_shdP_hdrProg {Hdr : Type} (tag : MTag) (hw : Hdr → ClsHdrW) (hdr :
     TProg.Sep key (shdP_hdrProg tag hw hdr verdict x epR) :=
   sep_bindP key _ _ ((rootOfP tag 11 _).sep key) (fun _ => sep_opsP key _)
 
+private theorem sqLE_hdr_gen {Hdr : Type} (hw : Hdr → ClsHdrW) (hdr : Hdr) (verdict : ℕ)
+    {r : (HIn → Dig) → Dig} (R : RootProg r) :
+    SqLE 0 (bindP R.p (fun inRoot => opsP (clsHdrOps (hw hdr) inRoot verdict))) := by
+  have h := sqLE_bindP R.p
+    (fun inRoot => opsP (clsHdrOps (hw hdr) inRoot verdict)) 0 0 R.sq
+    (fun inRoot => by
+      have ho := sqLE_opsP (clsHdrOps (hw hdr) inRoot verdict)
+      rw [clsHdrOps_sqN] at ho
+      exact ho)
+  rw [Nat.add_zero] at h
+  exact h
+
 theorem sqLE_shdP_hdrProg {Hdr : Type} (tag : MTag) (hw : Hdr → ClsHdrW) (hdr : Hdr) (verdict : ℕ)
     (x : shieldS0.Tok → ℕ) (epR : EpxSalt 6) :
     SqLE 0 (shdP_hdrProg tag hw hdr verdict x epR) := by
   unfold shdP_hdrProg
-  exact sqLE_mono _ (0 + 0) 0 (sqLE_bindP _ _ 0 0 (rootOfP tag 11 _).sq
-    (fun r => by simpa only [clsHdrOps_sqN] using sqLE_opsP (clsHdrOps (hw hdr) r verdict))) (by norm_num)
+  generalize rootOfP tag 11 (shdP_epTable (Hdr := Hdr) tag x epR) = R
+  exact sqLE_hdr_gen hw hdr verdict R
 
 end HeaderProg
 
@@ -145,28 +157,32 @@ theorem mleAt_update_zero {K : Type} [Field K] {n : ℕ} (f : (Fin n → Bool) �
       = mleAt f (Function.update z i 0)
         + t * (mleAt f (Function.update z i 1) - mleAt f (Function.update z i 0)) := by
   have heq : ∀ (b : Fin n → Bool) (u : K),
-      eqPoly (fun a => (bit (b a) : K)) (Function.update z i u)
+      eqPoly (Function.update z i u) (fun a => (bit (b a) : K))
         = (if b i = true then u else 1 - u)
           * ∏ a ∈ Finset.univ.erase i,
-              ((bit (b a) : K) * z a + (1 - (bit (b a) : K)) * (1 - z a)) := by
+              (z a * (bit (b a) : K) + (1 - z a) * (1 - (bit (b a) : K))) := by
     intro b u
     unfold eqPoly
     rw [← Finset.mul_prod_erase Finset.univ _ (Finset.mem_univ i)]
     congr 1
     · rw [Function.update_self]
-      cases hbi : b i <;> simp [bit]
+      cases hbi : b i
+      · simp only [hbi, bit, Bool.false_eq_true, ↓reduceIte]; ring
+      · simp only [hbi, bit, ↓reduceIte]; ring
     · refine Finset.prod_congr rfl (fun a ha => ?_)
       have hne : a ≠ i := (Finset.mem_erase.mp ha).1
       rw [Function.update_of_ne hne]
   unfold mleAt
   have hlin : ∀ (b : Fin n → Bool),
-      f b * eqPoly (fun a => (bit (b a) : K)) (Function.update z i t)
-      = f b * eqPoly (fun a => (bit (b a) : K)) (Function.update z i 0)
-        + t * (f b * eqPoly (fun a => (bit (b a) : K)) (Function.update z i 1)
-             - f b * eqPoly (fun a => (bit (b a) : K)) (Function.update z i 0)) := by
+      eqPoly (Function.update z i t) (fun a => (bit (b a) : K)) * f b
+      = eqPoly (Function.update z i 0) (fun a => (bit (b a) : K)) * f b
+        + t * (eqPoly (Function.update z i 1) (fun a => (bit (b a) : K)) * f b
+             - eqPoly (Function.update z i 0) (fun a => (bit (b a) : K)) * f b) := by
     intro b
     rw [heq b t, heq b 0, heq b 1]
-    cases hbi : b i <;> simp <;> ring
+    cases hbi : b i
+    · simp only [Bool.false_eq_true, ↓reduceIte]; ring
+    · simp only [↓reduceIte]; ring
   simp_rw [hlin]
   rw [Finset.sum_add_distrib, ← Finset.mul_sum, Finset.sum_sub_distrib]
 
@@ -197,9 +213,9 @@ returning the `j` draws collected so far (`[β, γ, …]`). -/
 def incHeadDrawProg {α : Type} (V : IncV) {rB rA rM : (HIn → Dig) → Dig} (pre : TProg α)
     (RB : RootProg rB) (RA : RootProg rA) (RM : RootProg rM) (j : ℕ) : TProg (List Fp2) :=
   bindP pre (fun _ =>
-    .absorb Block.labRunStage (le64 0)
-      (.absorb Block.labRunBlock V.pub.embDigest.toList
-        (absorbRootP RB Block.labB V.geo.bRows V.geo.bLogN (fun _ =>
+    .absorb labRunStage (le64 0)
+      (.absorb labRunBlock V.pub.embDigest.toList
+        (absorbRootP RB labB V.geo.bRows V.geo.bLogN (fun _ =>
           absorbRootP RA labA V.lay.aRows V.lay.logN (fun _ =>
             bindP RM.p (fun mRoot => .absorb labM mRoot.toList (drawsP j (fun ch => .done ch))))))))
 
@@ -209,20 +225,21 @@ theorem final_incHeadDrawProg {α : Type} (H : HIn → Dig) (V : IncV) {rB rA rM
     (incHeadDrawProg V pre RB RA RM j).final H t = ((T0.challengeFp2Vec H j).2, (T0.challengeFp2Vec H j).1) := by
   unfold incHeadDrawProg
   rw [final_bindP]
-  change (absorbRootP RB Block.labB V.geo.bRows V.geo.bLogN (fun _ =>
+  change (absorbRootP RB labB V.geo.bRows V.geo.bLogN (fun _ =>
     absorbRootP RA labA V.lay.aRows V.lay.logN (fun _ =>
       bindP RM.p (fun mRoot => .absorb labM mRoot.toList (drawsP j (fun ch => .done ch)))))).final H
-      (((pre.final H t).1.absorbU64 H Block.labRunStage 0).absorb H Block.labRunBlock V.pub.embDigest.toList) = _
+      (((pre.final H t).1.absorbU64 H labRunStage 0).absorb H labRunBlock V.pub.embDigest.toList) = _
   rw [final_absorbRootP, final_absorbRootP, final_bindP, RM.final_eq, final_absorb, final_drawsP]
   rfl
 
 theorem sep_incHeadDrawProg {α : Type} (key : Option Dig) (V : IncV) {rB rA rM : (HIn → Dig) → Dig}
     (pre : TProg α) (RB : RootProg rB) (RA : RootProg rA) (RM : RootProg rM) (j : ℕ)
     (hp : TProg.Sep key pre) :
-    TProg.Sep key (incHeadDrawProg V pre RB RA RM j) :=
-  sep_bindP key pre _ hp (fun _ =>
-    sep_absorbRootP key RB _ _ _ _ (fun _ =>
-      sep_absorbRootP key RA _ _ _ _ (fun _ =>
+    TProg.Sep key (incHeadDrawProg V pre RB RA RM j) := by
+  unfold incHeadDrawProg absorbRootP
+  exact sep_bindP key pre _ hp (fun _ =>
+    sep_bindP key RB.p _ (RB.sep key) (fun _ =>
+      sep_bindP key RA.p _ (RA.sep key) (fun _ =>
         sep_bindP key RM.p _ (RM.sep key) (fun _ => sep_drawsP key j _ (fun _ => trivial)))))
 
 theorem sqLE_incHeadDrawProg {α : Type} (V : IncV) {rB rA rM : (HIn → Dig) → Dig}
@@ -233,8 +250,9 @@ theorem sqLE_incHeadDrawProg {α : Type} (V : IncV) {rB rA rM : (HIn → Dig) �
   exact sqLE_bindP pre _ m j hp (fun _ =>
     sqLE_absorbRootP RB _ _ _ j _ (fun _ =>
       sqLE_absorbRootP RA _ _ _ j _ (fun _ => by
-        have h := sqLE_bindP RM.p _ 0 j RM.sq (fun _ =>
-          sqLE_mono _ (j + 0) j (sqLE_drawsP j 0 _ (fun _ => trivial)) (by omega))
+        have h1 := sqLE_drawsP j 0 (fun ch => TProg.done ch) (fun _ => trivial)
+        rw [Nat.add_zero] at h1
+        have h := sqLE_bindP RM.p (fun mRoot => .absorb labM mRoot.toList (drawsP j (fun ch => .done ch))) 0 j RM.sq (fun _ => h1)
         rwa [Nat.zero_add] at h)))
 
 /-- Base offset `v + β²·ctl(v) + γ·TAG_EMB` in `shdP_K` (independent of `α` and `r_emb`). -/
@@ -356,7 +374,7 @@ theorem shdP_incAlphaBad_cover {α Coins : Type} [Fintype Coins] [Nonempty Coins
   obtain ⟨vNat, hvRng, hzEq⟩ := List.mem_map.mp hzMem
   have hvLt : vNat < 131072 := by rw [List.mem_range, hvoc] at hvRng; exact lt_of_lt_of_eq hvRng (by norm_num)
   let v : Fin 131072 := ⟨vNat, hvLt⟩
-  have hvIv : vNat < I.v := by change vNat < Rp.inp.V; omega
+  have hvIv : vNat < I.v := by show vNat < 131072; exact hvLt
   rw [ite_eq_left hvIv] at hzEq
   have hzCan : z.Canon := by rw [← hzEq]; exact Fp2.canon_add _ _
   have halphaCan : (ch.getD 2 Fp2.zero).Canon := Fp2.canon_getD hchCan 2
@@ -374,23 +392,24 @@ theorem shdP_incAlphaBad_cover {α Coins : Type} [Fintype Coins] [Nonempty Coins
     funext j; unfold vecPref; exact ite_eq_left j.isLt
   have hf12 : incTauDiff Rp hV embDigest ch 12 v = 0 := by
     unfold incTauDiff incTauBase
-    rw [hfull, ← hsub0, ← hzEq]
+    dsimp only
+    rw [hfull, hsub0, ← hzEq]
     dsimp only
     rw [Fp2.toK_add shdP_U _ _ (Fp2.canon_add _ _) (Fp2.canon_mulBase _ _),
       Fp2.toK_add shdP_U _ _ (Fp2.canon_add _ _) (by split_ifs <;> [exact Fp2.canon_mul _ _; exact Fp2.canon_zero]),
       Fp2.toK_add shdP_U _ _ (kI_canon _) (Fp2.canon_mul _ _),
       Fp2.toK_mul shdP_U shdP_hU, kI_nat_toK shdP_U v.val (by omega)]
-    have hemb' : ((embFoldL Rp.inp (ch.drop 3)).getD v.val Fp2.zero).toK shdP_U
-        = mleAt (fun c => algebraMap GF shdP_K (shdEpad Rp.inp ⟨v.val, by omega⟩ c))
-            (fun j : Fin 12 => (ch.getD (3 + j.val) Fp2.zero).toK shdP_U) := by
-      simpa only [hdrop_getD] using hemb
-    rw [hemb']
     have hctl : (if I.ctl v.val = true then (ch.getD 0 Fp2.zero).mul (ch.getD 0 Fp2.zero) else Fp2.zero).toK shdP_U
         = if I.ctl v.val = true then (ch.getD 0 Fp2.zero).toK shdP_U * (ch.getD 0 Fp2.zero).toK shdP_U else 0 := by
       split_ifs
       · exact Fp2.toK_mul shdP_U shdP_hU _ _
       · exact Fp2.toK_zero shdP_U
-    rw [hctl]; ring
+    rw [hctl]
+    have hemb' : ((I.embFold (ch.drop 3)).getD v.val Fp2.zero).toK shdP_U
+        = mleAt (fun c => algebraMap GF shdP_K (shdEpad Rp.inp ⟨v.val, by omega⟩ c))
+            (fun j : Fin 12 => (ch.getD (3 + j.val) Fp2.zero).toK shdP_U) := by
+      simpa only [I, shdP_incPub, hdrop_getD] using hemb
+    rw [hemb']; ring
   -- Apply `HonestRunCount.seq_zero` to `k ↦ incTauDiff ... ch k v`!
   have hstep : ∀ k, k < 12 →
       incTauDiff Rp hV embDigest ch (k + 1) v
@@ -409,7 +428,10 @@ theorem shdP_incAlphaBad_cover {α Coins : Type} [Fintype Coins] [Nonempty Coins
     hf0 | ⟨k, hk, _, hsne, hrk⟩
   · -- Site 0 (`α`, draw 2) fires!
     refine ⟨⟨0, by norm_num⟩, ?_⟩
-    rw [shdP_incAlphaStartSite, startSite_fires, final_incHeadDrawProg]
+    unfold shdP_incAlphaStartSite
+    rw [startSite_fires]
+    dsimp only
+    rw [final_incHeadDrawProg]
     dsimp only
     rw [Nat.add_zero]
     have hsq2 : challengeFp2Of (liftH G ⟨(T0.challengeFp2Vec (liftH G) 2).2.key,
@@ -424,13 +446,17 @@ theorem shdP_incAlphaBad_cover {α Coins : Type} [Fintype Coins] [Nonempty Coins
       rw [challengeFp2Vec_getD (liftH G) 2 1 T0 (by norm_num), challengeFp2Vec_getD (liftH G) 15 1 T0 (by norm_num)]
     rw [h0eq, h1eq]
     unfold incTauDiff at hf0
+    dsimp only at hf0
     have hpref0 : vecPref (fun j : Fin 12 => (ch.getD (3 + j.val) Fp2.zero).toK shdP_U) 0 = fun _ => 0 := by
       funext j; simp [vecPref]
     rw [hpref0, sub_eq_zero] at hf0
     exact hf0
   · -- Site `k + 1` (`r_k`, draw `3 + k`) fires!
     refine ⟨⟨k + 1, by omega⟩, ?_⟩
-    rw [shdP_incAlphaStartSite, startSite_fires, final_incHeadDrawProg]
+    unfold shdP_incAlphaStartSite
+    rw [startSite_fires]
+    dsimp only
+    rw [final_incHeadDrawProg]
     dsimp only
     have hidx : 2 + (k + 1) = 3 + k := by omega
     rw [hidx]
@@ -438,7 +464,7 @@ theorem shdP_incAlphaBad_cover {α Coins : Type} [Fintype Coins] [Nonempty Coins
         squeezeMsg (T0.challengeFp2Vec (liftH G) (3 + k)).2.state (T0.challengeFp2Vec (liftH G) (3 + k)).2.counter⟩)
         = ch.getD (3 + k) Fp2.zero := (challengeFp2Vec_getD (liftH G) 15 (3 + k) T0 (by omega)).symm
     rw [hsqk]
-    unfold incAlphaBadSet; rw [dite_eq_right (by omega), Finset.mem_image]
+    unfold incAlphaBadSet; rw [dite_eq_right (by simp), Finset.mem_image]
     refine ⟨v, Finset.mem_univ v, ?_⟩
     -- Prefix agreement: `(T0.challengeFp2Vec (3 + k)).1` agrees with `ch` on all indices `< 3 + k`!
     have hget : ∀ m, m < 3 + k → (T0.challengeFp2Vec (liftH G) (3 + k)).1.getD m Fp2.zero = ch.getD m Fp2.zero := fun m hm => by
@@ -447,15 +473,15 @@ theorem shdP_incAlphaBad_cover {α Coins : Type} [Fintype Coins] [Nonempty Coins
         = vecPref (fun j : Fin 12 => (ch.getD (3 + j.val) Fp2.zero).toK shdP_U) k := by
       funext j; unfold vecPref
       by_cases hj : j.val < k
-      · rw [ite_eq_left hj, ite_eq_left hj, hget (3 + j.val) (by omega)]
+      · rw [ite_eq_left hj, ite_eq_left hj]; dsimp only; rw [hget (3 + j.val) (by omega)]
       · rw [ite_eq_right hj, ite_eq_right hj]
     have hdiff_eq : incTauDiff Rp hV embDigest (T0.challengeFp2Vec (liftH G) (3 + k)).1 k v
         = incTauDiff Rp hV embDigest ch k v := by
-      unfold incTauDiff
+      unfold incTauDiff; dsimp only
       rw [hget 0 (by omega), hget 1 (by omega), hget 2 (by omega), hpref_eq]
     have hslope_eq : incTauSlope Rp hV (T0.challengeFp2Vec (liftH G) (3 + k)).1 k hk v
         = incTauSlope Rp hV ch k hk v := by
-      unfold incTauSlope
+      unfold incTauSlope; dsimp only
       rw [hget 0 (by omega), hpref_eq]
     rw [dite_eq_left hk] at hrk
     change -(incTauDiff Rp hV embDigest (T0.challengeFp2Vec (liftH G) (3 + k)).1 k v)
@@ -496,7 +522,7 @@ theorem shdP_outcAlphaBad_cover (V : OutcV)
   -- Match `outcAlphaSite` at constant `(fun _ => pre c)`, `RA c`, `RM c`
   have hf := (outcAlphaSite_fires Lq hLq V shdP_U shdP_hU (fun _ => pre c) (RA c) (RM c)
     (fun _ => Tr.newKeyed (liftH G) domain key) (fun _ => hs c) (fun _ => hn c _) G c D hA hM).mpr hbad
-  rw [tprogSite_fires] at hf ⊢
+  dsimp only [outcAlphaSite, tprogSite, ProtocolClassify.Site.fires] at hf ⊢
   exact hf
 
 /-- **`startSite` lift of `HonestRun.openSite`** (`Option (Fin n ⊕ Unit)`, `k ∈ {1, gP}`, `δ = 0` PROVED). -/

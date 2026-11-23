@@ -9,8 +9,9 @@ What this file proves (only at most `propext`, `Classical.choice`, `Quot.sound`)
    `classifyP_standin_verdict`, `classifyP_zk_of_model`, `classifyP_zk_refErr`, `classifyP_zk_of_prog_model`,
    `classifyP_zk_of_prog_refErr`, `classifyP_zk_cap110`, `classifyUP_zk_cap110`), PLUS the concrete 28-segment
    Shieldstral T128 R13 ZK budget `shdRunErr` (`colDigest` unprogrammed `.dep`, Merkle `nodeHash` visible, exact
-   28-segment counts `mT = 79`, `qpT = 283822`, `leaves = 5359616`, `nodes = 5359504`, `pts = 11002940`), proved
-   within `εzkTarget q R` for every `R ≤ 2^86` (`shdRunErr_cap_86`, `shdRunErr_hzk` — 22 bits above `2^64`).
+   28-segment counts `mT = 79`, `chain = 283820` [chained transcript calls], `qpT = 283822` [`chain + 2` including
+   initial/final calls], `leaves = 5359616`, `nodes = 5359504`, `pts = 11002940`), proved within `εzkTarget q R` for
+   every `R ≤ 2^86` (`shdRunErr_cap_86`, `shdRunErr_le_target` — 22 bits above `2^64`).
    Note: `shdRunErr` is used by neither top below (`sshC_productionReadyL_epP_openShell` and `_okPre` still take
    `hzk` at `refErr RunK.kinds`, matching `blkEF`).
 2. **Heterogeneous `O.parts` & `O.refuse` bridges (`ZK60.Exec.StageV`)**: `classifyP_parts_of_segs` (splits `O.parts`
@@ -353,7 +354,9 @@ noncomputable def shdRun_ωh : ℝ≥0∞ :=
 noncomputable def shdRun_εc : ℝ≥0∞ :=
   ((11002940 * 11002940 : ℕ) : ℝ≥0∞) * (2⁻¹ : ℝ≥0∞) ^ 256
 
-/-- Total refusing-prover ZK error function at the actual 28-segment Shieldstral T128 R13 counts. -/
+/-- Total refusing-prover ZK error function at the nominal 28-segment Shieldstral T128 R13 counts.
+Superseded for whole-run ZK assembly by `HonestShieldZKBase.shdRunErrRes` (`T = 2^20` reserve,
+which dominates `shdRunErr` pointwise and directly meets `εzkTarget` via `shdRunErrRes_hzk`). -/
 noncomputable def shdRunErr (q R : ℕ) : ℝ≥0∞ :=
   ∑ j ∈ range R, wStep shdRun_δp shdRun_ωp shdRun_δh shdRun_ωh shdRun_εc q R j
 
@@ -447,8 +450,9 @@ theorem shdRunErr_cap_86 (q R : ℕ) (hR : R ≤ 2 ^ 86) : shdRunErr q R ≤ εz
       _ = (2 : ℝ≥0∞) ^ 1 * (2⁻¹ : ℝ≥0∞) ^ (1 + 120) := by ring
       _ = (2⁻¹ : ℝ≥0∞) ^ 120 := two_pow_mul_inv_pow 1 120
 
-/-- Numeric `hzk` discharge for `shdRunErr` at `ProductionReadyL`'s `q, R' ≤ 2^64` range. -/
-theorem shdRunErr_hzk (q R' : ℕ) (_hq : q ≤ 2 ^ 64) (hR' : R' ≤ 2 ^ 64) :
+/-- Arithmetic inequality `shdRunErr q R' ≤ εzkTarget q R'` on `ProductionReadyL`'s `q, R' ≤ 2^64` range
+(this proves only the numeric budget bound, not `O.zk` itself). -/
+theorem shdRunErr_le_target (q R' : ℕ) (_hq : q ≤ 2 ^ 64) (hR' : R' ≤ 2 ^ 64) :
     shdRunErr q R' ≤ εzkTarget q R' :=
   shdRunErr_cap_86 q R' (hR'.trans (by norm_num))
 
@@ -456,7 +460,7 @@ end ShdRunBudget
 
 end ZK60.ZKHonest
 
-/-! ## 2. Non-vacuous heterogeneous `O.parts` and `O.refuse` bridges -/
+/-! ## 2. Heterogeneous `O.parts` and `O.refuse` bridges -/
 
 namespace ZK60.Exec.StageV
 
@@ -466,9 +470,9 @@ open ZK60.Exec.Block (BlockParams SegGeom Segment)
 
 variable {Hdr Coins : Type} {S : ZK60.Block.BlockShape} {Salt : Type}
 
-/-- **Non-vacuous `O.parts` decomposition for `ClassifyRunPublicP`**: splits
+/-- **`O.parts` decomposition for `ClassifyRunPublicP`**: splits
 `List.Forall₂ (SegComplete ...) (P.parts V.L) V.parts` cleanly into stage IN-C, `V.L` blocks, and stage OUT-C
-without invoking L25/L29's vacuous unbounded-degree `IncOK`/`D12aBlockOK`/`OutcOK`. -/
+for transcript-aware `P : RunP`. -/
 theorem classifyP_parts_of_segs (R : ClassifyRunPublicP S) (Lq : ℕ) (V : RunV Hdr)
     (P : RunP Hdr (S.Tok → ℕ) Coins) (Cin : PlaneCommit (S.Tok → ℕ) (ClsStmt Hdr) Salt)
     (h64 : 64 ≤ Lq) (hr : 8 * Cin.R ≤ Lq) (base : Coins → Salt)
@@ -601,9 +605,9 @@ theorem shdP_refusal_total_le :
   ZK60.HonestRun.shield_refusal_total_le_inc shdP_siteCount (2 ^ 17) (2 ^ 20) 12
     le_rfl le_rfl le_rfl le_rfl le_rfl le_rfl le_rfl le_rfl le_rfl le_rfl
 
-/-- **Non-vacuous `ClassifyOpenP` shell for Shieldstral T128 R13** (parametric in `εzk`, `embFold`, `Pk`, and
+/-- **Heterogeneous `ClassifyOpenP` shell for Shieldstral T128 R13** (parametric in `εzk`, `embFold`, `Pk`, and
 `P : RunP`): discharges `width`, `shapes`, `blocks`, `commit`, and `counts`'s global sum bounds, and reduces `refuse`
-to `hcover`. -/
+to `hcover` (leaving `hparts`, `hk`, `hδ`, `hcover`, `hzk`, and `hpol` as explicit premises). -/
 theorem shdP_classifyOpenP_shell {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins] [Inhabited Coins]
     (tag : MTag) (Lq : ℕ) (hL20 : 2 ^ 20 ≤ Lq) (key : Option Dig) (domain : List UInt8) (hw : Hdr → ClsHdrW)
     (preA preB : Hdr → Except String Unit) (Rp : ClassifyRunPublicP shieldS0) (hR : ShieldRun Rp)
