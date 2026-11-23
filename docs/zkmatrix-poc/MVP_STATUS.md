@@ -801,6 +801,21 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 23, 13:37 UTC, speed [timing MEASURED by Antigravity, the 8B gaps recomputed by Claude;
+    code READ by a Claude reviewer, nothing built]: a new candidate, a faster sumcheck chain on the
+    GPU, passes its 8B test and its code review with two faults to fix first.** Antigravity found
+    that each block runs 555 small GPU jobs one after another for the sumcheck rounds, and that the
+    job which hashes each round into the transcript costs 123 microseconds, 141 times a block. Its
+    rewrite (a switch, off by default, on its own branch) drops 127 of those jobs and speeds up the
+    hashing job. On the 8B stream the steady gap is 2.2% shorter (5 of 6 passes). In its bench of
+    one block alone the chain is 14% faster, and with six queues competing 25% faster, which is
+    why it may matter more at six lanes than the last bundle did; that is not measured yet. The
+    review found the transcript hashing byte for byte the same as before, and the host re-checks
+    every round's challenge anyway. It also found two settings (a thread-group size that is not a
+    multiple of 32, and two tail budgets set in the unusual order) under which the new path would
+    compute wrong sums and produce a proof the verifier rejects; both must be fixed before use.
+    The app-profile measurement is defined and waits for that fix. Review:
+    `results/zk60_claude_review_20261116/SC_CHAIN_READ_20261123.md`.
     **Nov 23, 12:27 UTC, speed on the 8B stream [MEASURED by Antigravity; gaps recomputed by
     Claude from the raw log]: the bundle's two switches together shorten the 8B stream's steady
     gap by 3.4% (6 of 6 passes, 3.276 s to 3.162 s).** So the same code that gives about 1% at the
