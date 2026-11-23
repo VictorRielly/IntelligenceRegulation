@@ -552,27 +552,36 @@ pub(crate) fn set_classify_host_fast_for_test(v: Option<bool>) -> Option<bool> {
     }
 }
 
+/// TEST BUILDS ONLY: lock shared by tests toggling `A26_EMB_TEST` or `CLASSIFY_HOST_FAST_TEST`.
+#[cfg(test)]
+pub(crate) fn classify_emb_test_lock() -> std::sync::MutexGuard<'static, ()> {
+    static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    LOCK.lock().unwrap_or_else(|e| e.into_inner())
+}
+
 /// TEST BUILDS ONLY: serializes tests that toggle `HL_CLASSIFY_HOST_FAST` and check hit counts,
 /// restoring the previous override on drop.
 #[cfg(test)]
 pub(crate) struct ClassifyHostFastGuard {
     prev: Option<bool>,
+    prev_emb: u8,
     _lock: std::sync::MutexGuard<'static, ()>,
 }
 
 #[cfg(test)]
 impl ClassifyHostFastGuard {
     pub(crate) fn set(on: bool) -> Self {
-        static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
-        let lock = LOCK.lock().unwrap_or_else(|e| e.into_inner());
+        let lock = classify_emb_test_lock();
         let prev = set_classify_host_fast_for_test(Some(on));
-        Self { prev, _lock: lock }
+        let prev_emb = A26_EMB_TEST.swap(if on { 2 } else { 0 }, std::sync::atomic::Ordering::SeqCst);
+        Self { prev, prev_emb, _lock: lock }
     }
 }
 
 #[cfg(test)]
 impl Drop for ClassifyHostFastGuard {
     fn drop(&mut self) {
+        A26_EMB_TEST.store(self.prev_emb, std::sync::atomic::Ordering::SeqCst);
         let _ = set_classify_host_fast_for_test(self.prev);
     }
 }
@@ -597,7 +606,9 @@ pub(crate) fn classify_host_fast_fallbacks_snapshot() -> [u64; 5] {
 
 /// Condition (a) diagnostic summary gate (`HL_PB_TIMING=1` or `HL_METAL_TIMING=1`).
 pub(crate) fn classify_host_fast_timing_on() -> bool {
-    super::super::timing::enabled() || std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false)
+    static METAL_TIMING: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    super::super::timing::enabled()
+        || *METAL_TIMING.get_or_init(|| std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false))
 }
 
 #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]

@@ -346,6 +346,12 @@ impl SegmentDispatcher<'_> {
     }
 }
 
+impl Drop for SegmentDispatcher<'_> {
+    fn drop(&mut self) {
+        self.abort_and_close();
+    }
+}
+
 /// **THE CLASSIFIER RUN PROVER.** One transcript, `L + 2` segments handed to
 /// `sink` (UNPUBLISHED until this returns Ok), block `k` at its own stage.
 ///

@@ -327,6 +327,7 @@ fn a26_the_split_limb_embedding_fold_equals_the_field_fold() {
         x
     };
     let pm1 = Fp::ZERO.sub(Fp::ONE);
+    let _emb_lock = super::classify::classify_emb_test_lock();
     for (v, d) in [(5usize, 3usize), (7, 64), (33, 100), (9, 3072)] {
         let emb: Vec<i16> = (0..v * d).map(|i| match i % 11 { 0 => i16::MIN, 1 => i16::MAX, 2 => 0, _ => (next() >> 20) as i16 }).collect();
         let w: Vec<i16> = (0..d).map(|_| (next() >> 40) as i16).collect();
