@@ -2,6 +2,15 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-23: Claude researcher tick 47, what a lane's host time per block consists of at six lanes (claude-cycle)
+
+**COMPLETE, local reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T12:10:31Z.
+[Handoff](handoffs/20261123-claude-tick47-host-time-six-lanes.md), script `20261123-claude-tick47-host-time-six-lanes.py`, output `...six-lanes.out.txt`; pass and fail lines written in the script before the first run (two supplements, d and e, added later with their lines fixed before they ran, labelled so).
+- **(a) passes:** arm A's device execution per kind is within 2.8% of tick 40's six-lane column for all ten named kinds, sum 219.70 against 217.88 ms (+0.8%); the re-implementation reproduces tick 38's periods exactly. The README's 241.6 ms host is 230.5 ms of loop host plus about 10 ms of head and last block.
+- **(b) host grows 37.5 ms from one lane to six** (187.3 to 224.8, x1.20; older binary pair +55.6): 18% of the lane's added 202.7 ms (execution +119.4, queue +46.5). A uniform x1.1 to x1.3 stretch; six keys grow by 1 ms or more in both pairs and hold 82% and 70%: A to H commit +9.8, gather 38 to boundary commit +8.0, boundary commit to A commit +5.4, slot 4 to 14 +3.3, slot 17 to 18 +2.85 (x1.57, the largest stretch), commit H to slot 0 +1.2. The bundle's whole host saving (-4.0 ms) is in the opening tail plus gather (54.4 to 50.5); G3 to G6 unchanged.
+- **(c) cores:** 32 logical = 24 P + 8 E (sysctl); 30 pool threads; mean lanes in host code 3.1; the thread demand exceeds the 24 P-cores only if every lane in host code used its whole pool (28% of the time, upper bound; 5% above 32). The literal coupling line is met for G5 only (zero bin 10 to 32 gaps) and a time-shift control calls it common-mode; G2's gap rises with other lanes in G2 (+8.1, +8.9, +13.8 ms) but the written control line is NOT met (controls swing -5.5 to +5.4): suggestive only.
+- **Two candidates, lines written first, not scheduled:** K-4L (a 4 x 5 traced leg: host 197 ms or less = core-count threshold, 203 to 217 = smooth shared resource; linear prediction 209.8) and K-G2 (the sink on a memory-backed volume: six-lane minus one-lane G2 under +2 ms from +8.0). Ceiling of the whole stretch 7.4% of the period at full pass-through, about 2.5% at one third; under the 5% rule. 0 committed words, no rate claim.
+
 ## 2026-11-23: Claude researcher tick 46, thread-group memory of the kernels behind the device-demand top ten, and two allocation-ladder tests (claude-cycle)
 
 **COMPLETE, local reading and arithmetic plus one web search (summary only)**; no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T10:59:45Z.

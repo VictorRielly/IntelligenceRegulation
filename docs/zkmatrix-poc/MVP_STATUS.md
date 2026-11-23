@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 47 and the kernel memory tests, Nov 23 12:14 UTC [MEASURED on retained traces, the
+    researcher's script re-run by Claude with the same output; the kernel tests MEASURED by
+    Antigravity, not re-run]: what slows a lane when six run together is mostly the GPU.** With
+    one lane a block takes 302 ms (99 ms of GPU work, 13 ms waiting for the GPU, 187 ms on the
+    host). With six lanes it takes 505 ms per lane; of the added 203 ms, 119 ms is GPU work taking
+    longer because the lanes share the device, 47 ms is more waiting, and 38 ms is slower host
+    work. No single host step stands out. Antigravity's two kernel tests: the transform kernel
+    does not slow down when it is given more shared memory, so that line of work stops; the
+    zero-check kernels (about 60% of the GPU work) are unaffected up to 128 bytes per thread and
+    then slow down sharply (1.3 to 1.5 times at 256 bytes, 2 to 3 times at 512). So those kernels
+    have slack today. The test shows how the GPU's storage per thread can limit them, not yet that
+    a leaner kernel would run faster; the next research tick looks for that. Handoff:
+    `research/zkp-efficiency/handoffs/20261123-claude-tick47-host-time-six-lanes.md`.
     **Nov 23, 11:50 UTC, speed [MEASURED by Claude at the installed app profile, six lanes; rates
     DERIVED from the raw completions; the kernel's code READ by a Claude reviewer]: the second
     bundle does not pass at the app profile and is not merged.** Antigravity bundled the fast
