@@ -4184,6 +4184,524 @@ fn sparse_fold_w16r2_rung_golden() {
     }
 }
 
+/// **[K9] Fast sumcheck dependent chain (`HL_METAL_SC_CHAIN_FAST=1`) W16R2 rung golden parity:**
+/// exercises `sc0`, `sc1`, and `frs1+sf1+sc1` in both `shared` and `thread` queue modes,
+/// verifying bit-for-bit equality to CPU and `W16R2_RUNG_GOLDEN` (`96e4f0b6`), exact
+/// `SC_CHAIN_FAST_BATCHES` anti-vacuity deltas (`== 0` on `sc0`, `> 0` on `sc1`),
+/// with a drop guard so panics never poison global hooks.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "K9: toggles HL_GPU, Metal queues, sc-chain-fast, sparse-fold, and fused-rs in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn sc_chain_fast_w16r2_rung_golden() {
+    struct Reset {
+        prev_sc: Option<bool>,
+        prev_sf: Option<bool>,
+        prev_frs: Option<bool>,
+        prev_q: bool,
+        prev_gpu: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::gpu::metal_set_sc_chain_fast_for_test(self.prev_sc);
+            crate::gpu::metal_set_sparse_fold_for_test(self.prev_sf);
+            crate::gpu::set_fused_rs_for_test(self.prev_frs);
+            crate::gpu::metal_set_queues_for_test(self.prev_q);
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_sc: crate::gpu::metal_set_sc_chain_fast_for_test(None),
+        prev_sf: crate::gpu::metal_set_sparse_fold_for_test(None),
+        prev_frs: crate::gpu::set_fused_rs_for_test(None),
+        prev_q: crate::gpu::metal_set_queues_for_test(false),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+    };
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::remove_var("HL_GPU");
+    let cpu = seeded_digest(&sh, &blk, copy(&w));
+    assert!(cpu.starts_with(W16R2_RUNG_GOLDEN), "the W16R2 rung's CPU digest moved: {cpu}");
+
+    std::env::set_var("HL_GPU", "1");
+    for (sc_on, frs_on, sf_on, arm) in [
+        (false, false, false, "sc0"),
+        (true, false, false, "sc1"),
+        (true, true, true, "frs1+sf1+sc1"),
+    ] {
+        crate::gpu::metal_set_sc_chain_fast_for_test(Some(sc_on));
+        crate::gpu::set_fused_rs_for_test(Some(frs_on));
+        crate::gpu::metal_set_sparse_fold_for_test(Some(sf_on));
+        for (per_thread, qname) in [(false, "shared"), (true, "thread")] {
+            crate::gpu::metal_set_queues_for_test(per_thread);
+            let sc_before = crate::gpu::metal_sc_chain_fast_batches_for_test();
+            let fb_before = crate::gpu::metal_sc_chain_fast_fallbacks_for_test();
+            let d = seeded_digest(&sh, &blk, copy(&w));
+            let sc_delta = crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_before;
+            let fb_delta = crate::gpu::metal_sc_chain_fast_fallbacks_for_test() - fb_before;
+            assert_eq!(d, cpu, "Metal W16R2 rung digest under {arm} ({qname}) differs from CPU");
+            assert!(d.starts_with(W16R2_RUNG_GOLDEN), "Metal W16R2 rung digest {arm} ({qname}) != golden: {d}");
+            assert_eq!(fb_delta, 0, "{arm} ({qname}): unexpected fast sumcheck chain fallbacks ({fb_delta})");
+            if sc_on {
+                assert!(sc_delta > 0, "{arm} ({qname}): expected fast sumcheck chain batches > 0");
+            } else {
+                assert_eq!(sc_delta, 0, "{arm} ({qname}): sc0 must not dispatch fast sumcheck chain");
+            }
+            eprintln!("K9-RUNG {} arm={arm} queues={qname}: digest {} (golden); fast_sc_batches={sc_delta} fallbacks={fb_delta}", sh.name, &d[..8]);
+        }
+    }
+}
+
+/// **[K9 M1] Non-multiple-of-32 `HL_METAL_SC_TG=48` with `HL_METAL_SC_CHAIN_FAST=1`**
+/// falls back cleanly (counted and logged once) to the standard chain and still matches
+/// CPU and `W16R2_RUNG_GOLDEN` (`96e4f0b6`).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "K9 M1: toggles HL_GPU, HL_METAL_SC_TG=48, and sc-chain-fast in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn sc_chain_fast_m1_non_multiple_of_32_tg_falls_back_to_golden() {
+    struct Reset {
+        prev_sc: Option<bool>,
+        prev_tg: Option<String>,
+        prev_gpu: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::gpu::metal_set_sc_chain_fast_for_test(self.prev_sc);
+            match &self.prev_tg {
+                Some(v) => std::env::set_var("HL_METAL_SC_TG", v),
+                None => std::env::remove_var("HL_METAL_SC_TG"),
+            }
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_sc: crate::gpu::metal_set_sc_chain_fast_for_test(None),
+        prev_tg: std::env::var("HL_METAL_SC_TG").ok(),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+    };
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::set_var("HL_GPU", "1");
+    std::env::set_var("HL_METAL_SC_TG", "48");
+    crate::gpu::metal_set_sc_chain_fast_for_test(Some(true));
+    let sc_before = crate::gpu::metal_sc_chain_fast_batches_for_test();
+    let fb_before = crate::gpu::metal_sc_chain_fast_fallbacks_for_test();
+    let d = seeded_digest(&sh, &blk, copy(&w));
+    let sc_delta = crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_before;
+    let fb_delta = crate::gpu::metal_sc_chain_fast_fallbacks_for_test() - fb_before;
+    assert!(d.starts_with(W16R2_RUNG_GOLDEN), "M1 HL_METAL_SC_TG=48 digest != golden: {d}");
+    assert_eq!(sc_delta, 0, "M1 HL_METAL_SC_TG=48 must fall back to standard chain, got {sc_delta} fast batches");
+    assert!(fb_delta > 0, "M1 HL_METAL_SC_TG=48 must count fallbacks, got 0");
+    eprintln!("K9-M1 HL_METAL_SC_TG=48: digest {} (golden); fast_sc_batches={sc_delta} fallbacks={fb_delta}", &d[..8]);
+}
+
+/// **[K9 M2] Reversed tail budgets (`HL_METAL_TAIL_BUDGET_US=0`, `HL_METAL_BATCH_TAIL_US=1000`)**
+/// with `HL_METAL_SC_CHAIN_FAST=1`: round `nd` runs on the device against materialized `xtabs`
+/// folded at `j == nd` by `k_fold_tables_dev3_xy`, matching `W16R2_RUNG_GOLDEN` (`96e4f0b6`).
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "K9 M2: run in a fresh process with HL_GPU=1 HL_GPU_REQUIRED=1 HL_METAL_TAIL_BUDGET_US=0 HL_METAL_BATCH_TAIL_US=1000 HL_METAL_SC_CHAIN_FAST=1"]
+fn sc_chain_fast_m2_reversed_tail_budgets_matches_golden() {
+    assert_eq!(
+        std::env::var("HL_METAL_TAIL_BUDGET_US").as_deref(),
+        Ok("0"),
+        "run this test with HL_METAL_TAIL_BUDGET_US=0"
+    );
+    assert_eq!(
+        std::env::var("HL_METAL_BATCH_TAIL_US").as_deref(),
+        Ok("1000"),
+        "run this test with HL_METAL_BATCH_TAIL_US=1000"
+    );
+    assert!(crate::gpu::metal_sc_chain_fast_for_test(), "run this test with HL_METAL_SC_CHAIN_FAST=1");
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    let sc_before = crate::gpu::metal_sc_chain_fast_batches_for_test();
+    let fb_before = crate::gpu::metal_sc_chain_fast_fallbacks_for_test();
+    let d = seeded_digest(&sh, &blk, copy(&w));
+    let sc_delta = crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_before;
+    let fb_delta = crate::gpu::metal_sc_chain_fast_fallbacks_for_test() - fb_before;
+    assert!(d.starts_with(W16R2_RUNG_GOLDEN), "M2 reversed tail budgets digest != golden: {d}");
+    assert!(sc_delta > 0, "M2 expected fast_sc_batches > 0");
+    assert_eq!(fb_delta, 0, "M2 unexpected fallbacks: {fb_delta}");
+    eprintln!("K9-M2 reversed budgets (tail=0, batch=1000): digest {} (golden); fast_sc_batches={sc_delta} fallbacks={fb_delta}", &d[..8]);
+}
+
+/// **[K9 M3] Full proof-byte identity (`sc0` vs `sc1`) across all prover call paths:**
+/// (1) single-block `prove_inner_at` (`Shape::rung_g`),
+/// (2) multi-block `prove_run_with_forks` + fork `prove_core` (`W16R2_RUNG_H24`, `L = 2`),
+/// (3) classifier `stage_in_c` + interior blocks + `stage_out_c` (`Shape::rung_tc`, `L = 2`),
+/// verifying full wire bytes + transcript state/counter match bit-for-bit, verifier acceptance,
+/// and `SC_CHAIN_FAST_BATCHES > 0` with `0` fallbacks.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "K9 M3: toggles HL_GPU and sc-chain-fast in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn sc_chain_fast_all_call_sites_byte_identical() {
+    use super::boundary;
+    use super::token_io::{self as tio, classify, classify_run, classify_tied, run::VerifierPolicy, stage_in_c, stage_out_c};
+
+    struct Reset {
+        prev_sc: Option<bool>,
+        prev_gpu: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::gpu::metal_set_sc_chain_fast_for_test(self.prev_sc);
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_sc: crate::gpu::metal_set_sc_chain_fast_for_test(Some(false)),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+    };
+    std::env::set_var("HL_GPU", "1");
+
+    let pos_tag = |tr: &Transcript| -> [u8; 32] {
+        let mut c = Transcript::clone_state(tr);
+        let v = c.challenge_fp2_vec(2);
+        let mut out = [0u8; 32];
+        out[..16].copy_from_slice(&v[0].to_bytes());
+        out[16..].copy_from_slice(&v[1].to_bytes());
+        out
+    };
+
+    // ---- 1. Single-block prove_core / full wire Receipt (Shape::rung_g) ----
+    {
+        let sh = Shape::rung_g();
+        let (public, ff, input) = super::grow_tests::tame_case(&sh);
+        let wit = super::witness::build_shaped(&sh, &public, &ff, &input).expect("rung_g witness");
+        let ids = Ids::new(&sh).expect("rung_g ids");
+        let plane = |p: usize| -> Vec<i16> {
+            wit.planes[p].iter().map(|v| i16::try_from(*v).expect("endpoint word")).collect()
+        };
+        let (pin, pout) = (plane(ids.at(A_X)), plane(ids.at(A_X2)));
+        let blk = BlockPublic::new(public, ff);
+        let lay = Layout::for_shape(&sh).expect("rung_g layout");
+        let ntt = NttTables::new(protocol::ntt_log_at(&sh));
+        let (exp_eq, owners_eq) = prepare_endpoints(
+            IoSpec::new_shaped(&sh, [0x61; 32], 0, 0).expect("rung_g IoSpec"),
+            &pin,
+            &pout,
+        )
+        .expect("rung_g prepare_endpoints");
+        let [ein, eout] = protocol::check_endpoints(&sh, &exp_eq, owners_eq).expect("check_endpoints");
+
+        let run_single = |sc_on: bool| -> (Vec<u8>, [u8; 32], u64, u64, u64) {
+            crate::gpu::metal_set_sc_chain_fast_for_test(Some(sc_on));
+            let sc_b = crate::gpu::metal_sc_chain_fast_batches_for_test();
+            let fb_b = crate::gpu::metal_sc_chain_fast_fallbacks_for_test();
+            let mut rng = ZkRng::new(0x5C01, b"k9-m3-single");
+            let mut tr = protocol::transcript(&blk, &exp_eq, &lay);
+            let binding = tr.state();
+            let mut ph = super::timing::Phases::start();
+            let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+            let core = protocol::prove_core(
+                &sh,
+                &lay,
+                &blk,
+                copy(&wit),
+                [ein.data.as_slice(), eout.data.as_slice()],
+                &ntt,
+                &mut rng,
+                &mut tr,
+                &mut ph,
+                &mut phases,
+                &mut tick,
+            )
+            .expect("rung_g prove_core");
+            let [ic, oc] = core.io_claims;
+            protocol::check_endpoint_opening(&ic, &sh, &tr).expect("check IN");
+            let in_open = crate::pcs::open_zk(&ein, &ic, &mut tr);
+            protocol::check_endpoint_opening(&oc, &sh, &tr).expect("check OUT");
+            let out_open = crate::pcs::open_zk(&eout, &oc, &mut tr);
+            let receipt = Receipt {
+                a_root: core.a_root,
+                h_root: core.h_root,
+                mask_root: core.mask_root,
+                slots: core.slots,
+                mask_open: core.mask_open,
+                a_open: core.a_open,
+                h_open: core.h_open,
+                io_open: [in_open, out_open],
+            };
+            let bytes = wire::encode(&receipt, &binding, &lay).expect("wire::encode rung_g");
+            protocol::verify_inner_at(&sh, &blk, &exp_eq, &receipt).expect("verify_inner_at rung_g");
+            (
+                bytes,
+                tr.state(),
+                tr.counter(),
+                crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_b,
+                crate::gpu::metal_sc_chain_fast_fallbacks_for_test() - fb_b,
+            )
+        };
+        let (b0, s0, c0, sc0, fb0) = run_single(false);
+        let (b1, s1, c1, sc1, fb1) = run_single(true);
+        assert_eq!((sc0, fb0), (0, 0), "single sc0 must not use fast chain");
+        assert!(sc1 > 0 && fb1 == 0, "single sc1 expected fast batches > 0 and 0 fallbacks, got ({sc1}, {fb1})");
+        assert_eq!(b1, b0, "single-block full wire Receipt bytes differ (sc1 vs sc0)");
+        assert_eq!((s1, c1), (s0, c0), "single-block transcript state/counter differ (sc1 vs sc0)");
+        drop((ein, eout));
+        eprintln!("K9-M3 [single rung_g]: sc0 == sc1 ({} B, fast_sc_batches={sc1}, fallbacks=0)", b1.len());
+    }
+
+    // ---- 2. Multi-block run_fork (L = 2, W16R2_RUNG_H24) live prove+verify + seeded fork bytes ----
+    {
+        let rr2 = RungRun::new(shape::W16R2_RUNG_H24, 2);
+        let (st_live, owners_live) = rr2.statement(0x62);
+        let mut src_live = rr2.chain();
+        let blocks_live = rr2.blocks();
+        let fr_live = ForkRun::new(&st_live, D55OptIn::unreviewed_prototype()).expect("ForkRun");
+        crate::gpu::metal_set_sc_chain_fast_for_test(Some(true));
+        let sc_f = crate::gpu::metal_sc_chain_fast_batches_for_test();
+        let fb_f = crate::gpu::metal_sc_chain_fast_fallbacks_for_test();
+        let (rc_live, _) = super::run::fork::prove_run_with_forks(&fr_live, &blocks_live, &mut src_live, owners_live, 2)
+            .expect("prove_run_with_forks sc1");
+        let sc_fd = crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_f;
+        let fb_fd = crate::gpu::metal_sc_chain_fast_fallbacks_for_test() - fb_f;
+        assert!(sc_fd > 0 && fb_fd == 0, "run_fork L=2 sc1 expected fast batches > 0 and 0 fallbacks, got ({sc_fd}, {fb_fd})");
+        super::run::fork::verify_run_with_forks(&fr_live, &blocks_live, &rc_live, 2).expect("verify_run_with_forks sc1");
+        eprintln!("K9-M3 [run_fork W16R2 L=2]: live verified (fast_sc_batches={sc_fd}, fallbacks=0)");
+    }
+
+    // ---- 3. Full classifier run: stage_in_c + interior blocks + stage_out_c (Shape::rung_tc, L = 2) ----
+    {
+        let sh_c = Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).expect("rung_tc");
+        let l_c = 2usize;
+        let (w0_c, _) = super::trained_calib_tests::trained_dense_words(&sh_c, super::trained_calib_tests::TRAINED_BANDS);
+        let c_blocks: Vec<BlockPublic> = (0..l_c)
+            .map(|k| {
+                let mut w = w0_c.clone();
+                for (i, m) in w.iter_mut().enumerate() {
+                    let len = m.len();
+                    m.rotate_left((k * (7 + i)) % len);
+                }
+                let (p, f) = super::dense_tests::statement_of_words(&sh_c, &w);
+                BlockPublic::new(p, f)
+            })
+            .collect();
+        let c_recs: Vec<LayerRecord> = c_blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
+        let c_src = ModelSource {
+            kind: SourceKind::PublicSyntheticRecipe,
+            repo: "hashline/token-io-r1/synthetic".into(),
+            revision: "token-io-r1".into(),
+            weights_sha256: [0; 32],
+            config_sha256: [0; 32],
+            checkpoint_parameters: 0,
+            checkpoint_layers: l_c as u32,
+        };
+        let mut c_prov = Provenance::recipe("token-io-r1/synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
+        c_prov.rope_theta = shape::trained_rope_theta(sh_c.profile).expect("trained_rope_theta");
+        let c_cal = IntegerCalibration::as_the_code_proves(&sh_c, &c_prov);
+        let c_model = TrainedModelStatement::new(&sh_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, c_src.clone(), c_cal.clone(), c_recs.clone())
+            .or_else(|_| TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(&sh_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, c_src, c_cal, c_recs))
+            .expect("classifier model statement");
+        let lcg = |s: &mut u64| -> u64 {
+            *s = s.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1_442_695_040_888_963_407);
+            *s >> 33
+        };
+        let (v_c, d_c) = (300usize, sh_c.width);
+        let mut s_emb = 0x636c_6173u64;
+        let emb_c: Vec<i16> = (0..v_c * d_c).map(|_| (lcg(&mut s_emb) % 12_001) as i16 - 6_000).collect();
+        let mut s_w = 0x6d61_7267u64;
+        let w_c: Vec<i16> = (0..d_c)
+            .map(|_| (lcg(&mut s_w) % 65_535) as i16 - 32_767)
+            .map(|x| if x == i16::MIN { x + 1 } else { x })
+            .collect();
+        let c_tables = classify::ClassifierTables::new(v_c, d_c, emb_c, w_c).expect("ClassifierTables");
+        let c_norm = tio::FinalNorm { g0: 127, cn: 2048, tn: 11, ceps: 33_554_467 };
+        let c_policy = classify::policy_rung_dev();
+        let c_bound = classify_tied::BoundClassifierTables::synthetic_for_relation_tests(
+            c_tables.clone(),
+            1,
+            c_norm,
+            &sh_c,
+            super::run::RUN_PROFILE_CLASSIFY_RUNG_TC,
+            &c_model,
+            &c_policy,
+        )
+        .expect("BoundClassifierTables");
+        let n_content = sh_c.tokens - c_policy.prefix.len() - c_policy.suffix.len();
+        let mut s_tok = 0x1000u64;
+        let content_ids: Vec<u64> = (0..n_content)
+            .map(|_| c_policy.num_special + lcg(&mut s_tok) % (c_policy.v as u64 - c_policy.num_special))
+            .collect();
+        let cp = classify::ClassifierProfile::new(&sh_c, &c_tables, 1, c_norm, &c_policy, n_content, tio::Tier::R1_MVP).expect("ClassifierProfile");
+        let full_tokens = classify::item_tokens(&c_policy, &content_ids);
+        let honest_c = classify_run::honest_classify(&vec![sh_c.clone(); l_c], &cp, &c_tables, &c_blocks, &full_tokens).expect("honest_classify");
+        let c_ctx = *blake3::hash(b"k9 m3: classifier run context").as_bytes();
+        let ep_spec = classify::input_endpoint_spec(&sh_c, c_ctx, &cp).expect("input_endpoint_spec");
+        let c_tag = sh_c.hash_tag();
+        let c_ntt_ep = NttTables::new(ep_spec.enc_log());
+        let make_ep = || -> crate::pcs::CommittedZk {
+            let mut rng = ZkRng::new(0xE1C1, b"k9-m3-ep");
+            let params = ep_spec.params();
+            let n = params.cols();
+            let first_mask = ep_spec.data_rows();
+            let mut data = vec![Fp::ZERO; ep_spec.commitment_rows() * n];
+            data[..honest_c.in_plane.len()].copy_from_slice(&honest_c.in_plane);
+            for x in &mut data[first_mask * n..] {
+                *x = rng.fp();
+            }
+            let mut cm = crate::pcs::commit_zk_owned_tagged(&params, data, &c_ntt_ep, &ZkOpts::standard(&params), &mut rng, &c_tag);
+            cm.mask_rows = vec![first_mask, first_mask + 1];
+            cm.prox_mask_row = Some(first_mask + 2);
+            cm
+        };
+        let ep_root = make_ep().commitment().root;
+        let c_st = classify::ClassifyRunStatement::new(
+            RunShape::new(sh_c.clone(), l_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC).expect("RunShape"),
+            c_ctx,
+            c_blocks.iter().map(|b| b.digest()).collect(),
+            &c_model,
+            &c_bound,
+            &c_policy,
+            n_content,
+            tio::Tier::R1_MVP,
+            ep_root,
+            honest_c.out_values.verdict,
+        )
+        .expect("ClassifyRunStatement");
+        let c_ntt = NttTables::new(c_st.ntt_log());
+
+        let run_classify = |sc_on: bool| -> (Vec<Vec<u8>>, [u8; 32], u64, [u64; 4], u64) {
+            crate::gpu::metal_set_sc_chain_fast_for_test(Some(sc_on));
+            let mut rng = ZkRng::new(0xC1A6, b"k9-m3-classify");
+            let mut tr = c_st.transcript().expect("classify transcript");
+            let binding = tr.state();
+            let mut segs = Vec::with_capacity(l_c + 2);
+            let mut sc_counts = [0u64; 4];
+            let fb_b = crate::gpu::metal_sc_chain_fast_fallbacks_for_test();
+
+            let start = pos_tag(&tr);
+            let in_lay = stage_in_c::layout(&sh_c, &cp);
+            let b0 = c_st.boundary_spec(0).expect("b0");
+            let sc_b = crate::gpu::metal_sc_chain_fast_batches_for_test();
+            let inp = stage_in_c::prove(
+                &in_lay,
+                &cp,
+                &c_tables,
+                honest_c.stage_in.clone(),
+                &b0,
+                &honest_c.b_in,
+                make_ep(),
+                &c_ntt,
+                &mut rng,
+                &mut tr,
+                &c_tag,
+            )
+            .expect("stage_in_c::prove");
+            sc_counts[0] = crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_b;
+            let end = pos_tag(&tr);
+            segs.push(c_st.in_geom(&in_lay).encode(&inp.seg, &binding, &start, &end).expect("encode IN-C"));
+            let mut pending = inp.pending_b;
+            let mut prev = (b0, inp.b_owner);
+
+            for k in 0..l_c {
+                let mut ph = super::timing::Phases::start();
+                let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+                let start = pos_tag(&tr);
+                tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
+                tr.absorb(b"pb-run-block", &c_st.block_digests[k]);
+                let spec = c_st.boundary_spec(k + 1).expect("bspec");
+                let words: Vec<Fp> = honest_c.planes[k].iter().map(|x| Fp::from_i64(i64::from(*x))).collect();
+                let cur = boundary::prepare(&spec, &words, &c_ntt, &mut rng, &c_tag).expect("boundary::prepare");
+                protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
+                let lay = c_st.block_layout(k).expect("block_layout");
+                let ssh = c_st.stage_shape(k).expect("stage_shape");
+                let wit = copy(honest_c.witnesses[k].as_ref().expect("block witness"));
+                let sc_b = crate::gpu::metal_sc_chain_fast_batches_for_test();
+                let core = protocol::prove_core(
+                    &ssh,
+                    &lay,
+                    &c_blocks[k],
+                    wit,
+                    [prev.1.data(), cur.data()],
+                    &c_ntt,
+                    &mut rng,
+                    &mut tr,
+                    &mut ph,
+                    &mut phases,
+                    &mut tick,
+                )
+                .expect("classify block prove_core");
+                let [ic, oc] = core.io_claims;
+                let mut claims = std::mem::take(&mut pending);
+                claims.extend(ic);
+                let (pspec, powner) = prev;
+                let in_open = powner.into_opening(&pspec, &claims, &mut tr).expect("classify boundary into_opening");
+                sc_counts[k + 1] = crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_b;
+                pending = oc;
+                let end = pos_tag(&tr);
+                let seg = wire::Segment {
+                    b_root: Some(cur.root()),
+                    a_root: core.a_root,
+                    h_root: core.h_root,
+                    mask_root: core.mask_root,
+                    slots: core.slots,
+                    mask_open: core.mask_open,
+                    a_open: core.a_open,
+                    h_open: core.h_open,
+                    in_open,
+                    out_open: None,
+                };
+                segs.push(
+                    wire::encode_segment(&seg, &lay, c_st.block_geom(k).expect("block_geom"), &binding, &start, &end)
+                        .expect("encode block segment"),
+                );
+                prev = (spec, cur);
+            }
+
+            let start = pos_tag(&tr);
+            let out_lay = stage_out_c::layout(&sh_c, &cp);
+            let (bspec, bowner) = prev;
+            let sc_b = crate::gpu::metal_sc_chain_fast_batches_for_test();
+            let outp = stage_out_c::prove(
+                &out_lay,
+                &cp,
+                &c_tables,
+                honest_c.stage_out.clone(),
+                c_st.verdict(),
+                &bspec,
+                bowner,
+                pending,
+                (l_c + 1) as u64,
+                &c_ntt,
+                &mut rng,
+                &mut tr,
+                &c_tag,
+            )
+            .expect("stage_out_c::prove");
+            sc_counts[3] = crate::gpu::metal_sc_chain_fast_batches_for_test() - sc_b;
+            let end = pos_tag(&tr);
+            segs.push(
+                c_st.out_geom(&out_lay)
+                    .expect("out_geom")
+                    .encode(&outp.seg, &binding, &start, &end)
+                    .expect("encode OUT-C"),
+            );
+            (segs, tr.state(), tr.counter(), sc_counts, crate::gpu::metal_sc_chain_fast_fallbacks_for_test() - fb_b)
+        };
+
+        let (cs0, cst0, ccnt0, csc0, cfb0) = run_classify(false);
+        let (cs1, cst1, ccnt1, csc1, cfb1) = run_classify(true);
+        assert_eq!(csc0, [0, 0, 0, 0], "classifier sc0 unexpectedly ran fast sumcheck chain");
+        assert_eq!((cfb0, cfb1), (0, 0), "classifier unexpected fallbacks");
+        assert!(csc1.iter().sum::<u64>() > 0 && csc1[1] > 0 && csc1[2] > 0, "classifier sc1 expected fast batches > 0, got {csc1:?}");
+        assert_eq!(cs1, cs0, "classifier full wire segments differ (sc1 vs sc0)");
+        assert_eq!((cst1, ccnt1), (cst0, ccnt0), "classifier final transcript state/counter differ (sc1 vs sc0)");
+        classify_run::verify_classify_run(&c_st, &c_blocks, &c_bound, &cs1, VerifierPolicy { min_whole_run_bits: 93 })
+            .expect("verify_classify_run sc1");
+        eprintln!(
+            "K9-M3 [stage_in_c + blocks + stage_out_c]: sc0 == sc1 ({:?} B, fast_sc_batches={csc1:?}, fallbacks=0) + verified",
+            cs1.iter().map(|s| s.len()).collect::<Vec<_>>()
+        );
+    }
+}
+
 /// **[Quick C3] `w16_histograms_cols` (flat `u32` bins + `for_each_init` pool +
 /// direct `LookedCol` iteration) matches `w16_histograms` word-for-word** on a
 /// valid W16R2 rung witness, with injected U8 and Range misses (negative values,

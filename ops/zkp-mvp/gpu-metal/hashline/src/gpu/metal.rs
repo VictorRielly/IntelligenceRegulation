@@ -74,6 +74,13 @@ struct SparseFoldPipes {
     reduce: ComputePipelineState,
 }
 
+/// [K9] Lazily compiled fast sumcheck-chain pipelines; untouched when
+/// `HL_METAL_SC_CHAIN_FAST` is off so startup and failure modes stay unchanged.
+struct ScChainFastPipes {
+    fs_step_v3: ComputePipelineState,
+    fold_dev3_xy: ComputePipelineState,
+}
+
 struct Ctx {
     device: Device,
     /// compiled kernel library, retained for lazy opt-in pipeline creation
@@ -86,6 +93,8 @@ struct Ctx {
     fused_rs_pipes: OnceLock<Result<FusedRsPipes, String>>,
     /// [Opt 1] lazy sparse-fold pipelines (created on first enabled dispatch)
     sparse_fold_pipes: OnceLock<Result<SparseFoldPipes, String>>,
+    /// [K9] lazy fast sumcheck-chain pipelines (created on first enabled dispatch)
+    sc_chain_fast_pipes: OnceLock<Result<ScChainFastPipes, String>>,
     /// (forward, inverse) twiddle buffers per NttTables::max_log
     twiddles: Mutex<HashMap<u32, (Buffer, Buffer)>>,
     /// [M12] the compact head twiddles (forward, inverse) per max_log: the
@@ -117,6 +126,7 @@ fn ctx() -> Result<&'static Ctx, String> {
                 pipes,
                 fused_rs_pipes: OnceLock::new(),
                 sparse_fold_pipes: OnceLock::new(),
+                sc_chain_fast_pipes: OnceLock::new(),
                 twiddles: Mutex::new(HashMap::new()),
                 head_tw: Mutex::new(HashMap::new()),
                 sc_pipes: Mutex::new(HashMap::new()),
@@ -162,6 +172,136 @@ fn sparse_fold_pipes(c: &Ctx) -> Result<&SparseFoldPipes, &String> {
             })
         })
         .as_ref()
+}
+
+fn sc_chain_fast_pipes(c: &Ctx) -> Result<&ScChainFastPipes, &String> {
+    c.sc_chain_fast_pipes
+        .get_or_init(|| {
+            objc::rc::autoreleasepool(|| {
+                let make = |k: &str| -> Result<ComputePipelineState, String> {
+                    let f = c.lib.get_function(k, None).map_err(|e| format!("metal function {k}: {e}"))?;
+                    c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal pipeline {k}: {e}"))
+                };
+                Ok(ScChainFastPipes {
+                    fs_step_v3: make("k_sc_fs_step_v3")?,
+                    fold_dev3_xy: make("k_fold_tables_dev3_xy")?,
+                })
+            })
+        })
+        .as_ref()
+}
+
+/// [K9, tests] 0 lets `HL_METAL_SC_CHAIN_FAST=1` decide, 1 forces off, 2 forces on
+static SC_CHAIN_FAST_TEST: AtomicUsize = AtomicUsize::new(0);
+/// [K9] count of `batched_rounds` dispatches that executed on the fast sumcheck chain
+static SC_CHAIN_FAST_BATCHES: AtomicU64 = AtomicU64::new(0);
+/// [K9] count of calls where `HL_METAL_SC_CHAIN_FAST=1` was enabled but fell back to the standard chain
+static SC_CHAIN_FAST_FALLBACKS: AtomicU64 = AtomicU64::new(0);
+static SC_CHAIN_FAST_FALLBACK_LOGGED: AtomicBool = AtomicBool::new(false);
+
+fn record_sc_chain_fast_fallback(reason: &str) {
+    SC_CHAIN_FAST_FALLBACKS.fetch_add(1, Ordering::Relaxed);
+    if !SC_CHAIN_FAST_FALLBACK_LOGGED.swap(true, Ordering::Relaxed) {
+        eprintln!("[ZK60-METAL] HL_METAL_SC_CHAIN_FAST=1 fell back to standard sumcheck chain ({reason})");
+    }
+}
+
+/// [K9] `HL_METAL_SC_CHAIN_FAST=1` (default OFF): in-kernel SIMD reduction + SoA `part`,
+/// `k_sc_fs_step_v3` (zero-array scalar-register BLAKE3 + SIMD-parallel mask/interp),
+/// and fused `k_fold_tables_dev3_xy`.
+fn sc_chain_fast_on() -> bool {
+    match SC_CHAIN_FAST_TEST.load(Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => {
+            static ENV: OnceLock<bool> = OnceLock::new();
+            *ENV.get_or_init(|| std::env::var("HL_METAL_SC_CHAIN_FAST").map(|v| v == "1").unwrap_or(false))
+        }
+    }
+}
+
+/// [K9] in-process test override for `HL_METAL_SC_CHAIN_FAST` (`None`: env); returns previous override
+pub fn set_sc_chain_fast_for_test(on: Option<bool>) -> Option<bool> {
+    let v = match on {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    match SC_CHAIN_FAST_TEST.swap(v, Ordering::Relaxed) {
+        1 => Some(false),
+        2 => Some(true),
+        _ => None,
+    }
+}
+
+/// [K9] whether the fast sumcheck chain is currently active
+pub fn sc_chain_fast_for_test() -> bool {
+    sc_chain_fast_on()
+}
+
+/// [K9] total batched sumchecks executed via the fast sumcheck chain
+pub fn sc_chain_fast_batches_for_test() -> u64 {
+    SC_CHAIN_FAST_BATCHES.load(Ordering::Relaxed)
+}
+
+/// [K9] total sumchecks where `HL_METAL_SC_CHAIN_FAST=1` fell back to the standard chain
+pub fn sc_chain_fast_fallbacks_for_test() -> u64 {
+    SC_CHAIN_FAST_FALLBACKS.load(Ordering::Relaxed)
+}
+
+/// [M4e / K9 M1] requested threadgroup size for sumcheck round kernels (`HL_METAL_SC_TG`, clamped `32..=1024`)
+fn sc_tg_env() -> u64 {
+    std::env::var("HL_METAL_SC_TG").ok().and_then(|v| v.parse().ok()).unwrap_or(64).clamp(32, 1024)
+}
+
+/// [K9] whether a sumcheck of `degree` can use the fast chain (pipelines compiled,
+/// `tgw >= 256`, `HL_METAL_SC_TG` a multiple of 32, and 32-lane SIMD execution width
+/// matching `simd_shuffle_down` / `>> 5`)
+fn sc_chain_fast_ready(c: &Ctx, degree: usize) -> bool {
+    if !sc_chain_fast_on() {
+        return false;
+    }
+    if degree == 0 || degree + 1 > FS_MAX_POINTS {
+        record_sc_chain_fast_fallback("degree outside 1..=7");
+        return false;
+    }
+    if sc_tg_env() % 32 != 0 {
+        record_sc_chain_fast_fallback("HL_METAL_SC_TG not a multiple of 32");
+        return false;
+    }
+    match sc_chain_fast_pipes(c) {
+        Ok(p) => {
+            if p.fs_step_v3.max_total_threads_per_threadgroup() < 256 {
+                record_sc_chain_fast_fallback("k_sc_fs_step_v3 max_total_threads_per_threadgroup < 256");
+                return false;
+            }
+            if p.fs_step_v3.thread_execution_width() != 32 {
+                record_sc_chain_fast_fallback("k_sc_fs_step_v3 thread_execution_width != 32");
+                return false;
+            }
+            true
+        }
+        Err(_) => {
+            record_sc_chain_fast_fallback("fast pipeline compile failed");
+            false
+        }
+    }
+}
+
+/// [K9] resolve round pipelines and enforce 32-lane SIMD width when `sc_fast` is active
+fn sc_pipelines_checked(c: &Ctx, kernel_src: &str, k: usize, degree: usize, sc_fast: bool) -> Result<(ComputePipelineState, ComputePipelineState, bool), String> {
+    let (p0, p) = sc_pipelines(c, kernel_src, k, degree, sc_fast)?;
+    if sc_fast
+        && (p0.thread_execution_width() != 32
+            || p.thread_execution_width() != 32
+            || p0.max_total_threads_per_threadgroup() < 32
+            || p.max_total_threads_per_threadgroup() < 32)
+    {
+        record_sc_chain_fast_fallback("round pipeline SIMD width != 32 or max_tg < 32");
+        let (s0, s) = sc_pipelines(c, kernel_src, k, degree, false)?;
+        return Ok((s0, s, false));
+    }
+    Ok((p0, p, sc_fast))
 }
 
 /// `HL_GPU=1` and a Metal device whose kernels compiled.
@@ -2891,21 +3031,23 @@ fn kernel_m(kernel_src: &str) -> usize {
 
 /// [A27] a slot's materialization pipeline (`k_sc_mat`, in the same library as its
 /// round kernels: compiled by [`sc_pipelines`]), when its source has one
-fn sc_mat_pipeline(c: &Ctx, kernel_src: &str, k: usize, degree: usize) -> Result<Option<ComputePipelineState>, String> {
+fn sc_mat_pipeline(c: &Ctx, kernel_src: &str, k: usize, degree: usize, sc_fast: bool) -> Result<Option<ComputePipelineState>, String> {
     if kernel_m(kernel_src) == 0 {
         return Ok(None);
     }
-    let src = format!("{}{SC_PRELUDE}\n#define SC_K {k}\n#define SC_D {degree}\n{kernel_src}", gl_header());
+    let sc_def = if sc_fast { "#define SC_SIMD_SOA 1\n" } else { "" };
+    let src = format!("{}{SC_PRELUDE}\n{sc_def}#define SC_K {k}\n#define SC_D {degree}\n{kernel_src}", gl_header());
     let key = format!("k_sc_mat\n{src}");
     let cache = c.sc_pipes.lock().map_err(|_| "metal: sumcheck kernel cache poisoned")?;
     cache.get(&key).cloned().map(Some).ok_or_else(|| "metal: the materialization kernel was not compiled".to_string())
 }
 
-fn sc_pipelines(c: &Ctx, kernel_src: &str, k: usize, degree: usize) -> Result<(ComputePipelineState, ComputePipelineState), String> {
+fn sc_pipelines(c: &Ctx, kernel_src: &str, k: usize, degree: usize, sc_fast: bool) -> Result<(ComputePipelineState, ComputePipelineState), String> {
     // [M4] ONE library compile for both kernels: the round-0 and the later
     // round kernel live in the same generated source, and compiling it once
     // per kernel doubled the (dominant, cold) compile time of a large slot
-    let src = format!("{}{SC_PRELUDE}\n#define SC_K {k}\n#define SC_D {degree}\n{kernel_src}", gl_header());
+    let sc_def = if sc_fast { "#define SC_SIMD_SOA 1\n" } else { "" };
+    let src = format!("{}{SC_PRELUDE}\n{sc_def}#define SC_K {k}\n#define SC_D {degree}\n{kernel_src}", gl_header());
     let names = ["k_sc_round0", "k_sc_round"];
     let keys = names.map(|n| format!("{n}\n{src}"));
     let mat = kernel_m(kernel_src) > 0;
@@ -2995,6 +3137,9 @@ pub struct MetalRounds {
     xtabs: Option<PBuf>,
     pipe_mat: Option<ComputePipelineState>,
     mat_pending: bool,
+    /// [K9] fast sumcheck chain (`HL_METAL_SC_CHAIN_FAST=1`): SIMD-reduced SoA `part`,
+    /// `k_sc_fs_step_v3`, and fused `k_fold_tables_dev3_xy` (skips dead `j == nd` xfold)
+    sc_fast: bool,
 }
 
 #[repr(C)]
@@ -3004,12 +3149,12 @@ struct MatArgs {
 
 /// [A27] a slot's materialized tables, prepared: (their count, `k_sc_mat`, the
 /// buffer of `m` tables of `cap` elements); `None` when its source has none
-fn mat_parts(c: &Ctx, kernel_src: &str, k: usize, degree: usize, cap: usize) -> Result<Option<(usize, ComputePipelineState, PBuf)>, String> {
+fn mat_parts(c: &Ctx, kernel_src: &str, k: usize, degree: usize, cap: usize, sc_fast: bool) -> Result<Option<(usize, ComputePipelineState, PBuf)>, String> {
     let m = kernel_m(kernel_src);
     if m == 0 {
         return Ok(None);
     }
-    let pm = sc_mat_pipeline(c, kernel_src, k, degree)?.ok_or("metal: no materialization kernel")?;
+    let pm = sc_mat_pipeline(c, kernel_src, k, degree, sc_fast)?.ok_or("metal: no materialization kernel")?;
     let x = objc::rc::autoreleasepool(|| shared_buffer(c, (m * cap * 16) as u64))?;
     Ok(Some((m, pm, x)))
 }
@@ -3169,9 +3314,13 @@ fn slot_label(kernel_src: &str) -> String {
 /// when its imaginary part is zero (a base-field table's first fold). The same
 /// canonical words (`metal_kernels.metal`; `a27_` tests). Returns (the host-challenge
 /// fold, the device-challenge fold).
-fn fold_kernels() -> (&'static str, &'static str) {
+fn a27_fold_on() -> bool {
     static ON: OnceLock<bool> = OnceLock::new();
-    if *ON.get_or_init(|| std::env::var("HL_A27_FOLD").map(|v| v != "0").unwrap_or(true)) {
+    *ON.get_or_init(|| std::env::var("HL_A27_FOLD").map(|v| v != "0").unwrap_or(true))
+}
+
+fn fold_kernels() -> (&'static str, &'static str) {
+    if a27_fold_on() {
         ("k_fold_tables3", "k_fold_tables_dev3")
     } else {
         ("k_fold_tables", "k_fold_tables_dev")
@@ -3198,7 +3347,8 @@ pub fn metal_rounds(kernel_src: &str, tables: &[Vec<Fp2>], degree: usize, coefs:
     if base.len() != k {
         return Err("metal sumcheck: base flags".into());
     }
-    let (pipe0, pipe) = sc_pipelines(c, kernel_src, k, degree)?;
+    let sc_fast = sc_chain_fast_ready(c, degree);
+    let (pipe0, pipe, sc_fast) = sc_pipelines_checked(c, kernel_src, k, degree, sc_fast)?;
     let t_setup = std::time::Instant::now();
     objc::rc::autoreleasepool(|| {
         // the tables straight into shared memory, one table per rayon task
@@ -3228,9 +3378,9 @@ pub fn metal_rounds(kernel_src: &str, tables: &[Vec<Fp2>], degree: usize, coefs:
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
             eprintln!("[ZK60-METAL] sumcheck setup: {k} tables x 2^{} in {:.4} s", cap.trailing_zeros(), t_setup.elapsed().as_secs_f64());
         }
-        let parts = rounds_parts(c, cap, degree, coefs)?;
-        let mat = mat_parts(c, kernel_src, k, degree, cap)?;
-        let mut r = assemble_rounds(tabs, k, cap, degree, pipe0, pipe, parts);
+        let parts = rounds_parts(c, cap, degree, coefs, sc_fast)?;
+        let mat = mat_parts(c, kernel_src, k, degree, cap, sc_fast)?;
+        let mut r = assemble_rounds(tabs, k, cap, degree, pipe0, pipe, parts, sc_fast);
         r.label = slot_label(kernel_src);
         r.de = kernel_de(kernel_src, degree);
         r.install_mat(mat);
@@ -3248,7 +3398,7 @@ struct RoundsParts {
     part: PBuf,
 }
 
-fn rounds_parts(c: &Ctx, cap: usize, degree: usize, coefs: &[Fp2]) -> Result<RoundsParts, String> {
+fn rounds_parts(c: &Ctx, cap: usize, degree: usize, coefs: &[Fp2], sc_fast: bool) -> Result<RoundsParts, String> {
     let mut cf: Vec<Fp> = coefs.iter().flat_map(|v| [v.c0, v.c1]).collect();
     if cf.is_empty() {
         cf.push(Fp::ZERO);
@@ -3258,13 +3408,14 @@ fn rounds_parts(c: &Ctx, cap: usize, degree: usize, coefs: &[Fp2]) -> Result<Rou
     // on slot 14's later rounds; HL_METAL_SC_THREADS / _PER / _TG override)
     let cap_log: u32 = std::env::var("HL_METAL_SC_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(17).clamp(8, 22);
     let per: usize = std::env::var("HL_METAL_SC_PER").ok().and_then(|v| v.parse().ok()).unwrap_or(1).max(1);
-    let tg: u64 = std::env::var("HL_METAL_SC_TG").ok().and_then(|v| v.parse().ok()).unwrap_or(64).clamp(32, 1024);
+    let tg: u64 = sc_tg_env();
     let t0n = sc_threads(cap / 2, per, cap_log);
-    let part = shared_buffer(c, (t0n * (degree + 1) * 16) as u64)?;
+    let entries = if sc_fast { t0n.div_ceil(32) } else { t0n };
+    let part = shared_buffer(c, (entries * (degree + 1) * 16) as u64)?;
     Ok(RoundsParts { coefs, cap_log, per, tg, part })
 }
 
-fn assemble_rounds(tabs: PBuf, k: usize, cap: usize, degree: usize, pipe0: ComputePipelineState, pipe: ComputePipelineState, p: RoundsParts) -> MetalRounds {
+fn assemble_rounds(tabs: PBuf, k: usize, cap: usize, degree: usize, pipe0: ComputePipelineState, pipe: ComputePipelineState, p: RoundsParts, sc_fast: bool) -> MetalRounds {
     MetalRounds {
         k,
         n_vars: cap.trailing_zeros() as usize,
@@ -3293,6 +3444,7 @@ fn assemble_rounds(tabs: PBuf, k: usize, cap: usize, degree: usize, pipe0: Compu
         xtabs: None,
         pipe_mat: None,
         mat_pending: false,
+        sc_fast,
     }
 }
 
@@ -3378,7 +3530,8 @@ pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs
     if degree == 0 || base.len() != t.k {
         return fail(t, Some("metal sumcheck: degree 0 or base flags".into()));
     }
-    let (pipe0, pipe) = match sc_pipelines(c, kernel_src, t.k, degree) {
+    let sc_fast = sc_chain_fast_ready(c, degree);
+    let (pipe0, pipe, sc_fast) = match sc_pipelines_checked(c, kernel_src, t.k, degree, sc_fast) {
         Ok(p) => p,
         Err(e) => return fail(t, Some(e)),
     };
@@ -3400,16 +3553,16 @@ pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs
     if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
         eprintln!("[ZK60-METAL] sumcheck setup (tables in place): {k} tables x 2^{} in {:.4} s", cap.trailing_zeros(), t_setup.elapsed().as_secs_f64());
     }
-    let parts = match objc::rc::autoreleasepool(|| rounds_parts(c, cap, degree, coefs)) {
+    let parts = match objc::rc::autoreleasepool(|| rounds_parts(c, cap, degree, coefs, sc_fast)) {
         Ok(p) => p,
         Err(e) => return fail(t, Some(e)),
     };
-    let mat = match mat_parts(c, kernel_src, k, degree, cap) {
+    let mat = match mat_parts(c, kernel_src, k, degree, cap, sc_fast) {
         Ok(m) => m,
         Err(e) => return fail(t, Some(e)),
     };
     let MetalTables { buf, pending, .. } = t;
-    let mut r = assemble_rounds(buf, k, cap, degree, pipe0, pipe, parts);
+    let mut r = assemble_rounds(buf, k, cap, degree, pipe0, pipe, parts, sc_fast);
     r.label = slot_label(kernel_src);
     r.de = kernel_de(kernel_src, degree);
     // [A12] the deferred build runs ahead of the first round
@@ -4120,7 +4273,8 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                 // [A27] the points up to the evaluated degree only
                 let np = if eval_one { self.de + 1 } else { self.de };
                 let grid = (nthreads.div_ceil(32) * 32 * np) as u64;
-                let tg = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                let tg_raw = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                let tg = if self.sc_fast { (tg_raw & !31).max(32) } else { tg_raw };
                 enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
                 Ok(())
             })
@@ -4134,27 +4288,45 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
             // is exact, so the grouping does not change the sums. [M4g] Point
             // 1 was not evaluated when the claim gives s(1): its partials are
             // not read (the sum stays zero until the claim sets it below).
-            let p = as_u64s(&self.part, nthreads * d1 * 2);
-            let sum = |blk: &[u64]| -> Vec<Fp2> {
+            if self.sc_fast {
+                // [K9] SIMD-reduced SoA partials: `n_sg = ceil(nthreads / 32)` entries per point
+                let n_sg = nthreads.div_ceil(32);
+                let p = as_u64s(&self.part, n_sg * d1 * 2);
                 let mut acc = vec![Fp2::ZERO; d1];
-                for th in blk.chunks_exact(d1 * 2) {
-                    for (d, s) in acc.iter_mut().enumerate() {
-                        if (d != 1 || eval_one) && d <= de {
-                            *s = s.add(Fp2::new(Fp(th[2 * d]), Fp(th[2 * d + 1])));
+                for (d, s) in acc.iter_mut().enumerate() {
+                    if (d != 1 || eval_one) && d <= de {
+                        let base = d * n_sg * 2;
+                        let mut a = Fp2::ZERO;
+                        for g in 0..n_sg {
+                            a = a.add(Fp2::new(Fp(p[base + 2 * g]), Fp(p[base + 2 * g + 1])));
                         }
+                        *s = a;
                     }
                 }
                 acc
-            };
-            if nthreads <= 1 << 14 {
-                sum(p)
             } else {
-                p.par_chunks(4096 * d1 * 2).map(sum).reduce(|| vec![Fp2::ZERO; d1], |mut a, b| {
-                    for (x, y) in a.iter_mut().zip(b.iter()) {
-                        *x = x.add(*y);
+                let p = as_u64s(&self.part, nthreads * d1 * 2);
+                let sum = |blk: &[u64]| -> Vec<Fp2> {
+                    let mut acc = vec![Fp2::ZERO; d1];
+                    for th in blk.chunks_exact(d1 * 2) {
+                        for (d, s) in acc.iter_mut().enumerate() {
+                            if (d != 1 || eval_one) && d <= de {
+                                *s = s.add(Fp2::new(Fp(th[2 * d]), Fp(th[2 * d + 1])));
+                            }
+                        }
                     }
-                    a
-                })
+                    acc
+                };
+                if nthreads <= 1 << 14 {
+                    sum(p)
+                } else {
+                    p.par_chunks(4096 * d1 * 2).map(sum).reduce(|| vec![Fp2::ZERO; d1], |mut a, b| {
+                        for (x, y) in a.iter_mut().zip(b.iter()) {
+                            *x = x.add(*y);
+                        }
+                        a
+                    })
+                }
             }
         });
         let mut sums = sums;
@@ -4213,7 +4385,8 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
             let sp = self.split_ns.get();
             eprintln!(
-                "[ZK60-METAL] sumcheck rounds: {} tables, {} rounds, degree {} in {:.4} s (round 0 {:.4}, rounds 1.. {:.4}, folds {:.4}; max threads/group {} / {})",
+                "[ZK60-METAL] sumcheck rounds ({}): {} tables, {} rounds, degree {} in {:.4} s (round 0 {:.4}, rounds 1.. {:.4}, folds {:.4}; max threads/group {} / {})",
+                if self.sc_fast { "sc-chain-fast" } else { "std" },
                 self.k,
                 self.n_vars,
                 self.degree,
@@ -4481,6 +4654,14 @@ struct FoldDevArgs {
     k: u64,
     roff: u64,
 }
+#[repr(C)]
+struct FoldDevXYArgs {
+    half: u64,
+    cap: u64,
+    k: u64,
+    m: u64,
+    roff: u64,
+}
 
 static SC_BATCH_ROUNDS: AtomicU64 = AtomicU64::new(0);
 static SC_BATCHES: AtomicU64 = AtomicU64::new(0);
@@ -4541,7 +4722,9 @@ impl MetalRounds {
             mk.push(den.inv().0);
         }
         for j in 0..nd {
-            push(&mut mk, Fp2::from_u64(1u64 << (n - 1 - j)));
+            let scale = Fp2::from_u64(1u64 << (n - 1 - j));
+            debug_assert_eq!(scale.c1.0, 0, "k_sc_fs_step_v3 assumes real base-field scale");
+            push(&mut mk, scale);
             push(&mut mk, mask.coeffs[0].add(suffix[j + 1]));
             for x in 0..d1 {
                 push(&mut mk, u(j, Fp2::from_u64(x as u64)));
@@ -4563,9 +4746,14 @@ impl MetalRounds {
         }
         fs[23] = 1; // the empty product of the challenges
         let rec = 2 * (2 * d1 + 1);
-        let fs_pipe = &cx.pipes["k_sc_fs_step"];
-        let tg_max = fs_pipe.max_total_threads_per_threadgroup().min(256);
-        let tgw = 1u64 << (63 - tg_max.leading_zeros());
+        let fast_pipes = if self.sc_fast { Some(sc_chain_fast_pipes(cx).map_err(Clone::clone)?) } else { None };
+        let (fs_pipe, tgw) = if let Some(fp) = fast_pipes {
+            (&fp.fs_step_v3, 256u64)
+        } else {
+            let p = &cx.pipes["k_sc_fs_step"];
+            let tg_max = p.max_total_threads_per_threadgroup().min(256);
+            (p, 1u64 << (63 - tg_max.leading_zeros()))
+        };
         let t0 = std::time::Instant::now();
         // [A12] the tables' deferred device build, ahead of the batch's rounds
         let pre = self.prelude.take();
@@ -4581,10 +4769,10 @@ impl MetalRounds {
             let fsb = upload(cx, &fs.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
             let xwb = upload(cx, &xw)?;
             let out = shared_buffer(cx, (nd * rec * 8) as u64)?;
-            let part2 = shared_buffer(cx, (PART_RED_WIDTH * d1 * 16) as u64)?;
+            let part2 = if fast_pipes.is_some() { None } else { Some(shared_buffer(cx, (PART_RED_WIDTH * d1 * 16) as u64)?) };
             let mut claim_known = self.recover_one && self.unmasked_claim.is_some();
             let tabs: &metal::BufferRef = &self.tabs;
-            trace_detail(|| format!("{} | k={} m={} log_cap={} deg={} de={de} nd={nd} n_vars={} recover={} pre={}", self.label, self.k, self.m, self.cap.trailing_zeros(), self.degree, self.n_vars, self.recover_one as u8, pre.as_ref().map(|p| p.args.len()).unwrap_or(0)));
+            trace_detail(|| format!("{} | k={} m={} log_cap={} deg={} de={de} nd={nd} n_vars={} recover={} pre={} sc={}", self.label, self.k, self.m, self.cap.trailing_zeros(), self.degree, self.n_vars, self.recover_one as u8, pre.as_ref().map(|p| p.args.len()).unwrap_or(0), if fast_pipes.is_some() { "fast" } else { "std" }));
             // [A27] the materialized tables' values, ahead of round 0's kernel
             let mat = self.mat_pending;
             run_tagged_pre(cx, "batch", pre.as_ref().map(|p| (p, tabs)), |enc| {
@@ -4596,11 +4784,27 @@ impl MetalRounds {
                         // the fold of round j - 1 by the device's challenge
                         let hprev = (self.len >> (j - 1)) / 2;
                         let roff = ((j - 1) * rec + 4 * d1) as u64;
-                        enc.set_buffer(0, Some(&self.tabs), 0);
-                        set_args(enc, 1, &FoldDevArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, roff });
-                        enc.set_buffer(2, Some(&out), 0);
-                        dispatch_2d(cx, enc, fold_kernels().1, hprev as u64, self.k as u64);
-                        self.encode_xfold(cx, enc, hprev, None, Some((&out, roff)));
+                        if let Some(fp) = fast_pipes.filter(|_| a27_fold_on()) {
+                            // [K9 C1 / M2 / L4] fused tabs + xtabs fold in one dispatch (all 1..=nd so xtabs stays consistent; respects HL_A27_FOLD=0)
+                            if let Some(x) = self.xtabs.as_ref() {
+                                enc.set_buffer(0, Some(&self.tabs), 0);
+                                enc.set_buffer(1, Some(x), 0);
+                                set_args(enc, 2, &FoldDevXYArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, m: self.m as u64, roff });
+                                enc.set_buffer(3, Some(&out), 0);
+                                dispatch_2d_pipe(enc, &fp.fold_dev3_xy, hprev as u64, (self.k + self.m) as u64);
+                            } else {
+                                enc.set_buffer(0, Some(&self.tabs), 0);
+                                set_args(enc, 1, &FoldDevArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, roff });
+                                enc.set_buffer(2, Some(&out), 0);
+                                dispatch_2d(cx, enc, fold_kernels().1, hprev as u64, self.k as u64);
+                            }
+                        } else {
+                            enc.set_buffer(0, Some(&self.tabs), 0);
+                            set_args(enc, 1, &FoldDevArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, roff });
+                            enc.set_buffer(2, Some(&out), 0);
+                            dispatch_2d(cx, enc, fold_kernels().1, hprev as u64, self.k as u64);
+                            self.encode_xfold(cx, enc, hprev, None, Some((&out, roff)));
+                        }
                     }
                     if j == nd {
                         break;
@@ -4620,15 +4824,20 @@ impl MetalRounds {
                     // [A27] the points up to the evaluated degree only
                     let np = if eval_one { de + 1 } else { de };
                     let grid = (nthreads.div_ceil(32) * 32 * np) as u64;
-                    let tg = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                    let tg_raw = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                    let tg = if fast_pipes.is_some() { (tg_raw & !31).max(32) } else { tg_raw };
                     enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
-                    // a large round's partials: first reduced across the GPU
-                    let (src, count) = if nthreads > PART_RED_MIN {
+                    // [K9 A] under sc_fast, each 32-lane SIMD group already reduced to 1 SoA entry
+                    // -> skip `k_sc_part_reduce` completely and pass `n_sg` directly to `k_sc_fs_step_v3`
+                    let (src, count) = if fast_pipes.is_some() {
+                        (&self.part, nthreads.div_ceil(32))
+                    } else if nthreads > PART_RED_MIN {
+                        let p2 = part2.as_ref().expect("part2 allocated when sc_fast is off");
                         enc.set_buffer(0, Some(&self.part), 0);
-                        enc.set_buffer(1, Some(&part2), 0);
+                        enc.set_buffer(1, Some(p2), 0);
                         set_args(enc, 2, &PartRedArgs { nthreads: nthreads as u32, d1: d1 as u32, width: PART_RED_WIDTH as u32, eval_one: eval_one as u32, de: de as u32 });
                         dispatch_2d(cx, enc, "k_sc_part_reduce", PART_RED_WIDTH as u64, 1);
-                        (&part2, PART_RED_WIDTH)
+                        (p2, PART_RED_WIDTH)
                     } else {
                         (&self.part, nthreads)
                     };
@@ -4661,6 +4870,9 @@ impl MetalRounds {
         self.busy_ns.set(self.busy_ns.get() + ns);
         SC_BATCHES.fetch_add(1, Ordering::Relaxed);
         SC_BATCH_ROUNDS.fetch_add(nd as u64, Ordering::Relaxed);
+        if fast_pipes.is_some() {
+            SC_CHAIN_FAST_BATCHES.fetch_add(1, Ordering::Relaxed);
+        }
         Ok((sums, rs))
     }
 }
@@ -4709,6 +4921,7 @@ impl TailedRounds<'_> {
         assert!(self.n_vars <= mask.n_vars, "masked evaluator variable count");
         let t0 = std::time::Instant::now();
         let dev = self.dev.as_mut().expect("the device evaluator");
+        let fast_chain = dev.sc_fast;
         let (dev_sums, dev_r) = dev.batched_rounds(nd, mask, c, tr).expect("metal batched sumcheck rounds");
         tr.set_masker(Box::new(zkp_core::sumcheck::CfsMasker { mask: mask.clone(), c, challenges: Vec::new() }));
         let recover = dev.recover_one;
@@ -4745,7 +4958,15 @@ impl TailedRounds<'_> {
             challenges.push(r);
         }
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
-            eprintln!("[ZK60-METAL M6] {} of {} rounds batched (degree {}), batch + replay {:.4} s, then {} host rounds", nd, self.n_vars, self.degree, replay_s, self.host_rounds);
+            eprintln!(
+                "[ZK60-METAL M6] {} of {} rounds batched (degree {}, {}), batch + replay {:.4} s, then {} host rounds",
+                nd,
+                self.n_vars,
+                self.degree,
+                if fast_chain { "sc-chain-fast" } else { "std" },
+                replay_s,
+                self.host_rounds
+            );
         }
         let finals = self.finals();
         let (_, masked) = tr.take_masker();
@@ -5444,4 +5665,181 @@ fn wprod_run(c: &Ctx, wc: &WCtx, route: WProdRoute, view: bool, t: usize, x: &[i
     WP_NS[5].fetch_add((gpu_s * 1e9) as u64, Ordering::Relaxed);
     WP_NS[6].fetch_add(ns(at[5], at[6]), Ordering::Relaxed);
     Ok(Some(out))
+}
+
+#[cfg(test)]
+mod sc_chain_fast_tests {
+    use super::*;
+
+    fn next_u64(s: &mut u64) -> u64 {
+        *s ^= *s << 13;
+        *s ^= *s >> 7;
+        *s ^= *s << 17;
+        *s
+    }
+
+    fn next_fp(s: &mut u64) -> Fp {
+        Fp::new(next_u64(s))
+    }
+
+    /// [K9] Differential test: `k_sc_fs_step_v3` vs verbatim `k_sc_fs_step` across EVERY
+    /// supported `d1 in 2..=FS_MAX_POINTS (8)`, `de in {d1-1, d1-2}`, `eval_one in {0, 1}`,
+    /// `recover_one in {0, 1}`, `keyed in {0, 1}`, and `count in {4096, 128, 32, 1}` over
+    /// 5 chained rounds (verifying every `out` and `fs` word bit-for-bit).
+    #[test]
+    fn sc_chain_fast_fs_step_v3_matches_verbatim_all_degrees() {
+        let Ok(c) = ctx() else { return };
+        let fp = sc_chain_fast_pipes(c).expect("sc_chain_fast_pipes compile");
+        let base_pipe = &c.pipes["k_sc_fs_step"];
+        let mut seed = 0x2026_1123_5C33_0001u64;
+        let mut cases_checked = 0usize;
+
+        for d1 in 2..=FS_MAX_POINTS {
+            let deg = d1 - 1;
+            let mut des: Vec<usize> = vec![deg];
+            if deg >= 2 {
+                des.push(deg - 1);
+            }
+            if deg >= 3 {
+                des.push(1);
+            }
+            for &de in &des {
+                let mut xw: Vec<Fp> = extrapolation_weights(de, deg).into_iter().flatten().collect();
+                if xw.is_empty() {
+                    xw.push(Fp::ZERO);
+                }
+                let nd = 5usize;
+                let rec = 2 * (2 * d1 + 1);
+                let mut mk: Vec<Fp> = vec![Fp::ZERO; 4 + d1 + nd * 2 * (2 + d1 + deg)];
+                for i in 0..(4 + d1) {
+                    mk[i] = next_fp(&mut seed);
+                }
+                for j in 0..nd {
+                    let off = 4 + d1 + j * 2 * (2 + d1 + deg);
+                    mk[off] = Fp::new(1u64 << (20 - j)); // base-field scale
+                    mk[off + 1] = Fp::ZERO;
+                    for k in 2..(2 * (2 + d1 + deg)) {
+                        mk[off + k] = next_fp(&mut seed);
+                    }
+                }
+                for &(cnt, init_e1, rec_one, keyed) in &[
+                    (4096usize, 0u32, 1u32, 1u32),
+                    (128, 1, 1, 1),
+                    (64, 0, 1, 0),
+                    (32, 1, 0, 0),
+                    (1, 0, 1, 1),
+                ] {
+                    let mut p_aos = vec![Fp::ZERO; cnt * d1 * 2];
+                    let mut p_soa = vec![Fp::ZERO; cnt * d1 * 2];
+                    for g in 0..cnt {
+                        for d in 0..d1 {
+                            let c0 = next_fp(&mut seed);
+                            let c1 = next_fp(&mut seed);
+                            p_aos[(g * d1 + d) * 2] = c0;
+                            p_aos[(g * d1 + d) * 2 + 1] = c1;
+                            p_soa[(d * cnt + g) * 2] = c0;
+                            p_soa[(d * cnt + g) * 2 + 1] = c1;
+                        }
+                    }
+                    let mut fs = vec![Fp::ZERO; 32];
+                    for i in 0..16 {
+                        fs[i] = Fp(next_u64(&mut seed) as u32 as u64);
+                    }
+                    fs[16] = Fp(17 + (next_u64(&mut seed) & 0xFFFF));
+                    fs[17] = Fp(keyed as u64);
+                    fs[18] = Fp(rec_one as u64);
+                    fs[19] = next_fp(&mut seed);
+                    fs[20] = next_fp(&mut seed);
+                    fs[21] = next_fp(&mut seed);
+                    fs[22] = next_fp(&mut seed);
+                    fs[23] = Fp::ONE;
+                    fs[24] = Fp::ZERO;
+
+                    objc::rc::autoreleasepool(|| {
+                        let baos = upload(c, &p_aos).unwrap();
+                        let bsoa = upload(c, &p_soa).unwrap();
+                        let bmk = upload(c, &mk).unwrap();
+                        let bxw = upload(c, &xw).unwrap();
+                        let fsa = upload(c, &fs).unwrap();
+                        let fsb = upload(c, &fs).unwrap();
+                        let outa = shared_buffer(c, (nd * rec * 8) as u64).unwrap();
+                        let outb = shared_buffer(c, (nd * rec * 8) as u64).unwrap();
+
+                        run_tagged(c, "test", |enc| {
+                            for j in 0..nd {
+                                let e1 = if j == 0 { init_e1 } else if rec_one != 0 { 0 } else { 1 };
+                                let args = FsStepArgs { nthreads: cnt as u32, d1: d1 as u32, j: j as u32, eval_one: e1, tgw: 256, de: de as u32 };
+                                enc.set_compute_pipeline_state(base_pipe);
+                                enc.set_buffer(0, Some(&baos), 0);
+                                enc.set_buffer(1, Some(&fsa), 0);
+                                enc.set_buffer(2, Some(&bmk), 0);
+                                enc.set_buffer(3, Some(&outa), 0);
+                                set_args(enc, 4, &args);
+                                enc.set_buffer(5, Some(&bxw), 0);
+                                enc.dispatch_thread_groups(MTLSize::new(1, 1, 1), MTLSize::new(256, 1, 1));
+
+                                enc.set_compute_pipeline_state(&fp.fs_step_v3);
+                                enc.set_buffer(0, Some(&bsoa), 0);
+                                enc.set_buffer(1, Some(&fsb), 0);
+                                enc.set_buffer(2, Some(&bmk), 0);
+                                enc.set_buffer(3, Some(&outb), 0);
+                                set_args(enc, 4, &args);
+                                enc.set_buffer(5, Some(&bxw), 0);
+                                enc.dispatch_thread_groups(MTLSize::new(1, 1, 1), MTLSize::new(256, 1, 1));
+                            }
+                            Ok(())
+                        })
+                        .unwrap();
+
+                        assert_eq!(as_u64s(&outa, nd * rec), as_u64s(&outb, nd * rec), "out mismatch d1={d1} de={de} cnt={cnt} e1={init_e1} rec={rec_one} keyed={keyed}");
+                        assert_eq!(as_u64s(&fsa, 25), as_u64s(&fsb, 25), "fs mismatch d1={d1} de={de} cnt={cnt} e1={init_e1} rec={rec_one} keyed={keyed}");
+                    });
+                    cases_checked += 1;
+                }
+            }
+        }
+        assert!(cases_checked >= 50, "expected full d1=2..=8 matrix, got {cases_checked}");
+    }
+
+    /// [K9] Differential test: fused `k_fold_tables_dev3_xy` matches back-to-back
+    /// `k_fold_tables_dev3(tabs)` + `k_fold_tables_dev3(xtabs)` word-for-word.
+    #[test]
+    fn sc_chain_fast_fold_xy_matches_separate_folds() {
+        let Ok(c) = ctx() else { return };
+        let fp = sc_chain_fast_pipes(c).expect("sc_chain_fast_pipes compile");
+        let mut seed = 0x2026_1123_F01D_0002u64;
+        for &(k, m, cap, half) in &[(19usize, 3usize, 1024usize, 512usize), (36, 3, 256, 64), (58, 18, 64, 1)] {
+            let tabs: Vec<Fp> = (0..(k * cap * 2)).map(|_| next_fp(&mut seed)).collect();
+            let xtabs: Vec<Fp> = (0..(m * cap * 2)).map(|_| next_fp(&mut seed)).collect();
+            let rb = vec![Fp::ZERO, next_fp(&mut seed), next_fp(&mut seed)];
+            objc::rc::autoreleasepool(|| {
+                let t1 = upload(c, &tabs).unwrap();
+                let x1 = upload(c, &xtabs).unwrap();
+                let t2 = upload(c, &tabs).unwrap();
+                let x2 = upload(c, &xtabs).unwrap();
+                let rbuf = upload(c, &rb).unwrap();
+                run_tagged(c, "test", |enc| {
+                    enc.set_buffer(0, Some(&t1), 0);
+                    set_args(enc, 1, &FoldDevArgs { half: half as u64, cap: cap as u64, k: k as u64, roff: 1 });
+                    enc.set_buffer(2, Some(&rbuf), 0);
+                    dispatch_2d(c, enc, "k_fold_tables_dev3", half as u64, k as u64);
+
+                    enc.set_buffer(0, Some(&x1), 0);
+                    set_args(enc, 1, &FoldDevArgs { half: half as u64, cap: cap as u64, k: m as u64, roff: 1 });
+                    enc.set_buffer(2, Some(&rbuf), 0);
+                    dispatch_2d(c, enc, "k_fold_tables_dev3", half as u64, m as u64);
+
+                    enc.set_buffer(0, Some(&t2), 0);
+                    enc.set_buffer(1, Some(&x2), 0);
+                    set_args(enc, 2, &FoldDevXYArgs { half: half as u64, cap: cap as u64, k: k as u64, m: m as u64, roff: 1 });
+                    enc.set_buffer(3, Some(&rbuf), 0);
+                    dispatch_2d_pipe(enc, &fp.fold_dev3_xy, half as u64, (k + m) as u64);
+                    Ok(())
+                })
+                .unwrap();
+                assert_eq!(as_u64s(&t1, k * cap * 2), as_u64s(&t2, k * cap * 2), "tabs mismatch k={k} m={m} half={half}");
+                assert_eq!(as_u64s(&x1, m * cap * 2), as_u64s(&x2, m * cap * 2), "xtabs mismatch k={k} m={m} half={half}");
+            });
+        }
+    }
 }

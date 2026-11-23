@@ -1588,3 +1588,293 @@ kernel void k_sc_part_reduce(device const ulong *part [[buffer(0)]],
         part2[o2 + 1UL] = s1;
     }
 }
+
+// ------------------------------------------- [K9] fast sumcheck dependent chain (`HL_METAL_SC_CHAIN_FAST=1`)
+// 1) Design C1 (`k_fold_tables_dev3_xy`): folds both `tabs` (k tables) and `xtabs` (m tables) in one
+//    dispatch by the device challenge at `rbuf[roff..roff+1]`, using `a27_fold_pair` (same canonical words).
+struct FoldDevXYArgs { ulong nhalf; ulong cap; ulong k; ulong m; ulong roff; };
+
+kernel void k_fold_tables_dev3_xy(device ulong *tabs [[buffer(0)]],
+                                  device ulong *xtabs [[buffer(1)]],
+                                  constant FoldDevXYArgs &args [[buffer(2)]],
+                                  device const ulong *rbuf [[buffer(3)]],
+                                  uint2 gid [[thread_position_in_grid]]) {
+    ulong i = ulong(gid.x);
+    ulong t = ulong(gid.y);
+    if (i >= args.nhalf || t >= args.k + args.m) { return; }
+    ulong r0 = rbuf[args.roff], r1 = rbuf[args.roff + 1UL];
+    if (t < args.k) {
+        a27_fold_pair(tabs, (t * args.cap + i) * 2UL, (t * args.cap + i + args.nhalf) * 2UL, r0, r1);
+    } else {
+        ulong x = t - args.k;
+        a27_fold_pair(xtabs, (x * args.cap + i) * 2UL, (x * args.cap + i + args.nhalf) * 2UL, r0, r1);
+    }
+}
+
+// 2) Design B3 (`k_sc_fs_step_v3`): reads SoA SIMD-reduced partials `part[(d * nthreads + g) * 2]`,
+//    reduces all active points in parallel (1 threadgroup barrier total, 0 when nthreads == 1),
+//    computes CFS mask and Lagrange interpolation across SIMD group 0 lanes in parallel, and runs
+//    pure-scalar-register BLAKE3 (`b3_compress_reg`, zero thread-local arrays) with strictly scoped
+//    phases via 272 B `threadgroup ulong sm[34]`. Supports every d1 in 2..=8 (`FS_MAX_POINTS`).
+inline fq2 sc_simd_sum_fq2(fq2 v) {
+    for (ushort d = 16; d > 0; d >>= 1) {
+        uint lo0 = simd_shuffle_down(uint(v.c0), d);
+        uint hi0 = simd_shuffle_down(uint(v.c0 >> 32), d);
+        uint lo1 = simd_shuffle_down(uint(v.c1), d);
+        uint hi1 = simd_shuffle_down(uint(v.c1 >> 32), d);
+        v.c0 = gl_add(v.c0, ulong(lo0) | (ulong(hi0) << 32));
+        v.c1 = gl_add(v.c1, ulong(lo1) | (ulong(hi1) << 32));
+    }
+    return v;
+}
+
+inline fq2 sc_q2_mul_k(fq2 a, fq2 b) {
+    ulong ac = gl_mul(a.c0, b.c0);
+    ulong bd = gl_mul(a.c1, b.c1);
+    ulong cross = gl_mul(gl_add(a.c0, a.c1), gl_add(b.c0, b.c1));
+    return q2(gl_add(ac, a27_mul7(bd)), gl_sub(gl_sub(cross, ac), bd));
+}
+
+#define SC_B3G(a, b, c, d, mx, my) do { \
+    a = a + b + (mx); d = rotr32(d ^ a, 16u); \
+    c = c + d;        b = rotr32(b ^ c, 12u); \
+    a = a + b + (my); d = rotr32(d ^ a, 8u);  \
+    c = c + d;        b = rotr32(b ^ c, 7u);  \
+} while (0)
+
+#define SC_B3R(s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15, \
+               m0,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15) do { \
+    SC_B3G(s0,s4,s8, s12, m0, m1);  SC_B3G(s1,s5,s9, s13, m2, m3);  \
+    SC_B3G(s2,s6,s10,s14, m4, m5);  SC_B3G(s3,s7,s11,s15, m6, m7);  \
+    SC_B3G(s0,s5,s10,s15, m8, m9);  SC_B3G(s1,s6,s11,s12, m10,m11); \
+    SC_B3G(s2,s7,s8, s13, m12,m13); SC_B3G(s3,s4,s9, s14, m14,m15); \
+} while (0)
+
+struct ScB3U8 { uint v0, v1, v2, v3, v4, v5, v6, v7; };
+
+inline ScB3U8 sc_b3_compress_reg(ScB3U8 cv,
+                                 uint m0, uint m1, uint m2, uint m3, uint m4, uint m5, uint m6, uint m7,
+                                 uint m8, uint m9, uint m10, uint m11, uint m12, uint m13, uint m14, uint m15,
+                                 uint block_len, uint flags) {
+    uint s0 = cv.v0, s1 = cv.v1, s2 = cv.v2, s3 = cv.v3;
+    uint s4 = cv.v4, s5 = cv.v5, s6 = cv.v6, s7 = cv.v7;
+    uint s8 = 0x6A09E667u, s9 = 0xBB67AE85u, s10 = 0x3C6EF372u, s11 = 0xA54FF53Au;
+    uint s12 = 0u, s13 = 0u, s14 = block_len, s15 = flags;
+    SC_B3R(s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,
+           m0,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15);
+    SC_B3R(s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,
+           m2,m6,m3,m10,m7,m0,m4,m13,m1,m11,m12,m5,m9,m14,m15,m8);
+    SC_B3R(s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,
+           m3,m4,m10,m12,m13,m2,m7,m14,m6,m5,m9,m0,m11,m15,m8,m1);
+    SC_B3R(s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,
+           m10,m7,m12,m9,m14,m3,m13,m15,m4,m0,m11,m2,m5,m8,m1,m6);
+    SC_B3R(s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,
+           m12,m13,m9,m11,m15,m10,m14,m8,m7,m2,m5,m3,m0,m1,m6,m4);
+    SC_B3R(s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,
+           m9,m14,m11,m5,m8,m12,m15,m1,m13,m3,m0,m10,m2,m6,m4,m7);
+    SC_B3R(s0,s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,
+           m11,m15,m5,m0,m1,m9,m8,m6,m14,m10,m2,m12,m3,m4,m7,m13);
+    return {s0^s8, s1^s9, s2^s10, s3^s11, s4^s12, s5^s13, s6^s14, s7^s15};
+}
+
+inline void sc_fs_b3_reg_from_sm(thread ScB3U8 &st, ScB3U8 key, uint keyed, ulong ctr,
+                                 threadgroup const ulong *m_sm, uint d1,
+                                 thread ulong &r0, thread ulong &r1) {
+    uint base = keyed != 0u ? KEYED_HASH : 0u;
+    ScB3U8 iv = keyed != 0u ? key : ScB3U8{0x6A09E667u, 0xBB67AE85u, 0x3C6EF372u, 0xA54FF53Au,
+                                           0x510E527Fu, 0x9B05688Cu, 0x1F83D9ABu, 0x5BE0CD19u};
+    uint nb_abs = (d1 <= 4u) ? 2u : 3u;
+    uint total_blocks = nb_abs + 1u;
+    ScB3U8 cv = iv;
+    for (uint b = 0u; b < total_blocks; b++) {
+        uint m0=0,m1=0,m2=0,m3=0,m4=0,m5=0,m6=0,m7=0,m8=0,m9=0,m10=0,m11=0,m12=0,m13=0,m14=0,m15=0;
+        uint blen = 64u, fl = base;
+        if (b == 0u) {
+            ulong v0 = m_sm[0];
+            m0=st.v0; m1=st.v1; m2=st.v2; m3=st.v3; m4=st.v4; m5=st.v5; m6=st.v6; m7=st.v7;
+            m8=8u; m9=0u; m10=0x722D6373u; m11=0x646E756Fu; m12=16u*d1; m13=0u;
+            m14=uint(v0); m15=uint(v0>>32);
+            fl = base | CHUNK_START;
+        } else if (b == 1u) {
+            ulong v1=m_sm[1], v2=m_sm[2], v3=m_sm[3];
+            m0=uint(v1); m1=uint(v1>>32); m2=uint(v2); m3=uint(v2>>32); m4=uint(v3); m5=uint(v3>>32);
+            if (d1 >= 3u) { ulong v4=m_sm[4], v5=m_sm[5]; m6=uint(v4); m7=uint(v4>>32); m8=uint(v5); m9=uint(v5>>32); }
+            if (d1 >= 4u) { ulong v6=m_sm[6], v7=m_sm[7]; m10=uint(v6); m11=uint(v6>>32); m12=uint(v7); m13=uint(v7>>32); }
+            if (d1 >= 5u) { ulong v8=m_sm[8]; m14=uint(v8); m15=uint(v8>>32); }
+            if (d1 <= 4u) { blen = (2u * d1 - 1u) * 8u; fl = base | CHUNK_END | ROOT; }
+        } else if (b == 2u && nb_abs == 3u) {
+            ulong v9 = m_sm[9];
+            m0=uint(v9); m1=uint(v9>>32);
+            if (d1 >= 6u) { ulong v10=m_sm[10], v11=m_sm[11]; m2=uint(v10); m3=uint(v10>>32); m4=uint(v11); m5=uint(v11>>32); }
+            if (d1 >= 7u) { ulong v12=m_sm[12], v13=m_sm[13]; m6=uint(v12); m7=uint(v12>>32); m8=uint(v13); m9=uint(v13>>32); }
+            if (d1 >= 8u) { ulong v14=m_sm[14], v15=m_sm[15]; m10=uint(v14); m11=uint(v14>>32); m12=uint(v15); m13=uint(v15>>32); }
+            blen = (2u * d1 - 9u) * 8u;
+            fl = base | CHUNK_END | ROOT;
+        } else {
+            cv = iv;
+            m0=st.v0; m1=st.v1; m2=st.v2; m3=st.v3; m4=st.v4; m5=st.v5; m6=st.v6; m7=st.v7;
+            m8=0x65757173u; m9=0x00657A65u | ((uint(ctr) & 0xFFu) << 24);
+            m10=uint((ctr >> 8) & 0xFFFFFFFFUL); m11=uint(ctr >> 40);
+            blen = 47u; fl = base | CHUNK_START | CHUNK_END | ROOT;
+        }
+        cv = sc_b3_compress_reg(cv, m0,m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15, blen, fl);
+        if (b + 1u == nb_abs) { st = cv; }
+    }
+    st = cv;
+    r0 = gl_reduce128(ulong(st.v0) | (ulong(st.v1) << 32), ulong(st.v2) | (ulong(st.v3) << 32));
+    r1 = gl_reduce128(ulong(st.v4) | (ulong(st.v5) << 32), ulong(st.v6) | (ulong(st.v7) << 32));
+}
+
+kernel void k_sc_fs_step_v3(device const ulong *part [[buffer(0)]],
+                            device ulong *fs [[buffer(1)]],
+                            device const ulong *mk [[buffer(2)]],
+                            device ulong *out [[buffer(3)]],
+                            constant FsStepArgs &a [[buffer(4)]],
+                            device const ulong *xw [[buffer(5)]],
+                            uint t [[thread_position_in_threadgroup]]) {
+    // sm[0..15]: reduction tot[0..7], then s[0..d1-1]; sm[16..31]: masked m[0..d1-1]; sm[32..33]: r
+    threadgroup ulong sm[34];
+    uint d1 = a.d1;
+    uint np = a.eval_one != 0u ? (a.de + 1u) : a.de;
+    uint sg = t >> 5, lane = t & 31u;
+
+    // Phase 1: Parallel SIMD SoA reduction (0 barriers if nthreads == 1, else 1 TG barrier)
+    if (a.nthreads > 1u) {
+        if (np <= 4u) {
+            uint pi = sg >> 1, sub = sg & 1u;
+            if (pi < np) {
+                uint d = (a.eval_one != 0u || pi == 0u) ? pi : (pi + 1u);
+                ulong base_off = ulong(d) * ulong(a.nthreads);
+                fq2 acc = q2(0UL, 0UL);
+                for (uint g = sub * 32u + lane; g < a.nthreads; g += 64u) {
+                    acc = q2_add(acc, q2_at(part, (base_off + ulong(g)) * 2UL));
+                }
+                acc = sc_simd_sum_fq2(acc);
+                if (lane == 0u) { sm[2u * sg] = acc.c0; sm[2u * sg + 1u] = acc.c1; }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        } else {
+            if (sg < np) {
+                uint d = (a.eval_one != 0u || sg == 0u) ? sg : (sg + 1u);
+                ulong base_off = ulong(d) * ulong(a.nthreads);
+                fq2 acc = q2(0UL, 0UL);
+                for (uint g = lane; g < a.nthreads; g += 32u) {
+                    acc = q2_add(acc, q2_at(part, (base_off + ulong(g)) * 2UL));
+                }
+                acc = sc_simd_sum_fq2(acc);
+                if (lane == 0u) { sm[2u * sg] = acc.c0; sm[2u * sg + 1u] = acc.c1; }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+    }
+
+    if (sg != 0u) { return; }
+
+    // Phase 2: Build s[0..d1-1] in sm[0..15] and masked m[0..d1-1] in sm[16..31], strictly scoped
+    {
+        fq2 si = q2(0UL, 0UL);
+        if (lane < d1 && (lane != 1u || a.eval_one != 0u) && lane <= a.de) {
+            if (a.nthreads == 1u) {
+                si = q2_at(part, ulong(lane) * 2UL);
+            } else {
+                uint pi = (a.eval_one != 0u || lane == 0u) ? lane : (lane - 1u);
+                if (np <= 4u) {
+                    si = q2_add(q2(sm[4u * pi], sm[4u * pi + 1u]), q2(sm[4u * pi + 2u], sm[4u * pi + 3u]));
+                } else {
+                    si = q2(sm[2u * pi], sm[2u * pi + 1u]);
+                }
+            }
+        }
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane <= a.de && (lane != 1u || a.eval_one != 0u)) {
+            sm[2u * lane] = si.c0; sm[2u * lane + 1u] = si.c1;
+        }
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        if (a.eval_one == 0u && lane == 1u) {
+            fq2 s1 = q2_sub(q2(fs[19], fs[20]), q2(sm[0], sm[1]));
+            sm[2] = s1.c0; sm[3] = s1.c1;
+            si = s1;
+        }
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane > a.de && lane < d1) {
+            ulong row = ulong(lane - a.de - 1u) * ulong(a.de + 1u);
+            fq2 x = q2(0UL, 0UL);
+            for (uint i = 0; i <= a.de; i++) {
+                x = q2_add(x, q2_mulb(q2(sm[2u * i], sm[2u * i + 1u]), xw[row + ulong(i)]));
+            }
+            sm[2u * lane] = x.c0; sm[2u * lane + 1u] = x.c1;
+            si = x;
+        }
+        if (lane < d1) {
+            ulong rec = 4UL + ulong(d1) + ulong(a.j) * 2UL * ulong(2u + d1 + (d1 - 1u));
+            fq2 c = q2_at(mk, 0UL), ap = q2_at(mk, 2UL);
+            // [L2] host pushes real base-field scale Fp2::from_u64(1 << (n - 1 - j)); debug-asserted in metal.rs
+            ulong scale0 = mk[rec];
+            fq2 base = q2_add(q2_at(mk, rec + 2UL), q2(fs[21], fs[22]));
+            fq2 app = sc_q2_mul_k(ap, q2(fs[23], fs[24]));
+            fq2 g = q2_add(q2_mulb(q2_add(base, q2_at(mk, rec + 4UL + 2UL * ulong(lane))), scale0), q2_mulb(app, ulong(lane)));
+            fq2 mi = q2_add(si, sc_q2_mul_k(c, g));
+            sm[16u + 2u * lane] = mi.c0;
+            sm[17u + 2u * lane] = mi.c1;
+            ulong o = ulong(a.j) * 2UL * ulong(2u * d1 + 1u);
+            out[o + 2UL * ulong(lane)]            = si.c0;
+            out[o + 2UL * ulong(lane) + 1UL]      = si.c1;
+            out[o + 2UL * ulong(d1 + lane)]       = mi.c0;
+            out[o + 2UL * ulong(d1 + lane) + 1UL] = mi.c1;
+        }
+        // [L3] order both device reads of fs[19..25] and threadgroup writes of sm[0..31] before Phase 3/4 writes fs
+        simdgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    }
+
+    // Phase 3: Pure-scalar-register BLAKE3 on lane 0 (zero other values live across b3)
+    if (lane == 0u) {
+        ScB3U8 st  = {uint(fs[0]),uint(fs[1]),uint(fs[2]),uint(fs[3]),uint(fs[4]),uint(fs[5]),uint(fs[6]),uint(fs[7])};
+        ScB3U8 key = {uint(fs[8]),uint(fs[9]),uint(fs[10]),uint(fs[11]),uint(fs[12]),uint(fs[13]),uint(fs[14]),uint(fs[15])};
+        ulong r0, r1;
+        sc_fs_b3_reg_from_sm(st, key, uint(fs[17]), fs[16], sm + 16, d1, r0, r1);
+        sm[32] = r0; sm[33] = r1;
+        fs[0]=st.v0; fs[1]=st.v1; fs[2]=st.v2; fs[3]=st.v3; fs[4]=st.v4; fs[5]=st.v5; fs[6]=st.v6; fs[7]=st.v7;
+        fs[16] = fs[16] + 1UL;
+        ulong o = ulong(a.j) * 2UL * ulong(2u * d1 + 1u);
+        out[o + 4UL * ulong(d1)]       = r0;
+        out[o + 4UL * ulong(d1) + 1UL] = r1;
+    }
+    simdgroup_barrier(mem_flags::mem_threadgroup);
+
+    // Phase 4: Parallel Lagrange interpolation across lanes 0..d1-1 + Horner u_j(r) on lane 0
+    {
+        fq2 r = q2(sm[32], sm[33]);
+        if (fs[18] != 0UL) {
+            fq2 term = q2(0UL, 0UL);
+            if (lane < d1) {
+                fq2 si = q2(sm[2u * lane], sm[2u * lane + 1u]);
+                fq2 num = q2(1UL, 0UL);
+                for (uint m = 0; m < d1; m++) {
+                    if (m != lane) { num = sc_q2_mul_k(num, q2(gl_sub(r.c0, ulong(m)), r.c1)); }
+                }
+                term = q2_mulb(sc_q2_mul_k(si, num), mk[4u + lane]);
+            }
+            for (ushort d = 4; d > 0; d >>= 1) {
+                uint lo0 = simd_shuffle_down(uint(term.c0), d);
+                uint hi0 = simd_shuffle_down(uint(term.c0 >> 32), d);
+                uint lo1 = simd_shuffle_down(uint(term.c1), d);
+                uint hi1 = simd_shuffle_down(uint(term.c1 >> 32), d);
+                term.c0 = gl_add(term.c0, ulong(lo0) | (ulong(hi0) << 32));
+                term.c1 = gl_add(term.c1, ulong(lo1) | (ulong(hi1) << 32));
+            }
+            if (lane == 0u) { fs[19] = term.c0; fs[20] = term.c1; }
+        }
+        if (lane == 0u) {
+            uint D = d1 - 1u;
+            ulong rec = 4UL + ulong(d1) + ulong(a.j) * 2UL * ulong(2u + d1 + D);
+            fq2 uj = q2(0UL, 0UL);
+            for (uint e = D; e > 0u; e--) {
+                uj = sc_q2_mul_k(q2_add(uj, q2_at(mk, rec + 4UL + 2UL * ulong(d1) + 2UL * ulong(e - 1u))), r);
+            }
+            fq2 pre = q2_add(q2(fs[21], fs[22]), uj);
+            fq2 prod = sc_q2_mul_k(q2(fs[23], fs[24]), r);
+            fs[21] = pre.c0;  fs[22] = pre.c1;
+            fs[23] = prod.c0; fs[24] = prod.c1;
+        }
+    }
+}
