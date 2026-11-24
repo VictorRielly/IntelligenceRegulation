@@ -801,6 +801,18 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 00:09 UTC, Lean [READ, source only, nothing built] and research tick 51 [reading
+    only]:** the independent reads of Antigravity's completed proof chain for the honest prover
+    (26 files, about 37,000 lines of Lean, not merged) have resumed. First module, the output
+    stage's arithmetic: sound. It proves all 20 conditions the output stage owes for the
+    concrete tables, with no condition left as an assumption inside the module and no
+    degenerate case found, and the two gaps found earlier in the input stage are closed for
+    this stage. A scan of all 26 files found none of the words that would mark an unproved
+    step outside comments. Still to read: the zero-knowledge modules (running now) and the top
+    theorem; the top theorem takes a zero-knowledge premise whose status that read is to
+    settle. Nothing merges before those reads and a full build. Research tick 51 answered two
+    reading questions on the future-protocol candidate B: its recombined lookup keys cost no
+    extra helper rows, and its count of opening claims stands. No speed changes from either.
     **Nov 23, 23:12 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED
     from the raw completions]: the third candidate is fixed and now passes cleanly; not merged
     yet, the code review is next.** Antigravity found why its classifier-side branch slowed the

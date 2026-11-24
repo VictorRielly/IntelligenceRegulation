@@ -2,6 +2,13 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-24: Claude researcher tick 51, FlashProve's read descriptor and whether a lookup key may be a recombination of two planes (claude-cycle, queue items 82 and 83, H155/H157/H156c)
+
+**COMPLETE, reading only** (2 raw page fetches of the public FlashProve docs, 0 searches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-24T00:07:56Z.
+[Handoff](handoffs/20261124-claude-tick51-read-descriptor-key-recombination.md).
+- **Item 82:** the array term of the smallness tie is one combined row of the packed matrix per matrix (`M_mu{rw_mu}`, product-shape row weights), so H155's one tie claim per matrix holds. A read is (part, block): one `phi_f` per part, entry (c, b) over one block of `len(f)` rows; FlashProve combines limbs in the form (`sum 256^lb U3[...]`), so its own use is **one U3 entry per limb** and its layout puts limbs far apart. A spanning `phi_f` (1 and 256 in one block and column) is not forbidden by the grammar and not used (verifier source unread); the fail line is not met but tick 8's two-U count stands for FlashProve's layout; tick 49's class-W figure stays conditional.
+- **Item 83 passes:** a local key is already `alpha - (cst + sum coef x plane)` with any number of terms (`argument.rs:2143-2160`; `word24` is a two-plane key, `range16.rs:162-164`); helpers = ceil(lookups/2) (`shape.rs:2610`), so a recombined byte key adds no helper rows and tick 6's +480 is not forced; FlashProve's key table has `g0 + 256 gh`. One constraint: planes in the lookup's domain. Cost left: two reads per key unless limbs are adjacent in a block. H156c closed; H156d (toy) and H157b (layout read) added. 0 committed words changed; no rate claim.
+
 ## 2026-11-23: Claude researcher tick 50, what the smallness test's 2^18 cells do to the block's no-wrap arguments (claude-cycle, queue item 23, H156)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-23T19:53:47Z.
