@@ -2,6 +2,16 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-24: Claude researcher tick 53, device time of a masked LogUp-GKR lookup tree on Metal bounded from measured kernels (claude-cycle, queue item 87, H136b)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-24T07:56:56Z.
+[Handoff](handoffs/20261124-claude-tick53-lookup-tree-device-bound.md), script `20261124-claude-tick53-lookup-tree-device-bound.py`, output `...lookup-tree-device-bound.out.txt`.
+- **The tree (COUNTED, prototype):** 2^25 leaves, 24 sumcheck layers, 300 rounds, 13 extension products a pair (DERIVED), 349 M products and 6.0 GB a block; layers 24 and 23 hold 67% of the top-down products; 66 (2^13 line) to 105 (2^10 line) device rounds, 24 layer hand-offs. Masked rounds add only transcript-step work (CFS mask, one degree-7 round a layer), not bulk work.
+- **Bounds (device ms a block):** low 21.9 (15.7 without two ASSUMED terms), absolute floor 12.1 / 14.6 / 16.0 (K4 product rate, loads hidden, round cost 0.057 / 0.10 / 0.123 ms), stacked high 92.6. Rates MEASURED from K5 (slot 18: 29 to 53 ps a product; slot 14: 62 to 78), K0 (700 GB/s), K9 (transcript step 123 us, fast 57 to 85).
+- **Against tick 52's saving of 11.47 to 12.06 ms a block (9.8 to 10.3% of cadence by the tick 22 rule; cross-check from tick 40 slot times 12.05 to 12.65): pass line (high under 5.74 ms) not met; kill line (low above the saving) fires.** The floor equals the kill line only at the most favourable corner.
+- **Correction to tick 52's basis:** A also removes the 24 helper tables of slots 14 to 18, slot 19 and H's opening fold, 1.4 to 20.7 ms a block left out; gross saving 13.4 to 33.3 ms, net of the low tree and 6a's 9.4 ms leaf-claim term -17.9 to +2.0 ms (best case 1.7% of cadence). The 2026-11-01 helper-path 0.110 s (6a, projection.json) is stale: 18 to 33 ms today.
+- Tests T-GKR (one layer-23-shaped kernel, go under 6 ms for layers 24 and 23) and T-H (drop the helper tables in the K5 harness) stated, not scheduled. 0 committed words changed.
+
 ## 2026-11-24: Claude researcher tick 52, net block volume of candidate B with helper-free lookups (claude-cycle, queue item 18, H152)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-24T03:57:06Z.

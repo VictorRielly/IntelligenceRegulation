@@ -1,0 +1,54 @@
+ee-equivalents per pair-point: b14 (slot 14, 8B) 63.8, b18 (slot 18, 8B) 36.3
+b14 (slot 14, 8B) ps per ee-equivalent by pairs: {'2^17': 61.5, '2^16': 67.5, '2^15': 74.3, '2^14': 77.5, '2^13': 101.3, '2^12': 203.3, '2^11': 401.2, '2^10': 804.7, '2^9': 1778.5, '2^8': 3593.8}
+b18 (slot 18, 8B) ps per ee-equivalent by pairs: {'2^20': 29.1, '2^19': 42.1, '2^18': 43.8, '2^17': 46.3, '2^16': 50.2, '2^15': 53.2, '2^14': 53.3, '2^13': 99.7, '2^12': 198.8, '2^11': 396.6, '2^10': 795.3, '2^9': 1755.9, '2^8': 3519.8}
+
+structural ee per block: top-down 327.2 M, build 100.7 M, total 427.8 M; prototype counted 349.0 M (ratio 1.226)
+
+layer k: rounds, pairs in round 0, device rounds at the 2^13 and 2^10 host-tail lines, M ee-equivalents (structural), GB moved (180 B per pair)
+  k=24 rounds 24 pairs0 2^23 dev13 11 dev10 14 ee 109.05 M  GB 3.020
+  k=23 rounds 23 pairs0 2^22 dev13 10 dev10 13 ee 109.05 M  GB 1.510
+  k=22 rounds 22 pairs0 2^21 dev13  9 dev10 12 ee 54.53 M  GB 0.755
+  k=21 rounds 21 pairs0 2^20 dev13  8 dev10 11 ee 27.26 M  GB 0.377
+  k=20 rounds 20 pairs0 2^19 dev13  7 dev10 10 ee 13.63 M  GB 0.189
+  k=19 rounds 19 pairs0 2^18 dev13  6 dev10  9 ee 6.82 M  GB 0.094
+  k=18 rounds 18 pairs0 2^17 dev13  5 dev10  8 ee 3.41 M  GB 0.047
+  k=17 rounds 17 pairs0 2^16 dev13  4 dev10  7 ee 1.70 M  GB 0.024
+  k=16 rounds 16 pairs0 2^15 dev13  3 dev10  6 ee 0.85 M  GB 0.012
+  k=15 rounds 15 pairs0 2^14 dev13  2 dev10  5 ee 0.43 M  GB 0.006
+  k=14 rounds 14 pairs0 2^13 dev13  1 dev10  4 ee 0.21 M  GB 0.003
+  k=13 rounds 13 pairs0 2^12 dev13  0 dev10  3 ee 0.11 M  GB 0.001
+  k=12 rounds 12 pairs0 2^11 dev13  0 dev10  2 ee 0.05 M  GB 0.001
+  k=11 rounds 11 pairs0 2^10 dev13  0 dev10  1 ee 0.03 M  GB 0.000
+  k=10 rounds 10 pairs0 2^9  dev13  0 dev10  0 ee 0.01 M  GB 0.000
+  k= 9 rounds  9 pairs0 2^8  dev13  0 dev10  0 ee 0.01 M  GB 0.000
+  k= 8 rounds  8 pairs0 2^7  dev13  0 dev10  0 ee 0.00 M  GB 0.000
+  k= 7 rounds  7 pairs0 2^6  dev13  0 dev10  0 ee 0.00 M  GB 0.000
+  k= 6 rounds  6 pairs0 2^5  dev13  0 dev10  0 ee 0.00 M  GB 0.000
+  k= 5 rounds  5 pairs0 2^4  dev13  0 dev10  0 ee 0.00 M  GB 0.000
+  k= 4 rounds  4 pairs0 2^3  dev13  0 dev10  0 ee 0.00 M  GB 0.000
+  k= 3 rounds  3 pairs0 2^2  dev13  0 dev10  0 ee 0.00 M  GB 0.000
+  k= 2 rounds  2 pairs0 2^1  dev13  0 dev10  0 ee 0.00 M  GB 0.000
+  k= 1 rounds  1 pairs0 2^0  dev13  0 dev10  0 ee 0.00 M  GB 0.000
+  device rounds at the 2^13 line: 66, at the 2^10 line: 105; rounds in all: 300
+absolute floor with a 0.057 ms round (the fast transcript step alone at c1, K9 v3: 56.8 us; eval, reduce and fold not counted): 12.13 ms
+absolute floor with a 0.123 ms round (the shipped transcript step alone, K9): 15.95 ms
+
+absolute floor (K4 rate 23.49 ps per ee everywhere, prototype ee count, loads hidden, floor 0.10 ms a round, no hand-off, no host tail): 14.59 ms
+
+low bound: device rounds 66; ms: bulk (pairs>=2^15) 11.78, mid/small device rounds 2.10, build 1.85, layer hand-offs 1.20, host tail 5.00; TOTAL 21.93 ms
+
+high bound: device rounds 105; ms: bulk (pairs>=2^15) 38.02, mid/small device rounds 21.00, build 7.95, layer hand-offs 9.60, host tail 16.00; TOTAL 92.57 ms
+
+A saves per block, from tick 52 (9.8 to 10.3 percent of the 3.7455 s cadence, rule of tick 22): 11.47 to 12.06 ms
+cross-check, commits only (tick 40, one lane): H commit saved 12.65 ms, A commit grows by 0.00 to 0.60 ms: net 12.05 to 12.65 ms
+slots 14 to 18: 54.09 ms one lane; helper tables are 24 of 105 live tables; table-linear share 12.27 ms (upper); K1 load share (0.11 to 0.19 of the kernel) x 24/105 = 1.36 to 2.35 ms (lower)
+terms tick 52 did not count (upper = table-linear + slot 19 whole + H opening fold 4.35 ms) : 1.36 to 20.65 ms
+low bound without its two ASSUMED terms (hand-offs, host tail): 15.73 ms
+
+PASS line (high < half of saving, tick 52 basis): 5.74 ms; high bound 92.57 ms -> not passed
+KILL line (low > saving, tick 52 basis): 12.06 ms; low bound 21.93 ms -> KILL
+absolute floor 14.59 ms against the same saving 11.47 to 12.06 ms
+best case of the left-out-terms comparison: gross saving high 33.3 - low tree 21.9 - leaf claim 9.4 = 2.0 ms = 1.68 percent of cadence at full pass-through (rule of tick 22)
+with the left-out terms the gross saving is 13.4 to 33.3 ms; tree + leaf-claim terms (6a ESTIMATE 9.4 ms Metal, carried) + M rows (carried 8.6 to 25.9 ms, off the critical path if M is committed early):
+  low tree 21.9 ms; with leaf-claim 9.4: 31.3; net against gross saving range: -17.9 to 2.0 ms
+  high tree 92.6 ms; with leaf-claim 9.4: 102.0; net against gross saving range: -88.6 to -68.7 ms

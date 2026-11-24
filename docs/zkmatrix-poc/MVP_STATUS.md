@@ -801,6 +801,31 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 53, Nov 24 08:05 UTC [reading and arithmetic by the background researcher; its script re-
+    run by Claude with identical output; citations checked by Claude except the per-round medians
+    its script derives]: the future-protocol candidate A (lookups with no committed helper columns)
+    has no supported speed gain on today's prover.** The lookup tree that would replace the helper
+    columns costs at least about 22 ms a block on the GPU by a bound from kernels already measured,
+    against 11.5 to 12.1 ms of commit time saved. Counting three further savings an earlier tick had
+    left out, the net is between 18 ms slower and 2 ms faster a block; the best case is 1.7 percent
+    of the stream's cadence. This supports the ruling of Nov 16 that the prototype of candidate A
+    does not start. One reading-only item is queued to price the last unmeasured term. Nothing was
+    built or timed. Handoff: `research/zkp-efficiency/handoffs/20261124-claude-tick53-lookup-tree-
+    device-bound.md`.
+    **Nov 24, 08:05 UTC, direction (D81, Victor): effort begins to shift toward building and
+    marketing products and toward research on applications; the first market named is zero-knowledge
+    proofs of man-made content.** Reasons given: funding or interested clients would let operations
+    expand, and near 50 proved tokens per second the system is about as efficient as many
+    applications need. What changes: a market and applications scan is running (its output is
+    business material and stays outside this public repository); half of the background research
+    ticks go to applications; the speed switch now in review still merges, and after it a speed item
+    starts when a named application needs it. What does not change: nothing is called production
+    before its two Lean statements are proved (D63); the 8B target is not withdrawn; a detector's
+    verdict is labelled a statistical screen, never a proof that a human made something. Open with
+    Victor: which profile a first product ships (the Lean chain covers R13, the installed app runs
+    W16R2) and under what label a pilot may be offered before D63 is met for its profile. The app
+    now builds from the merged prover with five speed switches at six lanes by eight threads, and
+    its verifier launches strip every switch (Astra, 07:58 UTC).
     **Nov 24, 06:35 UTC, review [READ by two independent reviewers, source only, nothing built; the
     two points below checked by Claude in the source]: the second host-speed switch has no serious
     defect, and the review uncovered a flaw in the first host-speed switch, which is already
