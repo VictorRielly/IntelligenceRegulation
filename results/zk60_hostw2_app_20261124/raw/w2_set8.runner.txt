@@ -1,0 +1,7 @@
+[02:49:35] launching w2_set8
+[zk60-guard 02:49:35] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 02:50:36] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 02:51:37] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 02:52:38] START hostw2-w2_set8 class=gpu need=125G cap=200G enforce=watchdog-only waited=183s run=90fe4dd3c5ae
+[zk60-guard 03:22:03] END hostw2-w2_set8 exit=0 child_wall=1765s peak_rss=57.15G min_avail=135.59G peak_vram=21111MiB
+[03:22:03] w2_set8 guard exit 0

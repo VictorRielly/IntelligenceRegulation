@@ -1,0 +1,15 @@
+2026-11-24T10:49:35Z
+--- guard status ---
+RAM   203.75 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 8.0 of 252.5 GiB committed by guarded jobs
+  job  agy-w2-m1m2-verify3          build need 8G since 2026-11-24T10:49:21Z
+LOCKS heavy HELD, build HELD
+GPU   521 of 196608 MiB used
+DISK  /System/Volumes/VM 94.8 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16735 MiB  pid 48978   agy
+  rss   4932 MiB  pid 1578    claude
+  rss   1964 MiB  pid 81534   rustc --crate-name hashline --edition=2021 src/lib.rs --error-format=json --json=diagnostic-rendered-ansi,arti
+  rss   1948 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1450 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1404 MiB  pid 17265   claude
