@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 00:14 UTC, Lean [READ, source only, nothing built]: zero knowledge is not yet proved
+    for the concrete honest prover.** The second independent read of Antigravity's chain
+    (the zero-knowledge modules) finds that the final theorem takes one structured assumption,
+    called `W_zk`, that nothing in the repository constructs. It asks for a description of
+    the whole 28-segment run as a program, with exact counts of its hash queries and a proof
+    that what an observer sees depends only on the part of the randomness the argument allows.
+    The file's own header says this assumption is open; the commit message that called the
+    chain complete did not. Two further points: it is not shown that the assumption can be
+    met as written (it requires the prover to make the same kinds of hash queries on every
+    path, including when it refuses), and the query counts in it are typed-in numbers that are
+    checked to add up but not derived from the prover. What is proved: the error budget
+    arithmetic from the counts to the target, and the form of the conclusion, which matches
+    the approved statement. So for the R13 Shieldstral profile the honest prover's completeness
+    side is assembled for the concrete system, and zero knowledge rests on that one open
+    assumption. The read of the final theorem's full list of assumptions is running. Record:
+    `results/zk60_claude_review_20261116/L68C_READ_4_ZK_20261124.md`.
     **Nov 24, 00:09 UTC, Lean [READ, source only, nothing built] and research tick 51 [reading
     only]:** the independent reads of Antigravity's completed proof chain for the honest prover
     (26 files, about 37,000 lines of Lean, not merged) have resumed. First module, the output
