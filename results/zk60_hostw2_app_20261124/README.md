@@ -34,6 +34,30 @@ Condition (a) met (`raw/smoke_paths_83d784b26.txt`): arm C printed 312 `[ZK60-HO
 - Established at this profile: the switch transfers; about +3% on top of the five merged switches; byte-identical receipts in the sense that B0 accepts every receipt of B1 with the switch on.
 - Not established: that the switch-off path is unchanged in speed (four of four pairs are slightly negative; the eight-leg set decides); the reading at six lanes by eight threads (`w2_set8`, to run last); anything about the code beyond the smoke counters (two independent reads are under way).
 
+## The fix commit `9f70ff137` (2026-11-24): the read, the smoke and three sets
+
+The two reads of `83d784b26` asked for four fixes. They came as `9f70ff137` (15 files, about 2,000 lines added, code moved so that the switch-off path matches the base). B1 for everything below is that commit's prover, SHA-256 `5fe3ffa36ab3eaa30b606318ed1b888c260ca9364408ea7ec3d8782873d0ff37` (guard `5c1e4bd7874a`). B0 is unchanged. Definitions and readings were posted and pushed before any run (coordination entries 2026-11-24T05:13:45Z and 08:52:37Z).
+
+- **Independent read of the fix commit [READ, source only]:** `results/zk60_claude_review_20261116/HOST_WAVE2_FIX_READ_20261124.md`. No High finding. The verifier never takes a switch-dependent path (also for the merged `HL_HOST_FAST`), the sealed histogram is owned with its witness, the switch-off path matches the base, and nothing changes proof bytes. Two test gaps were sent back (the verifier gate does not cover an R13 accuracy stack or a receipt door; no refusal goes through a sealing pass) and one latent item (the block is still matched by heap address).
+- **Smoke `w2_smoke2` [MEASURED, not timed, guard `23ba2f927951`]:** condition (a) met (`raw/smoke_paths_9f70ff137.txt`): arm C printed 312 wave-2 block lines with every component hit except `ad` (off by default) and every fall-back sum zero; arms A and B printed none; every receipt of B1 accepted by B0.
+
+| set | shape after the discarded lead-in leg | legs, tok/s | reading fixed beforehand | result |
+|---|---|---|---|---|
+| `w2_ab8`, 6 lanes by 5 threads, guard `563d09a2b961` | A B B A B A A B, a receipt check after every leg | A 51.045, B 50.914, B 50.979, A 51.301, B 50.648, A 51.492, A 51.418, B 51.349 | r = mean B over mean A, minus one; "default path intact" at -1.5% or above | mean A 51.314, mean B 50.973, **r = -0.66%: default path intact** |
+| `w2_gain8`, 6 by 5, guard `5e0fca39ae98` | A C C A C A A C, a receipt check after every leg | A 53.412, C 55.749, C 55.358, A 53.881, C 54.906, A 54.099, A 54.339, C 56.361 | r = mean C over mean A, minus one; "gain kept" at +1.5% or above | mean A 53.933, mean C 55.594, **r = +3.08%: gain kept** |
+| `w2_set8`, 6 by 8, guard `90fe4dd3c5ae` | A B C C B A | A 52.920, B 53.785, C 56.226, C 54.839, B 54.267, A 54.829 | no verdict; "holds" if both C-over-A pairs are at +3% or more, "does not hold" if either is under +1.5% | pairs +6.25% and +0.02%: **does not hold** |
+
+All three sets [MEASURED]: no stall, no Metal error, no guarded job of another agent overlapping a timed leg (`overlap_check.py`), every receipt accepted by B0's `check-serve` with no switch in the checker's environment.
+
+**What is established for the code to be merged.** At six lanes by five threads the switch gives about 3% on top of the five merged switches: +3.08% over eight legs here, and the mean of four pair gains was +3.05% at `83d784b26`. With the switch unset the new code is within the -1.5% line of the pushed head (-0.66% over eight legs).
+
+**What is not established.**
+- A gain at six lanes by eight threads, the setting the app runs. The six-leg reading there is "does not hold" by its rule; its two read A legs are 3.5% apart, so it cannot separate a 3% gain from none. An eight-leg set at that setting has been offered to the app's owner and not run.
+- Why the level of the same arm moved by about 5% between `w2_ab8` (arm A about 51.3) and `w2_gain8` (about 53.9), fifty minutes apart, with the same receipt check after every leg and no guarded overlap. Readings compare arms interleaved inside one set; no figure here is to be compared across sets.
+- The 8B gain against the base binary. The author's 8B set (+5.47%, above) was on the earlier commit; a re-run on the final commit is asked for and does not hold the merge.
+
+**Gate state when this section was written:** the smoke, the default-path set and the gain confirmation are met and the fix read has no High finding. Open: the author's follow-up for the two test gaps (tests and comments only; a follow-up that touches code is timed again), then the merge check on that commit (`results/zk60_hostw2_merge_20261124/run_gate.py`).
+
 ## Files
 
-`hostw2_driver.py`, `t1_driver.py`, `hostw2_launch.py`, `guarded_here.py`, `hostw2_summary.py` (prints the legs, the pair gains and the means; decides nothing), `overlap_check.py`, `smoke_paths.py`; `raw/` holds the build logs, the smoke (`w2_smoke`), the two sets (`w2_set5`, `w2_set5r`), guard records and script outputs. No receipts and no binaries are kept. The content is the eight public posts; nothing under the owner-private directory was read.
+`hostw2_driver.py`, `t1_driver.py`, `hostw2_launch.py`, `guarded_here.py`, `hostw2_summary.py` (prints the legs, the pair gains and the means; decides nothing), `overlap_check.py`, `smoke_paths.py`; `raw/` holds the build logs, the smokes (`w2_smoke`, `w2_smoke2`), the sets on the fix commit (`w2_ab8`, `w2_gain8`, `w2_set8`), the two sets (`w2_set5`, `w2_set5r`), guard records and script outputs. No receipts and no binaries are kept. The content is the eight public posts; nothing under the owner-private directory was read.

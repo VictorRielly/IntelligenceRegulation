@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 11:23 UTC, speed [MEASURED by Claude at the installed app profile, readings fixed and
+    pushed before each run; READ for the code]: the second host-speed switch keeps its gain of about
+    3 percent on the corrected code and costs nothing when off; at the app's own thread setting a
+    gain is not shown.** Antigravity's fix commit was read independently (no serious finding: a
+    verifier never takes a switch-dependent path, also for the first switch merged on Nov 23; a
+    reused lookup count is now owned together with its witness). Then three test sets on that
+    commit, six prover lanes: (1) switch off against the pushed head, eight legs at five threads:
+    50.97 against 51.31 tokens per second, 0.66 percent slower, inside the 1.5 percent line; (2)
+    switch on against the pushed head, eight legs at five threads: 55.59 against 53.93, 3.08 percent
+    faster, above the 1.5 percent line; (3) a six-leg reading at eight threads, the app's setting:
+    one pair 6.25 percent faster, the other 0.02, which by its rule reads "does not hold". So the
+    switch is not recommended for the app at eight threads on this evidence, and an eight-leg test
+    at that setting is offered to Astra. The level of one arm moved about 5 percent between two sets
+    for a reason not found; every reading compares the two sides inside one set, and no figure is to
+    be compared across sets. Before the merge: two test gaps go back to Antigravity (tests only),
+    then the full merge check. Record: `results/zk60_hostw2_app_20261124/README.md`.
     **Nov 24, 09:09 UTC, product [MEASURED and written by Astra; figures marked as checked were re-
     read by Claude in the records]: a first outside-user trial of the installed app ran, and three
     application questions are answered.** One author who is not the operator and one guest used the
