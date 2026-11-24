@@ -54,6 +54,12 @@ GATES = [
     ("w2-alone-serve", T + "classify_cli::serve::tests::host_fast_w2_alone_classify_serve_gate", {"HL_HOST_FAST_W2": "1"}, IG),
     ("w2-trained-d55-sealing", "private_block::run::fork::tests::host_fast_w2_trained_block_d55_sealing_byte_identical", {}, IG),
     ("w2-rope-const-pubgen", W + "host_fast_w2_rope_and_const_pub_gen_gpu", HW, IG),
+    # added with the test-only follow-up 0ab86a480 (author's entry 2026-11-24T12:00:35Z, its five exact gates; the fourth is
+    # "all3-verifier-isolation" above)
+    ("m2-trained-seal-refusal", "private_block::trained_block::a3_tests::host_fast_w2_trained_seal_chain_planted_lookup_miss_refusal", {}, ["--exact"]),
+    ("m2-seal-keeping-refusal", T + "classify_cli::serve::tests::host_fast_w2_seal_chain_keeping_and_fast_planted_lookup_miss_refusal", {}, ["--exact"]),
+    ("w2-sealed-hists-parity", "private_block::protocol::tests::host_fast_w2_sealed_hists_twoterm_exp_and_flat_w16_parity", {}, ["--exact"]),
+    ("m1-r13-receipt-door", T + "classify_cli::serve::tests::host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate", ALL3, IG),
     ("hf-call-sites-author", W + "host_fast_all_call_sites_byte_identical", HF, IG),
     ("hf-golden-author", W + "host_fast_w16r2_rung_golden", HF, IG),
     # the two host-fast gates as the host-fast and classifier merges ran them
