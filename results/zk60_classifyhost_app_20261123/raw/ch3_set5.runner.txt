@@ -1,0 +1,5 @@
+[16:51:50] launching ch3_set5
+[zk60-guard 16:51:50] START classifyhost-ch3_set5 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=7a45a9c4b6c5
+[zk60-guard 17:51:51] KILL classifyhost-ch3_set5: exceeded --max-secs 3600
+[zk60-guard 17:51:51] END classifyhost-ch3_set5 exit=75 child_wall=3601s peak_rss=57.25G min_avail=133.98G peak_vram=21281MiB
+[17:51:51] ch3_set5 guard exit 75

@@ -1,0 +1,4 @@
+[16:45:51] launching ch3_smoke
+[zk60-guard 16:45:51] START classifyhost-ch3_smoke class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=bca418f4a7ef
+[zk60-guard 16:51:48] END classifyhost-ch3_smoke exit=0 child_wall=357s peak_rss=58.51G min_avail=134.47G peak_vram=22123MiB
+[16:51:48] ch3_smoke guard exit 0

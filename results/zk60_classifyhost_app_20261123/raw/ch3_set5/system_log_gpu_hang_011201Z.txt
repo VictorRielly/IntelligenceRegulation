@@ -1,0 +1,15 @@
+# /usr/bin/log show --start "2026-11-23 17:11:40" --end "2026-11-23 17:12:10" --style compact (local time = UTC-8), predicate:
+# (process == "kernel" OR process == "WindowServer" OR process == "zk60_classify") AND (eventMessage CONTAINS[c] "AGX" OR eventMessage CONTAINS[c] "GPU" OR eventMessage CONTAINS[c] "metal" OR eventMessage CONTAINS[c] "command buffer")
+Timestamp               Ty Process[PID:TID]
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a052ce] (IOGPU) IOGPUMetalError: <private>
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a0524d] (IOGPU) IOGPUMetalError: <private>
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a05219] (IOGPU) IOGPUMetalError: <private>
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a05219] (Metal) Execution of the command buffer was aborted due to an error during execution. Discarded (victim of GPU error/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a052ce] (Metal) Execution of the command buffer was aborted due to an error during execution. Discarded (victim of GPU error/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a0524d] (Metal) Execution of the command buffer was aborted due to an error during execution. Discarded (victim of GPU error/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a052e7] (IOGPU) IOGPUMetalError: <private>
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a052e7] (Metal) Execution of the command buffer was aborted due to an error during execution. Discarded (victim of GPU error/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a057e2] (IOGPU) IOGPUMetalError: <private>
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a057e2] (Metal) Execution of the command buffer was aborted due to an error during execution. Discarded (victim of GPU error/recovery) (00000005:kIOGPUCommandBufferCallbackErrorInnocentVictim)
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a0524d] (IOGPU) IOGPUMetalError: <private>
+2026-11-23 17:12:01.065 E  zk60_classify[61970:1a0524d] (Metal) Execution of the command buffer was aborted due to an error during execution. Caused GPU Hang Error (00000003:kIOGPUCommandBufferCallbackErrorHang)

@@ -28,10 +28,29 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'zk60_a36_core_a
 import t1_driver as t1  # noqa: E402
 
 POSTS8 = t1.REPO / 'results/zk60_a24_app_20261107/posts/stream8.json'
-MIN_FREE_GB = 80
+MIN_FREE_GB = int(os.environ.get('ZK60_MIN_FREE_GB', '80'))  # the override is stated in the coordination entry of the run that uses it
 SWITCHES = ('HL_METAL_FUSED_RS', 'HL_METAL_SPARSE_FOLD', 'HL_METAL_SPARSE_FOLD_REG8', 'HL_METAL_OPEN_FAST', 'HL_METAL_OPEN_SKIP_TABLES',
             'HL_METAL_OPEN_HOST_GATHER', 'HL_METAL_SC_CHAIN_FAST', 'HL_HOST_FAST', 'HL_CLASSIFY_HOST_FAST', 'HL_A36_CORE_AHEAD')
 BASE = {'HL_METAL_FUSED_RS': '1', 'HL_METAL_SPARSE_FOLD': '1', 'HL_METAL_SC_CHAIN_FAST': '1', 'HL_HOST_FAST': '1'}
+STALL_SECS = 300  # a request takes about 15 s at six lanes; five minutes with none finished is a stall
+
+
+def wait_stream(all_done, count, exited, stall_secs, cap_secs, poll=5.0, clock=time.monotonic):
+    """Wait for the stream. Returns None when `all_done` is set, otherwise the reason the leg must stop: the prover exited before
+    the stream ended, no request finished for `stall_secs`, or `cap_secs` passed."""
+    t0 = last_t = clock()
+    last_n = count()
+    while not all_done.wait(poll):
+        now, n = clock(), count()
+        if n != last_n:
+            last_n, last_t = n, now
+        if exited():
+            return 'the prover exited before the stream ended'
+        if now - last_t > stall_secs:
+            return f'no request finished for {stall_secs} s'
+        if now - t0 > cap_secs:
+            return f'the stream did not finish in {cap_secs} s'
+    return None
 
 
 def free_gb(path):
@@ -158,8 +177,26 @@ def main():
                 srv.waiting[rid] = make_cb(q)
             srv.p.stdin.write(json.dumps(obj) + '\n')
         srv.p.stdin.flush()
-        if not all_done.wait(5400):
-            raise SystemExit('the stream did not finish')
+        # Stall check (added 2026-11-24 after ch3_set5 leg 5: a GPU hang at 01:12:01Z left the prover idle and the job held the
+        # heavy lock until the guard's --max-secs). The leg stops when the prover exits early, when no request finishes for
+        # STALL_SECS, or after 5400 s; before the prover is ended its stacks are sampled so the hang can be read afterwards.
+        why = wait_stream(all_done, lambda: len(done), lambda: srv.p.poll() is not None, STALL_SECS, 5400)
+        if why:
+            stop.set()
+            n_done = len(done)
+            smp = out / f'leg{leg_no}_arm{arm}.stall_sample.txt'
+            try:
+                subprocess.run(['/usr/bin/sample', str(srv.p.pid), '3', '-file', str(smp)], capture_output=True, timeout=90)
+            except Exception as e:  # the sample is a diagnostic only
+                smp.write_text(f'sample failed: {e}\n')
+            try:
+                srv.p.kill()
+            except Exception:
+                pass
+            (out / f'leg{leg_no}_arm{arm}.STALLED.txt').write_text(
+                f'{time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())} leg {leg_no} arm {arm}: {why}; {n_done} of {total} requests finished; '
+                f'the set is incomplete and carries no reading\n')
+            raise SystemExit(f'STOP leg {leg_no} arm {arm}: {why}; {n_done} of {total} requests finished')
         stop.set()
         srv.close()
         leg['server_exit'] = srv.p.returncode

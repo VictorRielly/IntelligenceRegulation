@@ -1,0 +1,8 @@
+
+thread 'a24-lane0-0' (27283996) panicked at src/gpu/metal.rs:5156:69:
+metal batched sumcheck rounds: "metal: command buffer ended Error"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+[ZK60-GPU] [ZK60-METAL] keyed metal zk commit declined (metal: command buffer ended Error); CPU path
+
+thread 'a24-lane3-0' (27284011) panicked at src/gpu/metal.rs:5156:69:
+metal batched sumcheck rounds: "metal: command buffer ended Error"
