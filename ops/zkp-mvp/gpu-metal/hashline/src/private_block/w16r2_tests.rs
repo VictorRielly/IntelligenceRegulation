@@ -4716,6 +4716,7 @@ fn host_fast_w16r2_rung_golden() {
     let _hf_lock = crate::zk::host_fast_test_lock();
     struct Reset {
         prev_hf: Option<bool>,
+        prev_w2: Option<bool>,
         prev_sf: Option<bool>,
         prev_frs: Option<bool>,
         prev_sc: Option<bool>,
@@ -4725,6 +4726,7 @@ fn host_fast_w16r2_rung_golden() {
     impl Drop for Reset {
         fn drop(&mut self) {
             crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
             crate::gpu::metal_set_sparse_fold_for_test(self.prev_sf);
             crate::gpu::set_fused_rs_for_test(self.prev_frs);
             crate::gpu::metal_set_sc_chain_fast_for_test(self.prev_sc);
@@ -4737,6 +4739,7 @@ fn host_fast_w16r2_rung_golden() {
     }
     let _guard = Reset {
         prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
         prev_sf: crate::gpu::metal_set_sparse_fold_for_test(None),
         prev_frs: crate::gpu::set_fused_rs_for_test(None),
         prev_sc: crate::gpu::metal_set_sc_chain_fast_for_test(None),
@@ -4848,11 +4851,13 @@ fn host_fast_all_call_sites_byte_identical() {
 
     struct Reset {
         prev_hf: Option<bool>,
+        prev_w2: Option<bool>,
         prev_gpu: Option<String>,
     }
     impl Drop for Reset {
         fn drop(&mut self) {
             crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
             match &self.prev_gpu {
                 Some(v) => std::env::set_var("HL_GPU", v),
                 None => std::env::remove_var("HL_GPU"),
@@ -4861,6 +4866,7 @@ fn host_fast_all_call_sites_byte_identical() {
     }
     let _guard = Reset {
         prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
         prev_gpu: std::env::var("HL_GPU").ok(),
     };
     std::env::set_var("HL_GPU", "1");
@@ -5688,19 +5694,29 @@ fn host_fast_cpu_w16r2_rung_and_toy_parity_default() {
 
         crate::zk::set_host_fast_for_test(Some(true));
         let hb = crate::zk::host_fast_hits_for_test();
+        let w2_hb = crate::zk::host_fast_w2_hits_for_test();
         let d_on = seeded_digest(&sh, &blk, copy(&w));
         let ha = crate::zk::host_fast_hits_for_test();
+        let w2_ha = crate::zk::host_fast_w2_hits_for_test();
         let hd: [u64; 8] = std::array::from_fn(|i| ha[i].saturating_sub(hb[i]));
+        let w2_hd: [u64; 10] = std::array::from_fn(|i| w2_ha[i].saturating_sub(w2_hb[i]));
         assert_eq!(d_on, d_off, "W16R2 rung hf1 digest differs from hf0");
         assert!(d_on.starts_with(W16R2_RUNG_GOLDEN), "W16R2 rung hf1 digest != golden: {d_on}");
         for i in [
             crate::zk::HF_H1_INV_TBL,
             crate::zk::HF_H2_PAR_MASK,
-            crate::zk::HF_H3_PAR_RNG16,
             crate::zk::HF_H4_ACC_FOLD,
             crate::zk::HF_H5_PRIV_FOLD,
         ] {
             assert!(hd[i] > 0, "W16R2 rung default parity expected hit counter {i} > 0, got {hd:?}");
+        }
+        if crate::zk::host_fast_w2_on() {
+            assert!(
+                hd[crate::zk::HF_H3_PAR_RNG16] > 0 || w2_hd[crate::zk::HF_W2_FLAT_W16] > 0,
+                "W16R2 rung default parity expected H3 or W2-3 flat W16 > 0, got h1={hd:?} w2={w2_hd:?}"
+            );
+        } else {
+            assert!(hd[crate::zk::HF_H3_PAR_RNG16] > 0, "W16R2 rung default parity expected hit counter H3 > 0, got {hd:?}");
         }
         if !gpu_on {
             assert!(hd[crate::zk::HF_H6_CPU_PUB_GEN] > 0, "W16R2 rung CPU parity expected H6 CPU PubGen > 0, got {hd:?}");
@@ -5776,11 +5792,13 @@ fn host_fast_m2_r13_shield_byte_identical() {
     let _hf_lock = crate::zk::host_fast_test_lock();
     struct Reset {
         prev_hf: Option<bool>,
+        prev_w2: Option<bool>,
         prev_gpu: Option<String>,
     }
     impl Drop for Reset {
         fn drop(&mut self) {
             crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
             match &self.prev_gpu {
                 Some(v) => std::env::set_var("HL_GPU", v),
                 None => std::env::remove_var("HL_GPU"),
@@ -5789,6 +5807,7 @@ fn host_fast_m2_r13_shield_byte_identical() {
     }
     let _guard = Reset {
         prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
         prev_gpu: std::env::var("HL_GPU").ok(),
     };
     std::env::set_var("HL_GPU", "1");
@@ -6447,6 +6466,34 @@ fn host_fast_w2_rung_golden() {
         assert!(w2_d[i] > 0, "CheckedPublic+SealedHistograms warm full-stack expected ALL 10 W2 counters > 0 (idx {i} was 0): {w2_d:?}");
     }
     eprintln!("HOST-FAST-W2-RUNG {} CheckedPublic+SealedHistograms: digest {} (golden); all 10 w2_hits={w2_d:?}", sh.name, &d_hints[..8]);
+
+    // Strict fresh-process stale-SealedHistograms mismatch fallback + AD=false zero-hit check
+    crate::zk::set_host_fast_async_drop_for_test(Some(false));
+    let w_stale = copy(&w);
+    let (ein2, eout2) = io_planes(&sh, &w_stale);
+    let mut rng2 = ZkRng::new(20261031, b"zk60 metal m4 accuracy");
+    let mut tr2 = Transcript::new(b"zk60 metal m4 accuracy");
+    tr2.absorb(b"profile", sh.profile.as_bytes());
+    tr2.absorb(b"schedule", &lay.schedule_digest());
+    let mut ph2 = super::timing::Phases::start();
+    let (mut phases2, mut tick2) = (Vec::new(), std::time::Instant::now());
+    let hints_stale = protocol::CoreHints { checked: Some(&record), sealed_hists: Some(&shist) };
+    let sb = crate::zk::host_fast_w2_hits_for_test();
+    let sfbb = crate::zk::host_fast_w2_fallbacks_for_test();
+    let core_stale = protocol::prove_core_with(&sh, &lay, &blk, w_stale, [ein2.as_slice(), eout2.as_slice()], &ntt, &mut rng2, &mut tr2, &mut ph2, &mut phases2, &mut tick2, hints_stale)
+        .expect("prove_core_with stale SealedHistograms fallback");
+    let sa = crate::zk::host_fast_w2_hits_for_test();
+    let sfba = crate::zk::host_fast_w2_fallbacks_for_test();
+    let sd: [u64; 10] = std::array::from_fn(|i| sa[i] - sb[i]);
+    let sfd: [u64; 5] = std::array::from_fn(|i| sfba[i] - sfbb[i]);
+    let text_stale = format!(
+        "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
+        core_stale.a_root, core_stale.h_root, core_stale.mask_root, core_stale.slots, core_stale.mask_open, core_stale.a_open, core_stale.h_open, core_stale.io_claims, core_stale.order, core_stale.lookups, tr2.state()
+    );
+    assert_eq!(blake3::hash(text_stale.as_bytes()).to_hex().to_string(), cpu0, "stale SealedHistograms fallback digest differs from golden");
+    assert_eq!(sd[crate::zk::HF_W2_SEAL_HIST], 0, "stale witness must not hit HF_W2_SEAL_HIST: {sd:?}");
+    assert_eq!(sd[crate::zk::HF_W2_ASYNC_DROP], 0, "AD=false must not hit HF_W2_ASYNC_DROP: {sd:?}");
+    assert_eq!(sfd, [1, 0, 0, 0, 0], "stale witness must record exactly 1 HF_W2_FB_SEAL_HIST fallback: {sfd:?}");
 }
 
 /// **[HOST-FAST-W2] Full proof-byte identity (`hf1+hw0` vs `hf1+hw1`) across all prover call paths:**

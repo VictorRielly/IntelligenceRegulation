@@ -1501,13 +1501,10 @@ mod tests {
             for (tag, coeffs) in [("span", &coeffs_span), ("all", &coeffs_all), ("zero", &coeffs_zero)] {
                 let want = fold_with_opts(&mat, rows, cols, axis, coeffs, &eq, false, false, false).unwrap();
 
-                // hw0 must not record W2 hits
+                // hw0 parity (strict zero-hit check lives in fresh-process `host_fast_w2_all_call_sites_byte_identical`)
                 crate::zk::set_host_fast_w2_for_test(Some(false));
-                let hb0 = crate::zk::host_fast_w2_hits_for_test();
                 let got0 = fold_checked(&mat, rows, cols, axis, coeffs, &eq, false).unwrap();
-                let ha0 = crate::zk::host_fast_w2_hits_for_test();
                 assert_eq!(got0, want, "hw0 mismatch {rows}x{cols} {axis:?} {tag}");
-                assert_eq!(ha0[crate::zk::HF_W2_FOLD_TILED], hb0[crate::zk::HF_W2_FOLD_TILED], "hw0 must not bump W2 counter");
 
                 // hw1 with registry_checked = false AND true must both match baseline bit-for-bit
                 crate::zk::set_host_fast_w2_for_test(Some(true));

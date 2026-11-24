@@ -640,15 +640,12 @@ struct CliSourceFast<'a> {
     verified_outs: Vec<Vec<i16>>,
 }
 
-impl ClassifyRunSource for CliSourceFast<'_> {
-    fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String> {
-        self.stage_in.take().ok_or_else(|| "classifier run: stage IN-C asked twice".to_string())
-    }
-    fn witness(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<Witness, String> {
+impl CliSourceFast<'_> {
+    fn witness_inner(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<(Witness, Option<super::super::protocol::SealedHistograms>), String> {
         let sh = &self.p.sh;
-        let w = match self.kept.get_mut(k).and_then(Option::take) {
-            Some((ks, kx, kw)) if ks == *ssh && kx == self.x => kw,
-            _ => super::super::witness::build_for_block(ssh, blk, &self.x)?,
+        let (w, hists) = match self.kept.get_mut(k).and_then(Option::take) {
+            Some((ks, kx, kw, kh)) if ks == *ssh && kx == self.x => (kw, kh),
+            _ => (super::super::witness::build_for_block(ssh, blk, &self.x)?, None),
         };
         let ids = Ids::new(ssh)?;
         if ids.at(A_X2) != self.ids.at(A_X2) {
@@ -669,7 +666,19 @@ impl ClassifyRunSource for CliSourceFast<'_> {
         }
         self.parity += 1;
         self.x = next;
-        Ok(w)
+        Ok((w, hists))
+    }
+}
+
+impl ClassifyRunSource for CliSourceFast<'_> {
+    fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String> {
+        self.stage_in.take().ok_or_else(|| "classifier run: stage IN-C asked twice".to_string())
+    }
+    fn witness(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<Witness, String> {
+        self.witness_inner(k, blk, ssh).map(|(w, _)| w)
+    }
+    fn witness_with_hists(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<(Witness, Option<super::super::protocol::SealedHistograms>), String> {
+        self.witness_inner(k, blk, ssh)
     }
     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
         if let Some(cached) = self.verified_outs.get(k) {
@@ -692,11 +701,13 @@ impl ClassifyRunSource for CliSourceFast<'_> {
 }
 
 /// Out-of-line `HL_CLASSIFY_HOST_FAST=1` sealing chain (C3 retained verified outputs + C4 A33
-/// `check_lookup_misses_after_public_check`), keeping [`seal_chain_keeping`] verbatim when unset.
+/// `check_lookup_misses_after_public_check`, plus W2-2 `SealedHistograms` when resident and
+/// `HL_HOST_FAST_W2=1`), keeping [`seal_chain_keeping`] verbatim when unset.
 #[allow(clippy::type_complexity)]
 #[inline(never)]
 fn seal_chain_keeping_fast(p: &ExportPublic, seq: &SeqIn, blocks: &mut dyn TokenBlocks, x_in0: Vec<i16>, budget: u64) -> Result<(Vec<i16>, Vec<Option<KeptWitness>>, Vec<Vec<i16>>), String> {
     let sh = &p.sh;
+    let is_resident = blocks.resident();
     let mut x = x_in0;
     let mut kept: Vec<Option<KeptWitness>> = Vec::with_capacity(if budget > 0 { p.model.layers.len() } else { 0 });
     let mut verified_outs: Vec<Vec<i16>> = Vec::with_capacity(p.model.layers.len());
@@ -713,17 +724,27 @@ fn seal_chain_keeping_fast(p: &ExportPublic, seq: &SeqIn, blocks: &mut dyn Token
         if next != loaded {
             return Err(format!("block {k}: the builder's output is not the export's x_out_L{:02} (parity, in the sealing pass, before any header)", p.layers[k]));
         }
+        let wb = if budget > 0 { witness_bytes(&w) } else { 0 };
+        let keep_this = budget > 0 && used.saturating_add(wb) <= budget;
         // C4 (A33): `witness::build_for_block(&ssh, &blk, &x)` above always ran
         // `blk.check_for_shape(&ssh)` on this exact `&blk` and `&ssh`.
         record_classify_host_fast_hit(CHF_C4_CS3_SKIP);
-        super::super::protocol::check_lookup_misses_after_public_check(&ssh, &lay, &blk, &w).map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?;
+        let hist_opt = if keep_this && is_resident && crate::zk::host_fast_w2_on() {
+            Some(
+                super::super::protocol::check_lookup_misses_collecting(&ssh, &lay, &blk, &w, true)
+                    .map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?,
+            )
+        } else {
+            super::super::protocol::check_lookup_misses_after_public_check(&ssh, &lay, &blk, &w)
+                .map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?;
+            None
+        };
         verified_outs.push(loaded);
         let x_in = std::mem::replace(&mut x, next);
         if budget > 0 {
-            let wb = witness_bytes(&w);
-            if used.saturating_add(wb) <= budget {
+            if keep_this {
                 used += wb;
-                kept.push(Some((ssh, x_in, w)));
+                kept.push(Some((ssh, x_in, w, hist_opt)));
             } else {
                 kept.push(None);
             }

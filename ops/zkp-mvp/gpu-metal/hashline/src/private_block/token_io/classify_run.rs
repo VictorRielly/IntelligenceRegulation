@@ -774,9 +774,12 @@ fn prove_classify_run_loop_fast(
                 protocol::absorb_root(tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
                 let lay = st.block_layout(k)?;
                 let ssh = st.stage_shape(k)?;
-                let wit = src.witness(k, &blk, &ssh)?;
+                let (wit, sealed_hists) = src.witness_with_hists(k, &blk, &ssh)?;
                 ph.mark(timing::Half::Run, "run: witness (CliSource)", 1, "block");
-                let hints = protocol::CoreHints { checked: checked.as_ref().filter(|_| a26_run_record_on()) };
+                let hints = protocol::CoreHints {
+                    checked: checked.as_ref().filter(|_| a26_run_record_on()),
+                    sealed_hists: sealed_hists.as_ref(),
+                };
                 let core = protocol::prove_core_with(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], ntt, rng, tr, &mut ph, &mut phases, &mut tick, hints)?;
                 let [ic, oc] = core.io_claims;
                 let mut claims = std::mem::take(&mut pending);

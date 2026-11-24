@@ -4421,12 +4421,7 @@ mod tests {
             let log = if len == n { row_log(&sh, Cm::A) } else { row_log(&sh, Cm::A) - 1 };
             let p = Priv { cm: Cm::A, slices: vec![(0, Fp2::ONE)], log, coords: vec![], mask_row: 2, ext_round: 0 };
             crate::zk::set_host_fast_w2_for_test(Some(false));
-            let hb0 = crate::zk::host_fast_w2_hits_for_test();
             let v0 = mask_eval_eq(&sh, &p, &data, &eq);
-            let ha0 = crate::zk::host_fast_w2_hits_for_test();
-            if std::env::var("HL_HOST_FAST_W2").map(|v| v != "1").unwrap_or(true) {
-                assert_eq!(ha0[crate::zk::HF_W2_MASK_EVAL], hb0[crate::zk::HF_W2_MASK_EVAL], "hw0 must not bump HF_W2_MASK_EVAL");
-            }
 
             crate::zk::set_host_fast_w2_for_test(Some(true));
             let hb1 = crate::zk::host_fast_w2_hits_for_test();

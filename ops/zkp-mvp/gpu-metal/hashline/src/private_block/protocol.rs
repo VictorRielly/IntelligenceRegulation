@@ -737,10 +737,10 @@ pub(crate) fn check_lookup_misses_collecting(sh: &Shape, lay: &Layout, blk: &Blo
     if !public_checked {
         blk.check_for_shape(sh)?;
     }
-    scan_lookup_misses(sh, lay, blk, wit, true)
+    Ok(scan_lookup_misses(sh, lay, blk, wit, true)?.expect("collect=true always produces SealedHistograms"))
 }
 
-fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness, collect: bool) -> Result<SealedHistograms, String> {
+fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness, collect: bool) -> Result<Option<SealedHistograms>, String> {
     let ids = lay.ids();
     if wit.planes.len() != ids.n_a() {
         return Err("private block: witness shape".into());
@@ -776,7 +776,10 @@ fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness
     if sh.dd_cap > 0 {
         refuse_dictionary_misses(dd_misses(lay, wit, &blk.attention().dd_e_column(sh.dd_cap)?))?;
     }
-    Ok(SealedHistograms {
+    if !collect {
+        return Ok(None);
+    }
+    Ok(Some(SealedHistograms {
         sh: sh.clone(),
         blk_sig: blk_sig(blk),
         wit_sig: wit_sig(wit),
@@ -785,7 +788,7 @@ fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness
         m_exp,
         m_act,
         zero_misses: u8_or_range_missed == 0 && exp_missed == 0 && act_missed == 0,
-    })
+    }))
 }
 
 // **RULING CS-3's test-only switch: the soundness tests' CHEATING PROVER.**
@@ -4651,20 +4654,18 @@ mod tests {
         assert!(!shist.matches(&Shape::toy(), &blk, &w_hit), "SealedHistograms must reject other shape");
 
         let hb1 = crate::zk::host_fast_w2_hits_for_test();
-        let fb1 = crate::zk::host_fast_w2_fallbacks_for_test();
         let (core1, st1) = run_core(w_hit, CoreHints { checked: None, sealed_hists: Some(&shist) });
         let ha1 = crate::zk::host_fast_w2_hits_for_test();
-        let fa1 = crate::zk::host_fast_w2_fallbacks_for_test();
         assert_eq!(fp_text(&core1, st1), text0, "W2 full-hit CoreProof must be bit-identical to baseline");
         assert!(ha1[crate::zk::HF_W2_SEAL_HIST] > hb1[crate::zk::HF_W2_SEAL_HIST], "HF_W2_SEAL_HIST must hit");
         assert!(ha1[crate::zk::HF_W2_TWOTERM_EXP] > hb1[crate::zk::HF_W2_TWOTERM_EXP], "HF_W2_TWOTERM_EXP must hit");
         assert!(ha1[crate::zk::HF_W2_FLAT_W16] > hb1[crate::zk::HF_W2_FLAT_W16], "HF_W2_FLAT_W16 must hit");
         assert!(ha1[crate::zk::HF_W2_ASYNC_DROP] > hb1[crate::zk::HF_W2_ASYNC_DROP], "HF_W2_ASYNC_DROP must hit");
         assert!(ha1[crate::zk::HF_W2_PAR_OPEN] > hb1[crate::zk::HF_W2_PAR_OPEN], "HF_W2_PAR_OPEN must hit");
-        assert_eq!(fa1[crate::zk::HF_W2_FB_SEAL_HIST], fb1[crate::zk::HF_W2_FB_SEAL_HIST]);
-        assert_eq!(fa1[crate::zk::HF_W2_FB_FLAT_W16], fb1[crate::zk::HF_W2_FB_FLAT_W16]);
 
         // W2 mismatch fallback + AD=false: stale SealedHistograms passed with cloned witness
+        // (strict zero-hit / zero-fallback equalities live in fresh-process `host_fast_w2_rung_golden`
+        // since concurrent suite tests share process-wide W2 counters).
         crate::zk::set_host_fast_async_drop_for_test(Some(false));
         let hb2 = crate::zk::host_fast_w2_hits_for_test();
         let fb2 = crate::zk::host_fast_w2_fallbacks_for_test();
@@ -4672,9 +4673,7 @@ mod tests {
         let ha2 = crate::zk::host_fast_w2_hits_for_test();
         let fa2 = crate::zk::host_fast_w2_fallbacks_for_test();
         assert_eq!(fp_text(&core2, st2), text0, "W2 fallback CoreProof must be bit-identical to baseline");
-        assert_eq!(ha2[crate::zk::HF_W2_SEAL_HIST], hb2[crate::zk::HF_W2_SEAL_HIST], "mismatched witness must not hit HF_W2_SEAL_HIST");
         assert!(fa2[crate::zk::HF_W2_FB_SEAL_HIST] > fb2[crate::zk::HF_W2_FB_SEAL_HIST], "mismatched witness must increment HF_W2_FB_SEAL_HIST");
-        assert_eq!(ha2[crate::zk::HF_W2_ASYNC_DROP], hb2[crate::zk::HF_W2_ASYNC_DROP], "AD=false must not hit HF_W2_ASYNC_DROP");
         assert!(ha2[crate::zk::HF_W2_FLAT_W16] > hb2[crate::zk::HF_W2_FLAT_W16]);
         assert!(ha2[crate::zk::HF_W2_PAR_OPEN] > hb2[crate::zk::HF_W2_PAR_OPEN]);
     }
