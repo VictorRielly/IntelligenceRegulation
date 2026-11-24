@@ -801,6 +801,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 06:21 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED as
+    ratios inside one set; the 8B figures are Antigravity's, recomputed by Claude from its raw log]:
+    a second host-speed switch passes its timing test at the app profile, narrowly, and is not
+    merged yet.** `HL_HOST_FAST_W2=1` (Antigravity's branch, off by default, byte-identical
+    receipts) cuts more host work around each block. At the app profile it gave +3.1%, +2.5%, +2.5%
+    and +4.2% in four paired comparisons over two sets: average +3.05% against a pass line of +3%,
+    so it passes by a hair and the honest size is about 3%. With all six switches the stream ran
+    55.6 to 56.9 tok/s against 54.2 to 54.6 for the current head in the same sets (public posts,
+    trained 3B classifier, six lanes by five threads). At the 8B size the same switch measured more:
+    40.8 to 43.0 tok/s (+5.5%, every one of six passes faster), with the caveat that both figures
+    come from one binary of an earlier commit. Still to do before a merge: two independent code
+    reads (running), fixes, a dedicated test that the switch-off path is not slower (the four
+    switch-off comparisons so far are all slightly negative, about -1% on average), and the merge
+    check. Record: `results/zk60_hostw2_app_20261124/README.md`.
     **Nov 24, 04:33 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED as
     ratios inside one set]: the classifier speed switch is merged; with all five switches the app's
     stream ran about 53 to 54 tok/s.** `HL_CLASSIFY_HOST_FAST=1` is off by default, changes only the
