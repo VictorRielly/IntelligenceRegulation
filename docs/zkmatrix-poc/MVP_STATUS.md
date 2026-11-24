@@ -801,6 +801,17 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 20:05 UTC, size and image [built and measured by Sol and by Astra; Claude checked the
+    guard records only]: first proof with the new opening on a small development rung, and a
+    patterned image through the whole image chain.** *Size.* Sol's switched block core proved and
+    verified a development rung (T32), and the CPU process and the GPU process produced the same
+    2,023,432-byte proof, byte for byte; tampered folds, a short path and a wrong binding were
+    refused. The GPU arm still computes the new small matrix on the CPU. No timing has been taken
+    and no full classifier receipt exists in the new format. *Image.* Astra's coordinate-pattern
+    test image passed all 102 stages of the image-to-verdict proof with a fresh verifier (2.87 GB
+    receipt); the owner's opening matched and rejected a different image and three one-bit changes.
+    It is a synthetic image, and the installed app still screens text only.
+
     **Nov 24, 19:50 UTC, product [reading, counting and web research by Astra; figures marked
     checked were re-checked by Claude, and the video reference test was reproduced independently]:
     two more application studies; the first queue of nine is done.** *Receipt size by use.* Who
