@@ -1,4 +1,4 @@
-# The classifier host-fast switch (`HL_CLASSIFY_HOST_FAST=1`) at the app profile: first commit sent back (it slowed the default path), fixed commit PASS with the default path restored
+# The classifier host-fast switch (`HL_CLASSIFY_HOST_FAST=1`) at the app profile: first commit sent back (it slowed the default path), fixed commit PASS with the default path restored; fix commit after the code read: gain confirmed, default path intact, merge check pending a test-only fix
 
 Run 2026-11-23 20:06 to 21:22 UTC by the Claude co-coordinator. Definition, rule and readings were posted in `ops/zkp-mvp/RECOVERY_COORDINATION.md` at 2026-11-23T20:07:56Z and pushed (`6d89de250`) before any run; part 3 was defined at 21:04:50Z and pushed (`669dc59f8`) before its run. Labels: MEASURED (the raw files), DERIVED (arithmetic by `classifyhost_summary.py`, output `raw/classifyhost_summary.txt`, and from the `t2_results.json` of each part). Every rate was measured once.
 
@@ -81,6 +81,28 @@ The 6.7% between parts 2 and 3 of the first commit stays unexplained. In the two
 
 **Next:** one code read of `42b24a522..a4d836c3a`, fixes, the merge check on the merged tree with a full suite pass with the switch forced on, merge.
 
+## Fix commit `eae00b314` (Nov 24, 00:45 to 03:18 UTC): smoke, a void set, a failed confirmation, a default-path set
+
+**What the commit changes [READ by me, the non-test diff `a4d836c3a..eae00b314`]:** the verifier's embedding fold and statement builder are the base functions again and the switch is prover-only (`emb_fold_fast`, `challenges_prover_fast`, `new_chunk_prover`, `prepare_fast`, each called only from the prover under the switch); the thread-local for the writer is replaced by an explicit argument, `None` when the switch is unset, so the unset run takes the base loop (`classify_run.rs:847-855`); the writer thread's failure paths have tests. These answer M1 and M2 of the code read. B1 rebuilt: SHA-256 `6a31b41d7cbfac30b5360502b9783d224400894d7be7911e834e3ae5dcef284d`, guard `a71c60b4e73e`. B0 unchanged (`b966e101...`, the pushed head's prover).
+
+Because the fix again changes the shape of code around the switch-off path, which is what slowed the first commit, I ran timed sets on it before the merge check. Every definition and reading below was in the coordination file and pushed before its run.
+
+| run | legs (tok/s) | reading |
+|---|---|---|
+| `ch3_smoke`, guard `bca418f4a7ef`, not timed | A, B, C with counters | condition met: hits C1 200, C2 1947, C3 5628, C4 1722, C5 72, zero fall-backs; arms A and B print none; receipts accepted by B0 (`raw/smoke_paths_eae00b314.txt`) |
+| `ch3_set5`, guard `7a45a9c4b6c5`, exit 75 | A 50.044, B 50.541, C 53.621, C 53.364, then leg 5 lost | **void**: a GPU hang in leg 5 (below); no reading |
+| `ch3_set5b`, guard `cc269f68b0f7`, exit 0 | A 51.274, B 49.051, C 53.990, C 54.358, B 51.034, A 50.361 | C over A +5.30% and +7.94% (line +1.5%): gain confirmed. B over A -4.33% and +1.34% (line -1.5%): **not confirmed** |
+| `ch3_ab8`, guard `999d745371a7`, exit 0 | A 48.276, B 49.462, B 49.320, A 51.290, B 50.694, A 50.580, A 51.219, B 51.320 | mean B over mean A -0.28% (line -1.5%): **"default path intact"** |
+
+- **The void set.** At 01:12:01Z macOS logged one command buffer of the prover as "Caused GPU Hang Error" and discarded five in-flight ones (`raw/ch3_set5/system_log_gpu_hang_011201Z.txt`). Two lane threads panicked at `src/gpu/metal.rs:5156`, the process then finished no request and did not exit, and the job held the heavy lock idle until the guard's time limit forty minutes later. Cause of the hang: not established; the branch does not touch the GPU code or, with the switch unset, the serve loop, and it is the first such error in the 22 timing result directories searched. The hang-instead-of-fail behaviour is a defect of the base prover, reported to Antigravity and to Astra (coordination entry 2026-11-24T01:57:46Z).
+- **Driver changes that followed.** A stall check: a leg stops when the prover exits early or no request finishes for 300 s, after sampling the prover's stacks (five cases of the function checked without a GPU). `ZK60_CHECK_ALL=1`: arm A's receipts are checked too (smoke `ch3_ab_smoke`, guard `66bddc0d5b44`). `ZK60_MIN_FREE_GB`: the disk margin for one run (75 GB instead of 80 for `ch3_set5b`, `ch3_ab_smoke` and `ch3_ab8`; the shortfall was not in this test's files).
+- **The failed confirmation stays failed.** `ch3_set5b` was read as written. Its two B legs, same binary and environment, are 4.0% apart, so one pair at -4.3% showed neither a slowdown nor its absence.
+- **The default-path set** asks only whether B1 with the switch unset is slower than B0: eight legs in the order A, B, B, A, B, A, A, B (cancels a linear or quadratic drift), every leg followed by the same receipt check, read on the mean of four legs an arm, no repeat. All 432 requests proved and all 432 receipts checked.
+- **What the eight legs show about the fixture.** The first three legs are the three lowest whatever their arm (48.3, 49.5, 49.3) and every later leg is between 50.6 and 51.3: the first quarter hour of a set runs 3 to 5% low. The order A, B, C, C, B, A does not cancel that for B. Future definitions begin with one discarded lead-in leg.
+- No other guarded job ran inside any leg (`overlap_check.py`: 55 timed legs of this directory, 0 overlaps); no agent ran beside the sets.
+
+**State of the gate:** PASS of `a4d836c3a`; gain confirmed and default path intact for `eae00b314`; merge check: first run `gate1` not green: one of the branch's new tests compares process-wide counters while other tests of the suite run, and failed in the no-switch suite pass; it passes alone, the prover is not at fault, and a test-only fix is requested (`results/zk60_classifyhost_merge_20261124`, coordination entry 2026-11-24T03:49:26Z). Not merged yet.
+
 ## Files
 
-`classifyhost_driver.py`, `t1_driver.py`, `classifyhost_launch.py`, `guarded_here.py`, `classifyhost_summary.py`, `overlap_check.py`, `smoke_paths.py`, `compress_traces.py` (unused); `raw/` holds the build log, the smoke (`ch_smoke`), part 1 (`ch_set1`), part 2 (`ch_lt8`), part 3 (`ch_lt8_ab`), the fixed commit (`ch2_smoke`, `ch2_set5`, `ch2_set8`), guard records and script outputs. No receipts and no binaries are kept. The content is the eight public posts; nothing under the owner-private directory was read.
+`classifyhost_driver.py`, `t1_driver.py`, `classifyhost_launch.py`, `guarded_here.py`, `classifyhost_summary.py`, `overlap_check.py`, `smoke_paths.py`, `compress_traces.py` (unused); `raw/` holds the build log, the smoke (`ch_smoke`), part 1 (`ch_set1`), part 2 (`ch_lt8`), part 3 (`ch_lt8_ab`), the fixed commit (`ch2_smoke`, `ch2_set5`, `ch2_set8`), the fix commit after the read (`ch3_smoke`, `ch3_set5` void, `ch3_set5b`, `ch3_ab_smoke`, `ch3_ab8`), guard records and script outputs. No receipts and no binaries are kept. The content is the eight public posts; nothing under the owner-private directory was read.

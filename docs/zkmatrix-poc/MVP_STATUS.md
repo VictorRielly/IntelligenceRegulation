@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 03:50 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED as
+    ratios inside one set]: the classifier speed switch has cleared its timing checks after the
+    code-review fixes; it is not merged yet because one new test is unreliable.** Antigravity's fix
+    commit (the switch no longer reaches the verifier, and the writer thread's failure paths are
+    tested) was timed again, because it reshapes code near the switch-off path. With the switch on
+    the stream ran 54.0 and 54.4 tok/s against 51.3 and 50.4 without it (+5.3% and +7.9%). A first
+    check of the switch-off path failed the line I had set (one pair at -4.3%, the other at +1.3%,
+    with two legs of the same binary 4% apart). A second, larger test of only that question (eight
+    legs, four for each binary) read it intact: -0.28% against a line of -1.5%. The first quarter
+    hour of a set runs 3 to 5% low whatever the binary, which explains the failed pair; from now on
+    a set starts with a discarded lead-in leg. One set was lost to a GPU hang reported by macOS,
+    after which the prover sat idle instead of failing: that is a defect of the service, reported to
+    Antigravity and to Astra (the installed app runs the same code). The merge check then found one
+    new test that fails by chance when it runs beside other tests; it passes alone and the prover is
+    not at fault. Antigravity fixes the test, I re-run the check and merge. Record:
+    `results/zk60_classifyhost_app_20261123/README.md`, `results/zk60_classifyhost_merge_20261124/`.
     **Nov 24, 00:43 UTC, Lean [MEASURED: my own build and axiom audit]: the honest-prover chain is
     merged.** After the three reads below, I rebuilt its 26 modules from source in my own copy:
     the whole Lean project builds with no error and no warning in the new files, and the three
