@@ -49,6 +49,11 @@ GATES = [
     ("ch-plus-w2-serve", T + "classify_cli::serve::tests::classify_host_fast_plus_w2_serve_gate", ALL3, IG),
     ("w2-call-sites", W + "host_fast_w2_all_call_sites_byte_identical", HW, IG),
     ("w2-golden", W + "host_fast_w2_rung_golden", HW, IG),
+    # added with the fix commit 9f70ff137 (author's entry 2026-11-24T08:49:10Z; paths as the fix read lists them)
+    ("all3-verifier-isolation", W + "host_fast_all_three_switches_verifier_isolation_gate", ALL3, IG),  # the runner adds --test-threads=1 and --nocapture to every gate
+    ("w2-alone-serve", T + "classify_cli::serve::tests::host_fast_w2_alone_classify_serve_gate", {"HL_HOST_FAST_W2": "1"}, IG),
+    ("w2-trained-d55-sealing", "private_block::run::fork::tests::host_fast_w2_trained_block_d55_sealing_byte_identical", {}, IG),
+    ("w2-rope-const-pubgen", W + "host_fast_w2_rope_and_const_pub_gen_gpu", HW, IG),
     ("hf-call-sites-author", W + "host_fast_all_call_sites_byte_identical", HF, IG),
     ("hf-golden-author", W + "host_fast_w16r2_rung_golden", HF, IG),
     # the two host-fast gates as the host-fast and classifier merges ran them

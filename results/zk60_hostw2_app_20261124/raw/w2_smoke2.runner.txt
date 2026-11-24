@@ -1,0 +1,4 @@
+[01:02:04] launching w2_smoke2
+[zk60-guard 01:02:05] START hostw2-w2_smoke2 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=23ba2f927951
+[zk60-guard 01:08:07] END hostw2-w2_smoke2 exit=0 child_wall=362s peak_rss=58.42G min_avail=132.97G peak_vram=22322MiB
+[01:08:07] w2_smoke2 guard exit 0
