@@ -6,31 +6,6 @@ repository (see the brief).
 
 ## Open
 
-1. **The smallest Apple machine that can run the prover for the app's classifier, and its speed (A1).** Reading and
-   arithmetic only. A private receipt needs the content holder to run the prover, and today's figures are for one M3
-   Ultra with 256 GB. From `results/zk60_resource_guard/history.jsonl` (measured peaks of the classifier serve jobs,
-   by label and lane count), the serve flags (`--lanes`, `--lane-threads`, `--witness-cache-gib`) and the lane-scaling
-   records named in `docs/zkmatrix-poc/MVP_STATUS.md`: the memory one lane needs, what the witness cache and the
-   weights add, and from that a table of machines (unified memory 36, 48, 64, 96, 128 GB) with "fits or not" and an
-   ESTIMATE of proved tokens per second at one and two lanes. State the single-lane test under a memory cap on the
-   work machine that would confirm the table. Do not run it.
-2. **Proofs about a captured image: what our components cover and what a 12-megapixel statement costs (A7, from the
-   owner's idea of 2026-11-24: proofs tied to capture in a camera, later checks for tampering).** Reading, web
-   research and arithmetic. Checking that a later file equals the one recorded at capture needs a hash, a device
-   signature and a timestamp, with no zero knowledge. The places a proof adds something: a published image shown to be
-   a permitted edit (crop, resize, blur, redaction) of a signed original that stays private; a capture shown to come
-   from some genuine device without naming it; a public detector of re-photographed screens shown to have run on the
-   raw capture. From the published image-proof systems (their authors' numbers for image size, prover time, memory)
-   and from this prover's measured commit and sumcheck rates: which of the three our matrix-product, lookup and range
-   components cover as they are, the count of committed values for a 12-megapixel image and for one edit of each kind,
-   an ESTIMATE of prover time on the work machine with the arithmetic shown, and what would have to be written that
-   does not exist. `docs/provenance/MUSIC_PROVENANCE_POC.md` holds the same three-layer design for audio.
-3. **Open-weight detectors of machine-written text that the system could pin and prove (A2).** Web research. A list
-   of detectors with public weights (classifier-head models and perplexity-style methods that need only a language
-   model's logits), each with size, licence, architecture, published accuracy on a benchmark its authors did not
-   build, and known evasion results. For each: does it fit a decoder model of up to 8B with integer arithmetic, what
-   exactly a receipt would state, and the proof time for 1,000 and 10,000 tokens at the labelled rate. Closed
-   detectors cannot be proved; say which leading ones are closed.
 4. **Who runs the prover when the content holder has no suitable machine (A3).** Web research and reading. Options: a
    host the holder trusts by contract; a prover inside a hardware enclave with remote attestation; two-party or
    collaborative proving where no single party sees the input. For each: what privacy statement it supports in plain
@@ -50,4 +25,6 @@ repository (see the brief).
 
 ## Done
 
-(none yet)
+1. **A1, Mac capacity.** The installed app refuses 36–128 GiB under its current admission setting. Sequential one- and two-lane variants have estimated test targets of 48 and 64 GiB respectively. [Measurements and proposed confirmation](handoffs/20261124-apps-classifier-memory.md)
+2. **A7, captured-image proofs.** A 12 MP RGB8 witness has 36 million input values. The existing canvas loses some full-resolution changes. End-to-end camera provenance needs a signed capture binding and an edit relation. [Measurements and prover estimates](handoffs/20261124-apps-captured-image.md)
+3. **A2, open-weight text detectors.** GLTR needs one 124M decoder and per-token ranks. Binoculars detected 79.6% of unmodified RAID generations at 5% human false positives, falling to 43.5% with synonym substitutions. [Four detectors, costs and calibration test](handoffs/20261124-apps-text-detectors.md)

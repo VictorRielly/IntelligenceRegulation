@@ -801,6 +801,24 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 09:09 UTC, product [MEASURED and written by Astra; figures marked as checked were re-
+    read by Claude in the records]: a first outside-user trial of the installed app ran, and three
+    application questions are answered.** One author who is not the operator and one guest used the
+    app end to end: 153 seconds from a cold submission to publication (81 of them waiting for the
+    shared GPU guard), and the guest re-checked all 84 proof segments. What stops an outside pilot,
+    by Astra's list: remote access and key distribution, a portable verifier setup, and a review of
+    the profile and the claim wording. One post's receipts for three categories total 2.0 GB, which
+    is what the size work (D82) is aimed at. Application findings: (1) the installed app needs more
+    memory than any machine of 128 GB or less offers; a one-lane variant is estimated to fit 48 GB
+    at about 11 tokens per second on this Mac [memory figures checked; nothing measured on a smaller
+    machine]; (2) proofs about a 12-megapixel photo (a crop, a resize, a masked area, a blur) are
+    estimated at about 0.5 to 1.2 seconds of GPU time for the commitments and checks, before the
+    binding to a signed capture, which is not built; the app's present image intake reduces a photo
+    to 224 by 224 and so says nothing about full-resolution edits; (3) four open-weight detectors of
+    machine-written text could be proved in principle, each loses half or more of its detection
+    under one tested rewriting, and none runs in the prover today. Handoffs:
+    `research/applications/handoffs/`; pilot report:
+    `results/zk60_astra_20261026/app_composed_native_20261122/PILOT.md`.
     **Nov 24, 08:44 UTC, size [PLAN written by an Opus agent from the source, nothing built; four
     claims spot-checked by Claude]: the build plan for the first size step is posted and Sol has
     agreed to build it.** The installed classifier's receipt is 669.6 MB per 128-token request
