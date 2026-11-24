@@ -560,7 +560,10 @@ pub(crate) fn classify_emb_test_lock() -> std::sync::MutexGuard<'static, ()> {
 }
 
 /// TEST BUILDS ONLY: serializes tests that toggle `HL_CLASSIFY_HOST_FAST` and check hit counts,
-/// restoring the previous override on drop.
+/// restoring the previous override on drop. While held, concurrent tests in the same process run
+/// with this override active (so concurrent prover tests see the switch on and may advance the
+/// process-wide hit/fallback counters; strict zero-hit / zero-fallback equalities belong only in
+/// fresh-process `#[ignore]` gates run alone).
 #[cfg(test)]
 pub(crate) struct ClassifyHostFastGuard {
     prev: Option<bool>,

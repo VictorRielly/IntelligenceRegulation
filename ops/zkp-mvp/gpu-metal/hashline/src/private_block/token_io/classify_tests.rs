@@ -590,7 +590,6 @@ fn classify_host_fast_emb_fold_neon_matches_scalar() {
 
     {
         let _off = ClassifyHostFastGuard::set(false);
-        let h0 = classify_host_fast_hits_snapshot();
         for &(v, d) in &shapes {
             let emb: Vec<i16> = (0..v * d)
                 .map(|i| match i % 13 {
@@ -609,10 +608,6 @@ fn classify_host_fast_emb_fold_neon_matches_scalar() {
             let e = eq_table_msb(&r);
             let want = scalar_emb_fold(&emb, v, d, &e);
             assert_eq!(t.emb_fold(&r), want, "OFF: {v} x {d}");
-        }
-        let h1 = classify_host_fast_hits_snapshot();
-        if std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v != "1").unwrap_or(true) {
-            assert_eq!(h1[CHF_C5_EMB_FOLD_NEON], h0[CHF_C5_EMB_FOLD_NEON], "C5 must not fire when OFF");
         }
     }
 
@@ -643,12 +638,7 @@ fn classify_host_fast_emb_fold_neon_matches_scalar() {
                     .collect();
                 let e = eq_table_msb(&r);
                 let want = scalar_emb_fold(&emb, v, d, &e);
-                let hb = classify_host_fast_hits_snapshot();
                 assert_eq!(t.emb_fold(&r), want, "base emb_fold must stay untouched even with switch ON: {v} x {d} kind {kind}");
-                let ha = classify_host_fast_hits_snapshot();
-                if std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v != "1").unwrap_or(true) {
-                    assert_eq!(ha[CHF_C5_EMB_FOLD_NEON], hb[CHF_C5_EMB_FOLD_NEON], "M1: base emb_fold (verifier path) must not fire C5 even with switch ON");
-                }
                 let got = t.emb_fold_fast(&r);
                 assert_eq!(got, want, "ON: {v} x {d} kind {kind}");
             }
@@ -719,26 +709,16 @@ fn classify_host_fast_bound_digests_match_tables() {
 
     let cp_off = {
         let _off = ClassifyHostFastGuard::set(false);
-        let h0 = classify_host_fast_hits_snapshot();
         let cp = ClassifierProfile::new_bound(&cx.sh, &cx.bound, &cx.policy, n_of(&cx), Tier::R1_MVP).unwrap();
         let st = statement(&cx, [7u8; 32], 0).unwrap();
         st.check_tables_prover(&cx.bound).unwrap();
-        let h1 = classify_host_fast_hits_snapshot();
-        if std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v != "1").unwrap_or(true) {
-            assert_eq!(h1[CHF_C1_DIGESTS], h0[CHF_C1_DIGESTS], "C1 must not fire when OFF");
-        }
         cp
     };
 
     let cp_on = {
         let _on = ClassifyHostFastGuard::set(true);
-        let h_ver0 = classify_host_fast_hits_snapshot();
         let st_ver = statement(&cx, [7u8; 32], 0).unwrap();
         st_ver.check_tables(&cx.bound).unwrap();
-        let h_ver1 = classify_host_fast_hits_snapshot();
-        if std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v != "1").unwrap_or(true) {
-            assert_eq!(h_ver1[CHF_C1_DIGESTS], h_ver0[CHF_C1_DIGESTS], "M1: new_chunk and check_tables (verifier path) must not fire C1 even with switch ON");
-        }
         let h0 = classify_host_fast_hits_snapshot();
         let cp = ClassifierProfile::new_bound(&cx.sh, &cx.bound, &cx.policy, n_of(&cx), Tier::R1_MVP).unwrap();
         let st = ClassifyRunStatement::new_chunk_prover(
@@ -804,12 +784,7 @@ fn classify_host_fast_boundary_prepare_i16_matches_prepare() {
 
     let (p_off, tail_off) = {
         let _off = ClassifyHostFastGuard::set(false);
-        let h0 = classify_host_fast_hits_snapshot();
         let p = boundary::prepare(&spec, &words, &ntt, &mut rng_off, &HashTag::legacy()).unwrap();
-        let h1 = classify_host_fast_hits_snapshot();
-        if std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v != "1").unwrap_or(true) {
-            assert_eq!(h1[CHF_C3_SEQ_BOUNDARY], h0[CHF_C3_SEQ_BOUNDARY], "C3 must not fire when OFF");
-        }
         let tail: Vec<Fp> = (0..16).map(|_| rng_off.fp()).collect();
         (p, tail)
     };
@@ -817,12 +792,7 @@ fn classify_host_fast_boundary_prepare_i16_matches_prepare() {
     let (p_on, tail_on, p_i16, tail_i16) = {
         let _on = ClassifyHostFastGuard::set(true);
         let mut rng_base = ZkRng::new(42, b"chf-boundary-parity");
-        let hb = classify_host_fast_hits_snapshot();
         let p_base = boundary::prepare(&spec, &words, &ntt, &mut rng_base, &HashTag::legacy()).unwrap();
-        let ha = classify_host_fast_hits_snapshot();
-        if std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v != "1").unwrap_or(true) {
-            assert_eq!(ha[CHF_C3_SEQ_BOUNDARY], hb[CHF_C3_SEQ_BOUNDARY], "L2: boundary::prepare must stay untouched even with switch ON");
-        }
         assert_eq!(p_base.root(), p_off.root());
         let h0 = classify_host_fast_hits_snapshot();
         let p1 = boundary::prepare_fast(&spec, &words, &ntt, &mut rng_on, &HashTag::legacy()).unwrap();

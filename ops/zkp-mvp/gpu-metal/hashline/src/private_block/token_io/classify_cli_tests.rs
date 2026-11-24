@@ -574,13 +574,8 @@ fn classify_host_fast_end_to_end_rung_byte_identical_and_verified() {
     let out_off = cc.root.join("run-off");
     let (names_off, segs_off, stmt_off) = {
         let _off = ClassifyHostFastGuard::set(false);
-        let h0 = classify_host_fast_hits_snapshot();
         let (code, events) = prove_capturing(&out_off);
-        let h1 = classify_host_fast_hits_snapshot();
         assert_eq!(code, 0, "baseline prove failed: {events:?}");
-        if std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v != "1").unwrap_or(true) {
-            assert_eq!(h1, h0, "no HL_CLASSIFY_HOST_FAST counters may fire when OFF: before={h0:?} after={h1:?}");
-        }
         let (names, segs) = parse_events(&events);
         assert_eq!(names, vec!["loaded", "segment", "segment", "segment", "proved"]);
         assert_eq!(segs.iter().map(|(i, _)| *i).collect::<Vec<_>>(), vec![0, 1, 2]);
@@ -620,18 +615,10 @@ fn classify_host_fast_end_to_end_rung_byte_identical_and_verified() {
         }
         assert!(out_on.is_dir() && !sib(&out_on, ".incomplete").exists() && !out_on.join(run_sink::STATEMENT_DIR).exists());
 
-        // M1: Verify while HL_CLASSIFY_HOST_FAST is STILL ON and assert verifier never hits fast paths.
-        let env_fast_on = std::env::var("HL_CLASSIFY_HOST_FAST").as_deref() == Ok("1");
-        let vh0 = classify_host_fast_hits_snapshot();
-        let vf0 = classify_host_fast_fallbacks_snapshot();
+        // M1: Verify while HL_CLASSIFY_HOST_FAST is STILL ON (strict zero-hit / zero-fallback
+        // counter equality lives in the fresh-process gate `classify_host_fast_verifier_isolation_and_serve_gate`).
         assert_eq!(cc.verify(&out_on, &cc.tables), 0, "verify with switch ON rejected HL_CLASSIFY_HOST_FAST=1 receipt");
         assert_eq!(cc.input_owner(&out_on, &cc.tables, &cc.content), 0, "input-owner with switch ON rejected HL_CLASSIFY_HOST_FAST=1 receipt");
-        let vh1 = classify_host_fast_hits_snapshot();
-        let vf1 = classify_host_fast_fallbacks_snapshot();
-        if !env_fast_on {
-            assert_eq!(vh1, vh0, "M1: verify/input-owner must not hit any C1..C5 fast path when switch is ON");
-            assert_eq!(vf1, vf0, "M1: verify/input-owner must not record any C1..C5 fallback when switch is ON");
-        }
         // Also re-verify published receipt with switch forced OFF.
         let _verify_off = set_classify_host_fast_for_test(Some(false));
         assert_eq!(cc.verify(&out_on, &cc.tables), 0, "unchanged verify rejected published HL_CLASSIFY_HOST_FAST=1 receipt");
