@@ -83,6 +83,12 @@ Defined in the coordination file at 18:59:43Z and pushed (`828886c16`) before th
 
 So the switch is worth 5 to 8 percent at five threads a lane and about 1 percent at eight: the six parts cut CPU work, and eight threads a lane already hide most of it. With all four switches the stream ran at 49.2 and 50.8 tok/s at five threads and at 49.7 and 50.3 at eight (different sets, not paired): the same within the spread between legs.
 
+## Addendum, 2026-11-24: one path of the switch reaches the verifier (found by a read of the next branch)
+
+The reads above and this record treated `HL_HOST_FAST=1` as prover-only. That is not fully true as merged. `argument_with` serves both `Side::Prove` and `Side::Verify`; its `define` calls the accuracy fold on every non-Legacy accuracy stack (`argument.rs:2817` and `:2958` at the pushed head), and `accuracy_fold::fold` (`accuracy_fold.rs:531`, component H4) reads the switch with no regard to the side. A verifier process started with `HL_HOST_FAST=1` therefore runs the fast fold. H6 is gated on `Side::Prove` (`argument.rs:3618`); H3 and H5 have prover-only callers (`prove_core_after_with`, `fill_exp_helpers`, `fill_act_helpers`, `priv_table_fill`, `build_tables_*`). Read A of 2026-11-23 had listed the reach of these paths from `Side::Verify` among the things it did not read; read B checked H6 only; I did not follow it up.
+
+What it does and does not mean: no wrong result is known (the fold has parity tests against the base), and the timing and receipt checks of this directory are not affected, because the driver removes every switch from the checker's environment, so B0 verified with the base fold. What is broken is the rule that a verifier's code path never depends on a speed switch. Until the fix is merged the switch belongs only in the prover process's environment. The fix and a fresh-process gate (a verifier with all switches set moves no counter) are requested on `agy/host-wave2` (coordination entry 2026-11-24T06:35:13Z).
+
 ## Reading (interpretation)
 
 This is a host-side cut, and it carries to six lanes at more than its 8B size (3.0% of the 8B gap, 8.7% less CPU time there). With six lanes by five threads the machine is asked for 30 threads on 24 performance cores, so CPU time saved in one lane is also time given back to the others; that fits, and it is not shown by this set. The first pair of B over A (+0.63%) says the new binary with the switch unset behaves as the base.

@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 06:35 UTC, review [READ by two independent reviewers, source only, nothing built; the
+    two points below checked by Claude in the source]: the second host-speed switch has no serious
+    defect, and the review uncovered a flaw in the first host-speed switch, which is already
+    merged.** Neither read found a way for the new switch to change a proof, skip a block's checks
+    or corrupt memory. The flaw: speed switches are meant to touch only the prover, but one public
+    computation (the accuracy fold) is shared by prover and verifier and looks at the switch on both
+    sides. A verifier started with `HL_HOST_FAST=1` in its environment takes the faster variant. The
+    variant is tested equal to the normal one and no wrong result is known; the tests of Nov 23 are
+    unaffected because their verifier ran with no switch set. It still breaks a rule we rely on, and
+    the earlier review missed it. Until the fix is in, the switch belongs only in the prover's
+    environment; Astra has been told. Other fixes asked of Antigravity before the new switch can
+    merge: tie a reused lookup count to its own witness by construction (today it is matched by
+    memory address, which is safe only because every caller happens to keep them together), and add
+    three missing tests. Reports:
+    `results/zk60_claude_review_20261116/HOST_WAVE2_READ_A_20261124.md` and
+    `HOST_WAVE2_READ_B_20261124.md`.
     **Nov 24, 06:21 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED as
     ratios inside one set; the 8B figures are Antigravity's, recomputed by Claude from its raw log]:
     a second host-speed switch passes its timing test at the app profile, narrowly, and is not
