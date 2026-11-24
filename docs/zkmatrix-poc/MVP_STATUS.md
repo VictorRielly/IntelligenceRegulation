@@ -801,6 +801,30 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 14:26 UTC, product [reading and web research by Astra; the figures marked checked were
+    re-checked by Claude against the records]: three more application studies, none of them a
+    build.** (1) *Who proves for a holder with a small machine.* Today whoever runs the prover reads
+    the content. Three routes: trust the host by contract (no change to the prover); an attested
+    confidential virtual machine (one published benchmark, fetched and checked today: 17.7% less
+    throughput and 21.8% longer to the first token for plain inference of a 7B model on an H100;
+    nothing is measured for proving, and our Metal prover would need a port); a witness split across
+    independent provers (protocol work; published figures are for other proof systems). None is
+    qualified here. (2) *Evidence that a filter ran on a private document.* The clearest fit is a
+    transfer between security domains where the site's own control already asks for a named filter
+    and an audit record. A receipt can show that the registered filter read every token of a
+    committed attachment; a record signed by the gateway is still needed to tie it to the transfer,
+    and a per-item proof cannot count omitted transfers. Two public personal-data taggers would each
+    need new proof relations. One padded 128-token check at the app's measured rate is about 2.6 s
+    of capacity [DERIVED, checked]. (3) *A score on a hidden benchmark.* The trained 8B proof
+    reaches one next-token decision on a held-out prompt [MEASURED by Sol on CPU: 487.3 s to prove,
+    32.1 s to check, 772 MB; checked]. A thousand such prompts at that cost would be 135 hours of
+    serial proving and 772 GB of receipts [ESTIMATE from one run, arithmetic checked], and the
+    relation that binds every hidden question and answer to the published score does not exist yet.
+    This application waits for the trained GPU path, smaller receipts and that relation. The
+    applications queue now holds: the provenance route for text, the receipt size each application
+    can tolerate (ties the size ruling D82 to the applications), and video. Handoffs:
+    `research/applications/handoffs/`.
+
     **Nov 24, 12:31 UTC, speed [merge check MEASURED by Claude on the merged tree]: the second host-
     speed switch is merged and pushed, off by default, together with the fix that makes a verifier
     ignore every speed switch.** The merge check was green: the full test suite with no switch and
