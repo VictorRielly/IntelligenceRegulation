@@ -6,10 +6,6 @@ repository (see the brief).
 
 ## Open
 
-7. **The provenance route to "human-made" for text (A6).** Reading and web research. `docs/provenance/` describes
-   attested capture and a proved edit chain for music. What a text analogue would prove (a committed history of
-   edits, typed input events, timestamps), what existing writing-process products record, what stays unprovable (the
-   analog hole: retyping machine text), and which parts our existing proof components already cover.
 8. **Receipt size and checking time each application can tolerate (A8).** Reading and derivation, added 2026-11-24
    after the owner's ruling D82. For each application studied so far (submissions of unpublished text, peer review,
    captured images, private document checks, hidden benchmark scores): who stores the receipt, who downloads it, how
@@ -31,3 +27,4 @@ repository (see the brief).
 4. **A3, delegated proving.** The current operator can read submitted content. Confidential VMs and collaborative provers have measured costs on other workloads, and each requires a separate classifier qualification. [Trust assumptions, timings and deciding tests](handoffs/20261124-apps-delegated-proving.md)
 5. **A4, private document checks.** An auditor can use a filter-execution receipt under a selected cross-domain control. The gateway must separately bind the attachment and filtering result to the transfer. Two open PII taggers need new proof relations. [Requirements, models, sizing and test](handoffs/20261124-apps-private-document-checks.md)
 6. **A5, hidden benchmark scores.** A trained 8B receipt reaches one held-out next token. Binding every hidden question and gold answer to the published score is open. Extrapolating one trained CPU run to 1,000 prompts gives 135.4 serial proving hours. [Scoring relation, measurements and published precedents](handoffs/20261124-apps-model-evaluations.md)
+7. **A6, writing provenance.** A receipt can authenticate a recorded edit history and the submitted text. A person retyping model output can satisfy the same typing policy as an unaided writer. [Existing recorders, proposed statement and deciding test](handoffs/20261124-apps-writing-provenance.md)

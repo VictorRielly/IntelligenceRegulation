@@ -465,3 +465,20 @@ would ride most cheaply in the next classifier profile version, which this one i
 - `docs/zkmatrix-poc/START_HERE.md` (not opened; the terms above are defined here instead).
 - `ZK60_DECISIONS.md` beyond rows D17, D55 (its first 566 characters only), D59, D63, D67, D78, D79, D80, D80a, D81
   and D82.
+
+## Addendum, 2026-11-24 19:08 UTC (from the builder's soundness note; recorded by the co-coordinator)
+
+Sol's note `results/zk60_sol_20261105_w16r3/b6a/WP_S_SOUNDNESS_20261124.md` (in Sol's working tree when this was
+written) refines section 2.3. No figure of this plan is changed here; the size model of section 3 is re-run once the
+implemented widths are fixed.
+
+1. **Step 9.** The second batch (the BAT on W2's claims) must include the inner-product claim carried from the first
+   fold, with its own coefficient, together with the new generator claims. All of them are linear in the same
+   successor message.
+2. **Step 8.** The "rest row" of W2 exists only if W's message carries a pad tail. With a plain message of width
+   2^14, the reshape into 16 rows of 2^10 uses every coordinate. The degree cap and the sample counts are computed
+   from the implemented message width.
+3. **Per-round figures at the unique-decoding radius** (the note's table; arithmetic re-checked by the co-coordinator,
+   nothing compiled): W at rate 1/8 with 138 samples, 114.55 bits; at rate 1/4 with 169 samples, 114.60; at rate 1/2
+   with 280 samples, 116.23; W2 at rate 1/32 with 120 samples, 114.68; each affine fold 111 to 113 bits. The
+   Fiat-Shamir translation, the run-level recount and the hiding argument for W are open.

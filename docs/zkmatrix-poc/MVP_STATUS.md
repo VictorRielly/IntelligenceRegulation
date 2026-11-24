@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 19:08 UTC, size and product [built and measured by Sol in its own tree; read by
+    Claude, who compiled and re-ran nothing]: the first pieces of the size step exist.** The helper
+    that computes the claims for the new small matrix passed 1,000 full-size random cases [MEASURED
+    by Sol; guard record checked]. The two-level tower that replaces the clear vectors passes its
+    five isolated tests, including rejections of a changed root, column, salt, path and final row. A
+    tree for integration is set up from the merged head. A written soundness argument for the tower
+    exists, with five small Lean lemmas [READ by Claude: the steps re-derived by hand hold; not yet
+    compiled by a second party or read independently]. Not done: the switched opening inside the
+    prover, any timing (the spike's pass and kill lines are fixed), the Fiat-Shamir step and the
+    whole-run accounting, the hiding argument, the Lean chain. *Application study A6, writing
+    history [reading and web research by Astra; repository citations checked by Claude]:* a receipt
+    could show that a text came from a recorded editing session under a named policy while drafts
+    stay private, but a person retyping a model's answer passes the same check, so the label would
+    be "writing history verified" and never "human-written". All seven first application studies are
+    now done; two more (receipt size per application, video) are queued.
+
     **Tick 54, Nov 24 15:59 UTC [reading and arithmetic by the background researcher; its script
     re-run by Claude with identical output; source citations and one paper checked; nothing built or
     measured]: what hidden model weights would cost on the 8B prover.** Hidden weights are decided
