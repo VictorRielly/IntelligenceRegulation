@@ -801,6 +801,15 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 00:43 UTC, Lean [MEASURED: my own build and axiom audit]: the honest-prover chain is
+    merged.** After the three reads below, I rebuilt its 26 modules from source in my own copy:
+    the whole Lean project builds with no error and no warning in the new files, and the three
+    final theorems, the refusal-cover theorem and the completeness-parts theorem rest only on
+    Lean's three standard axioms. The branch is merged and pushed. What it proves and does not
+    prove is exactly the list in the next paragraph: the chain is in the tree and builds, and
+    it is complete except for the zero-knowledge assumption and for completeness against the
+    code's real header and statement checks. Record:
+    `results/zk60_lean_l68c_merge_20261124/`.
     **Nov 24, 00:20 UTC, Lean [READ, source only, nothing built]: where the honest-prover chain
     stands after the three independent reads.** For the R13 Shieldstral profile, with valid
     public weights: (1) PROVED in Lean, if the build is as green as its author reports (my own

@@ -1,0 +1,11 @@
+done marker: 0
+probe: exit 0 
+root build: exit 0; error lines 0; warnings naming the new files 0; 'Built' lines for new modules 26
+oleans: exit 0 fresh oleans 26 of 26; missing or old: []
+axioms: exit 0; reports 5 of 5; axioms outside the three standard ones: none
+    shdP_honest_productionReadyL: propext, Classical.choice, Quot.sound
+    shdP_honest_productionReadyL_okPre: propext, Classical.choice, Quot.sound
+    shdP_honest_productionReadyL_concrete: propext, Classical.choice, Quot.sound
+    shdP_honestRun_hcover: propext, Classical.choice, Quot.sound
+    shdP_honestRun_parts: propext, Classical.choice, Quot.sound
+CHECK: GREEN

@@ -1,0 +1,100 @@
+=== STEP probe START 2026-11-24T00:40:03Z argv -d /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/lean-l68c/formal build ZK60Formal.Statements
+Build completed successfully (2997 jobs).
+=== STEP probe EXIT 0 2026-11-24T00:40:09Z
+=== STEP root START 2026-11-24T00:40:09Z argv -d /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/lean-l68c/formal build ZK60Formal
+✔ [3521/4013] Built ZK60Formal.LayoutW16Handoff (10s)
+✔ [3613/4013] Built ZK60Formal.StatementsD76Leaky (10s)
+✔ [3631/4013] Built ZK60Formal.RunShapeExec (11s)
+✔ [3633/4013] Built ZK60Formal.StageOutWhole (13s)
+✔ [3648/4013] Built ZK60Formal.ZKHonestBound (2.6s)
+✔ [3661/4013] Built ZK60Formal.CoverW16Shapes (2.9s)
+✔ [3662/4013] Built ZK60Formal.RunTrWin (2.3s)
+✔ [3711/4013] Built ZK60Formal.RunOpenGeoBlock (2.1s)
+✔ [3714/4013] Built ZK60Formal.RunDoomTop (3.1s)
+✔ [3719/4013] Built ZK60Formal.RunCoverSome (4.1s)
+✔ [3737/4013] Built ZK60Formal.RunExtractTop (3.3s)
+⚠ [3770/4013] Replayed ZK60Formal.RunStgJoinLk
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+✔ [3772/4013] Built ZK60Formal.RunCoverSomeL (5.2s)
+✔ [3774/4013] Built ZK60Formal.BlockAlgSat (2.1s)
+✔ [3779/4013] Built ZK60Formal.RunAbsTop (3.5s)
+✔ [3783/4013] Built ZK60Formal.BlockTabSlot (3.7s)
+✔ [3789/4013] Built ZK60Formal.RunVerdictTop (3.8s)
+✔ [3791/4013] Built ZK60Formal.BlockLookJoin (2.3s)
+✔ [3792/4013] Built ZK60Formal.BlockLookCov (2.8s)
+✔ [3793/4013] Built ZK60Formal.BlockTabForm (2.6s)
+✔ [3805/4013] Built ZK60Formal.RunBndChain (7.0s)
+⚠ [3808/4013] Replayed ZK60Formal.RunBlkWireDoom
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✔ [3820/4013] Built ZK60Formal.RunStgTopD (4.0s)
+✔ [3832/4013] Built ZK60Formal.RunCloseBTop (3.4s)
+✔ [3833/4013] Built ZK60Formal.RunEpXTopT (3.5s)
+✔ [3837/4013] Built ZK60Formal.BlockLookCov2 (3.2s)
+✔ [3843/4013] Built ZK60Formal.BlockLookRelW16 (2.0s)
+✔ [3847/4013] Built ZK60Formal.BlockLookFinal (2.1s)
+✔ [3851/4013] Built ZK60Formal.BlockLookRelFinal (2.5s)
+✔ [3855/4013] Built ZK60Formal.RunEpXTopW (3.4s)
+✔ [3857/4013] Built ZK60Formal.RunCloseBTopF (3.4s)
+✔ [3859/4013] Built ZK60Formal.BlockLookDone (2.1s)
+⚠ [3862/4013] Replayed ZK60Formal.RunBlkWireSlots
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+✔ [3906/4013] Built ZK60Formal.RunWireTop (3.6s)
+✔ [3912/4013] Built ZK60Formal.RunEpXTopX (3.5s)
+✔ [3914/4013] Built ZK60Formal.RunBndTop (5.2s)
+✔ [3918/4013] Built ZK60Formal.RunStgShieldTopDz (3.7s)
+✔ [3923/4013] Built ZK60Formal.HonestShieldProgBase (2.0s)
+✔ [3924/4013] Built ZK60Formal.RunEpXTopF (3.7s)
+✔ [3929/4013] Built ZK60Formal.RunStgShieldTopIO (3.8s)
+✔ [3939/4013] Built ZK60Formal.RunStgShieldTopTrI (3.8s)
+✔ [3940/4013] Built ZK60Formal.RunEpXTopG (3.3s)
+✔ [3984/4013] Built ZK60Formal.RunStgShieldSlotDeg (2.1s)
+✔ [3985/4013] Built ZK60Formal.HonestShieldCore (2.9s)
+✔ [3986/4013] Built ZK60Formal.RunStgShieldHdrFit (2.1s)
+✔ [3987/4013] Built ZK60Formal.RunEpXTopH (3.4s)
+✔ [3988/4013] Built ZK60Formal.RunShieldOpenShell (3.2s)
+✔ [3989/4013] Built ZK60Formal.HonestShieldAuditDet (9.5s)
+✔ [3990/4013] Built ZK60Formal.HonestShieldMTable (2.8s)
+✔ [3991/4013] Built ZK60Formal.HonestShieldZKBase (2.6s)
+✔ [3992/4013] Built ZK60Formal.HonestShieldBlockBase (3.1s)
+✔ [3993/4013] Built ZK60Formal.HonestShieldStages (6.3s)
+✔ [3994/4013] Built ZK60Formal.HonestShieldZKView (3.5s)
+✔ [3995/4013] Built ZK60Formal.HonestShieldZKProg (4.0s)
+✔ [3996/4013] Built ZK60Formal.HonestShieldZKVis (3.5s)
+✔ [3997/4013] Built ZK60Formal.HonestShieldRefusal (4.0s)
+✔ [3998/4013] Built ZK60Formal.HonestShieldStageInTables (5.7s)
+✔ [3999/4013] Built ZK60Formal.HonestShieldZKCount (3.9s)
+✔ [4000/4013] Built ZK60Formal.HonestShieldStageOutTables (5.9s)
+✔ [4001/4013] Built ZK60Formal.HonestShieldZK (3.1s)
+✔ [4002/4013] Built ZK60Formal.HonestShieldSegRefusal (7.0s)
+✔ [4003/4013] Built ZK60Formal.HonestShieldStageInArith (7.7s)
+✔ [4004/4013] Built ZK60Formal.HonestShieldRunProg (7.9s)
+✔ [4005/4013] Built ZK60Formal.HonestShieldBlockWitness (10s)
+✔ [4006/4013] Built ZK60Formal.HonestShieldStageOutSlots (10s)
+✔ [4007/4013] Built ZK60Formal.HonestShieldRunRefusal (9.6s)
+✔ [4008/4013] Built ZK60Formal.HonestShieldStageOutArith (16s)
+✔ [4009/4013] Built ZK60Formal.HonestShieldBlockTables (45s)
+✔ [4010/4013] Built ZK60Formal.HonestShieldBlockArith (5.3s)
+✔ [4011/4013] Built ZK60Formal.HonestShieldTop (2.9s)
+✔ [4012/4013] Built ZK60Formal (1.9s)
+Build completed successfully (4013 jobs).
+=== STEP root EXIT 0 2026-11-24T00:42:21Z
+=== STEP oleans START
+fresh oleans 26 of 26; missing or old: []
+=== STEP oleans EXIT 0
+=== STEP axioms START 2026-11-24T00:42:21Z argv -d /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/lean-l68c/formal env lean /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/lean-l68c/formal/AxiomsL68c.lean
+'ZK60.HonestShield.shdP_honest_productionReadyL' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestShield.shdP_honest_productionReadyL_okPre' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestShield.shdP_honest_productionReadyL_concrete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestShield.shdP_honestRun_hcover' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestShield.shdP_honestRun_parts' depends on axioms: [propext, Classical.choice, Quot.sound]
+=== STEP axioms EXIT 0 2026-11-24T00:42:23Z

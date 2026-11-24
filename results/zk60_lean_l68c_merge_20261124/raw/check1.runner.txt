@@ -1,0 +1,2 @@
+[zk60-guard 16:40:03] START lean-l68c-merge-check1 class=build need=24G cap=64G enforce=watchdog-only waited=0s run=37413238ae24
+[zk60-guard 16:42:23] END lean-l68c-merge-check1 exit=0 child_wall=140s peak_rss=14.58G min_avail=201.17G
