@@ -120,7 +120,10 @@ def main():
     for li, (arm, lanes_s, threads_s, timed_s) in enumerate(specs):
         lanes, threads, timed = int(lanes_s), int(threads_s), int(timed_s)
         queues = 'thread'
-        sw = 0 if arm == 'A' else 1  # every receipt of B1 (arms B and C) is verified; arm A is not
+        # every receipt of B1 (arms B and C) is verified; arm A is not, unless ZK60_CHECK_ALL=1 (added 2026-11-24 for the
+        # default-path set: with it every leg is followed by the same receipt check, so every leg after the first starts
+        # after the same kind of pause)
+        sw = 1 if (arm != 'A' or os.environ.get('ZK60_CHECK_ALL') == '1') else 0
         t1.BIN = ARMS[arm][0]
         N = lanes
         total = N + timed
