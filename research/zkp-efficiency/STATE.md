@@ -2,6 +2,15 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-24: Claude researcher tick 52, net block volume of candidate B with helper-free lookups (claude-cycle, queue item 18, H152)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-24T03:57:06Z.
+[Handoff](handoffs/20261124-claude-tick52-ab-net-volume.md), script `20261124-claude-tick52-ab-net-volume.py`, output `...ab-net-volume.out.txt`.
+- **B alone is 0.81 to 0.91 of today's block with helpers kept** (not 0.78 to 0.88): the digit lookup needs its own helpers while helpers are committed, 142 / 159 / 191 rows for C / C+M / C+M+W (DERIVED; tick 7's third commitment, left out of tick 49). With two byte lookups 0.90 to 1.00.
+- **A alone (all lookups in the tree) is 0.49 to 0.52** (cycle 6a: 0.508 and 0.492; the spread is the claim sites the lookups' terminal claims put back on the block, 0 to 62). **A + B: 0.27 to 0.31 (C), 0.30 to 0.34 (C+M), 0.36 to 0.41 (C+M+W)** with field multiplicities; with tick 3's multiplicity bit planes 0.29 to 0.48 (+285 to +360 rows, or +85 to +110 packed: the two A routes differ by 11 to 14% of A alone). 22.8 to 25.9 M words per block for C against 83.6 M today. B is worth 145 to 193 rows more beside A than alone, exactly the digit helpers; with helpers gone 91% of the block is A data.
+- **New cost where A meets B:** lookup terminals on the 45 cell-plane key planes become U reads (45 to 53 rows with a pair per tree, 144 to 202 with a pair per plane, 0 if a claim-merging sumcheck moves them); digit leaves add 7.2 to 9.7% to the block's 32.28 M lookups (20 to 21 levels).
+- **Speed ceiling is far below the volume cut:** commits are 25.5% of device work, so at full pass-through B alone is at most 1.8 to 3.8% of cadence, A alone 9.8 to 10.3%, A+B 10.5 to 14.7%, before tree work (6a's unverified estimate 0.040 to 0.105 s a block on Metal against 0.0915 s block GPU). No rate figure above 6a's x1.07 to x1.25. Tests H152b (A+B C at most 1,800 rows), H158 (terminals merge onto existing end points), H159 (summed multiplicity bits under 150 rows). 0 committed words changed.
+
 ## 2026-11-24: Claude researcher tick 51, FlashProve's read descriptor and whether a lookup key may be a recombination of two planes (claude-cycle, queue items 82 and 83, H155/H157/H156c)
 
 **COMPLETE, reading only** (2 raw page fetches of the public FlashProve docs, 0 searches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-24T00:07:56Z.

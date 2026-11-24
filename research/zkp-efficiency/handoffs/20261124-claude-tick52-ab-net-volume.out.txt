@@ -1,0 +1,59 @@
+== 1. B's A-side rows (tick 6 data incl. Z digits) ==
+  C      A data rows    1077  of which digit rows ZZ  142.3  mz     9106  digit leaves per table    1165605 = 2^20.15 (tree levels); BZ 4 rows
+  C+M    A data rows    1185  of which digit rows ZZ  158.9  mz    10167  digit leaves per table    1301358 = 2^20.31 (tree levels); BZ 4 rows
+  C+M+W  A data rows    1440  of which digit rows ZZ  190.6  mz    12197  digit leaves per table    1561161 = 2^20.57 (tree levels); BZ 4 rows
+
+== 2. helper-free lookups alone (candidate A), rows of the 5,103 ==
+  G1 (exp/act helpers stay)      lookup claims merged into existing end points (0 new sites)           2831 = 0.555
+  G1 (exp/act helpers stay)      one new A site per domain tree (7)                                    2845 = 0.558
+  G1 (exp/act helpers stay)      one new A site per lookup column (47) + 15 multiplicity sites         2955 = 0.579
+  G2 (all lookups in the tree)   lookup claims merged into existing end points (0 new sites)           2507 = 0.491
+  G2 (all lookups in the tree)   one new A site per domain tree (7)                                    2521 = 0.494
+  G2 (all lookups in the tree)   one new A site per lookup column (47) + 15 multiplicity sites         2631 = 0.516
+  cycle 6a for reference: G1 2,911 (0.570) keeps H masks 88 and adds no site; G3 2,509 drops 82 of them with no site added
+
+  multiplicity bit planes (product tree): 15 tables x 20..25 bits = 300..375, mid 331 rows, against 15 rows with field multiplicities (LogUp-GKR): +285..+360; packed 3 per word: 100..125
+  M rows as local rows: base 12.5; trees + digit slot add 12.5..37.0
+
+== 3. lookup terminals on cell planes (A + B only) ==
+  key planes read: 45, data 29.0 rows with one U each; extra halves {'C': 9, 'C+M': 16, 'C+M+W': 31}
+  C      reads  54: pair per tree ~   45 rows; pair per plane read ~  144 rows (2.66 a read, tick 8)
+  C+M    reads  61: pair per tree ~   47 rows; pair per plane read ~  162 rows (2.65 a read, tick 8)
+  C+M+W  reads  76: pair per tree ~   53 rows; pair per plane read ~  202 rows (2.65 a read, tick 8)
+
+== 4. whole block, rows of 2^14 words (today 5,103); request = 32 blocks + 1,252 ==
+  case                                           favourable   unfavourable   words/block (M words)   request words
+  B C      helpers committed, recomb       4134 0.810       4146 0.812
+  B C      helpers committed, bytes        4614 0.904       4626 0.906
+  B C+M    helpers committed, recomb       4275 0.838       4287 0.840
+  B C+M    helpers committed, bytes        4755 0.932       4767 0.934
+  B C+M+W  helpers committed, recomb       4605 0.902       4639 0.909
+  B C+M+W  helpers committed, bytes        5085 0.996       5119 1.003
+  A+B C      R1 (G2)                    1393 0.273       1579 0.309   +M 12..37: 0.275..0.317; request 0.281..0.322; words 22.8..25.9 M (today 83.6 M)
+  A+B C      R2 (G2)                    1478 0.290       1939 0.380   +M 12..37: 0.292..0.387; request 0.298..0.392; words 24.2..31.8 M (today 83.6 M)
+  A+B C+M    R1 (G2)                    1519 0.298       1722 0.337   +M 12..37: 0.300..0.345; request 0.305..0.350; words 24.9..28.2 M (today 83.6 M)
+  A+B C+M    R2 (G2)                    1604 0.314       2082 0.408   +M 12..37: 0.317..0.415; request 0.322..0.420; words 26.3..34.1 M (today 83.6 M)
+  A+B C+M+W  R1 (G2)                    1816 0.356       2082 0.408   +M 12..37: 0.358..0.415; request 0.363..0.420; words 29.8..34.1 M (today 83.6 M)
+  A+B C+M+W  R2 (G2)                    1901 0.373       2442 0.479   +M 12..37: 0.375..0.486; request 0.380..0.490; words 31.1..40.0 M (today 83.6 M)
+
+== 5. checks ==
+  A alone (G2): 0.491..0.516 of today
+  C      B alone 0.810..0.812, A+B (R1) 0.273..0.309
+  C+M    B alone 0.838..0.840, A+B (R1) 0.298..0.337
+  C+M+W  B alone 0.902..0.909, A+B (R1) 0.356..0.408
+  C      B's marginal rows on top of A-G2 (R1): +1114 (favourable) / +1052 (unfavourable) rows
+  C+M    B's marginal rows on top of A-G2 (R1): +988 (favourable) / +909 (unfavourable) rows
+  C+M+W  B's marginal rows on top of A-G2 (R1): +691 (favourable) / +549 (unfavourable) rows
+  with helpers gone the block is 0.492 of today; B's whole possible saving is on the 2279 A data rows (0.91 of that block)
+
+== 6. tree work and a ceiling ==
+  C      digit leaves (ZZ words)  2.33 M = +7.2% on the block's 32.28 M lookups; each digit tree 2^20.2 leaves = 20 levels (main tree 25 levels)
+  C+M    digit leaves (ZZ words)  2.60 M = +8.1% on the block's 32.28 M lookups; each digit tree 2^20.3 leaves = 20 levels (main tree 25 levels)
+  C+M+W  digit leaves (ZZ words)  3.12 M = +9.7% on the block's 32.28 M lookups; each digit tree 2^20.6 leaves = 21 levels (main tree 25 levels)
+  B alone C                        rows ratio 0.810: commit saving at most 3.8% of the cadence at full pass-through (before any tree or U work)
+  B alone C+M+W                    rows ratio 0.909: commit saving at most 1.8% of the cadence at full pass-through (before any tree or U work)
+  A alone G2 (merged)              rows ratio 0.491: commit saving at most 10.3% of the cadence at full pass-through (before any tree or U work)
+  A alone G2 (pair per column)     rows ratio 0.516: commit saving at most 9.8% of the cadence at full pass-through (before any tree or U work)
+  A+B C R1 favourable              rows ratio 0.273: commit saving at most 14.7% of the cadence at full pass-through (before any tree or U work)
+  A+B C+M+W R2 unfavourable        rows ratio 0.479: commit saving at most 10.5% of the cadence at full pass-through (before any tree or U work)
+  cycle 6a's prior ESTIMATE for the lookup tree itself: 0.040..0.105 s per block on Metal (0.5..1.2 of today's whole block GPU 0.0915 s) -- not re-measured

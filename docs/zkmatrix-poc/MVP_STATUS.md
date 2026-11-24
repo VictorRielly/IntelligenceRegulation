@@ -801,6 +801,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 52, Nov 24 04:03 UTC [reading and arithmetic by the background researcher; its code and
+    census citations checked by Claude, its script re-run with identical output]: two
+    future-protocol ideas together would shrink what the prover commits to about a third, but the
+    speed they can buy is capped near 10 to 15% and may be eaten by their own cost.** The two ideas
+    are packing small values as bytes (candidate B) and lookups that need no committed helper
+    columns (candidate A). Counted from the layout code, B alone leaves 81 to 91% of today's
+    committed rows (an earlier tick said 78 to 88% and had left out some helper rows), A alone 49 to
+    52%, and both together 27 to 41%, or up to 48% in one variant. Committed volume is not time,
+    though: commits are about a quarter of the GPU work, so even if every saved row turned into
+    saved time, A would give at most about 10% and B about 4 points more. A's lookup tree is new GPU
+    work that nobody has measured, and an earlier estimate puts it near the size of the saving.
+    Nothing is scheduled. The next tick bounds the tree's cost from kernels already measured; only
+    if that passes is a one-day prototype worth discussing. Handoff:
+    `research/zkp-efficiency/handoffs/20261124-claude-tick52-ab-net-volume.md`.
     **Nov 24, 03:50 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED as
     ratios inside one set]: the classifier speed switch has cleared its timing checks after the
     code-review fixes; it is not merged yet because one new test is unreliable.** Antigravity's fix
