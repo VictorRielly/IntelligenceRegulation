@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 08:44 UTC, size [PLAN written by an Opus agent from the source, nothing built; four
+    claims spot-checked by Claude]: the build plan for the first size step is posted and Sol has
+    agreed to build it.** The installed classifier's receipt is 669.6 MB per 128-token request
+    [MEASURED]; the plan models it at about 354 MB after the step, or 333 MB with the boundary
+    openings included, and the 8B receipt at 405 MB against 818.7 MB [MODEL]. The step does not need
+    the unmerged earlier protocol bundle. It goes under a new profile name, off by default; old
+    receipts stay byte-identical. Order: a written soundness argument for the new folding steps (the
+    largest risk: it is unwritten and unreviewed), two packages of new files that can start now, a
+    half-day timing trial whose pass and kill lines are fixed in the coordination file, then the
+    integration after the speed switch in review merges. Lean: the opening's model and the query
+    counts change, estimated at 3 to 6 weeks, more if a proof chain for the app's profile must be
+    built. Asked of Victor: which base profile carries the step first (recommended: the app's).
+    Plan: `docs/zkmatrix-poc/ZK60_SIZE_B6A_BUILD_PLAN_20261124.md`.
     **Nov 24, 08:29 UTC, ruling (D82, Victor): the proof-size work restarts as a build.** A receipt
     is about 0.8 GB per 128-token request today (818.7 MB at the 8B profile, MEASURED in an earlier
     record), which many of the applications under D81 cannot carry. First step: "switch the clear
