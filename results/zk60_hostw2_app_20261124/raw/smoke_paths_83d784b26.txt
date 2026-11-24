@@ -1,0 +1,22 @@
+leg1_armA.prover.log.err: arm A
+       3776  batched sc-chain-fast
+        312  [ZK60-HOST-FAST] block lines; fall-backs summed: h1e 0, h1a 0, h4 0, h5 0, h6 0
+         12  [ZK60-CLASSIFY-HOST-FAST] request lines; hits C1 194, C2 1937, C3 5637, C4 1650, C5 72; fall-backs C1 0, C2 0, C3 0, C4 0, C5 0
+          0  [ZK60-HOST-FAST-W2] block lines
+    as required for arm A
+leg2_armB.prover.log.err: arm B
+       3818  batched sc-chain-fast
+        312  [ZK60-HOST-FAST] block lines; fall-backs summed: h1e 0, h1a 0, h4 0, h5 0, h6 0
+         12  [ZK60-CLASSIFY-HOST-FAST] request lines; hits C1 201, C2 1944, C3 5610, C4 1706, C5 72; fall-backs C1 0, C2 0, C3 0, C4 0, C5 0
+          0  [ZK60-HOST-FAST-W2] block lines
+    as required for arm B
+leg3_armC.prover.log.err: arm C
+       3744  batched sc-chain-fast
+        312  [ZK60-HOST-FAST] block lines; fall-backs summed: h1e 0, h1a 0, h4 0, h5 0, h6 0
+         12  [ZK60-CLASSIFY-HOST-FAST] request lines; hits C1 201, C2 1948, C3 5620, C4 1719, C5 72; fall-backs C1 0, C2 0, C3 0, C4 0, C5 0
+        312  [ZK60-HOST-FAST-W2] block lines
+             hits, sum over the leg:        s 1707, te 3721, fw 1693, ad 0, pc 19217, rg 6104, ft 12072, pr 4916, po 11382, me 252582
+             fall-backs, sum over the leg:  s 0, fw 0, pc 0, rg 0, pr 0
+             components with a zero hit sum: ['ad'] (allowed to be zero: ['ad'])
+    as required for arm C
+condition (a): MET

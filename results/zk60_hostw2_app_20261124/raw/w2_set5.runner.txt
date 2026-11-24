@@ -1,0 +1,4 @@
+[21:20:06] launching w2_set5
+[zk60-guard 21:20:06] START hostw2-w2_set5 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=2b881d6dd81a
+[zk60-guard 21:49:33] END hostw2-w2_set5 exit=0 child_wall=1767s peak_rss=57.32G min_avail=136.02G peak_vram=20119MiB
+[21:49:33] w2_set5 guard exit 0
