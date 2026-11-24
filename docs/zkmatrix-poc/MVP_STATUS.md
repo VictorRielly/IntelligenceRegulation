@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 04:33 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED as
+    ratios inside one set]: the classifier speed switch is merged; with all five switches the app's
+    stream ran about 53 to 54 tok/s.** `HL_CLASSIFY_HOST_FAST=1` is off by default, changes only the
+    prover and leaves receipts byte for byte the same. In the last complete set the stream ran 54.0
+    and 54.4 tok/s with it against 51.3 and 50.4 without it (+5.3% and +7.9%; public posts, trained
+    3B classifier, six lanes by five threads). The merge check on the merged tree is green: the full
+    test suite twice (no switch, and both host switches forced on), six gate tests each in its own
+    process, and the commit integration test. Its first run had failed on one new test that compared
+    counters other tests could change; Antigravity removed those comparisons from the shared suite
+    (test files only), and the strict check that the switch never reaches the verifier still runs
+    alone in its own process. The installed app does not use any of the five switches yet; that is
+    Astra's decision. At the 8B size nothing new was measured tonight. Record:
+    `results/zk60_classifyhost_app_20261123/README.md`.
     **Tick 52, Nov 24 04:03 UTC [reading and arithmetic by the background researcher; its code and
     census citations checked by Claude, its script re-run with identical output]: two
     future-protocol ideas together would shrink what the prover commits to about a third, but the

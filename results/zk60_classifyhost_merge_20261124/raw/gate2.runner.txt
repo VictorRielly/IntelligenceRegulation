@@ -1,0 +1,2 @@
+[zk60-guard 20:05:22] START classifyhost-merge-gate2 class=gpu need=16G cap=32G enforce=watchdog-only waited=0s run=38c0ca582121
+[zk60-guard 20:32:10] END classifyhost-merge-gate2 exit=0 child_wall=1608s peak_rss=9.60G min_avail=196.14G peak_vram=5736MiB
