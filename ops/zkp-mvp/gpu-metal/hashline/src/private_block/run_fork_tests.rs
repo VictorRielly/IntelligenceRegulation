@@ -7643,14 +7643,17 @@ fn a33_the_8b_sealing_pass_summary_on_the_cpu_and_on_the_device() {
 }
 
 /// **[HOST-FAST-W2] Read B M3(2) & L7: trained-block D55 sealing path (`trained_block::seal_chain` ->
-/// `D55Hand` -> `StackSource::witness_sealed` -> `d55_seal_and_prove`) byte-identical parity.**
-/// Verifies on a seeded 2-block W16R2 rung through production's `d55_seal_and_prove` that:
-/// - `hw1` (`window=0`, `shared=true`) writes byte-identical run-directory frames to `hw0`, hits
-///   `HF_W2_SEAL_HIST == 2`, records 0 W2 fallbacks, and verifies cleanly with 0 verifier hits;
-/// - `hw1` (`window=1`, `shared=true`) writes byte-identical frames, hits `HF_W2_SEAL_HIST == 1`
-///   (only the kept block outside the window collects histograms, Read B L7) with 0 fallbacks;
-/// - `hw1` (`window=0`, `shared=false` / `HL_A19_SHARE=0`) writes byte-identical frames and
-///   skips histogram collection cleanly (`HF_W2_SEAL_HIST == 0`, 0 fallbacks, Read B L7).
+/// `D55Hand` -> `StackSource::witness_sealed` -> `d55_seal_and_prove`) interior-fork byte parity.**
+/// Verifies on a seeded 3-block (`l = 3`) W16R2 rung through production's `d55_seal_and_prove` that
+/// (every receipt is verified from disk via `read_fork_receipt` + `verify_run_with_forks` with 0
+/// verifier W2 hits/fallbacks, and the interior fork `k = 1` is compared byte-for-byte against an
+/// `hw0` whole re-proof via `a19_interior_forks_whole`, since `prepare_endpoints` uses OS RNG for
+/// the outer endpoint commitments):
+/// - `hw1` (`window=0`, `shared=true`) hits `HF_W2_SEAL_HIST == 3` with 0 W2 fallbacks;
+/// - `hw1` (`window=1`, `shared=true`) hits `HF_W2_SEAL_HIST == 2` (only the `l - 1` kept blocks
+///   outside the ahead window collect histograms, Read B L7) with 0 fallbacks;
+/// - `hw1` (`window=0`, `shared=false` / `HL_A19_SHARE=0`) skips histogram collection cleanly
+///   (`HF_W2_SEAL_HIST == 0`, 0 fallbacks, Read B L7).
 #[test]
 #[ignore = "HOST-FAST-W2: toggles A19 share/window, SeededForks, host-fast, and host-fast-w2 in-process; run alone by name with --ignored --exact --test-threads=1"]
 fn host_fast_w2_trained_block_d55_sealing_byte_identical() {

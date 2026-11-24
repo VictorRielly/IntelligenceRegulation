@@ -2614,6 +2614,14 @@ struct SealedHistograms {
 }
 
 impl SealedHistograms {
+    /// Checks whether these histograms were collected for `(sh, blk)` with zero misses.
+    ///
+    /// **Lifetime requirement (L1):** `blk_sig` identifies `blk` by the heap buffer addresses of
+    /// its weight/exp/accuracy arrays plus `act` by value. Callers MUST keep the originating
+    /// `BlockPublic` alive (as `ResidentClassifier::blocks` and `SealedBlocks` do) for at least as
+    /// long as any `SealedWitness` produced from it may be consumed, so no other `BlockPublic` can
+    /// be allocated at the same addresses. (Binding by block content digest or lifetime borrow is
+    /// queued as a follow-up behind the serve-hang recovery item.)
     fn matches_block(&self, sh: &Shape, blk: &BlockPublic) -> bool {
         self.zero_misses && self.sh == *sh && self.blk_sig == blk_sig(blk)
     }
@@ -4989,12 +4997,12 @@ mod tests {
                 let col_ref = range_table_helper(f, s, sh.log_cols, opt_tbl, &m_rng0[fi], base, sup).unwrap().unwrap();
                 let col_flat = range_table_helper_flat(f, s, sh.log_cols, flat_tbl, &m_rng0[fi], base, sup).unwrap();
                 assert_eq!(col_flat, col_ref, "range_table_helper_flat mismatch for {:?} s={s}", f);
-                // Read A L4: range_table_helper_flat must reject truncated table slices for ANY index in 0..len
+                // Reject truncated inverse tables via the width guard (`tbl.len() < 1 << f.width`)
                 if !flat_tbl.is_empty() && base + sup > 1 {
                     let short = &flat_tbl[..base + sup - 1];
                     assert!(
                         range_table_helper_flat(f, s, sh.log_cols, short, &m_rng0[fi], base, sup).is_none(),
-                        "range_table_helper_flat must check upper bound base + len <= inv.len()"
+                        "range_table_helper_flat must reject truncated table slice (width guard tbl.len() < 1 << f.width)"
                     );
                 }
             }

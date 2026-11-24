@@ -5856,4 +5856,149 @@ mod a3_tests {
             None => assert_eq!(g, 4.0),
         }
     }
+
+    /// **[HOST-FAST-W2] Fix-read M2 (sealing pass #3: `trained_block::seal_chain`)**:
+    /// plants a byte-table lookup miss inside `witness::build_shaped` (via thread-local
+    /// `ForgeSealByteMissGuard`, leaving `q` and `x_out` unchanged) and drives it through
+    /// `trained_block::seal_chain` with `shares_blocks() == true`, `will_keep == true`, and
+    /// `HL_HOST_FAST_W2=1` (as well as `0`), verifying the exact wrapped CS-3 refusal string.
+    #[test]
+    fn host_fast_w2_trained_seal_chain_planted_lookup_miss_refusal() {
+        use super::{
+            padded_plane, seal_chain, set_seal_pool_for_test, true_words, Digest, LayerRecord, RunShape,
+            SealHand, StackModel, TrainedLayer, TrainedModelStatement,
+        };
+        use crate::private_block::layout::{Ids, A_X2};
+        use crate::private_block::protocol::LOOKUP_MISS_REFUSAL;
+        use crate::private_block::review_d24_tests::ForgeSealByteMissGuard;
+        use crate::private_block::shape::Shape;
+        use crate::private_block::trained_calib_tests::{
+            rung_tc_calibration, trained_dense_block_with, TRAINED_BANDS,
+        };
+        use crate::private_block::{run, witness, BlockPublic};
+
+        struct OneLayerModel {
+            sh: Shape,
+            layers: [u32; 1],
+            blk: BlockPublic,
+            record: LayerRecord,
+            x_in: Vec<i16>,
+            x_out: Vec<i16>,
+        }
+
+        impl StackModel for OneLayerModel {
+            fn shape(&self) -> &Shape {
+                &self.sh
+            }
+            fn layers(&self) -> &[u32] {
+                &self.layers
+            }
+            fn load_layer(&self, k: usize) -> Result<TrainedLayer, String> {
+                assert_eq!(k, 0);
+                Ok(TrainedLayer {
+                    index: 0,
+                    manifest_sha256: [0; 32],
+                    blk: self.blk.clone(),
+                    record: self.record.clone(),
+                    rope_note: String::new(),
+                })
+            }
+            fn reload_block(&self, _k: usize) -> Result<BlockPublic, String> {
+                Ok(self.blk.clone())
+            }
+            fn seq(&self, _layer: u32) -> Result<(Vec<i16>, Vec<i16>), String> {
+                Ok((self.x_in.clone(), self.x_out.clone()))
+            }
+            fn statement_of_records(&self, _records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+                unreachable!("seal_chain does not call statement_of_records")
+            }
+            fn run_shape(&self) -> Result<RunShape, String> {
+                unreachable!("seal_chain does not call run_shape")
+            }
+            fn context(&self) -> Result<Digest, String> {
+                unreachable!("seal_chain does not call context")
+            }
+            fn variant(&self) -> &str {
+                "w2-seal-miss-rung"
+            }
+            fn scope(&self) -> &'static str {
+                "test"
+            }
+        }
+
+        struct SharingKeepHand;
+        impl SealHand for SharingKeepHand {
+            fn block(&mut self, _k: usize, _blk: run::fork::LayerBlock, _digest: &Digest) -> Result<(), String> {
+                Ok(())
+            }
+            fn witness(&mut self, _k: usize, w: witness::Witness, _ssh: &Shape) -> Result<Option<witness::Witness>, String> {
+                Ok(Some(w))
+            }
+            fn shares_blocks(&self) -> bool {
+                true
+            }
+            fn takes_window(&self, _k: usize) -> bool {
+                false
+            }
+        }
+
+        let _hf_lock = crate::zk::host_fast_test_lock();
+        struct Reset {
+            prev_w2: Option<bool>,
+        }
+        impl Drop for Reset {
+            fn drop(&mut self) {
+                crate::zk::set_host_fast_w2_for_test(self.prev_w2);
+                set_seal_pool_for_test(None);
+            }
+        }
+        let _guard = Reset {
+            prev_w2: crate::zk::set_host_fast_w2_for_test(Some(true)),
+        };
+        // Run witness builds inline on the calling thread so the thread-local forge hook fires
+        // without touching any concurrent test threads.
+        set_seal_pool_for_test(Some(0));
+
+        let sh = Shape::rung_tc(&rung_tc_calibration()).expect("rung_tc");
+        let (blk, x_in) = trained_dense_block_with(&sh, TRAINED_BANDS);
+        let ids = Ids::new(&sh).expect("Ids");
+        let honest_w = witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &x_in).expect("honest witness");
+        let x_out = true_words(&sh, &padded_plane(&honest_w, ids.at(A_X2)).expect("x2 plane"));
+        let model = OneLayerModel {
+            sh,
+            layers: [0],
+            record: LayerRecord::of_block(0, &blk, vec![]),
+            blk,
+            x_in,
+            x_out,
+        };
+
+        // Control: honest seal_chain with W2 on succeeds and keeps the sealed witness
+        let (_, _, chain, _) = seal_chain(&model, u64::MAX, &mut SharingKeepHand).expect("honest seal_chain with W2 on");
+        assert!(chain.kept[0].is_some(), "honest seal_chain must keep SealedWitness");
+
+        let want = format!(
+            "layer 0, in the sealing pass (before the run header; ruling H-1): {LOOKUP_MISS_REFUSAL}; the table family that missed: the byte table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9)."
+        );
+        // Run witness builds inline on a private 1-thread Rayon pool so `rayon::join(build, ...)`
+        // inside `seal_chain` stays on that worker thread and sees the thread-local forge hook
+        // without touching any concurrent test threads.
+        let inline_pool = rayon::ThreadPoolBuilder::new()
+            .num_threads(1)
+            .build()
+            .expect("1-thread rayon pool");
+        for w2_on in [false, true] {
+            crate::zk::set_host_fast_w2_for_test(Some(w2_on));
+            let (res, count) = inline_pool.install(|| {
+                let forge = ForgeSealByteMissGuard::on();
+                let res = seal_chain(&model, u64::MAX, &mut SharingKeepHand);
+                (res, forge.count())
+            });
+            let err = res
+                .err()
+                .unwrap_or_else(|| panic!("trained_block::seal_chain (w2={w2_on}) admitted a planted byte-table lookup miss"));
+            assert_eq!(count, 1, "forge hook must fire exactly once (w2={w2_on})");
+            assert_eq!(err, want, "trained_block::seal_chain refusal mismatch (w2={w2_on})");
+        }
+    }
 }

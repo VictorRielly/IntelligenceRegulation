@@ -622,7 +622,9 @@ fn classify_host_fast_plus_w2_serve_gate() {
 /// exercises resident `classify-serve` through `seal_chain_keeping` -> `CliSource::witness_sealed` ->
 /// `prove_classify_run_with` -> `prove_core_sealed` (without `classify_host_fast`), asserting
 /// `HF_W2_SEAL_HIST == 2` with zero W2 fallbacks, zero `classify_host_fast` counter movement,
-/// and strict `check-serve` verification with zero counter movement.
+/// and `check-serve` acceptance with zero counter movement. (Checks counters and acceptance only;
+/// byte-identical classifier proof parity with W2 on vs off is tested in
+/// `w16r2_tests::host_fast_w2_all_call_sites_byte_identical`.)
 #[test]
 #[ignore = "HOST-FAST-W2: fresh-process gate exercising classifier seal_chain_keeping -> CliSource::witness_sealed -> prove_classify_run_with with HL_HOST_FAST_W2=1 alone (HL_CLASSIFY_HOST_FAST unset)"]
 fn host_fast_w2_alone_classify_serve_gate() {
@@ -664,4 +666,486 @@ fn host_fast_w2_alone_classify_serve_gate() {
         assert_eq!(crate::zk::host_fast_w2_fallbacks_for_test(), vwf0, "W2-alone check-serve recorded host_fast_w2 fallback");
     }
     eprintln!("HL_HOST_FAST_W2 ALONE | CLASSIFY SERVE GATE PASS: seal_chain_keeping -> CliSource::witness_sealed -> prove_classify_run_with hit HF_W2_SEAL_HIST=2 with 0 fallbacks");
+}
+
+/// **[HOST-FAST-W2] Fix-read M2 (sealing passes #1 & #2: `seal_chain_keeping` and
+/// `seal_chain_keeping_fast`)**:
+/// plants a byte-table lookup miss inside `witness::build_shaped` (via thread-local
+/// `ForgeSealByteMissGuard`, leaving `q` and `x_out` unchanged) and drives it through BOTH
+/// `seal_chain_keeping` (hits `check_lookup_misses_sealed(..., false)`) and
+/// `seal_chain_keeping_fast` (hits `check_lookup_misses_sealed(..., true)`) over resident
+/// `KeptResidentBlocks` with `budget = u64::MAX`, for both `HL_HOST_FAST_W2=0` and `=1`,
+/// asserting the exact expected wrapped refusal text in every case.
+#[test]
+fn host_fast_w2_seal_chain_keeping_and_fast_planted_lookup_miss_refusal() {
+    use crate::private_block::protocol::LOOKUP_MISS_REFUSAL;
+    use crate::private_block::review_d24_tests::ForgeSealByteMissGuard;
+
+    let _hf_lock = crate::zk::host_fast_test_lock();
+    struct Reset {
+        prev_w2: Option<bool>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
+        }
+    }
+    let _guard = Reset {
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(true)),
+    };
+
+    let cc = Cc::new("w2-seal-miss");
+    let (p, loaded) = ExportPublic::load_keeping(&cc.export, classify_run_profile_of, true).expect("load_keeping");
+    let kept_blocks: Vec<std::sync::Arc<KeptBlock>> = loaded
+        .into_iter()
+        .enumerate()
+        .map(|(k, b)| {
+            let stage = p.model.layers.get(k).and_then(|r| r.shape_at(&p.sh).ok());
+            KeptBlock::new(b, stage.as_slice())
+        })
+        .collect();
+    let seq = SeqIn::InExport("s0".to_string());
+    let x_in0 = seq.load(&p.ex, &p.sh, p.layers[0]).expect("x_in0").0;
+
+    // Control: honest sealing passes succeed with W2 on and keep the sealed witness
+    {
+        let mut rb = KeptResidentBlocks(&kept_blocks);
+        let (_, kept) = seal_chain_keeping(&p, &seq, &mut rb, x_in0.clone(), u64::MAX).expect("honest seal_chain_keeping");
+        assert!(kept[0].is_some(), "seal_chain_keeping must keep SealedWitness");
+    }
+    {
+        let mut rb = KeptResidentBlocks(&kept_blocks);
+        let (_, kept, _) = seal_chain_keeping_fast(&p, &seq, &mut rb, x_in0.clone(), u64::MAX).expect("honest seal_chain_keeping_fast");
+        assert!(kept[0].is_some(), "seal_chain_keeping_fast must keep SealedWitness");
+    }
+
+    let want = format!(
+        "block 0: {LOOKUP_MISS_REFUSAL}; the table family that missed: the byte table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9). (the sealing pass, before any header)"
+    );
+
+    for w2_on in [false, true] {
+        crate::zk::set_host_fast_w2_for_test(Some(w2_on));
+        {
+            let forge = ForgeSealByteMissGuard::on();
+            let mut rb = KeptResidentBlocks(&kept_blocks);
+            let err = seal_chain_keeping(&p, &seq, &mut rb, x_in0.clone(), u64::MAX)
+                .err()
+                .unwrap_or_else(|| panic!("seal_chain_keeping (w2={w2_on}) admitted a planted byte-table lookup miss"));
+            assert_eq!(forge.count(), 1, "seal_chain_keeping forge count (w2={w2_on})");
+            assert_eq!(err, want, "seal_chain_keeping refusal mismatch (w2={w2_on})");
+        }
+        {
+            let forge = ForgeSealByteMissGuard::on();
+            let mut rb = KeptResidentBlocks(&kept_blocks);
+            let err = seal_chain_keeping_fast(&p, &seq, &mut rb, x_in0.clone(), u64::MAX)
+                .err()
+                .unwrap_or_else(|| panic!("seal_chain_keeping_fast (w2={w2_on}) admitted a planted byte-table lookup miss"));
+            assert_eq!(forge.count(), 1, "seal_chain_keeping_fast forge count (w2={w2_on})");
+            assert_eq!(err, want, "seal_chain_keeping_fast refusal mismatch (w2={w2_on})");
+        }
+    }
+}
+
+/// **[HOST-FAST-W2] Fix-read M1 fresh-process gate: R13 accuracy-stack + W16R2 accuracy-stack
+/// verifier isolation through the receipt doors (`check-serve`, `verify`, `input-owner`) with ALL
+/// THREE switches ON (`HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1`).**
+///
+/// Builds an on-disk R13 accuracy-stack (`R13_RUNG_H24`) fixture from `HL_R13_LOADER_FIXTURES/r13-h24-dense`:
+/// 1. **Native R13 accuracy stack (`R13_RUNG_H24`)**: proves 2 chunks via `prove_with_public`
+///    (resident `KeptBlock` + `SharedProve`), asserting the prover hits `HF_H4_ACC_FOLD > 0`,
+///    `HF_W2_FOLD_TILED > 0`, `HF_W2_SEAL_HIST == 2`, and `CHF_C1..C4 > 0` with 0 fallbacks; then
+///    verifies the on-disk receipts through `check_one` (the `check-serve` receipt door:
+///    `door_statement` B-3 re-render + bounded segment reads + `verify_classify_run_with` +
+///    statement publication + `owner_check_input` + `aggregate_label`, plus a second `check_one`
+///    re-verifying the published statement byte-for-byte), asserting EXACT ZERO counter movement
+///    (hits and fallbacks) across all three switches.
+/// 2. **W16R2 accuracy stack (`W16R2_RUNG_H24`, `--dev-w16r2-public-content-only`)** on the same
+///    export: proves via `serve_for_tests`, asserting `HF_H4_ACC_FOLD > 0`, `HF_W2_FOLD_TILED > 0`,
+///    `HF_W2_SEAL_HIST == 2`, and `CHF_C1..C4 > 0` with 0 fallbacks; then verifies through the
+///    public CLI doors `classify_verify_command`, `classify_input_owner_command`, and
+///    `check_serve_for_tests`, asserting EXACT ZERO counter movement across all three switches.
+#[test]
+#[ignore = "HOST-FAST-W2 M1: fresh-process R13 + W16R2 accuracy-stack receipt-door verifier-isolation gate; run alone with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1 -- --ignored --exact --test-threads=1"]
+fn host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate() {
+    use crate::private_block::layout::{Ids, A_X2};
+    use crate::private_block::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST;
+    use crate::private_block::shape::R13_RUNG_H24;
+    use crate::private_block::token_io::classify_cli_tests::{
+        add_classifier_parameters, fixture_root, write_classifier_tables,
+    };
+    use crate::private_block::token_io::classify_tied::{
+        dev_tied_tensor_bytes, load_tied_classifier_tables, recompute_tied_classifier, TiedSource,
+        DEV_TIED_TENSOR_FILE,
+    };
+    use crate::private_block::token_io::tests::{generic_tables, norm};
+    use crate::private_block::trained_block::{hex, sha256, TrainedExport};
+    use crate::private_block::witness;
+    use std::io::Write as _;
+    use std::os::unix::fs::OpenOptionsExt as _;
+
+    assert!(
+        crate::zk::host_fast_on() && classify_host_fast_on() && crate::zk::host_fast_w2_on(),
+        "run this fresh-process gate with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1 in the environment"
+    );
+
+    type AllSnap = ([u64; 8], [u64; 5], [u64; 5], [u64; 5], [u64; 10], [u64; 5]);
+    let snap = || -> AllSnap {
+        (
+            crate::zk::host_fast_hits_for_test(),
+            crate::zk::host_fast_fallbacks_for_test(),
+            classify_host_fast_hits_snapshot(),
+            classify_host_fast_fallbacks_snapshot(),
+            crate::zk::host_fast_w2_hits_for_test(),
+            crate::zk::host_fast_w2_fallbacks_for_test(),
+        )
+    };
+    let assert_zero_delta = |label: &str, before: AllSnap, after: AllSnap| {
+        assert_eq!(after.0, before.0, "{label}: verifier moved host_fast hits: before={:?} after={:?}", before.0, after.0);
+        assert_eq!(after.1, before.1, "{label}: verifier moved host_fast fallbacks: before={:?} after={:?}", before.1, after.1);
+        assert_eq!(after.2, before.2, "{label}: verifier moved classify_host_fast hits: before={:?} after={:?}", before.2, after.2);
+        assert_eq!(after.3, before.3, "{label}: verifier moved classify_host_fast fallbacks: before={:?} after={:?}", before.3, after.3);
+        assert_eq!(after.4, before.4, "{label}: verifier moved host_fast_w2 hits: before={:?} after={:?}", before.4, after.4);
+        assert_eq!(after.5, before.5, "{label}: verifier moved host_fast_w2 fallbacks: before={:?} after={:?}", before.5, after.5);
+    };
+
+    fn copy_tree(src: &Path, dst: &Path, skip_seq: bool) {
+        std::fs::create_dir_all(dst).unwrap();
+        for e in std::fs::read_dir(src).unwrap() {
+            let e = e.unwrap();
+            let name = e.file_name().to_string_lossy().to_string();
+            if skip_seq && name.starts_with("seq_") {
+                continue;
+            }
+            let (s, d) = (e.path(), dst.join(&name));
+            if e.file_type().unwrap().is_dir() {
+                copy_tree(&s, &d, skip_seq);
+            } else {
+                std::fs::copy(&s, &d).unwrap();
+            }
+        }
+    }
+
+    let r13_src = std::env::var_os("HL_R13_LOADER_FIXTURES")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../loader-fixtures"))
+        .join("r13-h24-dense");
+    assert!(
+        r13_src.join("profile.json").exists(),
+        "missing R13 loader fixture {}: set HL_R13_LOADER_FIXTURES",
+        r13_src.display()
+    );
+
+    let root = fixture_root().join(format!("tio-r13-m1-gate-{}", std::process::id()));
+    let owners = fixture_root().join(format!("tio-r13-m1-owners-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    let _ = std::fs::remove_dir_all(&owners);
+    std::fs::create_dir_all(&root).unwrap();
+    std::fs::create_dir_all(&owners).unwrap();
+    struct Cleanup(PathBuf, PathBuf);
+    impl Drop for Cleanup {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+            let _ = std::fs::remove_dir_all(&self.1);
+        }
+    }
+    let _cleanup = Cleanup(root.clone(), owners.clone());
+
+    let policy = policy_rung_dev();
+    let export = root.join("export");
+    copy_tree(&r13_src, &export, false);
+    let pj = export.join("profile.json");
+    let ptext = std::fs::read_to_string(&pj).unwrap();
+    assert_eq!(ptext.matches("\"residual_unit\": 1.0,").count(), 1, "r13-h24-dense residual_unit");
+    std::fs::write(&pj, ptext.replace("\"residual_unit\": 1.0,", "\"residual_unit\": 0.0053663705198366135,")).unwrap();
+    add_classifier_parameters(&export, 1, norm(), &policy);
+
+    let ex = TrainedExport::load(&export).expect("TrainedExport::load");
+    let c = ex.run_constants(&ex.layers).expect("run_constants");
+    let sh_seed = ex.shape_for(&c).expect("shape_for");
+    assert_eq!(sh_seed.profile, R13_RUNG_H24);
+
+    let tables_dir = root.join("tables");
+    std::fs::create_dir_all(&tables_dir).unwrap();
+    std::fs::write(tables_dir.join(DEV_TIED_TENSOR_FILE), dev_tied_tensor_bytes()).unwrap();
+    let tied = recompute_tied_classifier(
+        TiedSource::DevRung,
+        &export,
+        &tables_dir,
+        &policy,
+        ex.residual_unit,
+        sh_seed.width,
+        &ex.profile_sha256,
+    )
+    .expect("recompute_tied_classifier");
+    let emb = tied.emb.clone().expect("dev embedding");
+    let g = generic_tables(sh_seed.width, 0x636c_6363);
+    let tt = TokenTables::new(g.v, g.d, emb.clone(), g.head, g.mult).unwrap();
+    write_classifier_tables(&tables_dir, &tt, &tied.w, tied.bos, tied.norm, &policy);
+
+    let verifier_copy = root.join("verifier-copy");
+    copy_tree(&export, &verifier_copy, true);
+
+    let r13_profile_of = |sh: &crate::private_block::shape::Shape| -> Result<&'static str, String> {
+        assert_eq!(sh.profile, R13_RUNG_H24);
+        Ok(RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST)
+    };
+    let (p_r13, loaded_r13) = ExportPublic::load_keeping(&export, r13_profile_of, true).expect("R13 load_keeping");
+    let blocks_r13: Vec<std::sync::Arc<KeptBlock>> = loaded_r13
+        .into_iter()
+        .enumerate()
+        .map(|(k, b)| {
+            let stage = p_r13.model.layers.get(k).and_then(|r| r.shape_at(&p_r13.sh).ok());
+            KeptBlock::new(b, stage.as_slice())
+        })
+        .collect();
+    let bound_r13 = load_tied_classifier_tables(&p_r13, &export, &tables_dir, &policy).expect("R13 load_tied_classifier_tables");
+
+    // 27-token post split into 2 chunks ([0, 23) and [4, 27))
+    let whole_ids: Vec<u64> = (9..=31).chain([33, 34, 35, 36]).collect();
+    assert_eq!(whole_ids.len(), 27);
+    let whole_str = whole_ids.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
+    let content_file = owners.join("content.txt");
+    {
+        let mut f = std::fs::OpenOptions::new().create_new(true).write(true).mode(0o600).open(&content_file).unwrap();
+        f.write_all(whole_str.as_bytes()).unwrap();
+    }
+
+    // Write per-chunk seq dirs using the R13 accuracy block builder
+    let ssh0 = p_r13.model.layers[0].shape_at(&p_r13.sh).expect("stage 0 shape");
+    let ids0 = Ids::new(&ssh0).expect("stage 0 Ids");
+    let write_r13_seq = |dir: &Path, tokens: &[u64]| {
+        let d = p_r13.sh.width;
+        let x_in: Vec<i16> = tokens.iter().flat_map(|id| emb[*id as usize * d..(*id as usize + 1) * d].iter().copied()).collect();
+        let w = witness::build_for_block(&ssh0, blocks_r13[0].block(), &x_in).expect("R13 witness");
+        let plane = &w.planes[ids0.at(A_X2)];
+        let x_out: Vec<i16> = (0..p_r13.sh.tokens)
+            .flat_map(|t| (0..p_r13.sh.width).map(move |i| (t, i)))
+            .map(|(t, i)| i16::try_from(plane[t * p_r13.sh.d_pad + i]).unwrap())
+            .collect();
+        let xi: Vec<u8> = x_in.iter().flat_map(|v| v.to_le_bytes()).collect();
+        let xo: Vec<u8> = x_out.iter().flat_map(|v| v.to_le_bytes()).collect();
+        std::fs::create_dir_all(dir).unwrap();
+        std::fs::write(dir.join("x_in_L00.bin"), &xi).unwrap();
+        std::fs::write(dir.join("x_out_L00.bin"), &xo).unwrap();
+        let arr = |name: &str, b: &[u8]| {
+            format!(
+                "\"{name}\": {{\"file\": \"{name}.bin\", \"dtype\": \"int16\", \"shape\": [{}, {}], \"sha256\": \"{}\"}}",
+                p_r13.sh.tokens,
+                p_r13.sh.width,
+                hex(&sha256(b))
+            )
+        };
+        std::fs::write(
+            dir.join("manifest.json"),
+            format!(
+                "{{\"kind\": \"sequence\", \"id\": \"s0\", \"T\": {}, \"arrays\": {{{}, {}}}}}\n",
+                p_r13.sh.tokens,
+                arr("x_in_L00", &xi),
+                arr("x_out_L00", &xo)
+            ),
+        )
+        .unwrap();
+    };
+    let chunks_tokens = [
+        item_tokens(&policy, &whole_ids[0..23]),
+        item_tokens(&policy, &whole_ids[4..27]),
+    ];
+    let seq_dirs = [owners.join("seq-c0"), owners.join("seq-c1")];
+    for (dir, toks) in seq_dirs.iter().zip(chunks_tokens.iter()) {
+        write_r13_seq(dir, toks);
+    }
+
+    // ---- 1. Native R13 accuracy stack (R13_RUNG_H24) through prove_with_public -> check-serve (check_one) ----
+    {
+        let outs = [root.join("r13-c0"), root.join("r13-c1")];
+        let odirs = [owners.join("r13-own-c0"), owners.join("r13-own-c1")];
+        let pb = snap();
+        for ci in 0..2 {
+            let args = vec![
+                ("--export".to_string(), export.display().to_string()),
+                ("--tables".to_string(), tables_dir.display().to_string()),
+                ("--policy".to_string(), POLICY_RUNG_DEV.to_string()),
+                ("--content-file".to_string(), content_file.display().to_string()),
+                ("--chunk".to_string(), ci.to_string()),
+                ("--seq-dir".to_string(), seq_dirs[ci].display().to_string()),
+                ("--out".to_string(), outs[ci].display().to_string()),
+                ("--owner-dir".to_string(), odirs[ci].display().to_string()),
+            ];
+            let shared = SharedProve {
+                p: &p_r13,
+                bound: &bound_r13,
+                whole: &whole_ids,
+                claim: None,
+                blocks: Some(&blocks_r13),
+                witness_budget: 1u64 << 30,
+                run_gate: None,
+            };
+            prove_with_public(&args, Some(shared)).expect("R13 prove_with_public");
+        }
+        let pa = snap();
+        assert!(pa.0[crate::zk::HF_H4_ACC_FOLD] > pb.0[crate::zk::HF_H4_ACC_FOLD], "R13 prover must hit HF_H4_ACC_FOLD: before={:?} after={:?}", pb.0, pa.0);
+        assert!(pa.4[crate::zk::HF_W2_FOLD_TILED] > pb.4[crate::zk::HF_W2_FOLD_TILED], "R13 prover must hit HF_W2_FOLD_TILED: before={:?} after={:?}", pb.4, pa.4);
+        assert_eq!(pa.4[crate::zk::HF_W2_SEAL_HIST] - pb.4[crate::zk::HF_W2_SEAL_HIST], 2, "R13 prover must hit HF_W2_SEAL_HIST == 2");
+        assert!(pa.2[CHF_C1_DIGESTS] > pb.2[CHF_C1_DIGESTS] && pa.2[CHF_C2_ASYNC_SINK] > pb.2[CHF_C2_ASYNC_SINK] && pa.2[CHF_C3_SEQ_BOUNDARY] > pb.2[CHF_C3_SEQ_BOUNDARY] && pa.2[CHF_C4_CS3_SKIP] > pb.2[CHF_C4_CS3_SKIP], "R13 prover must hit CHF_C1..C4");
+        assert_eq!(pa.1, pb.1, "R13 prover W1 fallbacks");
+        assert_eq!(pa.3, pb.3, "R13 prover classify_host_fast fallbacks");
+        assert_eq!(pa.5, pb.5, "R13 prover W2 fallbacks");
+
+        // Fresh verifier-side ResidentClassifier + CheckServer over verifier_copy
+        refuse_prover_private_entries(&verifier_copy).expect("verifier_copy is public-only");
+        let (vp, vloaded) = ExportPublic::load_keeping(&verifier_copy, r13_profile_of, true).expect("R13 verifier load_keeping");
+        let vblocks: Vec<std::sync::Arc<KeptBlock>> = vloaded
+            .into_iter()
+            .enumerate()
+            .map(|(k, b)| {
+                let stage = vp.model.layers.get(k).and_then(|r| r.shape_at(&vp.sh).ok());
+                KeptBlock::new(b, stage.as_slice())
+            })
+            .collect();
+        let vbound = load_tied_classifier_tables(&vp, &verifier_copy, &tables_dir, &policy).expect("R13 verifier bound tables");
+        let srv = CheckServer {
+            res: ResidentClassifier {
+                export: verifier_copy.clone(),
+                tables_dir: tables_dir.clone(),
+                label: crate::private_block::token_io::classify_cli::CLASSIFY_LABELS[0].to_string(),
+                p: vp,
+                blocks: vblocks,
+                bound: vbound,
+                policies: vec![POLICY_RUNG_DEV.to_string()],
+                startup_s: 0.0,
+            },
+            min_bits: 95,
+            busy: std::sync::Mutex::new(std::collections::HashSet::new()),
+        };
+        let chunks_json = (0..2)
+            .map(|ci| {
+                format!(
+                    "{{\"artifact\": {}, \"decommitment\": {}}}",
+                    js(outs[ci].to_str().unwrap()),
+                    js(odirs[ci].join("input.dec").to_str().unwrap())
+                )
+            })
+            .collect::<Vec<_>>()
+            .join(", ");
+        let req_line = format!(
+            "{{\"id\": \"r13-m1\", \"policy\": {}, \"expect_total\": 27, \"content_file\": {}, \"chunks\": [{chunks_json}]}}",
+            js(POLICY_RUNG_DEV),
+            js(content_file.to_str().unwrap())
+        );
+        let req = check_request_of(&req_line).expect("check_request_of");
+
+        let vb1 = snap();
+        check_one(&srv, &req).expect("R13 check_one (first check + publish)");
+        let va1 = snap();
+        assert_zero_delta("R13 check-serve (check_one first)", vb1, va1);
+
+        let vb2 = snap();
+        check_one(&srv, &req).expect("R13 check_one (published re-check)");
+        let va2 = snap();
+        assert_zero_delta("R13 check-serve (check_one re-check)", vb2, va2);
+    }
+
+    // ---- 2. W16R2 accuracy stack (W16R2_RUNG_H24) through public serve + verify + input-owner + check-serve ----
+    {
+        let (pw16, _) = super::w16r2::load_export_w16r2(&verifier_copy, false).expect("W16R2 load_export");
+        let w16_pin = hex(&pw16.model.identity());
+        let outs = [root.join("w16-c0"), root.join("w16-c1")];
+        let odirs = [owners.join("w16-own-c0"), owners.join("w16-own-c1")];
+        let reqs: Vec<String> = (0..2)
+            .map(|ci| {
+                format!(
+                    "{{\"id\": \"w{ci}\", \"content_file\": {}, \"policy\": {}, \"chunk\": {ci}, \"seq_dir\": {}, \"out\": {}, \"owner_dir\": {}}}",
+                    js(content_file.to_str().unwrap()),
+                    js(POLICY_RUNG_DEV),
+                    js(seq_dirs[ci].to_str().unwrap()),
+                    js(outs[ci].to_str().unwrap()),
+                    js(odirs[ci].to_str().unwrap())
+                )
+            })
+            .collect();
+        let sargs = s(&[
+            "--export", export.to_str().unwrap(),
+            "--tables", tables_dir.to_str().unwrap(),
+            "--policies", POLICY_RUNG_DEV,
+            "--lanes", "1",
+            "--lane-threads", "2",
+            "--witness-cache-gib", "1",
+            super::w16r2::DEV_W16R2_SWITCH,
+        ]);
+        let pb = snap();
+        let sout = serve_for_tests(&sargs, reqs).expect("W16R2 serve_for_tests");
+        let pa = snap();
+        assert_eq!(parsed(&sout).last().unwrap().get("accepted").unwrap().i64().unwrap(), 2);
+        assert!(pa.0[crate::zk::HF_H4_ACC_FOLD] > pb.0[crate::zk::HF_H4_ACC_FOLD], "W16R2 serve must hit HF_H4_ACC_FOLD");
+        assert!(pa.4[crate::zk::HF_W2_FOLD_TILED] > pb.4[crate::zk::HF_W2_FOLD_TILED], "W16R2 serve must hit HF_W2_FOLD_TILED");
+        assert_eq!(pa.4[crate::zk::HF_W2_SEAL_HIST] - pb.4[crate::zk::HF_W2_SEAL_HIST], 2, "W16R2 serve must hit HF_W2_SEAL_HIST == 2");
+        assert_eq!(pa.1, pb.1, "W16R2 serve W1 fallbacks");
+        assert_eq!(pa.3, pb.3, "W16R2 serve classify_host_fast fallbacks");
+        assert_eq!(pa.5, pb.5, "W16R2 serve W2 fallbacks");
+
+        // CLI `verify` and `input-owner` receipt doors on chunk 0
+        let vargs = s(&[
+            "--export", verifier_copy.to_str().unwrap(),
+            "--tables", tables_dir.to_str().unwrap(),
+            "--policy", POLICY_RUNG_DEV,
+            "--artifact", outs[0].to_str().unwrap(),
+            "--expect-statement", &w16_pin,
+            "--min-bits", "95",
+            super::w16r2::DEV_W16R2_SWITCH,
+        ]);
+        let vb = snap();
+        assert_eq!(classify_verify_command(&vargs), 0, "W16R2 classify_verify_command");
+        let va = snap();
+        assert_zero_delta("W16R2 classify_verify_command", vb, va);
+
+        let oargs = s(&[
+            "--export", verifier_copy.to_str().unwrap(),
+            "--tables", tables_dir.to_str().unwrap(),
+            "--policy", POLICY_RUNG_DEV,
+            "--artifact", outs[0].to_str().unwrap(),
+            "--expect-statement", &w16_pin,
+            "--min-bits", "95",
+            "--decommitment", odirs[0].join("input.dec").to_str().unwrap(),
+            "--content-file", content_file.to_str().unwrap(),
+            super::w16r2::DEV_W16R2_SWITCH,
+        ]);
+        let ob = snap();
+        assert_eq!(classify_input_owner_command(&oargs), 0, "W16R2 classify_input_owner_command");
+        let oa = snap();
+        assert_zero_delta("W16R2 classify_input_owner_command", ob, oa);
+
+        // Resident `check-serve` door across both chunks
+        let cargs = s(&[
+            "--export", verifier_copy.to_str().unwrap(),
+            "--tables", tables_dir.to_str().unwrap(),
+            "--policies", POLICY_RUNG_DEV,
+            "--expect-statement", &w16_pin,
+            "--min-bits", "95",
+            "--lanes", "1",
+            "--lane-threads", "2",
+            super::w16r2::DEV_W16R2_SWITCH,
+        ]);
+        let chunks_json = (0..2)
+            .map(|ci| {
+                format!(
+                    "{{\"artifact\": {}, \"decommitment\": {}}}",
+                    js(outs[ci].to_str().unwrap()),
+                    js(odirs[ci].join("input.dec").to_str().unwrap())
+                )
+            })
+            .collect::<Vec<_>>()
+            .join(", ");
+        let creq = format!(
+            "{{\"id\": \"w16-m1\", \"policy\": {}, \"expect_total\": 27, \"content_file\": {}, \"chunks\": [{chunks_json}]}}",
+            js(POLICY_RUNG_DEV),
+            js(content_file.to_str().unwrap())
+        );
+        let cb = snap();
+        let cout = check_serve_for_tests(&cargs, vec![creq]).expect("W16R2 check_serve_for_tests");
+        let ca = snap();
+        assert_eq!(status(served(&parsed(&cout), "w16-m1")), "checked");
+        assert_zero_delta("W16R2 check_serve_for_tests", cb, ca);
+    }
+
+    eprintln!("M1 RECEIPT-DOOR VERIFIER ISOLATION GATE PASS: R13_RUNG_H24 (prove_with_public -> check_one x2) + W16R2_RUNG_H24 (serve -> verify + input-owner + check-serve) hit HF_H4_ACC_FOLD & HF_W2_FOLD_TILED on prover with 0 fallbacks and moved 0 counters across all 3 switches on every verifier door");
 }

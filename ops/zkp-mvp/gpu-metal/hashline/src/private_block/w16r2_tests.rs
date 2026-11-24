@@ -7002,13 +7002,18 @@ fn host_fast_w2_all_call_sites_byte_identical() {
 /// 1. **W16R2 accuracy stack** (`W16R2_RUNG_H24`): single-block `verify_core` AND 2-block
 ///    `verify_run_with_forks` (directly exercising `accuracy_fold::fold_checked(..., prove_side=false)`
 ///    on the verifier);
-/// 2. **R13 / classifier stack** (`Shape::rung_tc`, `L = 2`): `verify_classify_run` (exercising
-///    `stage_in_c::verify`, interior `verify_core`, `stage_out_c::verify`, `emb_fold`, `check_tables`).
+/// 2. **R13 accuracy / classifier stack** (`R13_RUNG_H24`, 2 layers with distinct gate shifts from
+///    `HL_R13_LOADER_FIXTURES/r13-h24-dense`): `verify_classify_run` + `owner_check_input`
+///    (exercising `stage_in_c::verify`, interior R13 accuracy-fold `verify_core`,
+///    `stage_out_c::verify`, `emb_fold`, `check_tables`), asserting prover hits `HF_H4_ACC_FOLD`,
+///    `HF_W2_FOLD_TILED`, and `CHF_C1_DIGESTS`. (On-disk receipt doors `check-serve`, `verify`,
+///    and `input-owner` over R13 + W16R2 accuracy stacks are additionally covered in
+///    `classify_serve::tests::host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate`.)
 ///
 /// Asserts **strict zero counter movement** (hits AND fallbacks) across ALL THREE switches during
 /// every verification call, while confirming the prover moved counters on all three switches.
 #[test]
-#[ignore = "HOST-FAST-W2 Fix 1: fresh-process verifier-isolation gate across W16R2 + R13 stacks; run alone with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1 -- --ignored --exact --test-threads=1"]
+#[ignore = "HOST-FAST-W2 Fix 1: fresh-process verifier-isolation gate across W16R2 + R13 accuracy stacks; run alone with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1 -- --ignored --exact --test-threads=1"]
 fn host_fast_all_three_switches_verifier_isolation_gate() {
     use super::token_io::{self as tio, classify, classify_run, classify_tied, run::VerifierPolicy};
     assert!(
@@ -7088,49 +7093,74 @@ fn host_fast_all_three_switches_verifier_isolation_gate() {
         assert_zero_verifier_delta("W16R2 verify_run_with_forks", vb2, va2);
     }
 
-    // ---- 2. R13 / classifier stack: prove_classify_run + verify_classify_run ----
+    // ---- 2. R13 accuracy / classifier stack (R13_RUNG_H24): prove_classify_run + verify_classify_run + owner_check_input ----
     {
-        let sh_c = Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).expect("rung_tc");
-        let l_c = 2usize;
-        let (w0_c, _) = super::trained_calib_tests::trained_dense_words(&sh_c, super::trained_calib_tests::TRAINED_BANDS);
-        let c_blocks: Vec<BlockPublic> = (0..l_c)
-            .map(|k| {
-                let mut w = w0_c.clone();
-                for (i, m) in w.iter_mut().enumerate() {
-                    let len = m.len();
-                    m.rotate_left((k * (7 + i)) % len);
-                }
-                let (p, f) = super::dense_tests::statement_of_words(&sh_c, &w);
-                BlockPublic::new(p, f)
-            })
-            .collect();
-        let c_recs: Vec<LayerRecord> = c_blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
-        let c_src = ModelSource {
-            kind: SourceKind::PublicSyntheticRecipe,
-            repo: "hashline/token-io-r1/synthetic".into(),
-            revision: "token-io-r1".into(),
-            weights_sha256: [0; 32],
-            config_sha256: [0; 32],
-            checkpoint_parameters: 0,
-            checkpoint_layers: l_c as u32,
+        use super::accuracy_public::AccuracyPublic;
+        use super::trained_block::TrainedExport;
+        let r13_path = std::env::var_os("HL_R13_LOADER_FIXTURES")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../loader-fixtures"))
+            .join("r13-h24-dense");
+        assert!(
+            r13_path.join("profile.json").exists(),
+            "missing R13 loader fixture {}: set HL_R13_LOADER_FIXTURES",
+            r13_path.display()
+        );
+        let mut ex = TrainedExport::load(&r13_path).expect("R13 TrainedExport::load");
+        ex.source.checkpoint_layers = 2;
+        let c = ex.run_constants(&[0]).expect("run_constants");
+        let sh_c = ex.shape_for(&c).expect("shape_for");
+        assert_eq!(sh_c.profile, shape::R13_RUNG_H24);
+        let first = ex.load_layer(&sh_c, &c, 0, false).expect("load_layer 0");
+        let a = first.blk.accuracy().expect("R13 accuracy data");
+        let changed = AccuracyPublic::new(
+            a.stack(),
+            a.geometry(),
+            a.base(),
+            (-4, -13),
+            a.multipliers().clone(),
+            a.groups().to_vec(),
+            a.group_ids().to_vec(),
+            a.raw_tables().to_vec(),
+        )
+        .expect("AccuracyPublic");
+        let second = first.blk.clone().with_accuracy(changed);
+        let mut r2 = LayerRecord::of_block(1, &second, vec![]);
+        r2.manifest_sha256 = [53; 32];
+        let r1 = first.record.clone();
+        assert_ne!(r1.accuracy_gate_shift, r2.accuracy_gate_shift);
+        let c_blocks = vec![first.blk, second];
+        let c_recs = vec![r1, r2];
+        let l_c = c_blocks.len();
+        let c_prov = Provenance {
+            label: format!("export:{}", ex.variant),
+            residual_unit: ex.residual_unit,
+            quantizer_sha256: ex.tool_sha256,
+            calibration_set_sha256: ex.calibration_set_sha256,
+            export_profile_sha256: ex.profile_sha256,
+            calibration_tool_sha256: ex.tool_sha256,
+            rope_theta: c.rope_theta,
+            rope_scaling: ex.rope_scaling,
         };
-        let mut c_prov = Provenance::recipe("token-io-r1/synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
-        c_prov.rope_theta = shape::trained_rope_theta(sh_c.profile).expect("trained_rope_theta");
-        let c_cal = IntegerCalibration::as_the_code_proves(&sh_c, &c_prov);
-        let c_model = TrainedModelStatement::new(&sh_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, c_src.clone(), c_cal.clone(), c_recs.clone())
-            .or_else(|_| TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(&sh_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, c_src, c_cal, c_recs))
-            .expect("classifier model statement");
+        let c_model = TrainedModelStatement::new_with_tied(
+            &sh_c,
+            super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST,
+            ex.source.clone(),
+            IntegerCalibration::as_the_code_proves(&sh_c, &c_prov),
+            c_recs,
+            None,
+        )
+        .expect("R13 classifier model statement");
         let lcg = |s: &mut u64| -> u64 {
             *s = s.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1_442_695_040_888_963_407);
             *s >> 33
         };
         let (v_c, d_c) = (300usize, sh_c.width);
-        let mut s_emb = 0x636c_6173u64;
-        let emb_c: Vec<i16> = (0..v_c * d_c).map(|_| (lcg(&mut s_emb) % 12_001) as i16 - 6_000).collect();
-        let mut s_w = 0x6d61_7267u64;
+        let mut s_emb = 0x7231_3672u64;
+        let emb_c: Vec<i16> = (0..v_c * d_c).map(|_| (lcg(&mut s_emb) % 8_001) as i16 - 4_000).collect();
+        let mut s_w = 0x6d61_7267_696eu64;
         let w_c: Vec<i16> = (0..d_c)
-            .map(|_| (lcg(&mut s_w) % 65_535) as i16 - 32_767)
-            .map(|x| if x == i16::MIN { x + 1 } else { x })
+            .map(|_| (lcg(&mut s_w) % 20_001) as i16 - 10_000)
             .collect();
         let c_tables = classify::ClassifierTables::new(v_c, d_c, emb_c, w_c).expect("ClassifierTables");
         let c_norm = tio::FinalNorm { g0: 127, cn: 2048, tn: 11, ceps: 33_554_467 };
@@ -7140,44 +7170,30 @@ fn host_fast_all_three_switches_verifier_isolation_gate() {
             1,
             c_norm,
             &sh_c,
-            super::run::RUN_PROFILE_CLASSIFY_RUNG_TC,
+            super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST,
             &c_model,
             &c_policy,
         )
         .expect("BoundClassifierTables");
-        let n_content = sh_c.tokens - c_policy.prefix.len() - c_policy.suffix.len();
-        let mut s_tok = 0x1000u64;
-        let content_ids: Vec<u64> = (0..n_content)
+        let mut s_tok = 0x7231_3663u64;
+        let content_ids: Vec<u64> = (0..20)
             .map(|_| c_policy.num_special + lcg(&mut s_tok) % (c_policy.v as u64 - c_policy.num_special))
             .collect();
-        let cp = classify::ClassifierProfile::new(&sh_c, &c_tables, 1, c_norm, &c_policy, n_content, tio::Tier::R1_MVP).expect("ClassifierProfile");
-        let full_tokens = classify::item_tokens(&c_policy, &content_ids);
-        let mut honest_c = classify_run::honest_classify(&vec![sh_c.clone(); l_c], &cp, &c_tables, &c_blocks, &full_tokens).expect("honest_classify");
-        let c_ctx = *blake3::hash(b"w2-fix1: classifier verifier isolation").as_bytes();
+        let cp = classify::ClassifierProfile::new(&sh_c, &c_tables, 1, c_norm, &c_policy, content_ids.len(), tio::Tier::R1_MVP).expect("ClassifierProfile");
+        let full_tokens = cp.tokens_of(&content_ids).expect("tokens_of");
+        let stage_shapes: Vec<Shape> = c_model.layers.iter().map(|r| r.shape_at(&sh_c).expect("stage_shape")).collect();
+        let mut honest_c = classify_run::honest_classify(&stage_shapes, &cp, &c_tables, &c_blocks, &full_tokens).expect("R13 honest_classify");
+        let c_ctx = *blake3::hash(b"w2-fix1: R13 accuracy classifier verifier isolation").as_bytes();
         let ep_spec = classify::input_endpoint_spec(&sh_c, c_ctx, &cp).expect("input_endpoint_spec");
-        let c_tag = sh_c.hash_tag();
-        let c_ntt_ep = NttTables::new(ep_spec.enc_log());
-        let mut rng_ep = ZkRng::new(0xF1C4, b"w2-fix1-ep");
-        let params = ep_spec.params();
-        let n = params.cols();
-        let first_mask = ep_spec.data_rows();
-        let mut data = vec![Fp::ZERO; ep_spec.commitment_rows() * n];
-        data[..honest_c.in_plane.len()].copy_from_slice(&honest_c.in_plane);
-        for x in &mut data[first_mask * n..] {
-            *x = rng_ep.fp();
-        }
-        let mut owner = crate::pcs::commit_zk_owned_tagged(&params, data, &c_ntt_ep, &ZkOpts::standard(&params), &mut rng_ep, &c_tag);
-        owner.mask_rows = vec![first_mask, first_mask + 1];
-        owner.prox_mask_row = Some(first_mask + 2);
-        let ep_root = owner.commitment().root;
+        let (ep_root, owner) = classify::seal_input(&ep_spec, &honest_c.in_plane, &sh_c.hash_tag()).expect("seal_input");
         let c_st = classify::ClassifyRunStatement::new(
-            RunShape::new(sh_c.clone(), l_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC).expect("RunShape"),
+            RunShape::new(sh_c.clone(), l_c, super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST).expect("RunShape"),
             c_ctx,
             c_blocks.iter().map(|b| b.digest()).collect(),
             &c_model,
             &c_bound,
             &c_policy,
-            n_content,
+            content_ids.len(),
             tio::Tier::R1_MVP,
             ep_root,
             honest_c.out_values.verdict,
@@ -7187,23 +7203,33 @@ fn host_fast_all_three_switches_verifier_isolation_gate() {
         let mut src = classify_run::ClassifySource(&mut honest_c);
         let mut segs: Vec<Vec<u8>> = Vec::new();
         let pcb = snap();
-        classify_run::prove_classify_run(&c_st, &c_blocks, &c_bound, &mut src, owner, &mut |idx, bytes| {
+        let (_, dec) = classify_run::prove_classify_run(&c_st, &c_blocks, &c_bound, &mut src, owner, &mut |idx, bytes| {
             assert_eq!(idx, segs.len());
             segs.push(bytes);
             Ok(())
         })
-        .expect("prove_classify_run");
+        .expect("R13 prove_classify_run");
         let pca = snap();
+        assert!(pca.0[crate::zk::HF_H4_ACC_FOLD] > pcb.0[crate::zk::HF_H4_ACC_FOLD], "R13 prover must hit HF_H4_ACC_FOLD: before={:?} after={:?}", pcb.0, pca.0);
+        assert!(pca.4[crate::zk::HF_W2_FOLD_TILED] > pcb.4[crate::zk::HF_W2_FOLD_TILED], "R13 prover must hit HF_W2_FOLD_TILED: before={:?} after={:?}", pcb.4, pca.4);
         assert!(pca.2[classify::CHF_C1_DIGESTS] > pcb.2[classify::CHF_C1_DIGESTS], "R13 prover must hit classify_host_fast");
+        assert_eq!(pca.1, pcb.1, "R13 prove_classify_run W1 fallbacks");
+        // In-memory `prove_classify_run` has no `DirSink` (`async_disk = None`), so C2 records
+        // exactly 1 fallback while every other `classify_host_fast` fallback stays 0.
+        let mut want_chf_fb = pcb.3;
+        want_chf_fb[classify::CHF_C2_ASYNC_SINK] += 1;
+        assert_eq!(pca.3, want_chf_fb, "R13 prove_classify_run classify_host_fast fallbacks");
+        assert_eq!(pca.5, pcb.5, "R13 prove_classify_run W2 fallbacks");
 
         let vb = snap();
-        classify_run::verify_classify_run(&c_st, &c_blocks, &c_bound, &segs, VerifierPolicy { min_whole_run_bits: 93 })
+        classify_run::verify_classify_run(&c_st, &c_blocks, &c_bound, &segs, VerifierPolicy { min_whole_run_bits: 95 })
             .expect("R13 verify_classify_run");
+        classify_run::owner_check_input(&c_st, &dec, &content_ids).expect("R13 owner_check_input");
         let va = snap();
-        assert_zero_verifier_delta("R13 verify_classify_run", vb, va);
+        assert_zero_verifier_delta("R13 verify_classify_run + owner_check_input", vb, va);
     }
 
-    eprintln!("FIX-1 VERIFIER ISOLATION GATE PASS: HL_HOST_FAST=1 + HL_CLASSIFY_HOST_FAST=1 + HL_HOST_FAST_W2=1 moved 0 hits and 0 fallbacks across W16R2 verify_core, W16R2 verify_run_with_forks, and R13 verify_classify_run");
+    eprintln!("FIX-1 VERIFIER ISOLATION GATE PASS: HL_HOST_FAST=1 + HL_CLASSIFY_HOST_FAST=1 + HL_HOST_FAST_W2=1 moved 0 hits and 0 fallbacks across W16R2 verify_core, W16R2 verify_run_with_forks, and R13 accuracy verify_classify_run + owner_check_input");
 }
 
 // D63 lane L10 (2026-11-07): the Lean lane's export of this rung's M / A / H openings (test only; the file is in `src/`)
