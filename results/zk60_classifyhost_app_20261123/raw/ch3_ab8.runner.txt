@@ -1,0 +1,4 @@
+[18:34:19] launching ch3_ab8
+[zk60-guard 18:34:19] START classifyhost-ch3_ab8 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=999d745371a7
+[zk60-guard 19:17:57] END classifyhost-ch3_ab8 exit=0 child_wall=2618s peak_rss=57.05G min_avail=134.49G peak_vram=21569MiB
+[19:17:57] ch3_ab8 guard exit 0
