@@ -620,9 +620,21 @@ fn classify_host_fast_end_to_end_rung_byte_identical_and_verified() {
         }
         assert!(out_on.is_dir() && !sib(&out_on, ".incomplete").exists() && !out_on.join(run_sink::STATEMENT_DIR).exists());
 
-        // Verify with the unchanged verifier (with switch OFF during verify to ensure complete independence).
+        // M1: Verify while HL_CLASSIFY_HOST_FAST is STILL ON and assert verifier never hits fast paths.
+        let env_fast_on = std::env::var("HL_CLASSIFY_HOST_FAST").as_deref() == Ok("1");
+        let vh0 = classify_host_fast_hits_snapshot();
+        let vf0 = classify_host_fast_fallbacks_snapshot();
+        assert_eq!(cc.verify(&out_on, &cc.tables), 0, "verify with switch ON rejected HL_CLASSIFY_HOST_FAST=1 receipt");
+        assert_eq!(cc.input_owner(&out_on, &cc.tables, &cc.content), 0, "input-owner with switch ON rejected HL_CLASSIFY_HOST_FAST=1 receipt");
+        let vh1 = classify_host_fast_hits_snapshot();
+        let vf1 = classify_host_fast_fallbacks_snapshot();
+        if !env_fast_on {
+            assert_eq!(vh1, vh0, "M1: verify/input-owner must not hit any C1..C5 fast path when switch is ON");
+            assert_eq!(vf1, vf0, "M1: verify/input-owner must not record any C1..C5 fallback when switch is ON");
+        }
+        // Also re-verify published receipt with switch forced OFF.
         let _verify_off = set_classify_host_fast_for_test(Some(false));
-        assert_eq!(cc.verify(&out_on, &cc.tables), 0, "unchanged verify rejected HL_CLASSIFY_HOST_FAST=1 receipt");
+        assert_eq!(cc.verify(&out_on, &cc.tables), 0, "unchanged verify rejected published HL_CLASSIFY_HOST_FAST=1 receipt");
         assert_eq!(cc.input_owner(&out_on, &cc.tables, &cc.content), 0, "unchanged input-owner rejected HL_CLASSIFY_HOST_FAST=1 receipt");
         let _ = set_classify_host_fast_for_test(_verify_off);
 
@@ -691,4 +703,126 @@ fn classify_host_fast_end_to_end_rung_byte_identical_and_verified() {
         assert_eq!(a, b, "published statement field `{key}` differed between OFF and ON");
     }
     eprintln!("HL_CLASSIFY_HOST_FAST | e2e rung: OFF vs ON identical events/lengths/statement, verified, C1..C5 hits confirmed, refusal + async writer error cleanup verified");
+}
+
+/// M2: Exercise all C2 async writer failure/abort/panic paths through the full CLI path:
+/// (a) writer returns `Err` at segment 1,
+/// (b) writer panics at segment 1,
+/// (c) prover returns `Err` after block 0 while segment 0 is in-flight and segment 1 is queued.
+/// Each case asserts: error returned or panic propagated, writer thread joined (`active == 0`),
+/// `.incomplete`, `.unverified-statement`, `<out>`, and `<owner_dir>` all removed, and no
+/// `"segment"` JSON event emitted for any index after the failure.
+#[test]
+fn classify_host_fast_c2_writer_err_panic_and_prover_abort_cleanup() {
+    use super::classify_cli::{classify_prove_capturing_for_test, classify_prove_capturing_unwind_for_test};
+    use super::classify_run::{install_writer_test_hooks, WriterFaultForTest};
+    use super::super::trained_block::parse_json;
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+    use std::sync::Arc;
+
+    let cc = Cc::new("chf-c2-faults");
+    let _on = ClassifyHostFastGuard::set(true);
+
+    let make_args = |out: &Path| -> Vec<String> {
+        let cf = cc.content_file(&cc.content);
+        let od = cc.owner_dir(out);
+        s(&[
+            "--export",
+            cc.export.to_str().unwrap(),
+            "--tables",
+            cc.tables.to_str().unwrap(),
+            "--policy",
+            POLICY_RUNG_DEV,
+            "--content-file",
+            cf.to_str().unwrap(),
+            "--seq",
+            "s0",
+            "--out",
+            out.to_str().unwrap(),
+            "--owner-dir",
+            od.to_str().unwrap(),
+        ])
+    };
+    let segment_indices = |lines: &[String]| -> Vec<usize> {
+        let mut idxs = Vec::new();
+        for l in lines {
+            if !l.starts_with('{') {
+                continue;
+            }
+            let j = parse_json(l.as_bytes()).unwrap_or_else(|e| panic!("not JSON: {l}: {e}"));
+            if j.get("event").ok().and_then(|v| v.str().ok()) == Some("segment") {
+                idxs.push(j.get("index").unwrap().i64().unwrap() as usize);
+            }
+        }
+        idxs
+    };
+    let assert_cleaned_up = |out: &Path, label: &str| {
+        assert!(!out.exists(), "{label}: <out> must not exist");
+        assert!(!sib(out, ".incomplete").exists(), "{label}: .incomplete must be removed");
+        assert!(!sib(out, ".unverified-statement").exists(), "{label}: .unverified-statement must be removed");
+        assert!(!cc.owner_dir(out).exists(), "{label}: owner_dir must be removed");
+    };
+
+    // ---- (a) Writer Err at segment 1
+    {
+        let out = cc.root.join("fault-writer-err");
+        let active = Arc::new(AtomicUsize::new(0));
+        let _hooks = install_writer_test_hooks(
+            Some(Arc::new(WriterFaultForTest::ErrAtSegment(1))),
+            Some(Arc::clone(&active)),
+            None,
+        );
+        let (code, events) = classify_prove_capturing_for_test(&make_args(&out));
+        assert_eq!(code, 1, "writer Err at segment 1 must return refusal code 1");
+        assert_eq!(active.load(Ordering::Acquire), 0, "writer thread must be joined after Err");
+        assert_cleaned_up(&out, "writer Err at segment 1");
+        let segs = segment_indices(&events);
+        assert!(segs.iter().all(|&i| i < 1), "no segment event >= 1 may appear after segment 1 writer Err: {segs:?}");
+    }
+
+    // ---- (b) Writer panic at segment 1
+    {
+        let out = cc.root.join("fault-writer-panic");
+        let active = Arc::new(AtomicUsize::new(0));
+        let _hooks = install_writer_test_hooks(
+            Some(Arc::new(WriterFaultForTest::PanicAtSegment(1))),
+            Some(Arc::clone(&active)),
+            None,
+        );
+        let (res, events) = classify_prove_capturing_unwind_for_test(&make_args(&out));
+        assert!(res.is_err(), "writer panic at segment 1 must propagate through thread::scope");
+        assert_eq!(active.load(Ordering::Acquire), 0, "writer thread must be joined after panic unwind");
+        assert_cleaned_up(&out, "writer panic at segment 1");
+        let segs = segment_indices(&events);
+        assert!(segs.iter().all(|&i| i < 1), "no segment event >= 1 may appear after segment 1 writer panic: {segs:?}");
+    }
+
+    // ---- (c) Prover failure after block 0 while segment 0 is in-flight and segment 1 is queued
+    {
+        let out = cc.root.join("fault-prover-abort");
+        let active = Arc::new(AtomicUsize::new(0));
+        let entered = Arc::new(AtomicBool::new(false));
+        let release = Arc::new(AtomicBool::new(false));
+        let abort_skipped = Arc::new(AtomicBool::new(false));
+        let _hooks = install_writer_test_hooks(
+            Some(Arc::new(WriterFaultForTest::HoldThenCheckAbort {
+                hold_segment: 0,
+                entered: Arc::clone(&entered),
+                release: Arc::clone(&release),
+                abort_skipped: Arc::clone(&abort_skipped),
+            })),
+            Some(Arc::clone(&active)),
+            Some(0),
+        );
+        let (code, events) = classify_prove_capturing_for_test(&make_args(&out));
+        assert_eq!(code, 1, "prover Err after block 0 must return refusal code 1");
+        assert_eq!(active.load(Ordering::Acquire), 0, "writer thread must be joined after prover Err");
+        assert!(entered.load(Ordering::Acquire), "writer must have started holding segment 0");
+        assert!(abort_skipped.load(Ordering::Acquire), "writer must observe abort flag and skip queued segment 1");
+        assert_cleaned_up(&out, "prover Err with queued job");
+        let segs = segment_indices(&events);
+        assert!(segs.iter().all(|&i| i < 1), "no segment event >= 1 may appear after prover Err: {segs:?}");
+    }
+
+    eprintln!("HL_CLASSIFY_HOST_FAST | M2 C2 writer faults: Err, panic, and prover-abort-with-queued-job all joined, cleaned up, and preserved event ordering");
 }

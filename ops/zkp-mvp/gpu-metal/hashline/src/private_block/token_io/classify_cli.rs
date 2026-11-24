@@ -603,8 +603,9 @@ fn seal_chain_keeping(p: &ExportPublic, seq: &SeqIn, blocks: &mut dyn TokenBlock
     Ok((x, kept))
 }
 
-/// `HL_CLASSIFY_HOST_FAST=1` counterpart of [`CliSource`] carrying the SHA-256-verified
-/// `x_out_L{k}` outputs retained from [`seal_chain_keeping_fast`] (C3).
+/// `HL_CLASSIFY_HOST_FAST=1` counterpart of [`CliSource`] carrying the `x_out_L{k}` outputs
+/// retained from [`seal_chain_keeping_fast`] (C3: verified against `manifest.json` when present,
+/// otherwise raw reads of the same files the sealing pass compared).
 struct CliSourceFast<'a> {
     p: &'a ExportPublic,
     seq: &'a SeqIn,
@@ -734,6 +735,13 @@ pub fn classify_prove_command(args: &[String]) -> i32 {
 #[cfg(test)]
 pub(crate) fn classify_prove_capturing_for_test(args: &[String]) -> (i32, Vec<String>) {
     with_captured_events(|| classify_prove_command(args))
+}
+
+/// TEST BUILDS ONLY: run [`classify_prove_command`] under `catch_unwind` while still capturing
+/// all JSON event lines emitted on this thread before a panic unwinds.
+#[cfg(test)]
+pub(crate) fn classify_prove_capturing_unwind_for_test(args: &[String]) -> (Result<i32, Box<dyn std::any::Any + Send>>, Vec<String>) {
+    with_captured_events(|| std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| classify_prove_command(args))))
 }
 
 #[path = "classify_batch.rs"]
@@ -898,7 +906,7 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
     let t = Instant::now();
     // [A26] with a resident server's kept blocks, the prover may take their startup records
     // (`HL_A26_KEPT`); `None` for every other caller
-    let (_, dec) = prove_classify_run_with(&st, run_blocks, resident, bound, &mut src, owner, &mut |k, bytes| {
+    let (_, dec) = prove_classify_run_with(&st, run_blocks, resident, bound, &mut src, owner, None, &mut |k, bytes| {
         let n = bytes.len();
         SegmentSink::accept(&mut disk, k, bytes)?;
         event(format!("{{\"event\":\"segment\",\"index\":{k},\"bytes\":{n},\"elapsed_seconds\":{:.3}}}", t.elapsed().as_secs_f64()));
@@ -1032,7 +1040,7 @@ fn prove_with_public_fast(f: &[(String, String)], shared: Option<SharedProve<'_>
     let ctx = stack_context(&p.ex.variant, &p.layers, label)?;
     let spec = input_endpoint_spec(sh, ctx, &cp)?;
     let (root, owner) = seal_input(&spec, &in_plane, &sh.hash_tag())?;
-    let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, bound, &policy, content.len(), Tier::R1_MVP, root, ov.verdict, whole.len(), index)?;
+    let st = ClassifyRunStatement::new_chunk_prover(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, bound, &policy, content.len(), Tier::R1_MVP, root, ov.verdict, whole.len(), index)?;
     if st.chunk() != ch {
         return Err("classifier run: the statement's chunk is not the prover's slice".into());
     }

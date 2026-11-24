@@ -7,7 +7,11 @@
 //! `prove_run` hands each finished segment over EXACTLY ONCE, as an owned
 //! `Vec<u8>`, and afterwards keeps nothing of it but its length (ruling M-3:
 //! segments are flushed, not held — eleven unflushed 125M segments are 423
-//! MiB). This module is the two places the bytes can go:
+//! MiB; under the opt-in `HL_CLASSIFY_HOST_FAST=1` bounded-1 async writer in
+//! `token_io/classify_run.rs`, up to two segments beyond the base may be in
+//! flight at once — one queued in the bounded-1 channel and one being encoded,
+//! written, and fsynced on one scoped writer thread — before being dropped and
+//! joined prior to return). This module is the two places the bytes can go:
 //!
 //! * [`MemorySink`] — keeps them, which is what the development-rung tests do
 //!   (a twelve-block rung run is 49 MB in all);

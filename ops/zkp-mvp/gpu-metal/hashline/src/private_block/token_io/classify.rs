@@ -891,9 +891,6 @@ impl ClassifierTables {
     /// `E~(v, r)` for every true row (the verifier's O(V d) fold; parallel,
     /// exact field addition, as `TokenTables::emb_fold`)
     pub(crate) fn emb_fold(&self, r: &[Fp2]) -> Vec<Fp2> {
-        if classify_host_fast_on() {
-            return self.emb_fold_fast(r);
-        }
         use rayon::prelude::*;
         let e = eq_table_msb(r);
         // [A26] `HL_A26_EMB` (default on; `0`: the per-word field fold below). Each eq entry's two
@@ -933,10 +930,10 @@ impl ClassifierTables {
             .collect()
     }
 
-    /// Out-of-line C5 (`HL_CLASSIFY_HOST_FAST=1`) embedding fold so the unset `emb_fold`
-    /// keeps the base binary's exact CFG and vectorization.
+    /// Prover-only (`HL_CLASSIFY_HOST_FAST=1`) C5 embedding fold. Called only from
+    /// `stage_in_c::prove` so `stage_in_c::verify` and `emb_fold` stay strictly on the base path.
     #[inline(never)]
-    fn emb_fold_fast(&self, r: &[Fp2]) -> Vec<Fp2> {
+    pub(crate) fn emb_fold_fast(&self, r: &[Fp2]) -> Vec<Fp2> {
         use rayon::prelude::*;
         let e = eq_table_msb(r);
         if a26_emb_on() && self.d < 1 << 16 && e.len() >= self.d {
@@ -1478,11 +1475,7 @@ impl ClassifyRunStatement {
         model.check_against(sh, rs.profile(), &block_digests, &vec![scales; l])?;
         // N-r13-1: the tables are bound to this trained statement and policy
         tables.check_for(sh, rs.profile(), model, policy)?;
-        let cp = if classify_host_fast_on() {
-            ClassifierProfile::new_bound(sh, tables, policy, n, tier)?
-        } else {
-            ClassifierProfile::new(sh, tables.tables(), tables.bos(), tables.norm(), policy, n, tier)?
-        };
+        let cp = ClassifierProfile::new(sh, tables.tables(), tables.bos(), tables.norm(), policy, n, tier)?;
         let size = sh.tokens.checked_sub(policy.prefix.len() + policy.suffix.len()).filter(|x| *x > 0).ok_or("classifier run: the policy's template leaves no content position")?;
         let chunk = ChunkRef::derive(total, chunk_index, ChunkPlan { size, overlap: chunk_overlap_of(rs.profile())? })?;
         if chunk.b - chunk.a != n {
@@ -1516,6 +1509,76 @@ impl ClassifyRunStatement {
         Ok(st)
     }
 
+    /// Prover-only (`HL_CLASSIFY_HOST_FAST=1`) counterpart of [`ClassifyRunStatement::new_chunk`]:
+    /// builds `ClassifierProfile` through [`ClassifierProfile::new_bound`] (reusing cached table
+    /// digests on the immutable `BoundClassifierTables`). The verifier and `check-serve` always
+    /// call [`ClassifyRunStatement::new_chunk`], which recomputes digests from raw tables.
+    #[allow(clippy::too_many_arguments)]
+    #[inline(never)]
+    pub(crate) fn new_chunk_prover(
+        rs: RunShape,
+        context: Digest,
+        block_digests: Vec<Digest>,
+        model: &TrainedModelStatement,
+        tables: &super::classify_tied::BoundClassifierTables,
+        policy: &Policy,
+        n: usize,
+        tier: Tier,
+        in_root: Digest,
+        verdict: u8,
+        total: usize,
+        chunk_index: usize,
+    ) -> Result<ClassifyRunStatement, String> {
+        if !super::super::run::is_classify_run_profile(rs.profile()) {
+            return Err(format!("classifier run: {} is not a classifier run profile", rs.profile()));
+        }
+        if context == [0; 32] {
+            return Err("classifier run: a nonempty context is required".into());
+        }
+        if verdict > 1 {
+            return Err("classifier run: the verdict is one bit".into());
+        }
+        let sh = rs.sh();
+        if !sh.trained_calibration {
+            return Err("classifier run: the blocks must be a trained-calibration shape bound to its trained-model statement".into());
+        }
+        let l = rs.l();
+        let scales = model.calibration.block_scales;
+        if scales.0 != scales.1 {
+            return Err("classifier run: a boundary has ONE scale (M-4)".into());
+        }
+        model.check_against(sh, rs.profile(), &block_digests, &vec![scales; l])?;
+        tables.check_for(sh, rs.profile(), model, policy)?;
+        let cp = ClassifierProfile::new_bound(sh, tables, policy, n, tier)?;
+        let size = sh.tokens.checked_sub(policy.prefix.len() + policy.suffix.len()).filter(|x| *x > 0).ok_or("classifier run: the policy's template leaves no content position")?;
+        let chunk = ChunkRef::derive(total, chunk_index, ChunkPlan { size, overlap: chunk_overlap_of(rs.profile())? })?;
+        if chunk.b - chunk.a != n {
+            return Err(format!("classifier run: chunk {} of a {total}-id content holds {} ids; the statement's n is {n}", chunk.index, chunk.b - chunk.a));
+        }
+        let in_spec = input_endpoint_spec(sh, context, &cp)?;
+        let whole_run = whole_run_of_classifier(sh, l, &cp);
+        let base = sh.norm_calibration();
+        let mut stage_cal = vec![base; l];
+        let mut stage_gate: Vec<Option<u32>> = vec![None; l];
+        for (k, r) in model.layers.iter().enumerate() {
+            if block_digests.get(k) != Some(&r.block_digest) {
+                return Err(format!("classifier run: layer record {k} (layer {}) is not block {k}'s digest (review TR3-3)", r.index));
+            }
+            r.check_accuracy_gate(sh).map_err(|e| format!("classifier run: layer {}: {e}", r.index))?;
+            stage_gate[k] = r.accuracy_gate_shift;
+            if has_own(&r.own) {
+                let cal = apply_own(&base, &r.own).map_err(|e| format!("classifier run: layer {}: {e}", r.index))?;
+                sh.with_layer_calibration(&cal).map_err(|e| format!("classifier run: layer {}'s own calibration: {e}", r.index))?;
+                stage_cal[k] = cal;
+            }
+        }
+        let st = ClassifyRunStatement { rs, context, block_digests, model_identity: model.identity(), cp, in_spec, in_root, scale: scales.0, whole_run, stage_cal, stage_gate, verdict, chunk, tables_profile_sha256: tables.profile_sha256(), tables_derived: tables.is_derived() };
+        for k in 0..l {
+            st.stage_shape(k)?;
+        }
+        Ok(st)
+    }
+
     /// **ROUND 14 (N-r13-1): the prover's and the verifier's tables are the
     /// statement's**: bound to its trained statement and profile digest, with
     /// its embedding and margin digests, BOS and final norm.
@@ -1533,8 +1596,15 @@ impl ClassifyRunStatement {
 
     /// Prover-only counterpart of [`ClassifyRunStatement::check_tables`]: under
     /// `HL_CLASSIFY_HOST_FAST=1`, uses the cached digests on the immutable `BoundClassifierTables`
-    /// instead of re-hashing the 805 MB embedding table a third time per request. When the switch
-    /// is off, delegates directly to [`ClassifyRunStatement::check_tables`].
+    /// instead of re-hashing the 805 MB embedding table a third time per request.
+    ///
+    /// Note (L3): when `self` was constructed via [`ClassifyRunStatement::new_chunk_prover`] from
+    /// the same `BoundClassifierTables`, this digest comparison reads the same `OnceLock` cache
+    /// that populated `self.cp`, so the prover's own N-r13-1 digest self-check is circular under
+    /// `HL_CLASSIFY_HOST_FAST=1`. The verifier (`verify_classify_run_with` / `check-serve`) always
+    /// calls [`ClassifyRunStatement::new_chunk`] and [`ClassifyRunStatement::check_tables`], which
+    /// independently recompute both digests from raw tables; any mismatch produces a refused receipt.
+    /// When the switch is off, delegates directly to [`ClassifyRunStatement::check_tables`].
     #[inline(never)]
     pub(crate) fn check_tables_prover(&self, t: &super::classify_tied::BoundClassifierTables) -> Result<(), String> {
         if classify_host_fast_on() {

@@ -167,14 +167,74 @@ pub(crate) fn prove_classify_run(
     owner: CommittedZk,
     sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
 ) -> Result<(ClassifyRunStats, Decommitment), String> {
-    prove_classify_run_with(st, &mut ResidentBlocks(blocks), None, tables, src, owner, sink)
+    prove_classify_run_with(st, &mut ResidentBlocks(blocks), None, tables, src, owner, None, sink)
 }
 
+#[cfg(test)]
+pub(crate) enum WriterFaultForTest {
+    /// Return `Err` from the writer thread on `segment_index` before calling `SegmentSink::accept`.
+    ErrAtSegment(usize),
+    /// Panic on the writer thread when processing `segment_index` before calling `SegmentSink::accept`.
+    PanicAtSegment(usize),
+    /// Hold the writer thread on `hold_segment` until `release` is set (after setting `entered = true`),
+    /// then let it finish `hold_segment` and record in `abort_skipped` if the next queued job sees `abort == true`.
+    HoldThenCheckAbort {
+        hold_segment: usize,
+        entered: std::sync::Arc<std::sync::atomic::AtomicBool>,
+        release: std::sync::Arc<std::sync::atomic::AtomicBool>,
+        abort_skipped: std::sync::Arc<std::sync::atomic::AtomicBool>,
+    },
+}
+
+#[cfg(test)]
+struct WriterTestHooks {
+    fault: Option<std::sync::Arc<WriterFaultForTest>>,
+    active: Option<std::sync::Arc<std::sync::atomic::AtomicUsize>>,
+    fail_after_block: Option<usize>,
+}
+
+#[cfg(test)]
 thread_local! {
-    /// Scoped `DirSink` handoff from [`prove_classify_run_with_dir_sink`] into
-    /// [`prove_classify_run_with`] under `HL_CLASSIFY_HOST_FAST=1`, keeping the single
-    /// OS generator construction inside [`prove_classify_run_with`].
-    static ASYNC_DIR_SINK: std::cell::RefCell<Option<super::super::run_sink::DirSink>> = const { std::cell::RefCell::new(None) };
+    static WRITER_TEST_HOOKS: std::cell::RefCell<WriterTestHooks> = const {
+        std::cell::RefCell::new(WriterTestHooks { fault: None, active: None, fail_after_block: None })
+    };
+}
+
+#[cfg(test)]
+pub(crate) struct WriterTestHooksGuard {
+    prev_fault: Option<std::sync::Arc<WriterFaultForTest>>,
+    prev_active: Option<std::sync::Arc<std::sync::atomic::AtomicUsize>>,
+    prev_fail_after_block: Option<usize>,
+}
+
+#[cfg(test)]
+impl Drop for WriterTestHooksGuard {
+    fn drop(&mut self) {
+        WRITER_TEST_HOOKS.with(|h| {
+            let mut h = h.borrow_mut();
+            h.fault = self.prev_fault.take();
+            h.active = self.prev_active.take();
+            h.fail_after_block = self.prev_fail_after_block.take();
+        });
+    }
+}
+
+/// TEST BUILDS ONLY: attach thread-local fault/observability hooks that are cloned into the
+/// scoped async writer thread spawned by `prove_classify_run_loop_fast` on this thread only.
+#[cfg(test)]
+pub(crate) fn install_writer_test_hooks(
+    fault: Option<std::sync::Arc<WriterFaultForTest>>,
+    active: Option<std::sync::Arc<std::sync::atomic::AtomicUsize>>,
+    fail_after_block: Option<usize>,
+) -> WriterTestHooksGuard {
+    WRITER_TEST_HOOKS.with(|h| {
+        let mut h = h.borrow_mut();
+        WriterTestHooksGuard {
+            prev_fault: std::mem::replace(&mut h.fault, fault),
+            prev_active: std::mem::replace(&mut h.active, active),
+            prev_fail_after_block: std::mem::replace(&mut h.fail_after_block, fail_after_block),
+        }
+    })
 }
 
 enum SinkJob {
@@ -199,6 +259,7 @@ enum SegmentDispatcher<'a> {
         job_tx: Option<std::sync::mpsc::SyncSender<SinkJob>>,
         done_rx: std::sync::mpsc::Receiver<Result<(usize, usize), String>>,
         abort: &'a std::sync::atomic::AtomicBool,
+        on_segment: &'a mut dyn FnMut(usize, usize),
     },
 }
 
@@ -206,7 +267,7 @@ impl SegmentDispatcher<'_> {
     fn drain_done(
         done_rx: &std::sync::mpsc::Receiver<Result<(usize, usize), String>>,
         stats: &mut ClassifyRunStats,
-        sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
+        on_segment: &mut dyn FnMut(usize, usize),
         blocking: bool,
     ) -> Result<(), String> {
         let mut first_err: Option<String> = None;
@@ -227,9 +288,7 @@ impl SegmentDispatcher<'_> {
                     stats.segment_bytes.push(nbytes);
                     record_classify_host_fast_hit(CHF_C2_ASYNC_SINK);
                     if first_err.is_none() {
-                        if let Err(e) = sink(idx, (nbytes as u64).to_le_bytes().to_vec()) {
-                            first_err = Some(e);
-                        }
+                        on_segment(idx, nbytes);
                     }
                 }
                 Err(e) => {
@@ -249,10 +308,9 @@ impl SegmentDispatcher<'_> {
         &mut self,
         job: SinkJob,
         stats: &mut ClassifyRunStats,
-        sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
     ) -> Result<(), String> {
-        if let SegmentDispatcher::Async { job_tx, done_rx, abort } = self {
-            if let Err(e) = Self::drain_done(done_rx, stats, sink, false) {
+        if let SegmentDispatcher::Async { job_tx, done_rx, abort, on_segment } = self {
+            if let Err(e) = Self::drain_done(done_rx, stats, *on_segment, false) {
                 abort.store(true, std::sync::atomic::Ordering::Release);
                 job_tx.take();
                 return Err(e);
@@ -261,10 +319,10 @@ impl SegmentDispatcher<'_> {
             if sent.is_err() {
                 abort.store(true, std::sync::atomic::Ordering::Release);
                 job_tx.take();
-                Self::drain_done(done_rx, stats, sink, true)?;
+                Self::drain_done(done_rx, stats, *on_segment, true)?;
                 return Err("classifier run: async segment writer stopped unexpectedly".into());
             }
-            if let Err(e) = Self::drain_done(done_rx, stats, sink, false) {
+            if let Err(e) = Self::drain_done(done_rx, stats, *on_segment, false) {
                 abort.store(true, std::sync::atomic::Ordering::Release);
                 job_tx.take();
                 return Err(e);
@@ -285,7 +343,7 @@ impl SegmentDispatcher<'_> {
                 stats.segment_bytes.push(bytes.len());
                 sink(index, bytes)
             }
-            SegmentDispatcher::Async { .. } => self.send_async(SinkJob::Raw { index, bytes }, stats, sink),
+            SegmentDispatcher::Async { .. } => self.send_async(SinkJob::Raw { index, bytes }, stats),
         }
     }
 
@@ -318,7 +376,6 @@ impl SegmentDispatcher<'_> {
                 self.send_async(
                     SinkJob::Block { index, seg: Box::new(seg), lay, geom, binding, start, end },
                     stats,
-                    sink,
                 )?;
                 ph.mark(timing::Half::Frame, "frame+sink: enqueue async segment", 1, "segment");
                 Ok(())
@@ -329,11 +386,10 @@ impl SegmentDispatcher<'_> {
     fn finish(
         mut self,
         stats: &mut ClassifyRunStats,
-        sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
     ) -> Result<(), String> {
-        if let SegmentDispatcher::Async { ref mut job_tx, ref done_rx, .. } = self {
+        if let SegmentDispatcher::Async { ref mut job_tx, ref done_rx, ref mut on_segment, .. } = self {
             job_tx.take();
-            Self::drain_done(done_rx, stats, sink, true)?;
+            Self::drain_done(done_rx, stats, *on_segment, true)?;
         }
         Ok(())
     }
@@ -371,6 +427,7 @@ pub(crate) fn prove_classify_run_with(
     tables: &BoundClassifierTables,
     src: &mut dyn ClassifyRunSource,
     owner: CommittedZk,
+    async_disk: Option<(&mut super::super::run_sink::DirSink, &mut dyn FnMut(usize, usize))>,
     sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
 ) -> Result<(ClassifyRunStats, Decommitment), String> {
     use std::time::Instant;
@@ -426,7 +483,7 @@ pub(crate) fn prove_classify_run_with(
     #[cfg(test)]
     CLASSIFY_HEADERS.with(|c| c.set(c.get() + 1));
     let binding = tr.state();
-    if classify_host_fast_on() {
+    if classify_host_fast_on() || async_disk.is_some() {
         return prove_classify_run_loop_fast(
             st,
             blocks,
@@ -444,6 +501,7 @@ pub(crate) fn prove_classify_run_with(
             &mut tr,
             &tag,
             binding,
+            async_disk,
             sink,
         );
     }
@@ -555,26 +613,91 @@ fn prove_classify_run_loop_fast(
     tr: &mut Transcript,
     tag: &zkp_core::hashtag::HashTag,
     binding: Digest,
+    async_disk: Option<(&mut super::super::run_sink::DirSink, &mut dyn FnMut(usize, usize))>,
     sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
 ) -> Result<(ClassifyRunStats, Decommitment), String> {
     use std::time::Instant;
     let kept_of = |k: usize| kept.filter(|_| a26_kept_on()).and_then(|v| v.get(k)).map(|a| &**a);
     let (sh, l, cp) = (st.sh(), st.l(), &st.cp);
 
-    let mut async_disk = ASYNC_DIR_SINK.with(|c| c.borrow_mut().take());
     if async_disk.is_none() {
         record_classify_host_fast_fallback(CHF_C2_ASYNC_SINK);
     }
+    #[cfg(test)]
+    let (test_fault, test_active, test_fail_after_block) = WRITER_TEST_HOOKS.with(|h| {
+        let h = h.borrow();
+        (h.fault.clone(), h.active.clone(), h.fail_after_block)
+    });
     let abort = std::sync::atomic::AtomicBool::new(false);
-    let run_res: Result<(ClassifyRunStats, Decommitment), String> = std::thread::scope(|scope| {
-        let mut dispatcher = if let Some(ref mut disk) = async_disk {
+    std::thread::scope(|scope| {
+        let mut dispatcher = if let Some((disk, on_segment)) = async_disk {
             let (job_tx, job_rx) = std::sync::mpsc::sync_channel::<SinkJob>(1);
             let (done_tx, done_rx) = std::sync::mpsc::channel::<Result<(usize, usize), String>>();
             let abort_ref = &abort;
+            #[cfg(test)]
+            let writer_fault = test_fault.clone();
+            #[cfg(test)]
+            let writer_active = test_active.clone();
             scope.spawn(move || {
                 use super::super::run_sink::SegmentSink;
+                #[cfg(test)]
+                struct ActiveGuard(Option<std::sync::Arc<std::sync::atomic::AtomicUsize>>);
+                #[cfg(test)]
+                impl Drop for ActiveGuard {
+                    fn drop(&mut self) {
+                        if let Some(ref c) = self.0 {
+                            c.fetch_sub(1, std::sync::atomic::Ordering::Release);
+                        }
+                    }
+                }
+                #[cfg(test)]
+                let _active_guard = {
+                    if let Some(ref c) = writer_active {
+                        c.fetch_add(1, std::sync::atomic::Ordering::AcqRel);
+                    }
+                    ActiveGuard(writer_active)
+                };
                 for job in job_rx {
                     if abort_ref.load(std::sync::atomic::Ordering::Acquire) {
+                        #[cfg(test)]
+                        if let Some(ref f) = writer_fault {
+                            if let WriterFaultForTest::HoldThenCheckAbort { abort_skipped, .. } = f.as_ref() {
+                                abort_skipped.store(true, std::sync::atomic::Ordering::Release);
+                            }
+                        }
+                        break;
+                    }
+                    #[cfg(test)]
+                    let job_index = match &job {
+                        SinkJob::Raw { index, .. } => *index,
+                        SinkJob::Block { index, .. } => *index,
+                    };
+                    #[cfg(test)]
+                    let injected_err: Option<String> = match writer_fault.as_deref() {
+                        Some(WriterFaultForTest::ErrAtSegment(target)) if *target == job_index => {
+                            Some(format!("test-injected async writer error at segment {job_index}"))
+                        }
+                        Some(WriterFaultForTest::PanicAtSegment(target)) if *target == job_index => {
+                            panic!("test-injected async writer panic at segment {job_index}");
+                        }
+                        Some(WriterFaultForTest::HoldThenCheckAbort { hold_segment, entered, release, .. })
+                            if *hold_segment == job_index =>
+                        {
+                            entered.store(true, std::sync::atomic::Ordering::Release);
+                            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+                            while !release.load(std::sync::atomic::Ordering::Acquire)
+                                && !abort_ref.load(std::sync::atomic::Ordering::Acquire)
+                                && std::time::Instant::now() < deadline
+                            {
+                                std::thread::yield_now();
+                            }
+                            None
+                        }
+                        _ => None,
+                    };
+                    #[cfg(test)]
+                    if let Some(e) = injected_err {
+                        let _ = done_tx.send(Err(e));
                         break;
                     }
                     let res = match job {
@@ -598,7 +721,7 @@ fn prove_classify_run_loop_fast(
                     }
                 }
             });
-            SegmentDispatcher::Async { job_tx: Some(job_tx), done_rx, abort: &abort }
+            SegmentDispatcher::Async { job_tx: Some(job_tx), done_rx, abort: &abort, on_segment }
         } else {
             SegmentDispatcher::Sync
         };
@@ -657,6 +780,18 @@ fn prove_classify_run_loop_fast(
                 let seg = Segment { b_root: Some(cur.root()), a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open, in_open, out_open: None };
                 let geom = st.block_geom(k)?;
                 dispatcher.send_block(k + 1, seg, lay, geom, binding, start, end, &mut ph, &mut stats, &mut *sink)?;
+                #[cfg(test)]
+                if test_fail_after_block == Some(k) {
+                    if let Some(ref f) = test_fault {
+                        if let WriterFaultForTest::HoldThenCheckAbort { entered, .. } = f.as_ref() {
+                            let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
+                            while !entered.load(std::sync::atomic::Ordering::Acquire) && std::time::Instant::now() < deadline {
+                                std::thread::yield_now();
+                            }
+                        }
+                    }
+                    return Err(format!("test-injected prover failure after block {k}"));
+                }
                 prev = (spec, cur);
                 drop(blk);
                 ph.mark(timing::Half::Run, "run: drop block", 1, "block");
@@ -678,7 +813,7 @@ fn prove_classify_run_loop_fast(
 
         match body {
             Ok((mut stats, in_dec)) => {
-                dispatcher.finish(&mut stats, sink)?;
+                dispatcher.finish(&mut stats)?;
                 Ok((stats, in_dec))
             }
             Err(e) => {
@@ -686,19 +821,16 @@ fn prove_classify_run_loop_fast(
                 Err(e)
             }
         }
-    });
-    if let Some(disk) = async_disk {
-        ASYNC_DIR_SINK.with(|c| *c.borrow_mut() = Some(disk));
-    }
-    run_res
+    })
 }
 
 /// [`prove_classify_run_with`] writing segments directly into a [`DirSink`].
-/// When `HL_CLASSIFY_HOST_FAST=1`, overlaps `wire::encode_segment`, `drop(seg)` and
-/// `DirSink::accept` (`write_all` + `sync_all` + `rename` + `digest_hex`) on one scoped
-/// bounded-1 writer thread while emitting `on_segment(index, bytes)` in strict FIFO order
-/// `0..=L+1` on the calling (request) thread, and joining the writer thread before returning
-/// on both `Ok` and `Err`. When `HL_CLASSIFY_HOST_FAST` is off, runs synchronously.
+/// When `HL_CLASSIFY_HOST_FAST=1`, passes `(&mut disk, on_segment)` explicitly (no thread-local
+/// handoff) to overlap `wire::encode_segment`, `drop(seg)` and `DirSink::accept` (`write_all` +
+/// `sync_all` + `rename` + `digest_hex`) on one scoped bounded-1 writer thread while emitting
+/// `on_segment(index, bytes)` in strict FIFO order `0..=L+1` on the calling (request) thread,
+/// and joining the writer thread before returning on `Ok`, `Err`, or panic. When
+/// `HL_CLASSIFY_HOST_FAST` is off, runs synchronously.
 #[allow(clippy::too_many_arguments)]
 #[inline(never)]
 pub(crate) fn prove_classify_run_with_dir_sink(
@@ -713,7 +845,7 @@ pub(crate) fn prove_classify_run_with_dir_sink(
 ) -> Result<(ClassifyRunStats, Decommitment, super::super::run_sink::DirSink), String> {
     use super::super::run_sink::SegmentSink;
     if !classify_host_fast_on() {
-        let (stats, dec) = prove_classify_run_with(st, blocks, kept, tables, src, owner, &mut |k, bytes| {
+        let (stats, dec) = prove_classify_run_with(st, blocks, kept, tables, src, owner, None, &mut |k, bytes| {
             let n = bytes.len();
             SegmentSink::accept(&mut disk, k, bytes)?;
             on_segment(k, n);
@@ -721,27 +853,10 @@ pub(crate) fn prove_classify_run_with_dir_sink(
         })?;
         return Ok((stats, dec, disk));
     }
-    struct AsyncDirGuard;
-    impl Drop for AsyncDirGuard {
-        fn drop(&mut self) {
-            ASYNC_DIR_SINK.with(|c| {
-                let _ = c.borrow_mut().take();
-            });
-        }
-    }
-    ASYNC_DIR_SINK.with(|c| {
-        let prev = c.borrow_mut().replace(disk);
-        debug_assert!(prev.is_none(), "nested async DirSink on the same thread");
-    });
-    let _guard = AsyncDirGuard;
-    let (stats, dec) = prove_classify_run_with(st, blocks, kept, tables, src, owner, &mut |k, meta| {
-        let arr: [u8; 8] = meta.try_into().map_err(|_| "classifier run: invalid async segment length notification".to_string())?;
-        on_segment(k, u64::from_le_bytes(arr) as usize);
-        Ok(())
-    })?;
-    let disk = ASYNC_DIR_SINK
-        .with(|c| c.borrow_mut().take())
-        .ok_or_else(|| "classifier run: async DirSink was not returned".to_string())?;
+    let mut unused_sink = |_k: usize, _bytes: Vec<u8>| -> Result<(), String> {
+        Err("classifier run: async dir sink fell back to raw sink unexpectedly".into())
+    };
+    let (stats, dec) = prove_classify_run_with(st, blocks, kept, tables, src, owner, Some((&mut disk, on_segment)), &mut unused_sink)?;
     Ok((stats, dec, disk))
 }
 

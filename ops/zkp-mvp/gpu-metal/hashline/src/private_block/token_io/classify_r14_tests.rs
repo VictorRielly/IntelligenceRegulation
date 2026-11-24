@@ -88,7 +88,7 @@ fn lib_run(export: &Path, tables_dir: &Path, policy_id: &str, content: &[u64]) -
     let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, &bound, &policy, content.len(), Tier::R1_MVP, root, hp.out_values.verdict, content.len(), 0)?;
     let mut segs = Vec::new();
     let mut blocks = ExportTokenBlocks::new(&p);
-    prove_classify_run_with(&st, &mut blocks, None, &bound, &mut ClassifySource(&mut hp), owner, &mut |_, b| {
+    prove_classify_run_with(&st, &mut blocks, None, &bound, &mut ClassifySource(&mut hp), owner, None, &mut |_, b| {
         segs.push(b);
         Ok(())
     })?;
@@ -119,7 +119,7 @@ fn lib_prove(export: &Path, bound: &BoundClassifierTables, policy: &Policy, cont
     let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, bound, policy, content.len(), Tier::R1_MVP, root, hp.out_values.verdict, content.len(), 0)?;
     let mut segs = Vec::new();
     let mut blocks = ExportTokenBlocks::new(&p);
-    prove_classify_run_with(&st, &mut blocks, None, bound, &mut ClassifySource(&mut hp), owner, &mut |_, b| {
+    prove_classify_run_with(&st, &mut blocks, None, bound, &mut ClassifySource(&mut hp), owner, None, &mut |_, b| {
         segs.push(b);
         Ok(())
     })?;
@@ -410,7 +410,7 @@ fn a26_kept_records_prove_verifiable_receipts_and_a_wrong_kept_digest_is_refused
         let mut own = ExportTokenBlocks::new(&p);
         let mut res = KeptResidentBlocks(kept);
         let blocks: &mut dyn TokenBlocks = if foreign { &mut own } else { &mut res };
-        prove_classify_run_with(&st, blocks, Some(kept), &bound, &mut ClassifySource(&mut hp), owner, &mut |_, b| {
+        prove_classify_run_with(&st, blocks, Some(kept), &bound, &mut ClassifySource(&mut hp), owner, None, &mut |_, b| {
             segs.push(b);
             Ok(())
         })?;

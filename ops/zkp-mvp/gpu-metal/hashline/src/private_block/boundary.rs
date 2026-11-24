@@ -335,9 +335,6 @@ fn check_ntt(spec: &BoundarySpec, ntt: &NttTables) -> Result<(), String> {
 /// separated from every other one in the run, and cannot be improvised out
 /// of the nearest constant.
 pub(crate) fn prepare(spec: &BoundarySpec, values: &[Fp], ntt: &NttTables, rng: &mut ZkRng, tag: &HashTag) -> Result<PreparedBoundary, String> {
-    if super::token_io::classify::classify_host_fast_on() {
-        return prepare_fast(spec, values, ntt, rng, tag);
-    }
     check_ntt(spec, ntt)?;
     if values.len() != spec.len() || values.iter().any(|x| x.0 >= P) {
         return Err("boundary: wrong length or noncanonical input words".into());
@@ -356,8 +353,11 @@ pub(crate) fn prepare(spec: &BoundarySpec, values: &[Fp], ntt: &NttTables, rng: 
     Ok(PreparedBoundary { spec_digest: spec.digest(), committed })
 }
 
+/// Classifier-prover-only (`HL_CLASSIFY_HOST_FAST=1`) counterpart of [`prepare`] using
+/// `ZkRng::fill_fp` for mask-row draws. Leaving [`prepare`] untouched keeps all other provers
+/// (`run`, `run_fork`, `token_io::run`, `stage_in`) on the base path regardless of the switch.
 #[inline(never)]
-fn prepare_fast(spec: &BoundarySpec, values: &[Fp], ntt: &NttTables, rng: &mut ZkRng, tag: &HashTag) -> Result<PreparedBoundary, String> {
+pub(crate) fn prepare_fast(spec: &BoundarySpec, values: &[Fp], ntt: &NttTables, rng: &mut ZkRng, tag: &HashTag) -> Result<PreparedBoundary, String> {
     check_ntt(spec, ntt)?;
     if values.len() != spec.len() || values.iter().any(|x| x.0 >= P) {
         return Err("boundary: wrong length or noncanonical input words".into());
