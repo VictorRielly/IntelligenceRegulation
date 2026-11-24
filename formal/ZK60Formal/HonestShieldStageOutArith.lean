@@ -3,8 +3,9 @@ D63 lane L68c, part 1c-iii (`HonestShieldStageOutArith.lean`):
 complete, zero-`sorry` Stage OUT-C slots `OUTC-05..07`, `OutcAccInv` induction
 (including `.priv` slots `1, 3` and `.host` slots `2, 4` with 2-term `acc.hostFs` via `mTrue_terms_mdot`),
 `shdP_outc_arith` (all 20 conjuncts of `HonestShieldStages.shdP_outc_segComplete`'s `hArith`),
-and top-level **`shdP_outc_segComplete_of_adm`** discharging `hsegOut` of
-`RunShieldOpenShell.sshC_productionReadyL_epP_openShell`!
+and top-level **`shdP_outc_segComplete_of_adm`** reducing `hsegOut` of
+`RunShieldOpenShell.sshC_productionReadyL_epP_openShell` to `hVerdict` and Block 25's boundary
+table contract `hTB` (discharged for `shdP_honestRunP` by `HonestShieldTop.shdP_honestRun_hsegOut`).
 
 Only at most `propext`, `Classical.choice`, `Quot.sound`; zero `sorry`s.
 -/

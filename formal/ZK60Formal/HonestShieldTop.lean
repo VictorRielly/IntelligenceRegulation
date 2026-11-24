@@ -13,11 +13,21 @@ as an optional bridge pending explicit ruling).
    mathematical model of the Rust prover (`stage_in_c`, `protocol`, `stage_out_c`, `classify_run`)
    rather than formally verifying Rust code extraction; correspondence between the Rust binary and
    this Lean model sits outside the Lean kernel.
-2. **Remaining open ZK witness premise**: Every completeness, refusal-cover, site-count, commitment,
-   width, shape, and block-count field of `ClassifyOpenP` is discharged in full for `shdP_honestRunP`,
-   and the numeric ZK budget bound `shdRunErrRes q R' ≤ εzkTarget q R'` (`q, R' ≤ 2^64`) is proved
-   by `shdRunErrRes_hzk`. The single remaining structured ZK premise on the top theorems is
-   `W_zk : ShdZKProgWitness` until the 28-segment `PProg` instantiation for `shdP_honestRunP` is closed.
+2. **Remaining open premises (`W_zk` and the code's verifier hooks)**:
+   - In the general top theorem `shdP_honest_productionReadyL`, completeness for `shdP_honestRunP`
+     holds conditionally on the twelve verifier-hook premises (`hB0`, `hBk`, `hB26`, `hdig`, `hpol`,
+     `hCheck0`, `hgrpA`, `hgrpH`, `hgrpB`, `hchkA`, `hchkH`, `hbnd`) and the interim profile fact
+     `hV131072`. In the specialized corollaries `_okPre` and `_concrete`, `hpol`, `hCheck0`,
+     `hgrpB`, and `hbnd` are discharged by fixing trivial always-accept header-policy and
+     statement-check hooks (`preA = preB = fun _ => .ok ()`, `check0 = fun _ _ => .ok ()`) and
+     pure boundary check (`shdP_bndCheckPure`); soundness and binding hold for every hook choice,
+     whereas completeness for the code's real header policy and per-block statement check remains
+     open via the general theorem.
+   - The numeric ZK budget bound `shdRunErrRes q R' ≤ εzkTarget q R'` (`q, R' ≤ 2^64`) is proved
+     by `shdRunErrRes_hzk`, while zero knowledge for the concrete run remains conditional on the
+     unconstructed premise `W_zk : ShdZKProgWitness` (whose satisfiability across all paths,
+     including refusal paths, and 28-segment `PProg` instantiation remain open; coin maps
+     `epBase`/`incRndOf`/`blkRndOf`/`outcRndOf` are also universally quantified here).
 3. **Foundations**: Only standard Lean foundations (`propext`, `Classical.choice`, `Quot.sound`);
    every proof is complete.
 
@@ -1299,11 +1309,15 @@ theorem shdP_honest_productionReadyL {Hdr Coins : Type} [Fintype Coins] [Nonempt
     (E0b := fun _ _ _ => shdP_zeroRunExt)
     (hV131072 := hV131072)
 
-/-- **Clean concrete-hooks corollary (`shdP_honest_productionReadyL_okPre`)**:
-specializes `preA = preB = fun _ => .ok ()`, `check0 = fun _ _ => .ok ()`, `paths = shdP_segPaths`,
-`checkOpening = checkField shdP_blkOpenGeom`, and `bndCheck = fun _ _ cl _ => shdP_bndCheckPure cl`,
-discharging ALL eight policy/check/group-count/opening-refusal hypotheses
-(`hpol`, `hCheck0`, `hgrpA`, `hgrpH`, `hgrpB`, `hchkA`, `hchkH`, `hbnd`) in one shot. -/
+/-- **Trivial-hook corollary (`shdP_honest_productionReadyL_okPre`)**:
+specializes the verifier hooks to always-accept header policy (`preA = preB = fun _ => .ok ()`),
+always-accept per-block statement check (`check0 = fun _ _ => .ok ()`), `paths = shdP_segPaths`,
+`checkOpening = checkField shdP_blkOpenGeom`, and pure claim/group-count boundary check
+`bndCheck = fun _ _ cl _ => shdP_bndCheckPure cl`. Choosing those trivial/pure hooks discharges
+`hpol`, `hCheck0`, `hgrpA`, `hgrpH`, `hgrpB`, `hchkA`, `hchkH`, and `hbnd` for that verifier
+instance (soundness and binding hold for every hook choice; completeness for the code's real
+header policy and per-block statement check requires supplying those hooks to the general theorem
+`shdP_honest_productionReadyL`). -/
 theorem shdP_honest_productionReadyL_okPre {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins] [Inhabited Coins]
     (tag : MTag) (Lq : ℕ) (hL20 : 2 ^ 20 ≤ Lq) (hL64 : Lq < 2 ^ 64)
     (key : Option Dig) (shape : List UInt8)
@@ -1365,11 +1379,13 @@ theorem shdP_honest_productionReadyL_okPre {Hdr Coins : Type} [Fintype Coins] [N
     (fun G _ _ cl t e _ herr => shdP_bndCheckPure_err_implies_checkOpeningExec (liftH G) cl t e herr)
     W_zk
 
-/-- **Fully specialized concrete-row corollary (`shdP_honest_productionReadyL_concrete`)**:
+/-- **Concrete-row trivial-hook corollary (`shdP_honest_productionReadyL_concrete`)**:
 further fixes the alternating boundary mask-row indices `(bInRow := 32, ioIn := 34, ioOut := 32,
-bOutRow := 34)` and `digest := fun _ k => blkDig k`, discharging `hB0`, `hBk`, `hB26`, and `hdig`
-and leaving only setting/model validity (`hL20`, `hL64`, `hR`, `hhdrFit`, `hV131072`, `hweights`,
-`hinPub`, `houtPub`) plus the single ZK program witness `W_zk : ShdZKProgWitness`. -/
+bOutRow := 34)` and `digest := fun _ k => blkDig k` on top of `shdP_honest_productionReadyL_okPre`
+(retaining its trivial always-accept `preA`/`preB`/`check0` and pure `shdP_bndCheckPure` verifier
+hooks), discharging `hB0`, `hBk`, `hB26`, and `hdig` and leaving only setting/model validity
+(`hL20`, `hL64`, `hR`, `hhdrFit`, `hV131072`, `hweights`, `hinPub`, `houtPub`) plus the
+unconstructed ZK program witness `W_zk : ShdZKProgWitness`. -/
 theorem shdP_honest_productionReadyL_concrete {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins] [Inhabited Coins]
     (tag : MTag) (Lq : ℕ) (hL20 : 2 ^ 20 ≤ Lq) (hL64 : Lq < 2 ^ 64)
     (key : Option Dig) (shape : List UInt8)
