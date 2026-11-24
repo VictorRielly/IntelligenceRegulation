@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 00:20 UTC, Lean [READ, source only, nothing built]: where the honest-prover chain
+    stands after the three independent reads.** For the R13 Shieldstral profile, with valid
+    public weights: (1) PROVED in Lean, if the build is as green as its author reports (my own
+    build of the merged files is still to come): an honest run of the Lean model of the prover
+    is accepted except with probability at most 2^-40, and knowledge soundness and binding
+    hold. (2) NOT PROVED: zero knowledge for the concrete run (one open assumption, see the
+    paragraph below). (3) NOT PROVED, found by the third read: the completeness result is for
+    a verifier whose header policy check and per-block statement check are replaced by
+    functions that accept everything. Soundness is unaffected, because it holds for any such
+    check; but that honest proofs always pass the code's real header and statement checks is
+    not yet shown. (4) One interim assumption, the vocabulary size 131072, is a true fact about
+    the profile that is assumed rather than derived. (5) Nothing in Lean speaks about the Rust
+    binary itself; that correspondence is outside Lean by design. The branch (26 files, about
+    37,000 lines) is not merged: its author is asked for wording corrections first, then I
+    build it on the merged tree and audit the axioms. Record:
+    `results/zk60_claude_review_20261116/L68C_READ_5_TOP_20261124.md`.
     **Nov 24, 00:14 UTC, Lean [READ, source only, nothing built]: zero knowledge is not yet proved
     for the concrete honest prover.** The second independent read of Antigravity's chain
     (the zero-knowledge modules) finds that the final theorem takes one structured assumption,
