@@ -801,6 +801,18 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 12:31 UTC, speed [merge check MEASURED by Claude on the merged tree]: the second host-
+    speed switch is merged and pushed, off by default, together with the fix that makes a verifier
+    ignore every speed switch.** The merge check was green: the full test suite with no switch and
+    again with the three host switches forced (1,037 passed each, only the two known fixture
+    failures), twenty-one gate tests each alone in a fresh process, and the GPU commit test with
+    switches off and on. What it buys, as measured this morning: about 3 percent at the installed
+    app profile at five threads per lane, nothing lost with the switch off, no gain shown at the
+    app's eight threads. The flaw found on Nov 24 in the first host-speed switch (a verifier with
+    the switch in its environment took the faster variant of one public computation) is closed by
+    this merge. Next on the prover: Sol starts the integration of the size step (D82) from this
+    head; Antigravity returns to the Lean zero-knowledge piece and then to making the service fail
+    cleanly after a GPU fault. Record: `results/zk60_hostw2_merge_20261124/`.
     **Nov 24, 11:23 UTC, speed [MEASURED by Claude at the installed app profile, readings fixed and
     pushed before each run; READ for the code]: the second host-speed switch keeps its gain of about
     3 percent on the corrected code and costs nothing when off; at the app's own thread setting a

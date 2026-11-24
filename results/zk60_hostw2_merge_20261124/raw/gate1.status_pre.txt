@@ -1,0 +1,13 @@
+2026-11-24T12:02:21Z
+RAM   205.66 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 0 of 252.5 GiB committed by guarded jobs
+LOCKS heavy free, build free
+GPU   527 of 196608 MiB used
+DISK  /System/Volumes/VM 89.9 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16735 MiB  pid 48978   agy
+  rss   4950 MiB  pid 1578    claude
+  rss   1948 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1450 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1405 MiB  pid 17265   claude
+  rss   1023 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/

@@ -56,7 +56,9 @@ All three sets [MEASURED]: no stall, no Metal error, no guarded job of another a
 - Why the level of the same arm moved by about 5% between `w2_ab8` (arm A about 51.3) and `w2_gain8` (about 53.9), fifty minutes apart, with the same receipt check after every leg and no guarded overlap. Readings compare arms interleaved inside one set; no figure here is to be compared across sets.
 - The 8B gain against the base binary. The author's 8B set (+5.47%, above) was on the earlier commit; a re-run on the final commit is asked for and does not hold the merge.
 
-**Gate state when this section was written:** the smoke, the default-path set and the gain confirmation are met and the fix read has no High finding. Open: the author's follow-up for the two test gaps (tests and comments only; a follow-up that touches code is timed again), then the merge check on that commit (`results/zk60_hostw2_merge_20261124/run_gate.py`).
+**MERGED on 2026-11-24 at the merge commit `9fbc85292`** (branch tip `0ab86a480`, a follow-up to `9f70ff137` that changes tests and one comment only, audited). Merge check `gate1` GREEN: guard `af568ba9fc34`, 1,656 s; both suite runs 1,037 passed with only the two known fixture failures; twenty-one gate tests each alone in a fresh process; the Metal commit test 8 of 8 unset and set (`results/zk60_hostw2_merge_20261124/raw/gate1.*`).
+
+**Gate state when the section above was first written (kept for the record):** the smoke, the default-path set and the gain confirmation are met and the fix read has no High finding. Open: the author's follow-up for the two test gaps (tests and comments only; a follow-up that touches code is timed again), then the merge check on that commit (`results/zk60_hostw2_merge_20261124/run_gate.py`).
 
 ## Files
 

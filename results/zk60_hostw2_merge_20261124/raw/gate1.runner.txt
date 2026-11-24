@@ -1,0 +1,2 @@
+[zk60-guard 04:02:21] START hostw2-merge-gate1 class=gpu need=16G cap=32G enforce=watchdog-only waited=0s run=af568ba9fc34
+[zk60-guard 04:29:57] END hostw2-merge-gate1 exit=0 child_wall=1656s peak_rss=9.38G min_avail=196.26G peak_vram=5431MiB
