@@ -801,6 +801,24 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Tick 54, Nov 24 15:59 UTC [reading and arithmetic by the background researcher; its script
+    re-run by Claude with identical output; source citations and one paper checked; nothing built or
+    measured]: what hidden model weights would cost on the 8B prover.** Hidden weights are decided
+    for the full version and stay at study level (D82). The price is mostly receipt size: with one
+    reusable hidden commitment to the weights, the 8B receipt (818.7 MB today, MEASURED) grows by
+    220 MB if a block's seven weight claims can share one opening and by 430 MB if they cannot
+    [DERIVED]; after the first size step the weight part would be 146 MB [MODEL, the new tower's
+    bytes for weights not counted]. Extra proving time is 0.09 to 2.5 s a request on a 3.7 s cadence
+    [ESTIMATE; no kernel exists, so the range is wide]. Three limits come with it. (1) One
+    commitment serves a limited number of proofs (the journal allows at most 65,536) before it must
+    be re-made, and re-use forces a lower code rate, which makes the stored encoded weights 223 GB a
+    model. (2) The approved zero-knowledge statement assumes up to 2^64 receipts and "this is the
+    approved model" is in neither approved statement, so both statements would need a ruling when
+    this becomes a build. (3) It was priced for the 8B shape only; the classifier the app runs, the
+    model for which hiding matters to the applications, is not priced yet. On the gain side the
+    checker would no longer need the 7 GB of weights. Handoff:
+    `research/zkp-efficiency/handoffs/20261124-claude-tick54-hidden-weights-price.md`.
+
     **Nov 24, 14:26 UTC, product [reading and web research by Astra; the figures marked checked were
     re-checked by Claude against the records]: three more application studies, none of them a
     build.** (1) *Who proves for a holder with a small machine.* Today whoever runs the prover reads

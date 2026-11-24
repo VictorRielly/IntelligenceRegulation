@@ -1,0 +1,84 @@
+== 1. rows of one block's weights as a committed matrix
+  n=2^14: rows = 13,312.0
+  n=2^16: rows = 3,328.0
+  n=2^18: rows = 832.0
+  n=2^20: rows = 208.0
+  A+H rows today at n=2^14: 2,501 + 2,602 = 5103; weights/ (A+H) = 2.61x
+
+== 2. budget k of one stable commitment: pad q_pad = k*Q, distance, columns Q needed (n=2^14)
+  rate 1/rho, k  -> Q, q_pad, distance   (None = no Q reaches target)
+  rho=2 k=  1: Q=281, q_pad=281, delta=0.491
+  rho=2 k=  4: Q=300, q_pad=1200, delta=0.463
+  rho=2 k= 16: None
+  rho=2 k= 64: None
+  rho=2 k=256: None
+  rho=4 k=  1: Q=169, q_pad=169, delta=0.747
+  rho=4 k=  4: Q=172, q_pad=688, delta=0.740
+  rho=4 k= 16: Q=182, q_pad=2912, delta=0.706
+  rho=4 k= 64: Q=321, q_pad=20544, delta=0.437
+  rho=4 k=256: None
+  rho=8 k=  1: Q=138, q_pad=138, delta=0.874
+  rho=8 k=  4: Q=139, q_pad=556, delta=0.871
+  rho=8 k= 16: Q=142, q_pad=2272, delta=0.858
+  rho=8 k= 64: Q=155, q_pad=9920, delta=0.799
+  rho=8 k=256: None
+  (k=1 at rho=2 gives Q=281; the shipped profile uses Q=280, i.e. its own error list is a different count)
+
+== 3. bytes per receipt added by one opening of the weight commitment, 32 blocks
+  n=2^14 rows=13,312 rho=2 k= 1 Q=281 G=1: total    979.4 MB (columns   957.6, vectors    17.1); x today 2.20
+  n=2^14 rows=13,312 rho=2 k= 1 Q=281 G=7: total   1030.5 MB (columns   957.6, vectors    68.3); x today 2.26
+  n=2^14 rows=13,312 rho=4 k=16 Q=182 G=1: total    643.2 MB (columns   620.2, vectors    19.8); x today 1.79
+  n=2^14 rows=13,312 rho=4 k=16 Q=182 G=7: total    702.5 MB (columns   620.2, vectors    79.0); x today 1.86
+  n=2^14 rows=13,312 rho=4 k=64 Q=321 G=1: total   1137.4 MB (columns  1093.9, vectors    37.8); x today 2.39
+  n=2^14 rows=13,312 rho=4 k=64 Q=321 G=7: total   1250.9 MB (columns  1093.9, vectors   151.3); x today 2.53
+  n=2^16 rows= 3,328 rho=2 k= 1 Q=277 G=1: total    308.6 MB (columns   236.0, vectors    67.4); x today 1.38
+  n=2^16 rows= 3,328 rho=2 k= 1 Q=277 G=7: total    510.7 MB (columns   236.0, vectors   269.6); x today 1.62
+  n=2^16 rows= 3,328 rho=2 k=16 Q=300 G=1: total    333.2 MB (columns   255.6, vectors    72.0); x today 1.41
+  n=2^16 rows= 3,328 rho=2 k=16 Q=300 G=7: total    549.3 MB (columns   255.6, vectors   288.1); x today 1.67
+  n=2^16 rows= 3,328 rho=4 k=16 Q=172 G=1: total    219.9 MB (columns   146.5, vectors    69.9); x today 1.27
+  n=2^16 rows= 3,328 rho=4 k=16 Q=172 G=7: total    429.6 MB (columns   146.5, vectors   279.7); x today 1.52
+  n=2^16 rows= 3,328 rho=4 k=64 Q=182 G=1: total    237.7 MB (columns   155.1, vectors    79.0); x today 1.29
+  n=2^16 rows= 3,328 rho=4 k=64 Q=182 G=7: total    474.8 MB (columns   155.1, vectors   316.1); x today 1.58
+  n=2^18 rows=   832 rho=2 k= 1 Q=276 G=1: total    333.2 MB (columns    58.8, vectors   268.7); x today 1.41
+  n=2^18 rows=   832 rho=2 k= 1 Q=276 G=7: total   1139.4 MB (columns    58.8, vectors  1074.9); x today 2.39
+  n=2^18 rows=   832 rho=2 k=16 Q=281 G=1: total    338.7 MB (columns    59.9, vectors   273.0); x today 1.41
+  n=2^18 rows=   832 rho=2 k=16 Q=281 G=7: total   1157.8 MB (columns    59.9, vectors  1092.2); x today 2.41
+  n=2^18 rows=   832 rho=4 k=16 Q=169 G=1: total    310.9 MB (columns    36.0, vectors   271.2); x today 1.38
+  n=2^18 rows=   832 rho=4 k=16 Q=169 G=7: total   1124.5 MB (columns    36.0, vectors  1084.8); x today 2.37
+  n=2^18 rows=   832 rho=4 k=64 Q=172 G=1: total    320.1 MB (columns    36.6, vectors   279.7); x today 1.39
+  n=2^18 rows=   832 rho=4 k=64 Q=172 G=7: total   1159.2 MB (columns    36.6, vectors  1118.8); x today 2.42
+
+== 4. per-model encoded size and per-proof fresh-commit cost (the option that needs no budget)
+  rate 1/2: stored encoded matrix = 111.7 GB (all 32 blocks)
+  rate 1/4: stored encoded matrix = 223.3 GB (all 32 blocks)
+  rate 1/8: stored encoded matrix = 446.7 GB (all 32 blocks)
+  measured commit rate (A+H, 28.95 ms): 46.2 GB/s of encoded matrix
+  fresh weight commit per proof at rate 1/2: 3.49 GB per block, 76 ms per block, 2.42 s per request
+  against the 3.7455 s 8B cadence: +65%
+
+== 5. the opening's row combination (prover, per block, per request), base multiplications
+  G=1: 0.87 G base mults per block; x32 = 28 G per request
+  G=7: 3.49 G base mults per block; x32 = 112 G per request
+  at 45 G/s: G=1:   19.4 ms per block,  0.62 s per request =  16.6% of the 8B cadence
+  at 45 G/s: G=7:   77.5 ms per block,  2.48 s per request =  66.3% of the 8B cadence
+  at 150 G/s: G=1:    5.8 ms per block,  0.19 s per request =   5.0% of the 8B cadence
+  at 150 G/s: G=7:   23.3 ms per block,  0.74 s per request =  19.9% of the 8B cadence
+  at 300 G/s: G=1:    2.9 ms per block,  0.09 s per request =   2.5% of the 8B cadence
+  at 300 G/s: G=7:   11.6 ms per block,  0.37 s per request =   9.9% of the 8B cadence
+  memory floor: int8 weights 218.1 MB per block at 700 GB/s = 0.31 ms (Fp-expanded 1.74 GB: 2.49 ms)
+
+== 6. one-off per model: range proof of the committed int8 words (scaling tick 53's tree cost, ASSUMED linear)
+  tick 53 low bound 15.7 ms at 2^25 leaves -> x6.50 = 102 ms per block, 3.3 s per model
+  tick 53 low bound 21.9 ms at 2^25 leaves -> x6.50 = 142 ms per block, 4.6 s per model
+
+== 7. FlashProve per request, for the same units (AUTHORS, local record)
+  proof 18.78 MB mean per 1,024-token request; fixed 34.5 to 47 s per batch of 24; 7.5 to 7.8 s per request
+  ours today 818.7 MB per 128-token request = 44x their proof (different token counts)
+
+== 8. slot rows in the stable commitment (ASSUMED 8 to 16 mask rows per slot, FA4 had 22 for the FFN-only layer)
+  k=16 slots x 8 rows = 128 rows = 1.0% of the 13,312 data rows
+  k=16 slots x 16 rows = 256 rows = 1.9% of the 13,312 data rows
+  k=16 slots x 22 rows = 352 rows = 2.6% of the 13,312 data rows
+  k=64 slots x 8 rows = 512 rows = 3.8% of the 13,312 data rows
+  k=64 slots x 16 rows = 1024 rows = 7.7% of the 13,312 data rows
+  k=64 slots x 22 rows = 1408 rows = 10.6% of the 13,312 data rows

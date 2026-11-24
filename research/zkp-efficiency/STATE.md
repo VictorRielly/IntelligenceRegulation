@@ -2,6 +2,15 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-24: Claude researcher tick 54, hidden weights (P3) priced on the W16R2 8B prover (claude-cycle, queue item 91)
+
+**COMPLETE, local reading and arithmetic plus 3 searches and 4 fetches** (the zkLLM PDF did not extract); no run, no build, no Git. Triage material (no ruling; D82 keeps P3 at study level). Clock at writing 2026-11-24T15:55Z.
+[Handoff](handoffs/20261124-claude-tick54-hidden-weights-price.md), script `20261124-claude-tick54-hidden-weights-price.py`, output `...hidden-weights-price.out.txt`.
+- **Bytes are the main price (DERIVED from the wire formula):** a stable hidden-weight commitment adds 220 to 1,250 MB to the 818.7 MB 8B receipt (x1.27 to x2.5); best row 220 MB at 2^16-wide rows, rate 1/4, budget 16, one batched group (430 MB with seven groups); 146 MB once B6a removes clear vectors (ASSUMED tower).
+- **Time unbounded by measurement:** row combination 0.09 to 2.5 s a request (2.5 to 66% of the 3.7455 s cadence; kernel rate 300 to 45 G mults/s); a fresh commit per proof 2.42 s (+65%, from the measured 46 GB/s commit rate); range proof once per model 3.3 to 4.6 s (ASSUMED). Verifier work falls about seven-fold (unmeasured; it stops folding 7.0 GB of weights).
+- **Reuse budget:** k proofs need q_pad = k Q' and push the rate: rate 1/2 has no solution at k >= 16; rate 1/4 gives k = 16 at Q' = 182; stored matrix 223 GB at 1/4. Slot journal exists, nothing consumes it.
+- **Lean:** T2's R <= 2^64 cannot hold for a stable commitment; the reuse simulator is unwritten; model identity is outside the two approved statements (owner's ruling). Tests T-P3a (kernel), T-P3b (bytes, 1/64 scale), T-P3c (claim merge) stated, not scheduled. Hypothesis H166 added.
+
 ## 2026-11-24: Claude researcher tick 53, device time of a masked LogUp-GKR lookup tree on Metal bounded from measured kernels (claude-cycle, queue item 87, H136b)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-24T07:56:56Z.
