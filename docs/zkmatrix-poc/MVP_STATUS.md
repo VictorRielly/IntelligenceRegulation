@@ -801,6 +801,21 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 19:38 UTC, size and product [built and measured by Sol and by Astra; the byte table
+    recomputed by Claude, guard records checked; nothing compiled or re-run by Claude]: the new
+    opening works in the library, and a guest's download was checked natively.** *Size.* The
+    switched opening that replaces the large clear vectors now runs inside the proof library on the
+    merged head: 101 library tests pass, six of them on the new path, and the old opening's bytes
+    are unchanged. Counted from the new wire format, the app classifier's receipt would be 351 to
+    356 MB a category against 670 MB today (0.52 to 0.53 of today's) [COUNTED from a measured base;
+    no full receipt of the new format exists yet]. The plan's model said 354 MB. Still to do: the
+    profile and block wiring, the GPU route, the timed spike (its rule for choosing among three code
+    rates was fixed before any timing), full receipts, the whole-run security and hiding accounts,
+    the Lean chain. *Product.* On the installed Mac a guest downloaded one post (2.0 GB with its
+    three receipts) and checked it with the released reader and a relocated kit: three native
+    checks, each using about 2.5 GB of memory. Not yet tested: a guest on a different Mac, which is
+    the step that makes it a pilot.
+
     **Nov 24, 19:08 UTC, size and product [built and measured by Sol in its own tree; read by
     Claude, who compiled and re-ran nothing]: the first pieces of the size step exist.** The helper
     that computes the claims for the new small matrix passed 1,000 full-size random cases [MEASURED
