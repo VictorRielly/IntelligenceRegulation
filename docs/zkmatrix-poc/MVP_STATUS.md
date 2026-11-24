@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 19:50 UTC, product [reading, counting and web research by Astra; figures marked
+    checked were re-checked by Claude, and the video reference test was reproduced independently]:
+    two more application studies; the first queue of nine is done.** *Receipt size by use.* Who
+    keeps a receipt and who checks it decides what size is tolerable. A central checker (an editor's
+    service, a review platform, an auditor) can trial today's sizes or the first size step. A reader
+    who downloads every item cannot: one post is 2.0 GB, about 160 s of transfer at 100 Mbit/s
+    before any checking [DERIVED, checked]. Attachments in a review system and checks in a browser
+    need the later size steps, which are at study level. Checking one classifier receipt takes 42 to
+    43 s on this Mac with about 2.5 GB of memory [MEASURED, nine guard records]. *Video.* 1080p at
+    30 frames a second is 187 million input values a second [DERIVED, checked]. Cuts, crops,
+    redactions and declared frame-rate changes have simple relations over raw frames; a lossy
+    re-encode needs a proof of the codec, which this project does not have (one published system
+    reports 2.4 hours for a two-minute clip). Nothing was proved; the reference arithmetic alone is
+    qualified. Three new studies are queued: the safety classifiers a buyer would name, published
+    rules that already ask for such records, and where a kilobyte-size proof has to fit.
+
     **Nov 24, 19:38 UTC, size and product [built and measured by Sol and by Astra; the byte table
     recomputed by Claude, guard records checked; nothing compiled or re-run by Claude]: the new
     opening works in the library, and a guest's download was checked natively.** *Size.* The

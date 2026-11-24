@@ -6,18 +6,21 @@ repository (see the brief).
 
 ## Open
 
-8. **Receipt size and checking time each application can tolerate (A8).** Reading and derivation, added 2026-11-24
-   after the owner's ruling D82. For each application studied so far (submissions of unpublished text, peer review,
-   captured images, private document checks, hidden benchmark scores): who stores the receipt, who downloads it, how
-   often it is checked and on what machine. Set against that the measured sizes of today's receipts and the modelled
-   sizes of the size steps in `docs/zkmatrix-poc/ZK60_SIZE_B6A_BUILD_PLAN_20261124.md` (label each MEASURED or MODEL).
-   The result is a table that says which application is served by which size step, and which needs a step that is
-   only at study level.
-9. **Video (A9).** Web research and counting, added 2026-11-24 from the owner's capture idea. The image study (A7)
-   counted one 12-megapixel frame. For video: the committed cells per second of 1080p and 4K footage, which edits have
-   a proof relation of bounded cost (cut, crop, redaction of a region, a change of frame rate) and which do not
-   (re-encoding with a lossy codec), what published systems for proved image and video edits report by their authors'
-   numbers, and what a first test on a few seconds of synthetic footage would be.
+10. **Which public safety classifiers a buyer would name, and what each needs from the prover (A10).** Web research
+    and reading, added 2026-11-24. The installed app proves one 3B moderation classifier. List the open-weight
+    content-safety and moderation classifiers in common use of up to 8B parameters (by their own model cards: size,
+    architecture, context length, label set, licence), and for each the operations our prover does not have today
+    (a different attention form, normalization, activation, tokenizer, head). The result is a table that says which
+    could run on the current block prover after an import, and which need new proof relations.
+11. **Rules that already ask for evidence a receipt could supply (A11).** Web research, added 2026-11-24. For content
+    moderation, synthetic-media marking and model audits: which published rules or standards (by article or section,
+    with their dates of application) ask a provider for a record that a named check ran, and who is entitled to see
+    it. Say for each whether a receipt adds anything over a signed log, and what it cannot supply. No legal advice;
+    quote the texts.
+12. **Where a small proof has to fit (A12).** Web research and counting, added 2026-11-24; a companion to item 90 of
+    the efficiency queue. For the places a kilobyte-size proof would be posted or checked (a public blockchain's
+    transaction and data limits, a browser, a phone): the size and checking-cost limits by their own documentation,
+    and what published proving services for machine-learning inference state as proof size and checking cost.
 
 ## Done
 
@@ -28,3 +31,5 @@ repository (see the brief).
 5. **A4, private document checks.** An auditor can use a filter-execution receipt under a selected cross-domain control. The gateway must separately bind the attachment and filtering result to the transfer. Two open PII taggers need new proof relations. [Requirements, models, sizing and test](handoffs/20261124-apps-private-document-checks.md)
 6. **A5, hidden benchmark scores.** A trained 8B receipt reaches one held-out next token. Binding every hidden question and gold answer to the published score is open. Extrapolating one trained CPU run to 1,000 prompts gives 135.4 serial proving hours. [Scoring relation, measurements and published precedents](handoffs/20261124-apps-model-evaluations.md)
 7. **A6, writing provenance.** A receipt can authenticate a recorded edit history and the submitted text. A person retyping model output can satisfy the same typing policy as an unaided writer. [Existing recorders, proposed statement and deciding test](handoffs/20261124-apps-writing-provenance.md)
+8. **A8, receipt size by workflow.** The guest post downloaded 2.009 GB and its three native checks consumed 128.19 seconds. B6a models about 1.00–1.06 GB for those proofs. Central audit, per-reader replay and aggregate score publication have different requirements. [Five applications and sizing assumptions](handoffs/20261124-apps-receipt-size.md)
+9. **A9, video edits.** RGB8 at 30 frames/s gives 186.6 million input values/s at 1080p and 746.5 million at UHD 4K. Two reference calculations matched a two-second crop, redaction and frame-rate conversion. [Counts, published proof measurements and first test](handoffs/20261124-apps-video-edits.md)
