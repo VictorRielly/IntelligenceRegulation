@@ -3163,7 +3163,7 @@ fn a17_seeded_digest(sh: &Shape, blk: &BlockPublic, w: Witness) -> String {
     let mut ph = super::timing::Phases::start();
     let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
     let record = protocol::CheckedPublic::check(blk, sh).expect("the block passes its public checks");
-    let hints = protocol::CoreHints { checked: Some(&record) };
+    let hints = protocol::CoreHints { checked: Some(&record), ..Default::default() };
     let core = protocol::prove_core_with(sh, &lay, blk, w, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints).expect("the seeded A17 core proof");
     let text = format!(
         "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
@@ -3243,7 +3243,7 @@ fn a17_a_record_covers_only_its_own_block_and_a_modified_block_is_refused() {
             let mut tr = header(&sh, &lay);
             let mut ph = super::timing::Phases::start();
             let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
-            let hints = protocol::CoreHints { checked: Some(&record) };
+            let hints = protocol::CoreHints { checked: Some(&record), ..Default::default() };
             let got = protocol::prove_core_with(&sh, &lay, bad, copy(&w), [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints);
             protocol::set_a17_for_test(None, None);
             let e = got.err().unwrap_or_else(|| panic!("A BLOCK {what} PROVED BESIDE THE HONEST BLOCK'S RECORD (record form {checked})"));
@@ -3677,7 +3677,7 @@ fn a18_split_digest(sh: &Shape, blk: &BlockPublic, w: Witness, threads: usize) -
     tr.absorb(b"profile", sh.profile.as_bytes());
     tr.absorb(b"schedule", &lay.schedule_digest());
     let record = protocol::CheckedPublic::check(blk, sh).expect("the block passes its public checks");
-    let hints = protocol::CoreHints { checked: Some(&record) };
+    let hints = protocol::CoreHints { checked: Some(&record), ..Default::default() };
     let pool = rayon::ThreadPoolBuilder::new().num_threads(threads).build().expect("a rayon pool");
     let (ahead, mut rng) = std::thread::scope(|s| {
         let (lay, ntt, pool) = (&lay, &ntt, &pool);
@@ -4716,6 +4716,7 @@ fn host_fast_w16r2_rung_golden() {
     let _hf_lock = crate::zk::host_fast_test_lock();
     struct Reset {
         prev_hf: Option<bool>,
+        prev_w2: Option<bool>,
         prev_sf: Option<bool>,
         prev_frs: Option<bool>,
         prev_sc: Option<bool>,
@@ -4725,6 +4726,7 @@ fn host_fast_w16r2_rung_golden() {
     impl Drop for Reset {
         fn drop(&mut self) {
             crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
             crate::gpu::metal_set_sparse_fold_for_test(self.prev_sf);
             crate::gpu::set_fused_rs_for_test(self.prev_frs);
             crate::gpu::metal_set_sc_chain_fast_for_test(self.prev_sc);
@@ -4737,6 +4739,7 @@ fn host_fast_w16r2_rung_golden() {
     }
     let _guard = Reset {
         prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
         prev_sf: crate::gpu::metal_set_sparse_fold_for_test(None),
         prev_frs: crate::gpu::set_fused_rs_for_test(None),
         prev_sc: crate::gpu::metal_set_sc_chain_fast_for_test(None),
@@ -4848,11 +4851,13 @@ fn host_fast_all_call_sites_byte_identical() {
 
     struct Reset {
         prev_hf: Option<bool>,
+        prev_w2: Option<bool>,
         prev_gpu: Option<String>,
     }
     impl Drop for Reset {
         fn drop(&mut self) {
             crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
             match &self.prev_gpu {
                 Some(v) => std::env::set_var("HL_GPU", v),
                 None => std::env::remove_var("HL_GPU"),
@@ -4861,6 +4866,7 @@ fn host_fast_all_call_sites_byte_identical() {
     }
     let _guard = Reset {
         prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
         prev_gpu: std::env::var("HL_GPU").ok(),
     };
     std::env::set_var("HL_GPU", "1");
@@ -5688,19 +5694,29 @@ fn host_fast_cpu_w16r2_rung_and_toy_parity_default() {
 
         crate::zk::set_host_fast_for_test(Some(true));
         let hb = crate::zk::host_fast_hits_for_test();
+        let w2_hb = crate::zk::host_fast_w2_hits_for_test();
         let d_on = seeded_digest(&sh, &blk, copy(&w));
         let ha = crate::zk::host_fast_hits_for_test();
+        let w2_ha = crate::zk::host_fast_w2_hits_for_test();
         let hd: [u64; 8] = std::array::from_fn(|i| ha[i].saturating_sub(hb[i]));
+        let w2_hd: [u64; 10] = std::array::from_fn(|i| w2_ha[i].saturating_sub(w2_hb[i]));
         assert_eq!(d_on, d_off, "W16R2 rung hf1 digest differs from hf0");
         assert!(d_on.starts_with(W16R2_RUNG_GOLDEN), "W16R2 rung hf1 digest != golden: {d_on}");
         for i in [
             crate::zk::HF_H1_INV_TBL,
             crate::zk::HF_H2_PAR_MASK,
-            crate::zk::HF_H3_PAR_RNG16,
             crate::zk::HF_H4_ACC_FOLD,
             crate::zk::HF_H5_PRIV_FOLD,
         ] {
             assert!(hd[i] > 0, "W16R2 rung default parity expected hit counter {i} > 0, got {hd:?}");
+        }
+        if crate::zk::host_fast_w2_on() {
+            assert!(
+                hd[crate::zk::HF_H3_PAR_RNG16] > 0 || w2_hd[crate::zk::HF_W2_FLAT_W16] > 0,
+                "W16R2 rung default parity expected H3 or W2-3 flat W16 > 0, got h1={hd:?} w2={w2_hd:?}"
+            );
+        } else {
+            assert!(hd[crate::zk::HF_H3_PAR_RNG16] > 0, "W16R2 rung default parity expected hit counter H3 > 0, got {hd:?}");
         }
         if !gpu_on {
             assert!(hd[crate::zk::HF_H6_CPU_PUB_GEN] > 0, "W16R2 rung CPU parity expected H6 CPU PubGen > 0, got {hd:?}");
@@ -5776,11 +5792,13 @@ fn host_fast_m2_r13_shield_byte_identical() {
     let _hf_lock = crate::zk::host_fast_test_lock();
     struct Reset {
         prev_hf: Option<bool>,
+        prev_w2: Option<bool>,
         prev_gpu: Option<String>,
     }
     impl Drop for Reset {
         fn drop(&mut self) {
             crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
             match &self.prev_gpu {
                 Some(v) => std::env::set_var("HL_GPU", v),
                 None => std::env::remove_var("HL_GPU"),
@@ -5789,6 +5807,7 @@ fn host_fast_m2_r13_shield_byte_identical() {
     }
     let _guard = Reset {
         prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
         prev_gpu: std::env::var("HL_GPU").ok(),
     };
     std::env::set_var("HL_GPU", "1");
@@ -6006,6 +6025,1211 @@ fn w16_histograms_cols_u32_matches_reference_with_and_without_misses() {
     let empty_got = protocol::w16_histograms_cols(&lay, &[]);
     assert_eq!(empty_got, empty_want, "empty looked input differs");
     assert_eq!(empty_got.2, 0);
+}
+
+/// **[HOST-FAST-W2 W2-4] Zero-`String` `metal_slot::extract_coefs` matches
+/// `msl_round_kernels(&ir).2` word-for-word across all slots of `W16R2_RUNG_H24`,
+/// `R13_RUNG_H24`, and `Shape::toy()`, and `slot_topo_key` is deterministic,
+/// invariant to non-zero-`c1` challenge changes, and discriminates `pad_on`,
+/// `degree`, table base/ext field kind, and `c1.is_zero()`.**
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+fn w2_extract_coefs_matches_msl_round_kernels_and_topo_key_discriminates() {
+    use super::argument::Ctx;
+    use super::slot_ir::{CoefProv, FieldKind, IrPoints, TableProv};
+    use std::collections::HashSet;
+
+    let mut checked_slots = 0usize;
+    let mut sample_ir: Option<super::slot_ir::SlotIr> = None;
+
+    let cases: Vec<(Shape, BlockPublic)> = vec![
+        {
+            let (sh, blk, _) = rung_case(shape::W16R2_RUNG_H24);
+            (sh, blk)
+        },
+        {
+            let (sh, blk, _) = rung_case(shape::R13_RUNG_H24);
+            (sh, blk)
+        },
+        {
+            let sh = Shape::toy();
+            let (public, ff, _) = super::grow_tests::tame_case(&sh);
+            (sh, BlockPublic::new(public, ff))
+        },
+    ];
+
+    for (sh, blk) in &cases {
+        let lay = Layout::for_shape(sh).expect("layout");
+        let ctx = Ctx {
+            accuracy: blk.accuracy(),
+            lay: &lay,
+            public: blk.attention(),
+            ff: blk.feed_forward(),
+            alpha: Fp2::new(Fp::new(11), Fp::new(13)),
+            beta: Fp2::new(Fp::new(17), Fp::new(19)),
+            g_u8: Fp2::new(Fp::new(23), Fp::new(29)),
+            g_exp: Fp2::new(Fp::new(31), Fp::new(37)),
+            g_act: Fp2::new(Fp::new(41), Fp::new(43)),
+            g_dd: Fp2::new(Fp::new(47), Fp::new(53)),
+        };
+        let mut ipts = IrPoints::default();
+        let mut tr = Transcript::new(b"w2-extract-coefs-topo");
+        tr.absorb(b"profile", sh.profile.as_bytes());
+        let mut keys = HashSet::new();
+        for slot in 0..sh.slots().len() {
+            let Ok(ir) = super::slot_ir::build_slot_ir(slot, &ctx, &mut ipts, &mut tr) else {
+                continue;
+            };
+            let (_, _, cf_msl, _) = super::metal_slot::msl_round_kernels(&ir);
+            let cf_fast = super::metal_slot::extract_coefs(&ir);
+            assert_eq!(cf_fast, cf_msl, "{} slot {slot}: extract_coefs != msl_round_kernels.2", sh.name);
+            let k1 = super::metal_slot::slot_topo_key(&ir);
+            let k2 = super::metal_slot::slot_topo_key(&ir);
+            assert_eq!(k1, k2, "{} slot {slot}: slot_topo_key not deterministic", sh.name);
+            keys.insert(k1);
+            if sh.profile == shape::W16R2_RUNG_H24 && slot == SC_QZC {
+                sample_ir = Some(ir);
+            }
+            checked_slots += 1;
+        }
+        assert!(keys.len() > 8, "{}: expected distinct topo keys across slots, got {}", sh.name, keys.len());
+    }
+    assert!(checked_slots >= 50, "expected active slots across 3 shapes checked, got {checked_slots}");
+
+    // Structural discrimination + cross-block challenge invariance on W16R2 SC_QZC
+    let ir = sample_ir.expect("W16R2 SC_QZC SlotIr");
+    let base_key = super::metal_slot::slot_topo_key(&ir);
+
+    let mut ir_pad = ir.clone();
+    ir_pad.pad_on = !ir_pad.pad_on;
+    assert_ne!(super::metal_slot::slot_topo_key(&ir_pad), base_key, "slot_topo_key must change when pad_on changes");
+
+    let mut ir_deg = ir.clone();
+    ir_deg.degree += 1;
+    assert_ne!(super::metal_slot::slot_topo_key(&ir_deg), base_key, "slot_topo_key must change when degree changes");
+
+    let mut ir_tab = ir.clone();
+    assert!(!ir_tab.tables.is_empty());
+    ir_tab.tables[0].prov = if ir_tab.tables[0].field() == FieldKind::Base {
+        TableProv::EqOfChallenges
+    } else {
+        TableProv::PublicFromShape
+    };
+    assert_ne!(super::metal_slot::slot_topo_key(&ir_tab), base_key, "slot_topo_key must change when table base/ext kind changes");
+
+    // Challenge c0 change keeping c1.is_zero() unchanged => SAME key (cross-block cache hit);
+    // flipping c1.is_zero() => DIFFERENT key (base vs ext MSL codegen!).
+    let mut tested_coef = false;
+    for ti in 0..ir.terms.len() {
+        if !matches!(ir.terms[ti].coef.prov, CoefProv::One | CoefProv::NegOne) {
+            let mut ir_same = ir.clone();
+            ir_same.terms[ti].coef.value.c0 = ir_same.terms[ti].coef.value.c0.add(Fp::ONE);
+            assert_eq!(
+                super::metal_slot::slot_topo_key(&ir_same),
+                base_key,
+                "slot_topo_key must remain equal across challenge value changes with same c1.is_zero()"
+            );
+
+            let mut ir_flip = ir.clone();
+            ir_flip.terms[ti].coef.value.c1 = if ir_flip.terms[ti].coef.value.c1.is_zero() {
+                Fp::ONE
+            } else {
+                Fp::ZERO
+            };
+            assert_ne!(
+                super::metal_slot::slot_topo_key(&ir_flip),
+                base_key,
+                "slot_topo_key must change when a coef's c1.is_zero() flips"
+            );
+            tested_coef = true;
+            break;
+        }
+    }
+    assert!(tested_coef, "expected at least one non-unit term coef in W16R2 SC_QZC");
+}
+
+/// **[HOST-FAST-W2 W2-4c] Direct GPU differential test for `PubGen::Rope` (`Dom::Q`
+/// and `Dom::Kv`, `cos` and `sin`, padded GQA + `W16R2_RUNG_H24`, signed values
+/// exercising `gl_neg_sc`) and `PubGen::ConstOne` (`defer = false` and `defer = true`).**
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "HOST-FAST-W2: Metal GPU test; run by name on a Mac, HL_GPU_REQUIRED=1"]
+fn host_fast_w2_rope_and_const_pub_gen_gpu() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
+    use super::argument::PubGen;
+
+    struct Reset {
+        prev_hf: Option<bool>,
+        prev_w2: Option<bool>,
+        prev_gpu: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
+            super::argument::set_device_tables_for_test(None);
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_hf: crate::zk::set_host_fast_for_test(Some(true)),
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(true)),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+    };
+    std::env::set_var("HL_GPU", "1");
+
+    let check_pub_gen = |label: &str, gen: &PubGen, want_ref: &[Fp2]| {
+        let want_cpu = gen.to_vec();
+        assert_eq!(want_cpu.as_slice(), want_ref, "W2 PubGen::to_vec {label} != reference");
+        for defer in [false, true] {
+            let mut mt = crate::gpu::MetalTables::new(1, gen.len()).expect("MetalTables::new");
+            mt.tables_mut()[0].fill(Fp2::new(Fp::new(0xDEAD_BEEF), Fp::new(0xCAFE_BABE)));
+            assert!(super::argument::plan_pub_gen_on(&mut mt, 0, gen), "W2 plan_pub_gen_on failed for {label}");
+            let taken = mt.build_planned([&[]; 4], &[true], defer, false, |_| {}).expect("W2 build_planned");
+            assert!(taken, "W2 build_planned returned false for {label} defer={defer}");
+            assert_eq!(mt.base_checked(), Some(true), "W2 base_checked != Some(true) for {label} defer={defer}");
+            if defer {
+                assert!(mt.deferred(), "W2 expected deferred pending build for {label}");
+                mt.flush().expect("W2 flush deferred pub_gen");
+            }
+            assert!(!mt.deferred(), "W2 expected no pending build for {label} defer={defer}");
+            let got = mt.to_vecs();
+            assert_eq!(got.len(), 1);
+            assert_eq!(got[0], want_cpu, "W2 GPU {label} defer={defer} != PubGen::to_vec");
+            assert_eq!(got[0].as_slice(), want_ref, "W2 GPU {label} defer={defer} != reference");
+        }
+    };
+
+    // 1. Padded GQA shape (tokens=24 < t_pad=32, q_heads=6 < h_pad=8, kv_heads=2 -> per=4, group=3)
+    //    with explicitly signed rope_cos/rope_sin values (0, -1, 1, -128, 127, -32768, 32767)
+    let sh_pad = Shape::new("HOST-FAST-W2 rope pad", "host-fast-w2-rope-pad", 24, 48, 6, 6, 8, 2, 8, 8, 9, 13, None, None, None, None)
+        .expect("W2 padded GQA shape");
+    let (mut pub_pad, _, _) = super::grow_tests::tame_case(&sh_pad);
+    let edge_vals = [0i64, -1, 1, -128, 127, -32_768, 32_767, -1_000_000, 1_000_000];
+    for (i, v) in pub_pad.rope_cos.iter_mut().enumerate() {
+        *v = edge_vals[i % edge_vals.len()];
+    }
+    for (i, v) in pub_pad.rope_sin.iter_mut().enumerate() {
+        *v = edge_vals[(i + 3) % edge_vals.len()];
+    }
+
+    // 2. W16R2_RUNG_H24 shape
+    let (sh_rung, blk_rung, _) = rung_case(shape::W16R2_RUNG_H24);
+
+    for (tag, sh, public) in [("sh_pad", &sh_pad, &pub_pad), ("W16R2_RUNG_H24", &sh_rung, blk_rung.attention())] {
+        let dh = sh.head_dim;
+        let half = dh / 2;
+        let m = sh.tokens * half;
+        let cos_words: Vec<u64> = public.rope_cos[..m].iter().map(|&v| Fp::from_i64(v).0).collect();
+        let sin_words: Vec<u64> = public.rope_sin[..m].iter().map(|&v| Fp::from_i64(v).0).collect();
+        for (dom, dom_name) in [(Dom::Q, "Dom::Q"), (Dom::Kv, "Dom::Kv")] {
+            let (heads, per, group) = if matches!(dom, Dom::Q) {
+                (sh.h_pad, sh.slots_per_kv_group(), sh.q_heads / sh.kv_heads)
+            } else {
+                (sh.kv_heads, 1, 1)
+            };
+            let (ref_cos, ref_sin) = super::argument::rope_tables_at(sh, public, dom);
+            let len = sh.size(dom);
+            check_pub_gen(
+                &format!("Rope(cos,{tag},{dom_name})"),
+                &PubGen::Rope(Box::new(super::argument::RopePubGen { len, is_sin: false, tokens: sh.tokens, heads, head_dim: dh, per, group, vals: cos_words.clone() })),
+                &ref_cos,
+            );
+            check_pub_gen(
+                &format!("Rope(sin,{tag},{dom_name})"),
+                &PubGen::Rope(Box::new(super::argument::RopePubGen { len, is_sin: true, tokens: sh.tokens, heads, head_dim: dh, per, group, vals: sin_words.clone() })),
+                &ref_sin,
+            );
+        }
+    }
+
+    // 3. PubGen::ConstOne (SC_ZS = 16384 + small/medium sizes)
+    for len in [16usize, 4096, 16_384] {
+        let want = vec![Fp2::ONE; len];
+        check_pub_gen(&format!("ConstOne(len={len})"), &PubGen::ConstOne { len }, &want);
+    }
+    eprintln!("HOST-FAST-W2 PubGen: Rope (sh_pad + W16R2_RUNG_H24, Dom::Q/Kv, cos/sin, sync+defer) and ConstOne PASS");
+}
+
+/// **[HOST-FAST-W2] Opt-in Wave 2 host-gap path (`HL_HOST_FAST_W2=1`) W16R2 rung golden parity:**
+/// verifies `W16R2_RUNG_GOLDEN` (`96e4f0b6`) across pure-CPU `hf1+hw1`, Metal `hf1+hw0`,
+/// `hf1+hw1+ad1`, `frs1+sf1+sc1+hf1+hw1+ad1`, and `frs1+sf1+sc1+hf1+hw1+ad0` in both
+/// `shared` and `thread` queue modes (with `HL_METAL_TIMING=1`), plus `prove_core_with`
+/// beside `CheckedPublic` + `SealedHistograms` (W2-2 + W2-6b), asserting all 10 Wave 2
+/// anti-vacuity hit counters and zero fallbacks.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "HOST-FAST-W2: toggles HL_GPU, HL_METAL_TIMING, Metal queues, host-fast, host-fast-w2, async-drop, sparse-fold, sc-chain-fast, and fused-rs in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn host_fast_w2_rung_golden() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
+    struct Reset {
+        prev_hf: Option<bool>,
+        prev_w2: Option<bool>,
+        prev_ad: Option<bool>,
+        prev_sf: Option<bool>,
+        prev_frs: Option<bool>,
+        prev_sc: Option<bool>,
+        prev_q: bool,
+        prev_gpu: Option<String>,
+        prev_timing: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
+            crate::zk::set_host_fast_async_drop_for_test(self.prev_ad);
+            crate::gpu::metal_set_sparse_fold_for_test(self.prev_sf);
+            crate::gpu::set_fused_rs_for_test(self.prev_frs);
+            crate::gpu::metal_set_sc_chain_fast_for_test(self.prev_sc);
+            crate::gpu::metal_set_queues_for_test(self.prev_q);
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+            match &self.prev_timing {
+                Some(v) => std::env::set_var("HL_METAL_TIMING", v),
+                None => std::env::remove_var("HL_METAL_TIMING"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
+        prev_ad: crate::zk::set_host_fast_async_drop_for_test(Some(false)),
+        prev_sf: crate::gpu::metal_set_sparse_fold_for_test(None),
+        prev_frs: crate::gpu::set_fused_rs_for_test(None),
+        prev_sc: crate::gpu::metal_set_sc_chain_fast_for_test(None),
+        prev_q: crate::gpu::metal_set_queues_for_test(false),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+        prev_timing: std::env::var("HL_METAL_TIMING").ok(),
+    };
+
+    let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+    std::env::remove_var("HL_GPU");
+    let cpu0_hb = crate::zk::host_fast_w2_hits_for_test();
+    let cpu0_fb = crate::zk::host_fast_w2_fallbacks_for_test();
+    let cpu0 = seeded_digest(&sh, &blk, copy(&w));
+    let cpu0_ha = crate::zk::host_fast_w2_hits_for_test();
+    let cpu0_fa = crate::zk::host_fast_w2_fallbacks_for_test();
+    let cpu0_hd: [u64; 10] = std::array::from_fn(|i| cpu0_ha[i] - cpu0_hb[i]);
+    let cpu0_fbd: [u64; 5] = std::array::from_fn(|i| cpu0_fa[i] - cpu0_fb[i]);
+    assert!(cpu0.starts_with(W16R2_RUNG_GOLDEN), "W16R2 rung CPU baseline moved: {cpu0}");
+    assert_eq!(cpu0_hd, [0; 10], "CPU hf0+hw0 must not record W2 hits: {cpu0_hd:?}");
+    assert_eq!(cpu0_fbd, [0; 5], "CPU hf0+hw0 unexpected W2 fallbacks: {cpu0_fbd:?}");
+
+    // Pure-CPU hf1+hw1+ad0 parity (exercises W2-2 twoterm/exp, W2-3 flat_w16, W2-6 tiled fold, W2-7 mask_open, W2-8 mask_eval on CPU)
+    crate::zk::set_host_fast_for_test(Some(true));
+    crate::zk::set_host_fast_w2_for_test(Some(true));
+    crate::zk::set_host_fast_async_drop_for_test(Some(false));
+    let c1_hb = crate::zk::host_fast_w2_hits_for_test();
+    let c1_fb = crate::zk::host_fast_w2_fallbacks_for_test();
+    let cpu1 = seeded_digest(&sh, &blk, copy(&w));
+    let c1_ha = crate::zk::host_fast_w2_hits_for_test();
+    let c1_fa = crate::zk::host_fast_w2_fallbacks_for_test();
+    let c1_hd: [u64; 10] = std::array::from_fn(|i| c1_ha[i] - c1_hb[i]);
+    let c1_fbd: [u64; 5] = std::array::from_fn(|i| c1_fa[i] - c1_fb[i]);
+    assert_eq!(cpu1, cpu0, "CPU W16R2 rung digest under hf1+hw1 differs from baseline");
+    assert_eq!(c1_fbd, [0; 5], "CPU W16R2 rung hf1+hw1 unexpected W2 fallbacks: {c1_fbd:?}");
+    for i in [
+        crate::zk::HF_W2_TWOTERM_EXP,
+        crate::zk::HF_W2_FLAT_W16,
+        crate::zk::HF_W2_FOLD_TILED,
+        crate::zk::HF_W2_PAR_OPEN,
+        crate::zk::HF_W2_MASK_EVAL,
+    ] {
+        assert!(c1_hd[i] > 0, "CPU W16R2 rung hf1+hw1 expected W2 hit counter {i} > 0, got {c1_hd:?}");
+    }
+    assert_eq!(c1_hd[crate::zk::HF_W2_ASYNC_DROP], 0, "CPU ad0 must not hit HF_W2_ASYNC_DROP");
+    assert_eq!(c1_hd[crate::zk::HF_W2_PIPE_CACHE], 0, "CPU must not hit HF_W2_PIPE_CACHE");
+    assert_eq!(c1_hd[crate::zk::HF_W2_PUB_GEN_ROPE], 0, "CPU must not hit HF_W2_PUB_GEN_ROPE");
+    assert_eq!(c1_hd[crate::zk::HF_W2_PADS_REUSE], 0, "CPU must not hit HF_W2_PADS_REUSE");
+
+    // Metal GPU matrix with HL_METAL_TIMING=1 (exercises metal_diag=true alongside W2-4a/b)
+    std::env::set_var("HL_GPU", "1");
+    std::env::set_var("HL_METAL_TIMING", "1");
+    let mut seen_sc0_warm = false;
+    let mut seen_sc1_warm = false;
+    for (hw_on, ad_on, frs_on, sf_on, sc_on, arm) in [
+        (false, false, false, false, false, "hf1+hw0"),
+        (true, true, false, false, false, "hf1+hw1+ad1"),
+        (true, true, true, true, true, "frs1+sf1+sc1+hf1+hw1+ad1"),
+        (true, false, true, true, true, "frs1+sf1+sc1+hf1+hw1+ad0"),
+    ] {
+        crate::zk::set_host_fast_for_test(Some(true));
+        crate::zk::set_host_fast_w2_for_test(Some(hw_on));
+        crate::zk::set_host_fast_async_drop_for_test(Some(ad_on));
+        crate::gpu::set_fused_rs_for_test(Some(frs_on));
+        crate::gpu::metal_set_sparse_fold_for_test(Some(sf_on));
+        crate::gpu::metal_set_sc_chain_fast_for_test(Some(sc_on));
+        for (per_thread, qname) in [(false, "shared"), (true, "thread")] {
+            crate::gpu::metal_set_queues_for_test(per_thread);
+            let w2_b = crate::zk::host_fast_w2_hits_for_test();
+            let w2_fbb = crate::zk::host_fast_w2_fallbacks_for_test();
+            let w1_fbb = crate::zk::host_fast_fallbacks_for_test();
+            let d = seeded_digest(&sh, &blk, copy(&w));
+            let w2_a = crate::zk::host_fast_w2_hits_for_test();
+            let w2_fba = crate::zk::host_fast_w2_fallbacks_for_test();
+            let w1_fba = crate::zk::host_fast_fallbacks_for_test();
+            let w2_d: [u64; 10] = std::array::from_fn(|i| w2_a[i] - w2_b[i]);
+            let w2_fbd: [u64; 5] = std::array::from_fn(|i| w2_fba[i] - w2_fbb[i]);
+            let w1_fbd: [u64; 5] = std::array::from_fn(|i| w1_fba[i] - w1_fbb[i]);
+
+            assert_eq!(d, cpu0, "Metal W16R2 rung digest under {arm} ({qname}) differs from CPU");
+            assert!(d.starts_with(W16R2_RUNG_GOLDEN), "Metal W16R2 rung digest {arm} ({qname}) != golden: {d}");
+            assert_eq!(w1_fbd, [0; 5], "{arm} ({qname}): unexpected Wave 1 fallbacks {w1_fbd:?}");
+            assert_eq!(w2_fbd, [0; 5], "{arm} ({qname}): unexpected Wave 2 fallbacks {w2_fbd:?}");
+            if hw_on {
+                for i in [
+                    crate::zk::HF_W2_TWOTERM_EXP,
+                    crate::zk::HF_W2_FLAT_W16,
+                    crate::zk::HF_W2_PUB_GEN_ROPE,
+                    crate::zk::HF_W2_FOLD_TILED,
+                    crate::zk::HF_W2_PAR_OPEN,
+                    crate::zk::HF_W2_MASK_EVAL,
+                ] {
+                    assert!(w2_d[i] > 0, "{arm} ({qname}): expected W2 hit counter {i} > 0, got {w2_d:?}");
+                }
+                let expect_pipe_hit = if sc_on {
+                    let was = seen_sc1_warm;
+                    seen_sc1_warm = true;
+                    was
+                } else {
+                    let was = seen_sc0_warm;
+                    seen_sc0_warm = true;
+                    was
+                };
+                if expect_pipe_hit {
+                    assert!(w2_d[crate::zk::HF_W2_PIPE_CACHE] > 0, "{arm} ({qname}): expected warm HF_W2_PIPE_CACHE > 0, got {w2_d:?}");
+                }
+                if sf_on {
+                    assert!(w2_d[crate::zk::HF_W2_PADS_REUSE] > 0, "{arm} ({qname}): expected sf1 HF_W2_PADS_REUSE > 0, got {w2_d:?}");
+                } else {
+                    assert_eq!(w2_d[crate::zk::HF_W2_PADS_REUSE], 0, "{arm} ({qname}): sf0 must not hit HF_W2_PADS_REUSE");
+                }
+                if ad_on {
+                    assert!(w2_d[crate::zk::HF_W2_ASYNC_DROP] > 0, "{arm} ({qname}): expected ad1 HF_W2_ASYNC_DROP > 0, got {w2_d:?}");
+                } else {
+                    assert_eq!(w2_d[crate::zk::HF_W2_ASYNC_DROP], 0, "{arm} ({qname}): ad0 must not hit HF_W2_ASYNC_DROP");
+                }
+            } else {
+                assert_eq!(w2_d, [0; 10], "{arm} ({qname}): hw0 must not record W2 hits, got {w2_d:?}");
+            }
+            eprintln!(
+                "HOST-FAST-W2-RUNG {} arm={arm} queues={qname}: digest {} (golden); w2_hits={w2_d:?} w2_fb={w2_fbd:?}",
+                sh.name,
+                &d[..8]
+            );
+        }
+    }
+
+    // Full-stack prove_core_sealed beside CheckedPublic + ownership-bound SealedWitness (exercises W2-2 seal_hist + W2-6b weights_checked!)
+    crate::zk::set_host_fast_for_test(Some(true));
+    crate::zk::set_host_fast_w2_for_test(Some(true));
+    crate::zk::set_host_fast_async_drop_for_test(Some(true));
+    crate::gpu::set_fused_rs_for_test(Some(true));
+    crate::gpu::metal_set_sparse_fold_for_test(Some(true));
+    crate::gpu::metal_set_sc_chain_fast_for_test(Some(true));
+    crate::gpu::metal_set_queues_for_test(true);
+    let lay = Layout::for_shape(&sh).expect("layout");
+    let w_run = copy(&w);
+    let (ein, eout) = io_planes(&sh, &w_run);
+    let ntt = NttTables::new(protocol::ntt_log_at(&sh));
+    let mut rng = ZkRng::new(20261031, b"zk60 metal m4 accuracy");
+    let mut tr = Transcript::new(b"zk60 metal m4 accuracy");
+    tr.absorb(b"profile", sh.profile.as_bytes());
+    tr.absorb(b"schedule", &lay.schedule_digest());
+    let mut ph = super::timing::Phases::start();
+    let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+    let record = protocol::CheckedPublic::check(&blk, &sh).expect("CheckedPublic");
+    let sealed = protocol::check_lookup_misses_sealed(&sh, &lay, &blk, w_run, true).expect("check_lookup_misses_sealed");
+    let hints = protocol::CoreHints { checked: Some(&record) };
+    let w2_b = crate::zk::host_fast_w2_hits_for_test();
+    let w2_fbb = crate::zk::host_fast_w2_fallbacks_for_test();
+    let core = protocol::prove_core_sealed(&sh, &lay, &blk, sealed, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints)
+        .expect("prove_core_sealed CheckedPublic + SealedWitness");
+    let w2_a = crate::zk::host_fast_w2_hits_for_test();
+    let w2_fba = crate::zk::host_fast_w2_fallbacks_for_test();
+    let w2_d: [u64; 10] = std::array::from_fn(|i| w2_a[i] - w2_b[i]);
+    let w2_fbd: [u64; 5] = std::array::from_fn(|i| w2_fba[i] - w2_fbb[i]);
+    let text = format!(
+        "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
+        core.a_root, core.h_root, core.mask_root, core.slots, core.mask_open, core.a_open, core.h_open, core.io_claims, core.order, core.lookups, tr.state()
+    );
+    let d_hints = blake3::hash(text.as_bytes()).to_hex().to_string();
+    assert_eq!(d_hints, cpu0, "Metal W16R2 rung digest with CheckedPublic+SealedWitness differs from golden");
+    assert_eq!(w2_fbd, [0; 5], "CheckedPublic+SealedWitness unexpected W2 fallbacks: {w2_fbd:?}");
+    assert_eq!(w2_d[crate::zk::HF_W2_SEAL_HIST], 1, "expected HF_W2_SEAL_HIST == 1, got {w2_d:?}");
+    for i in 0..10 {
+        assert!(w2_d[i] > 0, "CheckedPublic+SealedWitness warm full-stack expected ALL 10 W2 counters > 0 (idx {i} was 0): {w2_d:?}");
+    }
+    eprintln!("HOST-FAST-W2-RUNG {} CheckedPublic+SealedWitness: digest {} (golden); all 10 w2_hits={w2_d:?}", sh.name, &d_hints[..8]);
+
+    // Deterministic cross-block SealedWitness mismatch fallback (Read A M2) + AD=false zero-hit check:
+    // seal against `blk`, prove against live `blk_other = blk.clone()` (guaranteed distinct BlkSig).
+    crate::zk::set_host_fast_async_drop_for_test(Some(false));
+    let blk_other = blk.clone();
+    let record_other = protocol::CheckedPublic::check(&blk_other, &sh).expect("CheckedPublic other");
+    let w_cross = copy(&w);
+    let (ein2, eout2) = io_planes(&sh, &w_cross);
+    let sw_cross = protocol::check_lookup_misses_sealed(&sh, &lay, &blk, w_cross, true).expect("check_lookup_misses_sealed cross");
+    let mut rng2 = ZkRng::new(20261031, b"zk60 metal m4 accuracy");
+    let mut tr2 = Transcript::new(b"zk60 metal m4 accuracy");
+    tr2.absorb(b"profile", sh.profile.as_bytes());
+    tr2.absorb(b"schedule", &lay.schedule_digest());
+    let mut ph2 = super::timing::Phases::start();
+    let (mut phases2, mut tick2) = (Vec::new(), std::time::Instant::now());
+    let hints_other = protocol::CoreHints { checked: Some(&record_other) };
+    let sb = crate::zk::host_fast_w2_hits_for_test();
+    let sfbb = crate::zk::host_fast_w2_fallbacks_for_test();
+    let core_cross = protocol::prove_core_sealed(&sh, &lay, &blk_other, sw_cross, [ein2.as_slice(), eout2.as_slice()], &ntt, &mut rng2, &mut tr2, &mut ph2, &mut phases2, &mut tick2, hints_other)
+        .expect("prove_core_sealed cross-block fallback");
+    let sa = crate::zk::host_fast_w2_hits_for_test();
+    let sfba = crate::zk::host_fast_w2_fallbacks_for_test();
+    let sd: [u64; 10] = std::array::from_fn(|i| sa[i] - sb[i]);
+    let sfd: [u64; 5] = std::array::from_fn(|i| sfba[i] - sfbb[i]);
+    let text_cross = format!(
+        "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
+        core_cross.a_root, core_cross.h_root, core_cross.mask_root, core_cross.slots, core_cross.mask_open, core_cross.a_open, core_cross.h_open, core_cross.io_claims, core_cross.order, core_cross.lookups, tr2.state()
+    );
+    assert_eq!(blake3::hash(text_cross.as_bytes()).to_hex().to_string(), cpu0, "cross-block SealedWitness fallback digest differs from golden");
+    assert_eq!(sd[crate::zk::HF_W2_SEAL_HIST], 0, "cross-block witness must not hit HF_W2_SEAL_HIST: {sd:?}");
+    assert_eq!(sd[crate::zk::HF_W2_ASYNC_DROP], 0, "AD=false must not hit HF_W2_ASYNC_DROP: {sd:?}");
+    assert_eq!(sfd, [1, 0, 0, 0, 0], "cross-block witness must record exactly 1 HF_W2_FB_SEAL_HIST fallback: {sfd:?}");
+    drop(blk_other);
+
+    // Interior-word mutation lookup-miss refusal check on check_lookup_misses_sealed (Read A M2)
+    let mut w_interior = copy(&w);
+    let ids = lay.ids();
+    let pos = 7.min(w_interior.planes[ids.at(A_E)].len().saturating_sub(1));
+    w_interior.planes[ids.at(A_E)][pos] = w_interior.planes[ids.at(A_E)][pos].wrapping_add(1);
+    let ref_err = protocol::check_lookup_misses(&sh, &lay, &blk, &w_interior).expect_err("baseline must refuse interior exp miss");
+    let got_err = protocol::check_lookup_misses_sealed(&sh, &lay, &blk, w_interior, true).err().expect("sealed must refuse interior exp miss");
+    assert_eq!(got_err, ref_err, "interior-word lookup-miss refusal mismatch");
+}
+
+/// **[HOST-FAST-W2] Full proof-byte identity (`hf1+hw0` vs `hf1+hw1`) across all prover call paths:**
+/// (1) single-block `prove_core` / full wire `Receipt` (`Shape::rung_g`),
+/// (2) multi-block `run_fork` (`W16R2_RUNG_H24`, `L = 2`) with ownership-bound `SealedWitness` via
+///     `prove_run_with_forks_planned` / `planned.prove` + `verify_run_with_forks`,
+/// (3) classifier `stage_in_c` + interior blocks (with `CheckedPublic` + `SealedWitness`) +
+///     `stage_out_c` (`Shape::rung_tc`, `L = 2`) + `verify_classify_run`.
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[test]
+#[ignore = "HOST-FAST-W2: toggles HL_GPU, host-fast, host-fast-w2, async-drop, and sparse-fold in-process; run alone by name on a Mac, HL_GPU_REQUIRED=1"]
+fn host_fast_w2_all_call_sites_byte_identical() {
+    let _hf_lock = crate::zk::host_fast_test_lock();
+    use super::boundary;
+    use super::token_io::{self as tio, classify, classify_run, classify_tied, run::VerifierPolicy, stage_in_c, stage_out_c};
+
+    struct Reset {
+        prev_hf: Option<bool>,
+        prev_w2: Option<bool>,
+        prev_ad: Option<bool>,
+        prev_sf: Option<bool>,
+        prev_gpu: Option<String>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
+            crate::zk::set_host_fast_async_drop_for_test(self.prev_ad);
+            crate::gpu::metal_set_sparse_fold_for_test(self.prev_sf);
+            match &self.prev_gpu {
+                Some(v) => std::env::set_var("HL_GPU", v),
+                None => std::env::remove_var("HL_GPU"),
+            }
+        }
+    }
+    let _guard = Reset {
+        prev_hf: crate::zk::set_host_fast_for_test(Some(true)),
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
+        prev_ad: crate::zk::set_host_fast_async_drop_for_test(None),
+        prev_sf: crate::gpu::metal_set_sparse_fold_for_test(Some(false)),
+        prev_gpu: std::env::var("HL_GPU").ok(),
+    };
+    std::env::set_var("HL_GPU", "1");
+
+    let pos_tag = |tr: &Transcript| -> [u8; 32] {
+        let mut c = Transcript::clone_state(tr);
+        let v = c.challenge_fp2_vec(2);
+        let mut out = [0u8; 32];
+        out[..16].copy_from_slice(&v[0].to_bytes());
+        out[16..].copy_from_slice(&v[1].to_bytes());
+        out
+    };
+
+    // ---- 1. Single-block prove_core / full wire Receipt (Shape::rung_g) ----
+    {
+        crate::gpu::metal_set_sparse_fold_for_test(Some(false));
+        let sh = Shape::rung_g();
+        let (public, ff, input) = super::grow_tests::tame_case(&sh);
+        let wit = super::witness::build_shaped(&sh, &public, &ff, &input).expect("rung_g witness");
+        let ids = Ids::new(&sh).expect("rung_g ids");
+        let plane = |p: usize| -> Vec<i16> {
+            wit.planes[p].iter().map(|v| i16::try_from(*v).expect("endpoint word")).collect()
+        };
+        let (pin, pout) = (plane(ids.at(A_X)), plane(ids.at(A_X2)));
+        let blk = BlockPublic::new(public, ff);
+        let lay = Layout::for_shape(&sh).expect("rung_g layout");
+        let ntt = NttTables::new(protocol::ntt_log_at(&sh));
+        let (exp_eq, owners_eq) = prepare_endpoints(
+            IoSpec::new_shaped(&sh, [0x75; 32], 0, 0).expect("rung_g IoSpec"),
+            &pin,
+            &pout,
+        )
+        .expect("rung_g prepare_endpoints");
+        let [ein, eout] = protocol::check_endpoints(&sh, &exp_eq, owners_eq).expect("check_endpoints");
+
+        let run_single = |hw_on: bool| -> (Vec<u8>, [u8; 32], u64, [u64; 10], [u64; 5]) {
+            crate::zk::set_host_fast_w2_for_test(Some(hw_on));
+            let hb = crate::zk::host_fast_w2_hits_for_test();
+            let fbb = crate::zk::host_fast_w2_fallbacks_for_test();
+            let mut rng = ZkRng::new(0x5A01, b"w2-single");
+            let mut tr = protocol::transcript(&blk, &exp_eq, &lay);
+            let binding = tr.state();
+            let mut ph = super::timing::Phases::start();
+            let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+            let core = protocol::prove_core(
+                &sh,
+                &lay,
+                &blk,
+                copy(&wit),
+                [ein.data.as_slice(), eout.data.as_slice()],
+                &ntt,
+                &mut rng,
+                &mut tr,
+                &mut ph,
+                &mut phases,
+                &mut tick,
+            )
+            .expect("rung_g prove_core");
+            let [ic, oc] = core.io_claims;
+            protocol::check_endpoint_opening(&ic, &sh, &tr).expect("check IN");
+            let in_open = crate::pcs::open_zk(&ein, &ic, &mut tr);
+            protocol::check_endpoint_opening(&oc, &sh, &tr).expect("check OUT");
+            let out_open = crate::pcs::open_zk(&eout, &oc, &mut tr);
+            let receipt = Receipt {
+                a_root: core.a_root,
+                h_root: core.h_root,
+                mask_root: core.mask_root,
+                slots: core.slots,
+                mask_open: core.mask_open,
+                a_open: core.a_open,
+                h_open: core.h_open,
+                io_open: [in_open, out_open],
+            };
+            let bytes = wire::encode(&receipt, &binding, &lay).expect("wire::encode rung_g");
+            protocol::verify_inner_at(&sh, &blk, &exp_eq, &receipt).expect("verify_inner_at rung_g");
+            let ha = crate::zk::host_fast_w2_hits_for_test();
+            let fba = crate::zk::host_fast_w2_fallbacks_for_test();
+            (
+                bytes,
+                tr.state(),
+                tr.counter(),
+                std::array::from_fn(|i| ha[i] - hb[i]),
+                std::array::from_fn(|i| fba[i] - fbb[i]),
+            )
+        };
+        let (b0, s0, c0, h0, fb0) = run_single(false);
+        let (b1, s1, c1, h1, fb1) = run_single(true);
+        assert_eq!(h0, [0; 10], "single hw0 must not record W2 hits");
+        assert_eq!(fb0, [0; 5], "single hw0 unexpected W2 fallbacks: {fb0:?}");
+        assert_eq!(fb1, [0; 5], "single hw1 unexpected W2 fallbacks: {fb1:?}");
+        if std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() != Ok("1") {
+            assert_eq!(h1[crate::zk::HF_W2_ASYNC_DROP], 0, "single rung_g hw1 with default AD must not hit HF_W2_ASYNC_DROP, got {h1:?}");
+        }
+        for i in [
+            crate::zk::HF_W2_TWOTERM_EXP,
+            crate::zk::HF_W2_PAR_OPEN,
+            crate::zk::HF_W2_MASK_EVAL,
+        ] {
+            assert!(h1[i] > 0, "single rung_g hw1 expected W2 hit counter {i} > 0, got {h1:?}");
+        }
+        assert_eq!(b1, b0, "single-block full wire Receipt bytes differ (hw1 vs hw0)");
+        assert_eq!((s1, c1), (s0, c0), "single-block transcript state/counter differ (hw1 vs hw0)");
+        drop((ein, eout));
+        eprintln!("HOST-FAST-W2 [single rung_g]: hw0 == hw1 ({} B, w2_hits={h1:?}, w2_fb={fb1:?})", b1.len());
+    }
+
+    // ---- 2. Multi-block run_fork (L = 2, W16R2_RUNG_H24) with ownership-bound SealedWitness + sf1 ----
+    {
+        crate::zk::set_host_fast_w2_for_test(Some(true));
+        crate::gpu::metal_set_sparse_fold_for_test(Some(true));
+        let rr2 = RungRun::new(shape::W16R2_RUNG_H24, 2);
+        let (st_live, owners_live) = rr2.statement(0x76);
+        let mut src_live = rr2.chain();
+        let blocks_live = rr2.blocks();
+        let fr_live = ForkRun::new(&st_live, D55OptIn::unreviewed_prototype()).expect("ForkRun");
+        let sealed_wits: Vec<Option<protocol::SealedWitness>> = (0..2)
+            .map(|k| {
+                let ssh = st_live.stage_shape(k).expect("stage_shape");
+                let lay = Layout::for_shape(&ssh).expect("stage_layout");
+                let wit = src_live.witnesses[k].take().expect("kept witness");
+                Some(
+                    protocol::check_lookup_misses_sealed(&ssh, &lay, &blocks_live[k], wit, false)
+                        .expect("check_lookup_misses_sealed"),
+                )
+            })
+            .collect();
+        struct SealedSrc {
+            planes: Vec<Vec<i16>>,
+            sealed: Vec<Option<protocol::SealedWitness>>,
+        }
+        impl super::run::RunWitnessSource for SealedSrc {
+            fn witness(&mut self, k: usize) -> Result<Witness, String> {
+                self.sealed[k].take().map(protocol::SealedWitness::into_witness).ok_or_else(|| format!("missing witness {k}"))
+            }
+            fn witness_sealed(&mut self, k: usize) -> Result<protocol::SealedWitness, String> {
+                self.sealed[k].take().ok_or_else(|| format!("missing sealed witness {k}"))
+            }
+            fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
+                Ok(self.planes[k].clone())
+            }
+        }
+        let mut src_sealed = SealedSrc { planes: src_live.planes.clone(), sealed: sealed_wits };
+        let hb = crate::zk::host_fast_w2_hits_for_test();
+        let fbb = crate::zk::host_fast_w2_fallbacks_for_test();
+        let (rc_live, _) = super::run::fork::prove_run_with_forks_planned(
+            None,
+            &blocks_live,
+            |_| Ok(()),
+            |(), planned| planned.prove(&fr_live, &blocks_live, &mut src_sealed, owners_live, 2),
+        )
+        .expect("planned.prove with SealedWitness hw1");
+        let ha = crate::zk::host_fast_w2_hits_for_test();
+        let fba = crate::zk::host_fast_w2_fallbacks_for_test();
+        let hd: [u64; 10] = std::array::from_fn(|i| ha[i] - hb[i]);
+        let fbd: [u64; 5] = std::array::from_fn(|i| fba[i] - fbb[i]);
+        assert_eq!(fbd, [0; 5], "run_fork W16R2 L=2 hw1 unexpected W2 fallbacks: {fbd:?}");
+        assert_eq!(hd[crate::zk::HF_W2_SEAL_HIST], 2, "run_fork W16R2 L=2 hw1 expected HF_W2_SEAL_HIST == 2, got {hd:?}");
+        if std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() != Ok("1") {
+            assert_eq!(hd[crate::zk::HF_W2_ASYNC_DROP], 0, "run_fork W16R2 L=2 hw1 with default AD must not hit HF_W2_ASYNC_DROP, got {hd:?}");
+        }
+        for i in [
+            crate::zk::HF_W2_TWOTERM_EXP,
+            crate::zk::HF_W2_FLAT_W16,
+            crate::zk::HF_W2_PUB_GEN_ROPE,
+            crate::zk::HF_W2_FOLD_TILED,
+            crate::zk::HF_W2_PADS_REUSE,
+            crate::zk::HF_W2_PAR_OPEN,
+            crate::zk::HF_W2_MASK_EVAL,
+        ] {
+            assert!(hd[i] > 0, "run_fork W16R2 L=2 hw1 expected W2 hit counter {i} > 0, got {hd:?}");
+        }
+        super::run::fork::verify_run_with_forks(&fr_live, &blocks_live, &rc_live, 2).expect("verify_run_with_forks hw1");
+        eprintln!("HOST-FAST-W2 [run_fork W16R2 L=2 + SealedWitness]: live verified (w2_hits={hd:?}, w2_fb={fbd:?})");
+    }
+
+    // ---- 3. Full classifier run: stage_in_c + interior blocks (with SealedHistograms) + stage_out_c (Shape::rung_tc, L = 2) ----
+    {
+        crate::gpu::metal_set_sparse_fold_for_test(Some(false));
+        let sh_c = Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).expect("rung_tc");
+        assert_eq!(sh_c.dd_cap, 0, "rung_tc expected dd_cap == 0 for SealedHistograms reuse");
+        let l_c = 2usize;
+        let (w0_c, _) = super::trained_calib_tests::trained_dense_words(&sh_c, super::trained_calib_tests::TRAINED_BANDS);
+        let c_blocks: Vec<BlockPublic> = (0..l_c)
+            .map(|k| {
+                let mut w = w0_c.clone();
+                for (i, m) in w.iter_mut().enumerate() {
+                    let len = m.len();
+                    m.rotate_left((k * (7 + i)) % len);
+                }
+                let (p, f) = super::dense_tests::statement_of_words(&sh_c, &w);
+                BlockPublic::new(p, f)
+            })
+            .collect();
+        let c_recs: Vec<LayerRecord> = c_blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
+        let c_src = ModelSource {
+            kind: SourceKind::PublicSyntheticRecipe,
+            repo: "hashline/token-io-r1/synthetic".into(),
+            revision: "token-io-r1".into(),
+            weights_sha256: [0; 32],
+            config_sha256: [0; 32],
+            checkpoint_parameters: 0,
+            checkpoint_layers: l_c as u32,
+        };
+        let mut c_prov = Provenance::recipe("token-io-r1/synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
+        c_prov.rope_theta = shape::trained_rope_theta(sh_c.profile).expect("trained_rope_theta");
+        let c_cal = IntegerCalibration::as_the_code_proves(&sh_c, &c_prov);
+        let c_model = TrainedModelStatement::new(&sh_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, c_src.clone(), c_cal.clone(), c_recs.clone())
+            .or_else(|_| TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(&sh_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, c_src, c_cal, c_recs))
+            .expect("classifier model statement");
+        let lcg = |s: &mut u64| -> u64 {
+            *s = s.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1_442_695_040_888_963_407);
+            *s >> 33
+        };
+        let (v_c, d_c) = (300usize, sh_c.width);
+        let mut s_emb = 0x636c_6173u64;
+        let emb_c: Vec<i16> = (0..v_c * d_c).map(|_| (lcg(&mut s_emb) % 12_001) as i16 - 6_000).collect();
+        let mut s_w = 0x6d61_7267u64;
+        let w_c: Vec<i16> = (0..d_c)
+            .map(|_| (lcg(&mut s_w) % 65_535) as i16 - 32_767)
+            .map(|x| if x == i16::MIN { x + 1 } else { x })
+            .collect();
+        let c_tables = classify::ClassifierTables::new(v_c, d_c, emb_c, w_c).expect("ClassifierTables");
+        let c_norm = tio::FinalNorm { g0: 127, cn: 2048, tn: 11, ceps: 33_554_467 };
+        let c_policy = classify::policy_rung_dev();
+        let c_bound = classify_tied::BoundClassifierTables::synthetic_for_relation_tests(
+            c_tables.clone(),
+            1,
+            c_norm,
+            &sh_c,
+            super::run::RUN_PROFILE_CLASSIFY_RUNG_TC,
+            &c_model,
+            &c_policy,
+        )
+        .expect("BoundClassifierTables");
+        let n_content = sh_c.tokens - c_policy.prefix.len() - c_policy.suffix.len();
+        let mut s_tok = 0x1000u64;
+        let content_ids: Vec<u64> = (0..n_content)
+            .map(|_| c_policy.num_special + lcg(&mut s_tok) % (c_policy.v as u64 - c_policy.num_special))
+            .collect();
+        let cp = classify::ClassifierProfile::new(&sh_c, &c_tables, 1, c_norm, &c_policy, n_content, tio::Tier::R1_MVP).expect("ClassifierProfile");
+        let full_tokens = classify::item_tokens(&c_policy, &content_ids);
+        let honest_c = classify_run::honest_classify(&vec![sh_c.clone(); l_c], &cp, &c_tables, &c_blocks, &full_tokens).expect("honest_classify");
+        let c_ctx = *blake3::hash(b"host-fast-w2: classifier run context").as_bytes();
+        let ep_spec = classify::input_endpoint_spec(&sh_c, c_ctx, &cp).expect("input_endpoint_spec");
+        let c_tag = sh_c.hash_tag();
+        let c_ntt_ep = NttTables::new(ep_spec.enc_log());
+        let make_ep = || -> crate::pcs::CommittedZk {
+            let mut rng = ZkRng::new(0xE1C4, b"w2-ep");
+            let params = ep_spec.params();
+            let n = params.cols();
+            let first_mask = ep_spec.data_rows();
+            let mut data = vec![Fp::ZERO; ep_spec.commitment_rows() * n];
+            data[..honest_c.in_plane.len()].copy_from_slice(&honest_c.in_plane);
+            for x in &mut data[first_mask * n..] {
+                *x = rng.fp();
+            }
+            let mut cm = crate::pcs::commit_zk_owned_tagged(&params, data, &c_ntt_ep, &ZkOpts::standard(&params), &mut rng, &c_tag);
+            cm.mask_rows = vec![first_mask, first_mask + 1];
+            cm.prox_mask_row = Some(first_mask + 2);
+            cm
+        };
+        let ep_root = make_ep().commitment().root;
+        let c_st = classify::ClassifyRunStatement::new(
+            RunShape::new(sh_c.clone(), l_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC).expect("RunShape"),
+            c_ctx,
+            c_blocks.iter().map(|b| b.digest()).collect(),
+            &c_model,
+            &c_bound,
+            &c_policy,
+            n_content,
+            tio::Tier::R1_MVP,
+            ep_root,
+            honest_c.out_values.verdict,
+        )
+        .expect("ClassifyRunStatement");
+        let c_ntt = NttTables::new(c_st.ntt_log());
+
+        let run_classify = |hw_on: bool| -> (Vec<Vec<u8>>, [u8; 32], u64, [u64; 10], [u64; 5]) {
+            crate::zk::set_host_fast_w2_for_test(Some(hw_on));
+            let hb = crate::zk::host_fast_w2_hits_for_test();
+            let fbb = crate::zk::host_fast_w2_fallbacks_for_test();
+            let mut rng = ZkRng::new(0xC1A9, b"w2-classify");
+            let mut tr = c_st.transcript().expect("classify transcript");
+            let binding = tr.state();
+            let mut segs = Vec::with_capacity(l_c + 2);
+
+            let start = pos_tag(&tr);
+            let in_lay = stage_in_c::layout(&sh_c, &cp);
+            let b0 = c_st.boundary_spec(0).expect("b0");
+            let inp = stage_in_c::prove(
+                &in_lay,
+                &cp,
+                &c_tables,
+                honest_c.stage_in.clone(),
+                &b0,
+                &honest_c.b_in,
+                make_ep(),
+                &c_ntt,
+                &mut rng,
+                &mut tr,
+                &c_tag,
+            )
+            .expect("stage_in_c::prove");
+            let end = pos_tag(&tr);
+            segs.push(c_st.in_geom(&in_lay).encode(&inp.seg, &binding, &start, &end).expect("encode IN-C"));
+            let mut pending = inp.pending_b;
+            let mut prev = (b0, inp.b_owner);
+
+            for k in 0..l_c {
+                let mut ph = super::timing::Phases::start();
+                let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+                let start = pos_tag(&tr);
+                tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
+                tr.absorb(b"pb-run-block", &c_st.block_digests[k]);
+                let spec = c_st.boundary_spec(k + 1).expect("bspec");
+                let words: Vec<Fp> = honest_c.planes[k].iter().map(|x| Fp::from_i64(i64::from(*x))).collect();
+                let cur = boundary::prepare(&spec, &words, &c_ntt, &mut rng, &c_tag).expect("boundary::prepare");
+                protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
+                let lay = c_st.block_layout(k).expect("block_layout");
+                let ssh = c_st.stage_shape(k).expect("stage_shape");
+                let wit = copy(honest_c.witnesses[k].as_ref().expect("block witness"));
+                let core = if hw_on {
+                    let record = protocol::CheckedPublic::check(&c_blocks[k], &ssh).expect("CheckedPublic");
+                    let sealed = protocol::check_lookup_misses_sealed(&ssh, &lay, &c_blocks[k], wit, true)
+                        .expect("check_lookup_misses_sealed");
+                    let hints = protocol::CoreHints { checked: Some(&record) };
+                    protocol::prove_core_sealed(
+                        &ssh,
+                        &lay,
+                        &c_blocks[k],
+                        sealed,
+                        [prev.1.data(), cur.data()],
+                        &c_ntt,
+                        &mut rng,
+                        &mut tr,
+                        &mut ph,
+                        &mut phases,
+                        &mut tick,
+                        hints,
+                    )
+                    .expect("classify block prove_core_sealed")
+                } else {
+                    protocol::prove_core(
+                        &ssh,
+                        &lay,
+                        &c_blocks[k],
+                        wit,
+                        [prev.1.data(), cur.data()],
+                        &c_ntt,
+                        &mut rng,
+                        &mut tr,
+                        &mut ph,
+                        &mut phases,
+                        &mut tick,
+                    )
+                    .expect("classify block prove_core")
+                };
+                let [ic, oc] = core.io_claims;
+                let mut claims = std::mem::take(&mut pending);
+                claims.extend(ic);
+                let (pspec, powner) = prev;
+                let in_open = powner.into_opening(&pspec, &claims, &mut tr).expect("classify boundary into_opening");
+                pending = oc;
+                let end = pos_tag(&tr);
+                let seg = wire::Segment {
+                    b_root: Some(cur.root()),
+                    a_root: core.a_root,
+                    h_root: core.h_root,
+                    mask_root: core.mask_root,
+                    slots: core.slots,
+                    mask_open: core.mask_open,
+                    a_open: core.a_open,
+                    h_open: core.h_open,
+                    in_open,
+                    out_open: None,
+                };
+                segs.push(
+                    wire::encode_segment(&seg, &lay, c_st.block_geom(k).expect("block_geom"), &binding, &start, &end)
+                        .expect("encode block segment"),
+                );
+                prev = (spec, cur);
+            }
+
+            let start = pos_tag(&tr);
+            let out_lay = stage_out_c::layout(&sh_c, &cp);
+            let (bspec, bowner) = prev;
+            let outp = stage_out_c::prove(
+                &out_lay,
+                &cp,
+                &c_tables,
+                honest_c.stage_out.clone(),
+                c_st.verdict(),
+                &bspec,
+                bowner,
+                pending,
+                (l_c + 1) as u64,
+                &c_ntt,
+                &mut rng,
+                &mut tr,
+                &c_tag,
+            )
+            .expect("stage_out_c::prove");
+            let end = pos_tag(&tr);
+            segs.push(
+                c_st.out_geom(&out_lay)
+                    .expect("out_geom")
+                    .encode(&outp.seg, &binding, &start, &end)
+                    .expect("encode OUT-C"),
+            );
+            let ha = crate::zk::host_fast_w2_hits_for_test();
+            let fba = crate::zk::host_fast_w2_fallbacks_for_test();
+            (
+                segs,
+                tr.state(),
+                tr.counter(),
+                std::array::from_fn(|i| ha[i] - hb[i]),
+                std::array::from_fn(|i| fba[i] - fbb[i]),
+            )
+        };
+
+        let (cs0, cst0, ccnt0, ch0, cfb0) = run_classify(false);
+        let (cs1, cst1, ccnt1, ch1, cfb1) = run_classify(true);
+        assert_eq!(ch0, [0; 10], "classifier hw0 unexpectedly recorded W2 hits: {ch0:?}");
+        assert_eq!(cfb0, [0; 5], "classifier hw0 unexpected W2 fallbacks: {cfb0:?}");
+        assert_eq!(cfb1, [0; 5], "classifier hw1 unexpected W2 fallbacks: {cfb1:?}");
+        assert_eq!(ch1[crate::zk::HF_W2_SEAL_HIST], l_c as u64, "classifier hw1 expected HF_W2_SEAL_HIST == {l_c}, got {ch1:?}");
+        if std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() != Ok("1") {
+            assert_eq!(ch1[crate::zk::HF_W2_ASYNC_DROP], 0, "classifier hw1 with default AD must not hit HF_W2_ASYNC_DROP, got {ch1:?}");
+        }
+        for i in [
+            crate::zk::HF_W2_TWOTERM_EXP,
+            crate::zk::HF_W2_PAR_OPEN,
+            crate::zk::HF_W2_MASK_EVAL,
+        ] {
+            assert!(ch1[i] > 0, "classifier hw1 expected W2 hit counter {i} > 0, got {ch1:?}");
+        }
+        assert_eq!(cs1, cs0, "classifier full wire segments differ (hw1 vs hw0)");
+        assert_eq!((cst1, ccnt1), (cst0, ccnt0), "classifier final transcript state/counter differ (hw1 vs hw0)");
+        classify_run::verify_classify_run(&c_st, &c_blocks, &c_bound, &cs1, VerifierPolicy { min_whole_run_bits: 93 })
+            .expect("verify_classify_run hw1");
+        eprintln!(
+            "HOST-FAST-W2 [stage_in_c + blocks(SealedWitness) + stage_out_c]: hw0 == hw1 ({:?} B, w2_hits={ch1:?}, w2_fb={cfb1:?}) + verified",
+            cs1.iter().map(|s| s.len()).collect::<Vec<_>>()
+        );
+    }
+}
+
+/// **[HOST-FAST + CLASSIFY-HOST-FAST + HOST-FAST-W2] Fix 1 (Read A M1 / Read B M1) fresh-process
+/// verifier-isolation gate:**
+/// Forces ALL THREE host-fast switches ON (`HL_HOST_FAST=1`, `HL_CLASSIFY_HOST_FAST=1`,
+/// `HL_HOST_FAST_W2=1`) and verifies BOTH:
+/// 1. **W16R2 accuracy stack** (`W16R2_RUNG_H24`): single-block `verify_core` AND 2-block
+///    `verify_run_with_forks` (directly exercising `accuracy_fold::fold_checked(..., prove_side=false)`
+///    on the verifier);
+/// 2. **R13 accuracy / classifier stack** (`R13_RUNG_H24`, 2 layers with distinct gate shifts from
+///    `HL_R13_LOADER_FIXTURES/r13-h24-dense`): `verify_classify_run` + `owner_check_input`
+///    (exercising `stage_in_c::verify`, interior R13 accuracy-fold `verify_core`,
+///    `stage_out_c::verify`, `emb_fold`, `check_tables`), asserting prover hits `HF_H4_ACC_FOLD`,
+///    `HF_W2_FOLD_TILED`, and `CHF_C1_DIGESTS`. (On-disk receipt doors `check-serve`, `verify`,
+///    and `input-owner` over R13 + W16R2 accuracy stacks are additionally covered in
+///    `classify_serve::tests::host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate`.)
+///
+/// Asserts **strict zero counter movement** (hits AND fallbacks) across ALL THREE switches during
+/// every verification call, while confirming the prover moved counters on all three switches.
+#[test]
+#[ignore = "HOST-FAST-W2 Fix 1: fresh-process verifier-isolation gate across W16R2 + R13 accuracy stacks; run alone with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1 -- --ignored --exact --test-threads=1"]
+fn host_fast_all_three_switches_verifier_isolation_gate() {
+    use super::token_io::{self as tio, classify, classify_run, classify_tied, run::VerifierPolicy};
+    assert!(
+        crate::zk::host_fast_on() && classify::classify_host_fast_on() && crate::zk::host_fast_w2_on(),
+        "run this fresh-process gate with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1 in the environment"
+    );
+
+    type AllSnap = ([u64; 8], [u64; 5], [u64; 5], [u64; 5], [u64; 10], [u64; 5]);
+    let snap = || -> AllSnap {
+        (
+            crate::zk::host_fast_hits_for_test(),
+            crate::zk::host_fast_fallbacks_for_test(),
+            classify::classify_host_fast_hits_snapshot(),
+            classify::classify_host_fast_fallbacks_snapshot(),
+            crate::zk::host_fast_w2_hits_for_test(),
+            crate::zk::host_fast_w2_fallbacks_for_test(),
+        )
+    };
+    let assert_zero_verifier_delta = |label: &str, before: AllSnap, after: AllSnap| {
+        assert_eq!(after.0, before.0, "{label}: verifier moved host_fast hits: before={:?} after={:?}", before.0, after.0);
+        assert_eq!(after.1, before.1, "{label}: verifier moved host_fast fallbacks: before={:?} after={:?}", before.1, after.1);
+        assert_eq!(after.2, before.2, "{label}: verifier moved classify_host_fast hits: before={:?} after={:?}", before.2, after.2);
+        assert_eq!(after.3, before.3, "{label}: verifier moved classify_host_fast fallbacks: before={:?} after={:?}", before.3, after.3);
+        assert_eq!(after.4, before.4, "{label}: verifier moved host_fast_w2 hits: before={:?} after={:?}", before.4, after.4);
+        assert_eq!(after.5, before.5, "{label}: verifier moved host_fast_w2 fallbacks: before={:?} after={:?}", before.5, after.5);
+    };
+
+    // ---- 1. W16R2 accuracy stack: single-block verify_core + 2-block verify_run_with_forks ----
+    {
+        let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+        let lay = Layout::for_shape(&sh).expect("W16R2 layout");
+        let (ein, eout) = io_planes(&sh, &w);
+        let ntt = NttTables::new(protocol::ntt_log_at(&sh));
+        let mut rng = ZkRng::new(0xF101, b"w2-fix1-w16r2-core");
+        let mut tr = Transcript::new(b"w2-fix1-w16r2-core");
+        tr.absorb(b"profile", sh.profile.as_bytes());
+        tr.absorb(b"schedule", &lay.schedule_digest());
+        let mut ph = super::timing::Phases::start();
+        let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+        let pb = snap();
+        let core = protocol::prove_core(&sh, &lay, &blk, copy(&w), [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)
+            .expect("W16R2 prove_core");
+        let pa = snap();
+        assert!(pa.0[crate::zk::HF_H4_ACC_FOLD] > pb.0[crate::zk::HF_H4_ACC_FOLD], "prover must hit W1 acc fold on W16R2");
+        assert!(pa.4[crate::zk::HF_W2_FOLD_TILED] > pb.4[crate::zk::HF_W2_FOLD_TILED], "prover must hit W2 tiled fold on W16R2");
+        assert_eq!(pa.1, pb.1, "W16R2 prove_core W1 fallbacks");
+        assert_eq!(pa.5, pb.5, "W16R2 prove_core W2 fallbacks");
+
+        let mut vtr = Transcript::new(b"w2-fix1-w16r2-core");
+        vtr.absorb(b"profile", sh.profile.as_bytes());
+        vtr.absorb(b"schedule", &lay.schedule_digest());
+        let mut vph = super::timing::Phases::start();
+        let view = protocol::CoreView {
+            a_root: core.a_root,
+            h_root: core.h_root,
+            mask_root: core.mask_root,
+            slots: &core.slots,
+            mask_open: &core.mask_open,
+            a_open: &core.a_open,
+            h_open: &core.h_open,
+        };
+        let vb = snap();
+        protocol::verify_core(&sh, &lay, &blk, view, &ntt, &mut vtr, &mut vph).expect("W16R2 verify_core");
+        let va = snap();
+        assert_zero_verifier_delta("W16R2 verify_core", vb, va);
+
+        // Multi-block W16R2 D55 fork run verification
+        let rr = RungRun::new(shape::W16R2_RUNG_H24, 2);
+        let (st_r, owners_r) = rr.statement(0xF2);
+        let mut src_r = rr.chain();
+        let blocks_r = rr.blocks();
+        let fr = ForkRun::new(&st_r, D55OptIn::unreviewed_prototype()).expect("W16R2 ForkRun");
+        let (rc, _) = super::run::fork::prove_run_with_forks(&fr, &blocks_r, &mut src_r, owners_r, 2).expect("W16R2 prove_run_with_forks");
+        let vb2 = snap();
+        super::run::fork::verify_run_with_forks(&fr, &blocks_r, &rc, 2).expect("W16R2 verify_run_with_forks");
+        let va2 = snap();
+        assert_zero_verifier_delta("W16R2 verify_run_with_forks", vb2, va2);
+    }
+
+    // ---- 2. R13 accuracy / classifier stack (R13_RUNG_H24): prove_classify_run + verify_classify_run + owner_check_input ----
+    {
+        use super::accuracy_public::AccuracyPublic;
+        use super::trained_block::TrainedExport;
+        let r13_path = std::env::var_os("HL_R13_LOADER_FIXTURES")
+            .map(std::path::PathBuf::from)
+            .unwrap_or_else(|| std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../loader-fixtures"))
+            .join("r13-h24-dense");
+        assert!(
+            r13_path.join("profile.json").exists(),
+            "missing R13 loader fixture {}: set HL_R13_LOADER_FIXTURES",
+            r13_path.display()
+        );
+        let mut ex = TrainedExport::load(&r13_path).expect("R13 TrainedExport::load");
+        ex.source.checkpoint_layers = 2;
+        let c = ex.run_constants(&[0]).expect("run_constants");
+        let sh_c = ex.shape_for(&c).expect("shape_for");
+        assert_eq!(sh_c.profile, shape::R13_RUNG_H24);
+        let first = ex.load_layer(&sh_c, &c, 0, false).expect("load_layer 0");
+        let a = first.blk.accuracy().expect("R13 accuracy data");
+        let changed = AccuracyPublic::new(
+            a.stack(),
+            a.geometry(),
+            a.base(),
+            (-4, -13),
+            a.multipliers().clone(),
+            a.groups().to_vec(),
+            a.group_ids().to_vec(),
+            a.raw_tables().to_vec(),
+        )
+        .expect("AccuracyPublic");
+        let second = first.blk.clone().with_accuracy(changed);
+        let mut r2 = LayerRecord::of_block(1, &second, vec![]);
+        r2.manifest_sha256 = [53; 32];
+        let r1 = first.record.clone();
+        assert_ne!(r1.accuracy_gate_shift, r2.accuracy_gate_shift);
+        let c_blocks = vec![first.blk, second];
+        let c_recs = vec![r1, r2];
+        let l_c = c_blocks.len();
+        let c_prov = Provenance {
+            label: format!("export:{}", ex.variant),
+            residual_unit: ex.residual_unit,
+            quantizer_sha256: ex.tool_sha256,
+            calibration_set_sha256: ex.calibration_set_sha256,
+            export_profile_sha256: ex.profile_sha256,
+            calibration_tool_sha256: ex.tool_sha256,
+            rope_theta: c.rope_theta,
+            rope_scaling: ex.rope_scaling,
+        };
+        let c_model = TrainedModelStatement::new_with_tied(
+            &sh_c,
+            super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST,
+            ex.source.clone(),
+            IntegerCalibration::as_the_code_proves(&sh_c, &c_prov),
+            c_recs,
+            None,
+        )
+        .expect("R13 classifier model statement");
+        let lcg = |s: &mut u64| -> u64 {
+            *s = s.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1_442_695_040_888_963_407);
+            *s >> 33
+        };
+        let (v_c, d_c) = (300usize, sh_c.width);
+        let mut s_emb = 0x7231_3672u64;
+        let emb_c: Vec<i16> = (0..v_c * d_c).map(|_| (lcg(&mut s_emb) % 8_001) as i16 - 4_000).collect();
+        let mut s_w = 0x6d61_7267_696eu64;
+        let w_c: Vec<i16> = (0..d_c)
+            .map(|_| (lcg(&mut s_w) % 20_001) as i16 - 10_000)
+            .collect();
+        let c_tables = classify::ClassifierTables::new(v_c, d_c, emb_c, w_c).expect("ClassifierTables");
+        let c_norm = tio::FinalNorm { g0: 127, cn: 2048, tn: 11, ceps: 33_554_467 };
+        let c_policy = classify::policy_rung_dev();
+        let c_bound = classify_tied::BoundClassifierTables::synthetic_for_relation_tests(
+            c_tables.clone(),
+            1,
+            c_norm,
+            &sh_c,
+            super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST,
+            &c_model,
+            &c_policy,
+        )
+        .expect("BoundClassifierTables");
+        let mut s_tok = 0x7231_3663u64;
+        let content_ids: Vec<u64> = (0..20)
+            .map(|_| c_policy.num_special + lcg(&mut s_tok) % (c_policy.v as u64 - c_policy.num_special))
+            .collect();
+        let cp = classify::ClassifierProfile::new(&sh_c, &c_tables, 1, c_norm, &c_policy, content_ids.len(), tio::Tier::R1_MVP).expect("ClassifierProfile");
+        let full_tokens = cp.tokens_of(&content_ids).expect("tokens_of");
+        let stage_shapes: Vec<Shape> = c_model.layers.iter().map(|r| r.shape_at(&sh_c).expect("stage_shape")).collect();
+        let mut honest_c = classify_run::honest_classify(&stage_shapes, &cp, &c_tables, &c_blocks, &full_tokens).expect("R13 honest_classify");
+        let c_ctx = *blake3::hash(b"w2-fix1: R13 accuracy classifier verifier isolation").as_bytes();
+        let ep_spec = classify::input_endpoint_spec(&sh_c, c_ctx, &cp).expect("input_endpoint_spec");
+        let (ep_root, owner) = classify::seal_input(&ep_spec, &honest_c.in_plane, &sh_c.hash_tag()).expect("seal_input");
+        let c_st = classify::ClassifyRunStatement::new(
+            RunShape::new(sh_c.clone(), l_c, super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST).expect("RunShape"),
+            c_ctx,
+            c_blocks.iter().map(|b| b.digest()).collect(),
+            &c_model,
+            &c_bound,
+            &c_policy,
+            content_ids.len(),
+            tio::Tier::R1_MVP,
+            ep_root,
+            honest_c.out_values.verdict,
+        )
+        .expect("ClassifyRunStatement");
+
+        let mut src = classify_run::ClassifySource(&mut honest_c);
+        let mut segs: Vec<Vec<u8>> = Vec::new();
+        let pcb = snap();
+        let (_, dec) = classify_run::prove_classify_run(&c_st, &c_blocks, &c_bound, &mut src, owner, &mut |idx, bytes| {
+            assert_eq!(idx, segs.len());
+            segs.push(bytes);
+            Ok(())
+        })
+        .expect("R13 prove_classify_run");
+        let pca = snap();
+        assert!(pca.0[crate::zk::HF_H4_ACC_FOLD] > pcb.0[crate::zk::HF_H4_ACC_FOLD], "R13 prover must hit HF_H4_ACC_FOLD: before={:?} after={:?}", pcb.0, pca.0);
+        assert!(pca.4[crate::zk::HF_W2_FOLD_TILED] > pcb.4[crate::zk::HF_W2_FOLD_TILED], "R13 prover must hit HF_W2_FOLD_TILED: before={:?} after={:?}", pcb.4, pca.4);
+        assert!(pca.2[classify::CHF_C1_DIGESTS] > pcb.2[classify::CHF_C1_DIGESTS], "R13 prover must hit classify_host_fast");
+        assert_eq!(pca.1, pcb.1, "R13 prove_classify_run W1 fallbacks");
+        // In-memory `prove_classify_run` has no `DirSink` (`async_disk = None`), so C2 records
+        // exactly 1 fallback while every other `classify_host_fast` fallback stays 0.
+        let mut want_chf_fb = pcb.3;
+        want_chf_fb[classify::CHF_C2_ASYNC_SINK] += 1;
+        assert_eq!(pca.3, want_chf_fb, "R13 prove_classify_run classify_host_fast fallbacks");
+        assert_eq!(pca.5, pcb.5, "R13 prove_classify_run W2 fallbacks");
+
+        let vb = snap();
+        classify_run::verify_classify_run(&c_st, &c_blocks, &c_bound, &segs, VerifierPolicy { min_whole_run_bits: 95 })
+            .expect("R13 verify_classify_run");
+        classify_run::owner_check_input(&c_st, &dec, &content_ids).expect("R13 owner_check_input");
+        let va = snap();
+        assert_zero_verifier_delta("R13 verify_classify_run + owner_check_input", vb, va);
+    }
+
+    eprintln!("FIX-1 VERIFIER ISOLATION GATE PASS: HL_HOST_FAST=1 + HL_CLASSIFY_HOST_FAST=1 + HL_HOST_FAST_W2=1 moved 0 hits and 0 fallbacks across W16R2 verify_core, W16R2 verify_run_with_forks, and R13 accuracy verify_classify_run + owner_check_input");
 }
 
 // D63 lane L10 (2026-11-07): the Lean lane's export of this rung's M / A / H openings (test only; the file is in `src/`)

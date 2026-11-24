@@ -48,6 +48,12 @@ fn position_tag(tr: &Transcript) -> [u8; 32] {
 pub(crate) trait ClassifyRunSource {
     fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String>;
     fn witness(&mut self, k: usize, blk: &BlockPublic, sh: &Shape) -> Result<Witness, String>;
+    /// **[W2-2]** Ownership-bound witness + optional sealing-pass histograms collected by
+    /// [`protocol::check_lookup_misses_sealed`] (`HL_HOST_FAST_W2=1`). Default implementation
+    /// wraps [`Self::witness`] with no histograms so every existing source stays unchanged.
+    fn witness_sealed(&mut self, k: usize, blk: &BlockPublic, sh: &Shape) -> Result<protocol::SealedWitness, String> {
+        self.witness(k, blk, sh).map(protocol::SealedWitness::unsealed)
+    }
     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String>;
     fn stage_out(&mut self) -> Result<StageOutCWitness, String>;
     fn seal_check(&mut self, k: usize, blk: &BlockPublic, sh: &Shape, check: &mut dyn FnMut(&Witness) -> Result<(), String>) -> Result<(), String>;
@@ -548,14 +554,14 @@ pub(crate) fn prove_classify_run_with(
         protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
         let lay = st.block_layout(k)?;
         let ssh = st.stage_shape(k)?;
-        let wit = src.witness(k, &blk, &ssh)?;
+        let sealed = src.witness_sealed(k, &blk, &ssh)?;
         ph.mark(timing::Half::Run, "run: witness (CliSource)", 1, "block");
         // [A26] the record above stands in for `prove_core`'s own CS-1 / CS-4 re-check of this very
         // block at this very shape and for `define`'s per-slot registry re-checks (A17 / A18's
         // `CoreHints`: honoured only for the same object at an equal shape; `HL_A17_CHECKED=0` /
         // `HL_A18_REGISTRY=0` or `HL_A26_RUN_RECORD=0` re-check as before). The same bytes.
         let hints = protocol::CoreHints { checked: checked.as_ref().filter(|_| a26_run_record_on()) };
-        let core = protocol::prove_core_with(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints)?;
+        let core = protocol::prove_core_sealed(&ssh, &lay, &blk, sealed, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints)?;
         let [ic, oc] = core.io_claims;
         let mut claims = std::mem::take(&mut pending);
         claims.extend(ic);
@@ -765,10 +771,10 @@ fn prove_classify_run_loop_fast(
                 protocol::absorb_root(tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
                 let lay = st.block_layout(k)?;
                 let ssh = st.stage_shape(k)?;
-                let wit = src.witness(k, &blk, &ssh)?;
+                let sealed = src.witness_sealed(k, &blk, &ssh)?;
                 ph.mark(timing::Half::Run, "run: witness (CliSource)", 1, "block");
                 let hints = protocol::CoreHints { checked: checked.as_ref().filter(|_| a26_run_record_on()) };
-                let core = protocol::prove_core_with(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], ntt, rng, tr, &mut ph, &mut phases, &mut tick, hints)?;
+                let core = protocol::prove_core_sealed(&ssh, &lay, &blk, sealed, [prev.1.data(), cur.data()], ntt, rng, tr, &mut ph, &mut phases, &mut tick, hints)?;
                 let [ic, oc] = core.io_claims;
                 let mut claims = std::mem::take(&mut pending);
                 claims.extend(ic);

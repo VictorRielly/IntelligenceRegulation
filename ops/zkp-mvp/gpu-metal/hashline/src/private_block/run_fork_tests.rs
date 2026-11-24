@@ -3765,7 +3765,7 @@ fn a18_check_direct(fix: &A18Fix) -> String {
     let checked = preflight(&st, &blocks, true).expect("the preflight passes");
     let late = ForkCtx { stages: Stages::Run(&fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr: &fr, checked: &checked, roots: &roots, in_data, out_data, binding }) };
     let early = ForkCtx { stages: Stages::Run(&fr), blocks: &blocks, ntt: &ntt, cheat: Cheat::default(), late: None };
-    let whole: Vec<ForkOut> = (0..l).map(|k| a18_whole_out(late.prove_one(k, fix.witness(k)).unwrap())).collect();
+    let whole: Vec<ForkOut> = (0..l).map(|k| a18_whole_out(late.prove_one(k, protocol::SealedWitness::unsealed(fix.witness(k))).unwrap())).collect();
     let mut sizes = Vec::new();
     for (parts, finish) in [(1usize, 1usize), (2, 3), (6, 2)] {
         let (pp, pf) = (a18_pool(parts), a18_pool(finish));
@@ -3777,7 +3777,7 @@ fn a18_check_direct(fix: &A18Fix) -> String {
                         let _h = hooks.install();
                         pp.install(|| {
                             let _h = hooks.install();
-                            early.prove_one(k, fix.witness(k))
+                            early.prove_one(k, protocol::SealedWitness::unsealed(fix.witness(k)))
                         })
                     })
                 })
@@ -3829,7 +3829,7 @@ fn a18_recompute_interior(fr: &ForkRun, fix: &A18Fix, rc: &ForkReceipt, parked_i
     let p3 = a18_pool(3);
     for k in 1..l - 1 {
         let o = if parked_in_rc {
-            a18_whole_out(late.prove_one(k, fix.witness(k)).unwrap())
+            a18_whole_out(late.prove_one(k, protocol::SealedWitness::unsealed(fix.witness(k))).unwrap())
         } else {
             let p = std::thread::scope(|s| {
                 let (early, p3) = (&early, &p3);
@@ -3837,7 +3837,7 @@ fn a18_recompute_interior(fr: &ForkRun, fix: &A18Fix, rc: &ForkReceipt, parked_i
                     let _h = hooks.install();
                     p3.install(|| {
                         let _h = hooks.install();
-                        early.prove_one(k, fix.witness(k))
+                        early.prove_one(k, protocol::SealedWitness::unsealed(fix.witness(k)))
                     })
                 })
                 .join()
@@ -4029,7 +4029,7 @@ fn a19_interior_forks_whole(fr: &ForkRun, blocks: &dyn ForkBlocks, planes: &[Vec
     let checked = preflight(fr.st, blocks, true).expect("the preflight passes");
     let late = ForkCtx { stages: Stages::Run(fr), blocks, ntt: &ntt, cheat: Cheat::default(), late: Some(ForkLate { fr, checked: &checked, roots: &roots, in_data, out_data, binding }) };
     for k in 1..l - 1 {
-        let o = a18_whole_out(late.prove_one(k, witness(k)).unwrap());
+        let o = a18_whole_out(late.prove_one(k, protocol::SealedWitness::unsealed(witness(k))).unwrap());
         assert!(o.bytes == rc.forks[k], "fork {k} of the receipt is not that fork proved whole");
     }
     l.saturating_sub(2)
@@ -6861,6 +6861,15 @@ mod a22 {
         /// [HOST-FAST] `hf0` / `hf1`: opt-in same-words host-gap path (`HL_HOST_FAST`);
         /// default OFF: `hf1` turns it on, `hf0` forces it off
         hf: Option<bool>,
+        /// [HOST-FAST-W2] `hw0` / `hw1`: Wave 2 opt-in same-words host-gap path (`HL_HOST_FAST_W2`);
+        /// default OFF: `hw1` turns it on, `hw0` forces it off
+        hw: Option<bool>,
+        /// [HOST-FAST-W2] `ad0` / `ad1`: optional async `munmap` dropper (`HL_HOST_FAST_ASYNC_DROP`);
+        /// default OFF even when `HL_HOST_FAST_W2=1` (`ad1` forces it on, `ad0` forces it off;
+        /// see `zk::host_fast_async_drop_on` for the 2-payload memory-budget note)
+        ad: Option<bool>,
+        /// [A7] `q0` / `q1`: Metal command queue mode (`HL_METAL_QUEUES`): `q0` shared, `q1` per-thread
+        q: Option<bool>,
     }
 
     #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
@@ -6874,7 +6883,23 @@ mod a22 {
         } else {
             panic!("HL_A22_AB: an arm starts with serve<R> or harness<R>, not {first:?}")
         };
-        let mut a = A22Arm { harness, r: r.max(1), a18: A18Arm::default(), dig: None, lanes: None, a23: A23Set::default(), seal: None, ba: None, frs: None, sf: None, sc: None, hf: None };
+        let mut a = A22Arm {
+            harness,
+            r: r.max(1),
+            a18: A18Arm::default(),
+            dig: None,
+            lanes: None,
+            a23: A23Set::default(),
+            seal: None,
+            ba: None,
+            frs: None,
+            sf: None,
+            sc: None,
+            hf: None,
+            hw: None,
+            ad: None,
+            q: None,
+        };
         for w in words {
             match w {
                 "ba0" => a.ba = Some(false),
@@ -6887,6 +6912,12 @@ mod a22 {
                 "sc1" => a.sc = Some(true),
                 "hf0" => a.hf = Some(false),
                 "hf1" => a.hf = Some(true),
+                "hw0" => a.hw = Some(false),
+                "hw1" => a.hw = Some(true),
+                "ad0" => a.ad = Some(false),
+                "ad1" => a.ad = Some(true),
+                "q0" => a.q = Some(false),
+                "q1" => a.q = Some(true),
                 "dig0" => a.dig = Some(false),
                 "dig1" => a.dig = Some(true),
                 "share0" => a.a23.share = Some(false),
@@ -6916,7 +6947,16 @@ mod a22 {
         assert_eq!(a22_arm("serve4").hf, None);
         assert_eq!(a22_arm("serve4+hf0").hf, Some(false));
         assert_eq!(a22_arm("serve4+hf1").hf, Some(true));
-        let combined = a22_arm("harness4+ba1+frs1+sf1+sc1+hf1");
+        assert_eq!(a22_arm("serve4").hw, None);
+        assert_eq!(a22_arm("serve4+hw0").hw, Some(false));
+        assert_eq!(a22_arm("serve4+hw1").hw, Some(true));
+        assert_eq!(a22_arm("serve4").ad, None);
+        assert_eq!(a22_arm("serve4+ad0").ad, Some(false));
+        assert_eq!(a22_arm("serve4+ad1").ad, Some(true));
+        assert_eq!(a22_arm("serve4").q, None);
+        assert_eq!(a22_arm("serve4+q0").q, Some(false));
+        assert_eq!(a22_arm("serve4+q1").q, Some(true));
+        let combined = a22_arm("harness4+ba1+frs1+sf1+sc1+hf1+hw1+ad0+q1");
         assert!(combined.harness);
         assert_eq!(combined.r, 4);
         assert_eq!(combined.ba, Some(true));
@@ -6924,6 +6964,9 @@ mod a22 {
         assert_eq!(combined.sf, Some(true));
         assert_eq!(combined.sc, Some(true));
         assert_eq!(combined.hf, Some(true));
+        assert_eq!(combined.hw, Some(true));
+        assert_eq!(combined.ad, Some(false));
+        assert_eq!(combined.q, Some(true));
     }
 
     /// [A22] one stream's clocks: each request's completion and latency (from its arrival
@@ -7091,6 +7134,8 @@ mod a22 {
             A22Stream { done, lat_arrival: lat.clone(), lat_sealing: lat, mem, usage }
         };
         let _hf_lock = crate::zk::host_fast_test_lock();
+        let own_q = crate::gpu::metal_set_queues_for_test(false);
+        crate::gpu::metal_set_queues_for_test(own_q);
         let apply = |a: &A22Arm| {
             a18_apply(&a.a18);
             set_a22_digest_ahead_for_test(a.dig);
@@ -7102,6 +7147,9 @@ mod a22 {
             crate::gpu::metal_set_sparse_fold_for_test(a.sf);
             crate::gpu::metal_set_sc_chain_fast_for_test(a.sc);
             crate::zk::set_host_fast_for_test(a.hf);
+            crate::zk::set_host_fast_w2_for_test(a.hw);
+            crate::zk::set_host_fast_async_drop_for_test(a.ad);
+            crate::gpu::metal_set_queues_for_test(a.q.unwrap_or(own_q));
         };
         let reset = || {
             a18_apply(&A18Arm::default());
@@ -7114,6 +7162,9 @@ mod a22 {
             crate::gpu::metal_set_sparse_fold_for_test(None);
             crate::gpu::metal_set_sc_chain_fast_for_test(None);
             crate::zk::set_host_fast_for_test(None);
+            crate::zk::set_host_fast_w2_for_test(None);
+            crate::zk::set_host_fast_async_drop_for_test(None);
+            crate::gpu::metal_set_queues_for_test(own_q);
         };
         // one cold request through the server (kernel compiles), verified
         let cold = serve("serve1 (cold)", 1, None, true);
@@ -7125,7 +7176,7 @@ mod a22 {
                 let (a, label) = (&arms[ai], &labels[ai]);
                 apply(a);
                 let settings = format!(
-                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}, bounds ahead {}, fused rs {}, sparse fold {}, sc chain fast {}, host fast {}",
+                    "window {}, digests ahead {}, lanes {}, shared blocks {}, startup checks {}, seal pool {}, bounds ahead {}, fused rs {}, sparse fold {}, sc chain fast {}, host fast {}, host fast w2 {}, async drop {}, queues {}",
                     run::fork::ahead_window(),
                     a22_digest_ahead(),
                     a22_lanes(),
@@ -7136,7 +7187,10 @@ mod a22 {
                     crate::gpu::fused_rs_for_test(),
                     crate::gpu::metal_sparse_fold_for_test(),
                     crate::gpu::metal_sc_chain_fast_for_test(),
-                    crate::zk::host_fast_for_test()
+                    crate::zk::host_fast_for_test(),
+                    crate::zk::host_fast_w2_for_test(),
+                    crate::zk::host_fast_async_drop_for_test(),
+                    crate::gpu::metal_queues_for_test()
                 );
                 let s = if a.harness { harness(label, a.r, p == 0) } else { serve(label, a.r, Some(p), p == 0) };
                 reset();
@@ -7586,4 +7640,114 @@ fn a33_the_8b_sealing_pass_summary_on_the_cpu_and_on_the_device() {
         let of = |n: &str| seen.iter().find(|(m, b, _)| *m == n && *b == budget).map(|(_, _, d)| d.clone()).unwrap();
         assert_eq!(of("cpu"), of("device"), "the 8B sealing pass at budget {budget}: the CPU and the device builds differ");
     }
+}
+
+/// **[HOST-FAST-W2] Read B M3(2) & L7: trained-block D55 sealing path (`trained_block::seal_chain` ->
+/// `D55Hand` -> `StackSource::witness_sealed` -> `d55_seal_and_prove`) interior-fork byte parity.**
+/// Verifies on a seeded 3-block (`l = 3`) W16R2 rung through production's `d55_seal_and_prove` that
+/// (every receipt is verified from disk via `read_fork_receipt` + `verify_run_with_forks` with 0
+/// verifier W2 hits/fallbacks, and the interior fork `k = 1` is compared byte-for-byte against an
+/// `hw0` whole re-proof via `a19_interior_forks_whole`, since `prepare_endpoints` uses OS RNG for
+/// the outer endpoint commitments):
+/// - `hw1` (`window=0`, `shared=true`) hits `HF_W2_SEAL_HIST == 3` with 0 W2 fallbacks;
+/// - `hw1` (`window=1`, `shared=true`) hits `HF_W2_SEAL_HIST == 2` (only the `l - 1` kept blocks
+///   outside the ahead window collect histograms, Read B L7) with 0 fallbacks;
+/// - `hw1` (`window=0`, `shared=false` / `HL_A19_SHARE=0`) skips histogram collection cleanly
+///   (`HF_W2_SEAL_HIST == 0`, 0 fallbacks, Read B L7).
+#[test]
+#[ignore = "HOST-FAST-W2: toggles A19 share/window, SeededForks, host-fast, and host-fast-w2 in-process; run alone by name with --ignored --exact --test-threads=1"]
+fn host_fast_w2_trained_block_d55_sealing_byte_identical() {
+    use crate::private_block::trained_block::{d55_seal_and_prove, set_a19_share_for_test, D55Run};
+    let _hf_lock = crate::zk::host_fast_test_lock();
+    let _knobs = a19_knobs();
+    let _seeded = SeededForks::on(A18_SEED, a18_seeded);
+    struct Reset {
+        prev_hf: Option<bool>,
+        prev_w2: Option<bool>,
+        prev_ad: Option<bool>,
+    }
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            crate::zk::set_host_fast_for_test(self.prev_hf);
+            crate::zk::set_host_fast_w2_for_test(self.prev_w2);
+            crate::zk::set_host_fast_async_drop_for_test(self.prev_ad);
+            set_a19_share_for_test(None);
+        }
+    }
+    let _guard = Reset {
+        prev_hf: crate::zk::set_host_fast_for_test(Some(true)),
+        prev_w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
+        prev_ad: crate::zk::set_host_fast_async_drop_for_test(Some(false)),
+    };
+
+    let l = 3usize;
+    let fix = A18Fix::new(crate::private_block::shape::W16R2_RUNG_H24, l);
+    let model = A19Synth {
+        fix: &fix,
+        layers: (0..l as u32).collect(),
+        ctx: [0x2a; 32],
+        hash_load: false,
+        record0: LayerRecord::of_block(0, &fix.blk, vec![]),
+    };
+    let root = scratch("w2-d55-seal");
+
+    let run_case = |tag: &str, w2_on: bool, share: bool, window: usize, budget: u64| -> ([u64; 10], [u64; 5]) {
+        crate::zk::set_host_fast_w2_for_test(Some(w2_on));
+        set_a19_share_for_test(Some(share));
+        set_ahead_for_test(Some(window), Some(1), Some(1));
+        let out = root.join(tag);
+        let hb = crate::zk::host_fast_w2_hits_for_test();
+        let fb = crate::zk::host_fast_w2_fallbacks_for_test();
+        let proved = d55_seal_and_prove(
+            &model,
+            D55OptIn::unreviewed_prototype(),
+            &D55Run { workers: 2, out: &out, budget, test_receipt: true, events: false, turn: None },
+        )
+        .unwrap_or_else(|e| panic!("d55_seal_and_prove [{tag}]: {e}"));
+        let ha = crate::zk::host_fast_w2_hits_for_test();
+        let fa = crate::zk::host_fast_w2_fallbacks_for_test();
+        // Verify from disk (and confirm 0 verifier W2 hits/fallbacks even when w2_on is true)
+        let rep = RepeatBlock::new(&fix.blk, l);
+        let fr = ForkRun::new(proved.statement(), D55OptIn::unreviewed_prototype()).expect("ForkRun");
+        let (rc, _) = read_fork_receipt(&fr, &out).expect("read_fork_receipt");
+        let vhb = crate::zk::host_fast_w2_hits_for_test();
+        let vfb = crate::zk::host_fast_w2_fallbacks_for_test();
+        verify_run_with_forks(&fr, &rep, &rc, 2).expect("verify_run_with_forks");
+        assert_eq!(crate::zk::host_fast_w2_hits_for_test(), vhb, "[{tag}] verifier hit host_fast_w2");
+        assert_eq!(crate::zk::host_fast_w2_fallbacks_for_test(), vfb, "[{tag}] verifier recorded host_fast_w2 fallback");
+        // Byte-identical interior fork comparison against baseline hw0 proved whole on the exact same ForkRun:
+        // (`prepare_endpoints` inside `d55_seal_and_prove` uses OS RNG for endpoint commitments, while
+        // `SeededForks` seeds the commit phase and every fork; `a19_interior_forks_whole` replays the commit
+        // phase and proves every interior fork under hw0, asserting `o.bytes == rc.forks[k]` byte-for-byte!)
+        crate::zk::set_host_fast_w2_for_test(Some(false));
+        let compared = a19_interior_forks_whole(&fr, &rep, &fix.planes, &|k| fix.witness(k), &rc);
+        assert_eq!(compared, l - 2, "[{tag}] expected {} interior forks compared", l - 2);
+        (
+            std::array::from_fn(|i| ha[i] - hb[i]),
+            std::array::from_fn(|i| fa[i] - fb[i]),
+        )
+    };
+
+    let (base_h, base_f) = run_case("hw0-share1-win0", false, true, 0, u64::MAX);
+    assert_eq!(base_h, [0; 10], "hw0 must record 0 W2 hits: {base_h:?}");
+    assert_eq!(base_f, [0; 5], "hw0 must record 0 W2 fallbacks: {base_f:?}");
+
+    let (w2_h, w2_f) = run_case("hw1-share1-win0", true, true, 0, u64::MAX);
+    assert_eq!(w2_h[crate::zk::HF_W2_SEAL_HIST], l as u64, "hw1 (share=1, win=0) expected HF_W2_SEAL_HIST == {l}, got {w2_h:?}");
+    assert_eq!(w2_f, [0; 5], "hw1 (share=1, win=0) unexpected W2 fallbacks: {w2_f:?}");
+
+    let (win1_h, win1_f) = run_case("hw1-share1-win1", true, true, 1, u64::MAX);
+    assert_eq!(win1_h[crate::zk::HF_W2_SEAL_HIST], (l - 1) as u64, "hw1 (share=1, win=1) expected HF_W2_SEAL_HIST == {}, got {win1_h:?}", l - 1);
+    assert_eq!(win1_f, [0; 5], "hw1 (share=1, win=1) unexpected W2 fallbacks: {win1_f:?}");
+
+    let (noshare_h, noshare_f) = run_case("hw1-share0-win0", true, false, 0, u64::MAX);
+    assert_eq!(noshare_h[crate::zk::HF_W2_SEAL_HIST], 0, "hw1 (share=0) must not collect unused histograms: {noshare_h:?}");
+    assert_eq!(noshare_f, [0; 5], "hw1 (share=0) must record 0 W2 fallbacks: {noshare_f:?}");
+
+    eprintln!(
+        "HOST-FAST-W2 [trained_block::d55_seal_and_prove L={l}]: hw0 == hw1 interior forks byte-identical (share1/win0, share1/win1, share0/win0); seal_hist=({},{},{}), fb=0",
+        w2_h[crate::zk::HF_W2_SEAL_HIST],
+        win1_h[crate::zk::HF_W2_SEAL_HIST],
+        noshare_h[crate::zk::HF_W2_SEAL_HIST],
+    );
 }

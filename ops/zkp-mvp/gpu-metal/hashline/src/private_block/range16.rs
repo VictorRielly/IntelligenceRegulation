@@ -297,6 +297,70 @@ pub(crate) fn denominator_inverses(width: u32, alpha: Fp2, g: Fp2) -> Vec<Option
     out
 }
 
+/// [HOST-FAST-W2 W2-3] Flat `1 / (alpha - (v + g))` for every `v` in `0 .. 2^width`,
+/// returning `None` if ANY denominator in `0 .. 2^width` is zero.
+/// Eliminates `Option<Fp2>` tag/padding overhead (16 B/entry vs 24 B/entry) and
+/// computes directly in parallel 2048-entry Montgomery batch-inversion chunks.
+#[cold]
+#[inline(never)]
+pub(crate) fn denominator_inverses_flat(width: u32, alpha: Fp2, g: Fp2) -> Option<Vec<Fp2>> {
+    let n = 1usize << width;
+    let base = alpha.sub(g);
+    let mut out = vec![Fp2::ZERO; n];
+    const CH: usize = 2048;
+    if n >= CH {
+        use rayon::prelude::*;
+        use std::sync::atomic::{AtomicBool, Ordering};
+        let zero_found = AtomicBool::new(false);
+        out.par_chunks_mut(CH).enumerate().for_each(|(ci, dst)| {
+            if zero_found.load(Ordering::Relaxed) {
+                return;
+            }
+            let v0 = ci * CH;
+            let mut den = [Fp2::ZERO; CH];
+            let mut acc = [Fp2::ZERO; CH];
+            let mut run = Fp2::ONE;
+            for i in 0..dst.len() {
+                let d = base.sub(Fp2::from_base(Fp::new((v0 + i) as u64)));
+                if d.is_zero() {
+                    zero_found.store(true, Ordering::Relaxed);
+                    return;
+                }
+                den[i] = d;
+                acc[i] = run;
+                run = run.mul(d);
+            }
+            let mut inv = run.inv();
+            for i in (0..dst.len()).rev() {
+                dst[i] = inv.mul(acc[i]);
+                inv = inv.mul(den[i]);
+            }
+        });
+        if zero_found.load(Ordering::Relaxed) {
+            return None;
+        }
+        return Some(out);
+    }
+    let mut den = [Fp2::ZERO; CH];
+    let mut acc = [Fp2::ZERO; CH];
+    let mut run = Fp2::ONE;
+    for i in 0..n {
+        let d = base.sub(Fp2::from_base(Fp::new(i as u64)));
+        if d.is_zero() {
+            return None;
+        }
+        den[i] = d;
+        acc[i] = run;
+        run = run.mul(d);
+    }
+    let mut inv = run.inv();
+    for i in (0..n).rev() {
+        out[i] = inv.mul(acc[i]);
+        inv = inv.mul(den[i]);
+    }
+    Some(out)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -400,6 +464,32 @@ mod tests {
                         assert_eq!(inv1[check].expect("nonzero entry invertible").mul(d), Fp2::ONE);
                     }
                 }
+            }
+        }
+    }
+
+    #[test]
+    fn host_fast_w2_flat_inverses_match_option_and_reject_zero() {
+        let g = Fp2::new(Fp::new(12_345), Fp::new(67_890));
+        let alpha_ok = Fp2::new(Fp::new(987_654_321), Fp::new(42));
+        for width in [2u32, 8, 10, 11, 13, 15, 16] {
+            let n = 1usize << width;
+            let opt = denominator_inverses(width, alpha_ok, g);
+            let flat = denominator_inverses_flat(width, alpha_ok, g).expect("non-colliding alpha must succeed");
+            assert_eq!(flat.len(), n);
+            let lifted: Vec<Option<Fp2>> = flat.iter().copied().map(Some).collect();
+            assert_eq!(lifted, opt, "flat inverses mismatch width={width}");
+
+            for &zv in &[0usize, 1, 2047, 2048, n - 1] {
+                if zv >= n {
+                    continue;
+                }
+                let alpha_zero = Fp2::from_i64(zv as i64).add(g);
+                assert!(
+                    denominator_inverses_flat(width, alpha_zero, g).is_none(),
+                    "flat inverses must reject zero denom at width={width} zv={zv}"
+                );
+                assert!(denominator_inverses(width, alpha_zero, g)[zv].is_none());
             }
         }
     }

@@ -813,3 +813,235 @@ fn classify_host_fast_c2_writer_err_panic_and_prover_abort_cleanup() {
 
     eprintln!("HL_CLASSIFY_HOST_FAST | M2 C2 writer faults: Err, panic, and prover-abort-with-queued-job all joined, cleaned up, and preserved event ordering");
 }
+
+/// Fresh-process gate test (run alone via `--ignored --exact --test-threads=1`):
+/// unconditionally pins every unit-level and switch-off strict zero-hit / zero-fallback equality
+/// removed from the parallel suite (3689bbce0):
+/// (1) switch OFF: `emb_fold`, `new_bound`/`new_chunk`/`new_chunk_prover`/`check_tables`/`check_tables_prover`,
+///     `boundary::prepare`, and full CLI `prove` + `verify` + `input-owner` move zero `C1..C5` counters;
+/// (2) switch ON: base `emb_fold` (verifier), base `new_chunk`/`check_tables` (verifier),
+///     base `boundary::prepare` (non-classifier provers, L2), and CLI `verify` + `input-owner`
+///     move zero `C1..C5` hit or fallback counters, while prover siblings fire with zero fallbacks.
+#[test]
+#[ignore = "CLASSIFY-HOST-FAST: fresh-process gate verifying strict unit-level verifier/L2 isolation and switch-off zero-hit equalities; run alone by name with --ignored --exact --test-threads=1"]
+fn classify_host_fast_unit_isolation_and_switch_off_gate() {
+    use super::classify_cli::{classify_prove_capturing_for_test, CLASSIFY_LABELS};
+    use super::classify_tied::load_bound_tables;
+    use super::tests::{ctx, lcg};
+    use super::super::boundary::{self, BoundarySpec};
+    use super::super::run::RunShape;
+    use super::super::trained_block::stack_context;
+    use crate::ntt::NttTables;
+    use crate::zk::ZkRng;
+    use zkp_core::hashtag::HashTag;
+
+    let scalar_emb_fold = |emb: &[i16], v: usize, d: usize, e: &[Fp2]| -> Vec<Fp2> {
+        (0..v)
+            .map(|row| {
+                emb[row * d..(row + 1) * d]
+                    .iter()
+                    .zip(e.iter())
+                    .fold(Fp2::ZERO, |acc, (&w, &c)| if w == 0 { acc } else { acc.add(c.mul_base(Fp::from_i64(i64::from(w)))) })
+            })
+            .collect()
+    };
+
+    // ---- 1. Unit C5: emb_fold (verifier/base) vs emb_fold_fast (prover)
+    {
+        let mut seed = 0x5c4f_1234_9e37_79b9u64;
+        let shapes = [(1usize, 1usize), (3, 7), (9, 64), (5, 513)];
+
+        let _off = ClassifyHostFastGuard::set(false);
+        let h0 = classify_host_fast_hits_snapshot();
+        let f0 = classify_host_fast_fallbacks_snapshot();
+        for &(v, d) in &shapes {
+            let emb: Vec<i16> = (0..v * d).map(|_| (lcg(&mut seed) >> 16) as i16).collect();
+            let t = ClassifierTables::new(v, d, emb.clone(), vec![0i16; d]).unwrap();
+            let logd = d.next_power_of_two().trailing_zeros() as usize;
+            let r: Vec<Fp2> = (0..logd).map(|_| Fp2::new(Fp::new(lcg(&mut seed)), Fp::new(lcg(&mut seed)))).collect();
+            let want = scalar_emb_fold(&emb, v, d, &eq_table_msb(&r));
+            assert_eq!(t.emb_fold(&r), want, "OFF emb_fold: {v} x {d}");
+        }
+        assert_eq!(classify_host_fast_hits_snapshot(), h0, "switch OFF: emb_fold must move 0 hits");
+        assert_eq!(classify_host_fast_fallbacks_snapshot(), f0, "switch OFF: emb_fold must move 0 fallbacks");
+        drop(_off);
+
+        let _on = ClassifyHostFastGuard::set(true);
+        let hb = classify_host_fast_hits_snapshot();
+        let fb = classify_host_fast_fallbacks_snapshot();
+        let mut cases = Vec::new();
+        for &(v, d) in &shapes {
+            let emb: Vec<i16> = (0..v * d).map(|_| (lcg(&mut seed) >> 16) as i16).collect();
+            let t = ClassifierTables::new(v, d, emb.clone(), vec![0i16; d]).unwrap();
+            let logd = d.next_power_of_two().trailing_zeros() as usize;
+            let r: Vec<Fp2> = (0..logd).map(|_| Fp2::new(Fp::new(lcg(&mut seed)), Fp::new(lcg(&mut seed)))).collect();
+            let want = scalar_emb_fold(&emb, v, d, &eq_table_msb(&r));
+            assert_eq!(t.emb_fold(&r), want, "ON base emb_fold: {v} x {d}");
+            cases.push((t, r, want));
+        }
+        assert_eq!(classify_host_fast_hits_snapshot(), hb, "M1 unit gate: base emb_fold must move 0 hits with switch ON");
+        assert_eq!(classify_host_fast_fallbacks_snapshot(), fb, "M1 unit gate: base emb_fold must move 0 fallbacks with switch ON");
+        let hp0 = classify_host_fast_hits_snapshot();
+        let fp0 = classify_host_fast_fallbacks_snapshot();
+        for (t, r, want) in &cases {
+            assert_eq!(t.emb_fold_fast(r), *want, "ON emb_fold_fast parity");
+        }
+        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+        {
+            let hp1 = classify_host_fast_hits_snapshot();
+            assert_eq!(hp1[CHF_C5_EMB_FOLD_NEON], hp0[CHF_C5_EMB_FOLD_NEON] + shapes.len() as u64, "C5 NEON hit count");
+            assert_eq!(classify_host_fast_fallbacks_snapshot(), fp0, "C5 NEON fallbacks must be 0");
+        }
+        #[cfg(not(all(target_arch = "aarch64", target_feature = "neon")))]
+        let _ = (hp0, fp0);
+    }
+
+    // ---- 2. Unit C1: new_bound / new_chunk / new_chunk_prover / check_tables / check_tables_prover
+    let cc = Cc::new("chf-unit-gate");
+    {
+        let p = load_export(&cc.export).unwrap();
+        let policy = policy_by_id(POLICY_RUNG_DEV).unwrap();
+        let bound = load_bound_tables(&p.sh, &p.model, &cc.export, &cc.tables, &policy).unwrap();
+        let content_ids: Vec<u64> = cc.content.split(',').map(|x| x.parse::<u64>().unwrap()).collect();
+        let n = content_ids.len();
+        let run_ctx = stack_context(&p.ex.variant, &p.layers, CLASSIFY_LABELS[0]).unwrap();
+        let rs = || RunShape::new(p.sh.clone(), p.layers.len(), p.profile).unwrap();
+
+        let _off = ClassifyHostFastGuard::set(false);
+        let h0 = classify_host_fast_hits_snapshot();
+        let f0 = classify_host_fast_fallbacks_snapshot();
+        let cp_off = ClassifierProfile::new_bound(&p.sh, &bound, &policy, n, Tier::R1_MVP).unwrap();
+        let st_off = ClassifyRunStatement::new_chunk(rs(), run_ctx, p.digests.clone(), &p.model, &bound, &policy, n, Tier::R1_MVP, [7u8; 32], 0, n, 0).unwrap();
+        let st_prover_off = ClassifyRunStatement::new_chunk_prover(rs(), run_ctx, p.digests.clone(), &p.model, &bound, &policy, n, Tier::R1_MVP, [7u8; 32], 0, n, 0).unwrap();
+        st_off.check_tables(&bound).unwrap();
+        st_prover_off.check_tables_prover(&bound).unwrap();
+        assert_eq!(classify_host_fast_hits_snapshot(), h0, "switch OFF: C1 unit paths must move 0 hits");
+        assert_eq!(classify_host_fast_fallbacks_snapshot(), f0, "switch OFF: C1 unit paths must move 0 fallbacks");
+        drop(_off);
+
+        let _on = ClassifyHostFastGuard::set(true);
+        let hv0 = classify_host_fast_hits_snapshot();
+        let fv0 = classify_host_fast_fallbacks_snapshot();
+        let st_ver = ClassifyRunStatement::new_chunk(rs(), run_ctx, p.digests.clone(), &p.model, &bound, &policy, n, Tier::R1_MVP, [7u8; 32], 0, n, 0).unwrap();
+        st_ver.check_tables(&bound).unwrap();
+        assert_eq!(classify_host_fast_hits_snapshot(), hv0, "M1 unit gate: new_chunk and check_tables must move 0 hits with switch ON");
+        assert_eq!(classify_host_fast_fallbacks_snapshot(), fv0, "M1 unit gate: new_chunk and check_tables must move 0 fallbacks with switch ON");
+
+        let hp0 = classify_host_fast_hits_snapshot();
+        let fp0 = classify_host_fast_fallbacks_snapshot();
+        let cp_on = ClassifierProfile::new_bound(&p.sh, &bound, &policy, n, Tier::R1_MVP).unwrap();
+        let st_on = ClassifyRunStatement::new_chunk_prover(rs(), run_ctx, p.digests.clone(), &p.model, &bound, &policy, n, Tier::R1_MVP, [7u8; 32], 0, n, 0).unwrap();
+        st_on.check_tables_prover(&bound).unwrap();
+        let hp1 = classify_host_fast_hits_snapshot();
+        assert_eq!(cp_on, cp_off, "new_bound must match ON vs OFF");
+        assert_eq!(st_on.cp, st_ver.cp, "new_chunk_prover must match new_chunk");
+        assert_eq!(hp1[CHF_C1_DIGESTS], hp0[CHF_C1_DIGESTS] + 3, "C1 prover paths (new_bound + new_chunk_prover + check_tables_prover) must fire 3 hits when ON");
+        assert_eq!(classify_host_fast_fallbacks_snapshot(), fp0, "C1 prover paths must record 0 fallbacks");
+    }
+
+    // ---- 3. Unit C3 / L2: boundary::prepare (base) vs prepare_fast / prepare_i16 (prover)
+    {
+        let spec = BoundarySpec::new(ctx(), 32, 128, 0, 1, 2, 10, 4, 256, 10).unwrap();
+        let ntt = NttTables::new(spec.enc_log());
+        let mut seed = 0xb00d_cafe_1234_5678u64;
+        let plane: Vec<i16> = (0..spec.len()).map(|_| (lcg(&mut seed) >> 16) as i16).collect();
+        let words: Vec<Fp> = plane.iter().map(|&v| Fp::from_i64(i64::from(v))).collect();
+
+        let _off = ClassifyHostFastGuard::set(false);
+        let h0 = classify_host_fast_hits_snapshot();
+        let f0 = classify_host_fast_fallbacks_snapshot();
+        let mut rng_off = ZkRng::new(42, b"chf-unit-gate-bnd");
+        let p_off = boundary::prepare(&spec, &words, &ntt, &mut rng_off, &HashTag::legacy()).unwrap();
+        let tail_off: Vec<Fp> = (0..16).map(|_| rng_off.fp()).collect();
+        assert_eq!(classify_host_fast_hits_snapshot(), h0, "switch OFF: boundary::prepare must move 0 hits");
+        assert_eq!(classify_host_fast_fallbacks_snapshot(), f0, "switch OFF: boundary::prepare must move 0 fallbacks");
+        drop(_off);
+
+        let _on = ClassifyHostFastGuard::set(true);
+        let hb = classify_host_fast_hits_snapshot();
+        let fb = classify_host_fast_fallbacks_snapshot();
+        let mut rng_base = ZkRng::new(42, b"chf-unit-gate-bnd");
+        let p_base = boundary::prepare(&spec, &words, &ntt, &mut rng_base, &HashTag::legacy()).unwrap();
+        assert_eq!(p_base.root(), p_off.root());
+        assert_eq!(classify_host_fast_hits_snapshot(), hb, "L2 unit gate: boundary::prepare must move 0 hits with switch ON");
+        assert_eq!(classify_host_fast_fallbacks_snapshot(), fb, "L2 unit gate: boundary::prepare must move 0 fallbacks with switch ON");
+
+        let hp0 = classify_host_fast_hits_snapshot();
+        let fp0 = classify_host_fast_fallbacks_snapshot();
+        let mut rng_fast = ZkRng::new(42, b"chf-unit-gate-bnd");
+        let p_fast = boundary::prepare_fast(&spec, &words, &ntt, &mut rng_fast, &HashTag::legacy()).unwrap();
+        let tail_fast: Vec<Fp> = (0..16).map(|_| rng_fast.fp()).collect();
+        let mut rng_i16 = ZkRng::new(42, b"chf-unit-gate-bnd");
+        let p_i16 = boundary::prepare_i16(&spec, &plane, &ntt, &mut rng_i16, &HashTag::legacy()).unwrap();
+        let tail_i16: Vec<Fp> = (0..16).map(|_| rng_i16.fp()).collect();
+        let hp1 = classify_host_fast_hits_snapshot();
+        assert_eq!(p_fast.root(), p_off.root());
+        assert_eq!(p_i16.root(), p_off.root());
+        assert_eq!(tail_fast, tail_off);
+        assert_eq!(tail_i16, tail_off);
+        assert_eq!(hp1[CHF_C3_SEQ_BOUNDARY], hp0[CHF_C3_SEQ_BOUNDARY] + 2, "C3 prepare_fast + prepare_i16 hit count");
+        assert_eq!(classify_host_fast_fallbacks_snapshot(), fp0, "C3 boundary prover paths must record 0 fallbacks");
+    }
+
+    // ---- 4. End-to-end CLI: switch OFF zero-hit equality + switch ON verifier zero-hit equality
+    {
+        let prove_capturing = |out: &Path| -> (i32, Vec<String>) {
+            let cf = cc.content_file(&cc.content);
+            let od = cc.owner_dir(out);
+            classify_prove_capturing_for_test(&s(&[
+                "--export",
+                cc.export.to_str().unwrap(),
+                "--tables",
+                cc.tables.to_str().unwrap(),
+                "--policy",
+                POLICY_RUNG_DEV,
+                "--content-file",
+                cf.to_str().unwrap(),
+                "--seq",
+                "s0",
+                "--out",
+                out.to_str().unwrap(),
+                "--owner-dir",
+                od.to_str().unwrap(),
+            ]))
+        };
+
+        let out_off = cc.root.join("gate-off");
+        {
+            let _off = ClassifyHostFastGuard::set(false);
+            let h0 = classify_host_fast_hits_snapshot();
+            let f0 = classify_host_fast_fallbacks_snapshot();
+            let (code, events) = prove_capturing(&out_off);
+            assert_eq!(code, 0, "switch OFF CLI prove failed: {events:?}");
+            assert_eq!(cc.verify(&out_off, &cc.tables), 0, "switch OFF CLI verify failed");
+            assert_eq!(cc.input_owner(&out_off, &cc.tables, &cc.content), 0, "switch OFF CLI input-owner failed");
+            assert_eq!(classify_host_fast_hits_snapshot(), h0, "switch OFF gate: CLI prove/verify/input-owner must move 0 hits");
+            assert_eq!(classify_host_fast_fallbacks_snapshot(), f0, "switch OFF gate: CLI prove/verify/input-owner must move 0 fallbacks");
+        }
+
+        let out_on = cc.root.join("gate-on");
+        {
+            let _on = ClassifyHostFastGuard::set(true);
+            let hp0 = classify_host_fast_hits_snapshot();
+            let fp0 = classify_host_fast_fallbacks_snapshot();
+            let (code, events) = prove_capturing(&out_on);
+            let hp1 = classify_host_fast_hits_snapshot();
+            let fp1 = classify_host_fast_fallbacks_snapshot();
+            assert_eq!(code, 0, "switch ON CLI prove failed: {events:?}");
+            let dh: [u64; 5] = std::array::from_fn(|i| hp1[i] - hp0[i]);
+            assert!(dh[CHF_C1_DIGESTS] > 0 && dh[CHF_C2_ASYNC_SINK] >= 3 && dh[CHF_C3_SEQ_BOUNDARY] > 0 && dh[CHF_C4_CS3_SKIP] > 0, "CLI prove ON expected C1..C4 > 0, got {dh:?}");
+            #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+            assert!(dh[CHF_C5_EMB_FOLD_NEON] > 0, "CLI prove ON expected C5 > 0, got {dh:?}");
+            assert_eq!(fp1, fp0, "CLI prove ON expected 0 fallbacks");
+
+            let vh0 = classify_host_fast_hits_snapshot();
+            let vf0 = classify_host_fast_fallbacks_snapshot();
+            assert_eq!(cc.verify(&out_on, &cc.tables), 0, "switch ON CLI verify failed");
+            assert_eq!(cc.input_owner(&out_on, &cc.tables, &cc.content), 0, "switch ON CLI input-owner failed");
+            assert_eq!(classify_host_fast_hits_snapshot(), vh0, "M1 CLI gate: verify/input-owner must move 0 hits with switch ON");
+            assert_eq!(classify_host_fast_fallbacks_snapshot(), vf0, "M1 CLI gate: verify/input-owner must move 0 fallbacks with switch ON");
+        }
+    }
+
+    eprintln!("HL_CLASSIFY_HOST_FAST | UNIT+SWITCH-OFF GATE PASS: strict zero-hit/zero-fallback equalities verified across emb_fold, new_chunk/check_tables, boundary::prepare, and CLI prove/verify/input-owner");
+}

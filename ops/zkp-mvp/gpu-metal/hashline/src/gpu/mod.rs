@@ -25,7 +25,13 @@ mod cuda;
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
 mod metal;
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
-pub use metal::{batch_stats as metal_batch_stats, metal_commit, metal_commit_zk, metal_rounds, metal_rounds_owned, pool_stats as metal_pool_stats, probe_field as metal_probe_field, stats as metal_stats, sumcheck_stats as metal_sumcheck_stats, MetalCommit, MetalRounds, MetalTables, TailedRounds};
+pub use metal::{
+    batch_stats as metal_batch_stats, metal_commit, metal_commit_zk, metal_rounds, metal_rounds_cached,
+    metal_rounds_owned, metal_rounds_owned_cached, pool_stats as metal_pool_stats, probe_field as metal_probe_field,
+    slot_pipes_get_or_compile as metal_slot_pipes_get_or_compile, stats as metal_stats,
+    sumcheck_stats as metal_sumcheck_stats, trace_on as metal_trace_on, CachedSlotPipes, MetalCommit, MetalRounds,
+    MetalTables, TailedRounds,
+};
 #[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
 pub use metal::fs_round_for_test as metal_fs_round_for_test;
 #[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]

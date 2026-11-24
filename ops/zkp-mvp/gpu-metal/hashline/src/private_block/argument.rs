@@ -79,6 +79,20 @@ pub(crate) enum Tab {
 /// `dd_e_column`), carried beside `SlotDef::tabs` on the proving path when
 /// `HL_HOST_FAST=1` so the prover avoids allocating/filling giant host `Vec<Fp2>`
 /// buffers and A12 `MetalTables` materializes them directly via `k_tab_pub_gen`.
+/// [HOST-FAST-W2 W2-4c] Boxed RoPE generator payload so `PubGen` stays at its
+/// exact base size (no enum-widening on the `HL_HOST_FAST_W2` unset path).
+#[derive(Clone, Debug)]
+pub(crate) struct RopePubGen {
+    pub(crate) len: usize,
+    pub(crate) is_sin: bool,
+    pub(crate) tokens: usize,
+    pub(crate) heads: usize,
+    pub(crate) head_dim: usize,
+    pub(crate) per: usize,
+    pub(crate) group: usize,
+    pub(crate) vals: Vec<u64>,
+}
+
 #[derive(Clone, Debug)]
 pub(crate) enum PubGen {
     /// 2D box support indicator (possibly lifted by `2^shift`):
@@ -93,6 +107,12 @@ pub(crate) enum PubGen {
     CausalMask { len: usize, t_pad: usize },
     /// Periodic base-field words (`gamma_a`, `gamma_m`, `dd_e_column`): `Fp(vals[x % vals.len()])`
     GammaRepeat { len: usize, vals: Vec<u64> },
+    /// [HOST-FAST-W2 W2-4c] RoPE cos (`is_sin = false`) or sin (`is_sin = true`) table
+    /// over `Dom::Q` (`heads = h_pad`, `per = slots_per_kv_group`, `group = q_heads / kv_heads`)
+    /// or `Dom::Kv` (`heads = kv_heads`, `per = 1`, `group = 1`).
+    Rope(Box<RopePubGen>),
+    /// [HOST-FAST-W2 W2-4c] Constant `Fp2::ONE` table (`SC_ZS`).
+    ConstOne { len: usize },
 }
 
 impl PubGen {
@@ -102,7 +122,9 @@ impl PubGen {
             | PubGen::HeadSupp { len, .. }
             | PubGen::GroupCol { len, .. }
             | PubGen::CausalMask { len, .. }
-            | PubGen::GammaRepeat { len, .. } => *len,
+            | PubGen::GammaRepeat { len, .. }
+            | PubGen::ConstOne { len } => *len,
+            PubGen::Rope(r) => r.len,
         }
     }
 
@@ -135,6 +157,16 @@ impl PubGen {
                 assert!(!vals.is_empty(), "private block: pub_gen GammaRepeat vals empty");
                 assert!(vals.iter().all(|&w| w < crate::field::P), "private block: pub_gen GammaRepeat non-canonical word");
             }
+            PubGen::Rope(r) => {
+                assert!(r.head_dim >= 2 && r.head_dim % 2 == 0, "private block: pub_gen Rope head_dim invalid");
+                assert!(r.heads > 0, "private block: pub_gen Rope heads == 0");
+                assert!(r.per > 0, "private block: pub_gen Rope per == 0");
+                assert!(r.head_dim.checked_mul(r.heads).is_some_and(|v| v > 0), "private block: pub_gen Rope stride overflow");
+                let half = r.head_dim / 2;
+                assert!(r.tokens.checked_mul(half).is_some_and(|need| r.vals.len() >= need), "private block: pub_gen Rope vals too short");
+                assert!(r.vals.iter().all(|&w| w < crate::field::P), "private block: pub_gen Rope non-canonical word");
+            }
+            PubGen::ConstOne { .. } => {}
         }
         crate::zk::record_host_fast_hit(crate::zk::HF_H6_CPU_PUB_GEN);
         const CH: usize = 1 << 14;
@@ -195,6 +227,27 @@ impl PubGen {
                 for (i, o) in ch.iter_mut().enumerate() {
                     *o = Fp2::new(Fp(vals[(base + i) % m]), Fp::ZERO);
                 }
+            }
+            PubGen::Rope(r) => {
+                let (sin, tok, hd, dh, pe, gr) = (r.is_sin, r.tokens, r.heads, r.head_dim, r.per, r.group);
+                let half = dh / 2;
+                let stride_t = dh * hd;
+                for (idx_i, o) in ch.iter_mut().enumerate() {
+                    let x = base + idx_i;
+                    let i = x % dh;
+                    let sl = (x / dh) % hd;
+                    let t = x / stride_t;
+                    if t < tok && (sl % pe) < gr {
+                        let w = Fp(r.vals[t * half + (i % half)]);
+                        let v = if sin && i < half { Fp::ZERO.sub(w) } else { w };
+                        *o = Fp2::new(v, Fp::ZERO);
+                    } else {
+                        *o = Fp2::ZERO;
+                    }
+                }
+            }
+            PubGen::ConstOne { .. } => {
+                ch.fill(Fp2::ONE);
             }
         };
         if out.len() >= TABLE_PAR_MIN {
@@ -278,6 +331,10 @@ pub(crate) struct SlotDef {
     /// side with HL_GPU=1; `None` keeps the CPU evaluator.
     #[cfg(feature = "gpu-metal")]
     pub(crate) metal: Option<(String, Vec<Fp2>, Vec<bool>)>,
+    /// [HOST-FAST-W2 W2-4] Boxed structural-keyed cached Metal pipelines + extracted
+    /// `cf` + optional trace label (8 B when `None`, bypasses MSL formatting & `sc_pipes`).
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    pub(crate) metal_cached: Option<Box<(std::sync::Arc<crate::gpu::CachedSlotPipes>, Vec<Fp2>, String)>>,
     /// [HOST-FAST H6] Sparse `(table_index, PubGen)` descriptors for compact
     /// public tables whose `Tab::Pub(Vec::new())` placeholder lives in `tabs`.
     pub(crate) pub_gens: Vec<(usize, PubGen)>,
@@ -372,6 +429,16 @@ pub(crate) struct Points {
     /// its per-slot `check_for_registry`, which the record's check already ran
     /// with the same arguments. `false` (every other `Points`): it checks.
     registry_checked: bool,
+    /// **[HOST-FAST-W2 W2-6b]** set by [`argument_with`] ONLY on `Side::Prove`
+    /// when `HL_HOST_FAST_W2=1` and `CheckedPublic` covers `ctx` at `sh`
+    /// (`check_accuracy_for_shape` verified `!contains(&i8::MIN)` on all 7 weight matrices).
+    /// Never true on `Side::Verify`.
+    weights_checked: bool,
+    /// **[HOST-FAST / HOST-FAST-W2]** set by [`argument_with`] from
+    /// `matches!(side, Side::Prove { .. })`; `false` on `Side::Verify` and direct
+    /// `define()` callers so speed switches (`HL_HOST_FAST`, `HL_HOST_FAST_W2`)
+    /// NEVER reach verifier-side accuracy folds or move verifier counters.
+    pub(super) prove_side: bool,
     /// **[HOST-FAST H6]** set by [`argument_with`] (and nothing else) on
     /// `Side::Prove` when `HL_HOST_FAST=1`: emits compact `PubGen` descriptors
     /// and `direct_total` closures without changing `Side::Verify` or direct
@@ -544,6 +611,114 @@ pub(super) fn a14_dot_forms(eq: &[Fp2], xs: &[Fp]) -> (Fp2, Fp2) {
     (acc.value(), xs.iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x))))
 }
 
+/// [HOST-FAST-W2 W2-6c] Out-of-line contiguous-stride fast paths for `SC_SCORE`
+/// (`A_QR8`, `A_KR8`) and `SC_PV` (`A_P`, `A_V8`) — kept `#[cold] #[inline(never)]`
+/// so its `[LazyDot; 256]` stack frame never bloats `priv_table_fill` when unset.
+#[cold]
+#[inline(never)]
+#[allow(clippy::too_many_arguments)]
+fn priv_table_fill_w2(
+    p: &Priv,
+    data: &[Fp],
+    n_vars: usize,
+    out: &mut [Fp2],
+    par_min: usize,
+    one_slice: Option<usize>,
+    nf: usize,
+    eqf: &[Fp2],
+) -> bool {
+    let Some(off) = one_slice else {
+        return false;
+    };
+    if nf == 0 || p.coords.len() != p.log || p.log != nf + n_vars {
+        return false;
+    }
+    // Pattern A: `[Fixed(f0), Rho(0..r0), Fixed(f1), Rho(r0..r0+r1)]`
+    let f0 = p.coords.iter().take_while(|c| matches!(c, Coord::Fixed(_))).count();
+    let r0 = p.coords[f0..]
+        .iter()
+        .enumerate()
+        .take_while(|&(k, c)| matches!(c, Coord::Rho(r) if *r == k))
+        .count();
+    let f1 = p.coords[f0 + r0..].iter().take_while(|c| matches!(c, Coord::Fixed(_))).count();
+    let r1 = p.log - f0 - r0 - f1;
+    if f0 + f1 == nf
+        && r0 + r1 == n_vars
+        && r1 > 0
+        && p.coords[f0 + r0 + f1..]
+            .iter()
+            .enumerate()
+            .all(|(k, c)| matches!(c, Coord::Rho(r) if *r == r0 + k))
+    {
+        let tile = 256usize.min(1usize << r1);
+        let f1_mask = (1usize << f1) - 1;
+        let r1_mask = (1usize << r1) - 1;
+        let run_tile = |(ti, ch): (usize, &mut [Fp2])| {
+            let start = ti * tile;
+            let x0 = start >> r1;
+            let x1_0 = start & r1_mask;
+            let len = ch.len();
+            let mut acc = [LazyDot::default(); 256];
+            for (z, &ez) in eqf.iter().enumerate() {
+                let z0 = z >> f1;
+                let z1 = z & f1_mask;
+                let idx0 = ((((((z0 << r0) | x0) << f1) | z1) << r1) | x1_0) + off;
+                let row = &data[idx0..idx0 + len];
+                for (a, &v) in acc[..len].iter_mut().zip(row.iter()) {
+                    a.add(ez, v);
+                }
+            }
+            for (o, a) in ch.iter_mut().zip(&acc[..len]) {
+                *o = a.value();
+            }
+        };
+        if (1usize << p.log) >= par_min && acc_par_on() {
+            use rayon::prelude::*;
+            out.par_chunks_mut(tile).enumerate().for_each(run_tile);
+        } else {
+            out.chunks_mut(tile).enumerate().for_each(run_tile);
+        }
+        return true;
+    }
+
+    // Pattern B: `[Rho(r0..r0+r1), Rho(0..r0), Fixed(0..nf)]`
+    if p.coords[n_vars..].iter().all(|c| matches!(c, Coord::Fixed(_))) {
+        if let Some(&Coord::Rho(r0)) = p.coords.first() {
+            let r1 = n_vars.saturating_sub(r0);
+            if r0 <= n_vars
+                && p.coords[..r1].iter().enumerate().all(|(k, c)| matches!(c, Coord::Rho(r) if *r == r0 + k))
+                && p.coords[r1..n_vars].iter().enumerate().all(|(k, c)| matches!(c, Coord::Rho(r) if *r == k))
+            {
+                let r1_mask = (1usize << r1) - 1;
+                let nf_len = 1usize << nf;
+                let run_chunk = |(ci, ch): (usize, &mut [Fp2])| {
+                    let base_x = ci * 32;
+                    for (i, o) in ch.iter_mut().enumerate() {
+                        let x = base_x + i;
+                        let x0 = x >> r1;
+                        let x1 = x & r1_mask;
+                        let idx0 = off + (((x1 << r0) | x0) << nf);
+                        let row = &data[idx0..idx0 + nf_len];
+                        let mut acc = LazyDot::default();
+                        for (&ez, &v) in eqf.iter().zip(row.iter()) {
+                            acc.add(ez, v);
+                        }
+                        *o = acc.value();
+                    }
+                };
+                if (1usize << p.log) >= par_min && acc_par_on() {
+                    use rayon::prelude::*;
+                    out.par_chunks_mut(32).enumerate().for_each(run_chunk);
+                } else {
+                    out.chunks_mut(32).enumerate().for_each(run_chunk);
+                }
+                return true;
+            }
+        }
+    }
+    false
+}
+
 fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed: bool, par_min: usize) {
     let fixed: Vec<Fp2> = p.coords.iter().filter_map(|c| if let Coord::Fixed(f) = c { Some(*f) } else { None }).collect();
     let eqf = eq_table_msb(&fixed);
@@ -593,6 +768,9 @@ fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed
                 }
             }
         }
+    }
+    if crate::zk::host_fast_w2_on() && lazy_on() && priv_table_fill_w2(p, data, n_vars, out, par_min, one_slice, fixed.len(), &eqf) {
+        return;
     }
     let mut used = 0usize;
     for c in &p.coords {
@@ -1282,6 +1460,30 @@ pub(super) fn plan_pub_gen_on(mt: &mut crate::gpu::MetalTables, t: usize, g: &Pu
                 return true;
             }
         }
+        PubGen::Rope(r) => {
+            if let (Some(tok), Some(gr), Some(dh), Some(hd), Some(pe)) =
+                (u(r.tokens), u(r.group), u(r.head_dim), u(r.heads), u(r.per))
+            {
+                if u(r.vals.len()).is_some() {
+                    mt.plan_pub_gen(
+                        t,
+                        MetalTables::PUB_GEN_ROPE,
+                        u32::from(r.is_sin),
+                        tok,
+                        gr,
+                        dh,
+                        hd,
+                        pe,
+                        r.vals.clone(),
+                    );
+                    return true;
+                }
+            }
+        }
+        PubGen::ConstOne { .. } => {
+            mt.plan_pub_gen(t, MetalTables::PUB_GEN_CONST_ONE, 0, 0, 0, 0, 0, 0, Vec::new());
+            return true;
+        }
     }
     false
 }
@@ -1295,12 +1497,20 @@ pub(super) fn build_tables_device(tabs: &[Tab], n_vars: usize, pd: &ProverData, 
 #[allow(clippy::too_many_arguments)]
 fn build_tables_device_with(tabs: &[Tab], pub_gens: &[(usize, PubGen)], n_vars: usize, pd: &ProverData, mt: &mut crate::gpu::MetalTables, base: &[bool], defer: bool, views: bool) -> Result<bool, String> {
     let mut planned_pub_gen = 0u64;
+    let mut planned_w2_rope = 0u64;
     for (t, tab) in tabs.iter().enumerate() {
         if let Some(g) = pub_gen_at(pub_gens, t) {
+            let is_w2_pub = matches!(g, PubGen::Rope(_) | PubGen::ConstOne { .. });
             if plan_pub_gen_on(mt, t, g) {
                 planned_pub_gen += 1;
+                if is_w2_pub {
+                    planned_w2_rope += 1;
+                }
             } else {
                 crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H6_GPU_PUB_GEN, "H6 pub_gen: plan_pub_gen_on declined");
+                if is_w2_pub {
+                    crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_ROPE_GEN, "W2-4c pub_gen_rope: plan_pub_gen_on declined");
+                }
             }
             continue;
         }
@@ -1327,6 +1537,11 @@ fn build_tables_device_with(tabs: &[Tab], pub_gens: &[(usize, PubGen)], n_vars: 
         for _ in 0..planned_pub_gen {
             crate::zk::record_host_fast_hit(crate::zk::HF_H6_GPU_PUB_GEN);
         }
+        for _ in 0..planned_w2_rope {
+            crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PUB_GEN_ROPE);
+        }
+    } else if planned_w2_rope > 0 {
+        crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_ROPE_GEN, "W2-4c pub_gen_rope: build_planned declined");
     }
     Ok(taken)
 }
@@ -1412,6 +1627,67 @@ fn mask_tail(sh: &Shape, p: &Priv, point: &[Fp2]) -> Vec<Fp2> {
     point[p.log - logm..].to_vec()
 }
 
+/// [HOST-FAST-W2 W2-8] Out-of-line fused 2-row `mask_eval_eq` (`mask_row` + `mask_row + 1`
+/// in one 2x-unrolled pass over `eq`), kept `#[cold] #[inline(never)]` so the unset path
+/// keeps base `mask_eval_eq` codegen.
+#[cold]
+#[inline(never)]
+fn mask_eval_eq_w2(mask_row: usize, n: usize, c0: usize, data: &[Fp], eq: &[Fp2]) -> Fp2 {
+    crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_MASK_EVAL);
+    let len = eq.len();
+    let xs0 = &data[mask_row * n + c0..mask_row * n + c0 + len];
+    let xs1 = &data[(mask_row + 1) * n + c0..(mask_row + 1) * n + c0 + len];
+    let (mut a0, mut a1) = (LazyDot::default(), LazyDot::default());
+    let (mut b0, mut b1) = (LazyDot::default(), LazyDot::default());
+    let mut i = 0usize;
+    while i + 2 <= len {
+        let e0 = eq[i];
+        let e1 = eq[i + 1];
+        a0.add(e0, xs0[i]);
+        b0.add(e0, xs1[i]);
+        a1.add(e1, xs0[i + 1]);
+        b1.add(e1, xs1[i + 1]);
+        i += 2;
+    }
+    if i < len {
+        let e = eq[i];
+        a0.add(e, xs0[i]);
+        b0.add(e, xs1[i]);
+    }
+    let r0 = a0.value().add(a1.value());
+    let r1 = b0.value().add(b1.value());
+    r0.add(Fp2::U.mul(r1))
+}
+
+#[cold]
+#[inline(never)]
+fn eval_ext_round_w2(sh: &Shape, tabs: &[Tab], pd: &ProverData<'_>, uniq: &[&Vec<Fp2>], which: &[usize]) -> Vec<Fp2> {
+    use rayon::prelude::*;
+    let eqs: Vec<Vec<Fp2>> = if uniq.len() <= 1 {
+        uniq.iter().map(|u| eq_table_msb(u)).collect()
+    } else {
+        uniq.par_iter().map(|u| eq_table_msb(u)).collect()
+    };
+    let n_active_priv = which.iter().filter(|&&k| k != usize::MAX).count();
+    if n_active_priv <= 2 {
+        tabs.iter()
+            .zip(which.iter())
+            .map(|(t, &k)| match t {
+                Tab::Priv(p) if k != usize::MAX => mask_eval_eq(sh, p, pd.data[p.cm as usize], &eqs[k]),
+                _ => Fp2::ZERO,
+            })
+            .collect()
+    } else {
+        tabs.par_iter()
+            .zip(which.par_iter())
+            .map(|(t, &k)| match t {
+                Tab::Priv(p) if k != usize::MAX => mask_eval_eq(sh, p, pd.data[p.cm as usize], &eqs[k]),
+                _ => Fp2::ZERO,
+            })
+            .collect()
+    }
+}
+
 /// `(R_re + u R_im)~(tail)`, given `eq = eq_table_msb(tail)` — `mask_eval`
 /// with the eq table built by the caller, so tables sharing a tail share it
 fn mask_eval_eq(sh: &Shape, p: &Priv, data: &[Fp], eq: &[Fp2]) -> Fp2 {
@@ -1419,6 +1695,9 @@ fn mask_eval_eq(sh: &Shape, p: &Priv, data: &[Fp], eq: &[Fp2]) -> Fp2 {
     let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };
     // [A14] summed exactly and reduced once ([`LazyDot`]): the same word
     let lazy = lazy_on();
+    if crate::zk::host_fast_w2_on() && lazy {
+        return mask_eval_eq_w2(p.mask_row, n, c0, data, eq);
+    }
     let row = |r: usize| {
         let xs = &data[r * n + c0..r * n + c0 + eq.len()];
         if lazy {
@@ -1624,7 +1903,18 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
             #[cfg(feature = "gpu-metal")]
             let mut dev_tables: Option<crate::gpu::MetalTables> = None;
             #[cfg(feature = "gpu-metal")]
-            let direct = def.metal.is_some()
+            let has_metal = def.metal.is_some() || {
+                #[cfg(not(feature = "gpu-cuda"))]
+                {
+                    def.metal_cached.is_some()
+                }
+                #[cfg(feature = "gpu-cuda")]
+                {
+                    false
+                }
+            };
+            #[cfg(feature = "gpu-metal")]
+            let direct = has_metal
                 && (kind != SlotKind::Private || def.direct_total.is_some())
                 && (def.tabs.len() << n) > METAL_DIRECT_MIN
                 && !super::timing::census_on(s);
@@ -1641,7 +1931,18 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
                         // (the same words)
                         let mode = device_tables_mode();
                         let dev = mode != DT_HOST && {
-                            let base = &def.metal.as_ref().expect("a direct device build has the slot's kernels").2;
+                            let base: &[bool] = if let Some((_, _, b)) = &def.metal {
+                                b.as_slice()
+                            } else {
+                                #[cfg(not(feature = "gpu-cuda"))]
+                                {
+                                    def.metal_cached.as_ref().expect("a direct device build has the slot's kernels").0.base()
+                                }
+                                #[cfg(feature = "gpu-cuda")]
+                                {
+                                    unreachable!()
+                                }
+                            };
                             match build_tables_device_with(&def.tabs, &def.pub_gens, n, pd, &mut mt, base, mode == DT_DEVICE, false) {
                                 Ok(taken) => taken,
                                 Err(e) => {
@@ -1757,8 +2058,20 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
                 let metal_result = if let Some(mt) = dev_tables.take() {
                     // [M4i] the tables already in device memory; a decline
                     // hands them back for the CPU evaluator
-                    let (src, cf, base) = def.metal.as_ref().expect("a direct device build has the slot's kernels");
-                    match crate::gpu::metal_rounds_owned(src, mt, degree, cf, base) {
+                    let owned_res = if let Some((src, cf, base)) = def.metal.as_ref() {
+                        crate::gpu::metal_rounds_owned(src, mt, degree, cf, base)
+                    } else {
+                        #[cfg(not(feature = "gpu-cuda"))]
+                        {
+                            let (cached, cf, lbl) = def.metal_cached.as_deref().expect("a direct device build has the slot's kernels");
+                            crate::gpu::metal_rounds_owned_cached(cached, lbl.clone(), mt, degree, cf)
+                        }
+                        #[cfg(feature = "gpu-cuda")]
+                        {
+                            unreachable!()
+                        }
+                    };
+                    match owned_res {
                         Ok(ev) => {
                             let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
                             // [M4k] the last, tiny rounds on the host (the same values)
@@ -1778,9 +2091,22 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
                         }
                     }
                 } else {
-                    match &def.metal {
-                    Some((src, cf, base)) if tables.len() << n >= METAL_MIN_TERMS || small_slot_pays(&*def.poly, tables.len(), n, degree) => {
-                        match crate::gpu::metal_rounds(src, &tables, degree, cf, base) {
+                    let wants_gpu = has_metal && (tables.len() << n >= METAL_MIN_TERMS || small_slot_pays(&*def.poly, tables.len(), n, degree));
+                    if wants_gpu {
+                        let rounds_res = if let Some((src, cf, base)) = def.metal.as_ref() {
+                            crate::gpu::metal_rounds(src, &tables, degree, cf, base)
+                        } else {
+                            #[cfg(not(feature = "gpu-cuda"))]
+                            {
+                                let (cached, cf, lbl) = def.metal_cached.as_deref().expect("has_metal guarantees metal or metal_cached");
+                                crate::gpu::metal_rounds_cached(cached, lbl.clone(), &tables, degree, cf)
+                            }
+                            #[cfg(feature = "gpu-cuda")]
+                            {
+                                unreachable!()
+                            }
+                        };
+                        match rounds_res {
                             Ok(None) => {
                                 // a base-typed table is not base-field here:
                                 // the typed kernel does not apply, CPU slot
@@ -1801,8 +2127,8 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
                                 None
                             }
                         }
-                    }
-                    _ => None,
+                    } else {
+                        None
                     }
                 };
                 #[cfg(not(feature = "gpu-metal"))]
@@ -1857,16 +2183,19 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
                             None => usize::MAX,
                         })
                         .collect();
-                    let eqs: Vec<Vec<Fp2>> = uniq.par_iter().map(|u| eq_table_msb(u)).collect();
-                    let exts: Vec<Fp2> = def
-                        .tabs
-                        .par_iter()
-                        .zip(which.par_iter())
-                        .map(|(t, &k)| match t {
-                            Tab::Priv(p) if k != usize::MAX => mask_eval_eq(&sh, p, pd.data[p.cm as usize], &eqs[k]),
-                            _ => Fp2::ZERO,
-                        })
-                        .collect();
+                    let exts: Vec<Fp2> = if crate::zk::host_fast_w2_on() {
+                        eval_ext_round_w2(&sh, &def.tabs, &pd, &uniq, &which)
+                    } else {
+                        let eqs: Vec<Vec<Fp2>> = uniq.par_iter().map(|u| eq_table_msb(u)).collect();
+                        def.tabs
+                            .par_iter()
+                            .zip(which.par_iter())
+                            .map(|(t, &k)| match t {
+                                Tab::Priv(p) if k != usize::MAX => mask_eval_eq(&sh, p, pd.data[p.cm as usize], &eqs[k]),
+                                _ => Fp2::ZERO,
+                            })
+                            .collect()
+                    };
                     let e = extension(&cur, &exts, degree, &poly, mask, c, &prev, &mut rounds, tr);
                     for (v, x) in cur.iter_mut().zip(exts.iter()) {
                         *v = masked_terminal(*v, *x, e);
@@ -2018,6 +2347,70 @@ impl<'a> B<'a> {
             self.pub_gen(PubGen::CausalMask { len: sh.size(Dom::S), t_pad: sh.t_pad })
         } else {
             self.public(causal_mask_at(sh))
+        }
+    }
+    #[cold]
+    #[inline(never)]
+    fn try_rope_pub_gen(&mut self, sh: &Shape, public: &AttentionPublic, dom: Dom) -> Option<(usize, usize)> {
+        let dh = sh.head_dim;
+        let half = dh / 2;
+        let (heads, per, group) = if dom == Dom::Q {
+            (sh.h_pad, sh.slots_per_kv_group(), sh.q_heads / sh.kv_heads)
+        } else {
+            (sh.kv_heads, 1, 1)
+        };
+        let need = sh.tokens.checked_mul(half);
+        let len = sh.size(dom);
+        if dh >= 2
+            && dh % 2 == 0
+            && heads > 0
+            && per > 0
+            && sh.tokens <= sh.t_pad
+            && len == sh.t_pad * heads * dh
+            && need.is_some_and(|m| public.rope_cos.len() >= m && public.rope_sin.len() >= m)
+        {
+            let m = need.expect("checked");
+            let cos_words: Vec<u64> = public.rope_cos[..m].iter().map(|&v| k(v).c0.0).collect();
+            let sin_words: Vec<u64> = public.rope_sin[..m].iter().map(|&v| k(v).c0.0).collect();
+            let ic = self.pub_gen(PubGen::Rope(Box::new(RopePubGen {
+                len,
+                is_sin: false,
+                tokens: sh.tokens,
+                heads,
+                head_dim: dh,
+                per,
+                group,
+                vals: cos_words,
+            })));
+            let is = self.pub_gen(PubGen::Rope(Box::new(RopePubGen {
+                len,
+                is_sin: true,
+                tokens: sh.tokens,
+                heads,
+                head_dim: dh,
+                per,
+                group,
+                vals: sin_words,
+            })));
+            return Some((ic, is));
+        }
+        crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_ROPE_GEN, "W2-4c pub_gen_rope: shape precondition");
+        None
+    }
+    fn rope_tables(&mut self, sh: &Shape, public: &AttentionPublic, dom: Dom) -> (usize, usize) {
+        if self.pub_gen_on && crate::zk::host_fast_w2_on() {
+            if let Some(pair) = self.try_rope_pub_gen(sh, public, dom) {
+                return pair;
+            }
+        }
+        let (ct, st) = rope_tables_at(sh, public, dom);
+        (self.public(ct), self.public(st))
+    }
+    fn const_one(&mut self, len: usize) -> usize {
+        if self.pub_gen_on && crate::zk::host_fast_w2_on() {
+            self.pub_gen(PubGen::ConstOne { len })
+        } else {
+            self.public(vec![Fp2::ONE; len])
         }
     }
     fn repeat_vals<T: Copy + Into<i64>>(&mut self, len: usize, vals: &[T]) -> usize {
@@ -2196,6 +2589,8 @@ impl<'a> B<'a> {
             sh: self.lay.shape().clone(),
             #[cfg(feature = "gpu-metal")]
             metal: None,
+            #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+            metal_cached: None,
         })
     }
 }
@@ -2811,10 +3206,10 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let folded=if sh.accuracy_stack()==crate::private_block::accuracy_precision::Stack::Legacy {
                 fold_rows_i8(w,outer,inner,&weights)
             } else {
-                use crate::private_block::accuracy_fold::{Site,Axis,coefficients,fold};
+                use crate::private_block::accuracy_fold::{Site,Axis,coefficients,fold_checked};
                 let data=ctx.accuracy.ok_or("R13 matmul requires bound accuracy data")?;
                 let site=match slot {SC_QMM=>Site::Q,SC_KMM=>Site::K,SC_VMM=>Site::V,_=>Site::O};
-                fold(w,outer,inner,Axis::Rows,&coefficients(sh,data,site)?,&weights)?
+                fold_checked(w,outer,inner,Axis::Rows,&coefficients(sh,data,site)?,&weights,pts.weights_checked,pts.prove_side)?
             };
             b.public(folded);
             match slot {
@@ -2952,10 +3347,10 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             let folded=if sh.accuracy_stack()==crate::private_block::accuracy_precision::Stack::Legacy {
                 fold_cols_i8(w,rows,cols,&weights)
             } else {
-                use crate::private_block::accuracy_fold::{Site,Axis,coefficients,fold};
+                use crate::private_block::accuracy_fold::{Site,Axis,coefficients,fold_checked};
                 let data=ctx.accuracy.ok_or("R13 FFN matmul requires bound accuracy data")?;
                 let site=match slot {SC_GMM=>Site::Gate,SC_UMM=>Site::Up,_=>Site::Down};
-                fold(w,rows,cols,Axis::Columns,&coefficients(sh,data,site)?,&weights)?
+                fold_checked(w,rows,cols,Axis::Columns,&coefficients(sh,data,site)?,&weights,pts.weights_checked,pts.prove_side)?
             };
             b.public(folded);
             let point = cat(&[&r_row, &r_j]);
@@ -3191,9 +3586,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             b.eq(if q { &pts.p_o } else { &pts.pv }, 0);
             // S7 / M-1: the key-value side is laid out over `kv_heads` heads,
             // and step C puts both tables on the PADDED domain stride.
-            let (ct, st) = rope_tables_at(sh, ctx.public, dom);
-            let ic = b.public(ct);
-            let is = b.public(st);
+            let (ic, is) = b.rope_tables(sh, ctx.public, dom);
             let idx = b.a_range(ids.at(first), ids.at(last))?;
             let i_src = idx[src];
             let (i_rot, i_rot_rem) = if q { (idx[A_QR8], idx[A_RQRL]) } else { (idx[A_KR8], idx[A_RKRL]) };
@@ -3500,7 +3893,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             // toy; after the P-3 lift (S4) `Dom::Tab` sits at the row width and
             // this slot's cube grows with it, which is what §4.1 means by
             // "`SC_ZS`'s rounds 8 -> 14".
-            b.public(vec![Fp2::ONE; sh.size(Dom::Tab)]);
+            b.const_one(sh.size(Dom::Tab));
             b.h(hids.u())?;
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
         }
@@ -3607,15 +4000,84 @@ pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut
 /// is skipped (the record's check ran it with the same arguments, and `ctx`
 /// is borrowed unchanged for the whole call). Any other record, or none, checks
 /// as before. The re-check draws, absorbs and writes nothing, so no byte moves.
+/// **[HOST-FAST-W2 W2-4a]** Permanently-CPU tiny slots (`SC_TZC`, `SC_QMM..=SC_DMM`,
+/// `SC_SCORE`, `SC_PV`, `SC_ZS`) that stay below `METAL_MIN_TERMS` using their real
+/// `def.tabs.len()` (`n_tabs << n < METAL_MIN_TERMS`): skipping `build_slot_ir`, MSL
+/// formatting/lookup, and `ir_matches_closure` avoids wasted host work while keeping
+/// `SC_LZC`, `SC_RS` (`IrPoints::lam_z`), and all heavy zero-checks GPU-eligible.
+///
+/// **IrPoints metadata invariant (A-L2 / B-L6):** skipped slots do not populate
+/// `IrPoints` `point_len` lengths (`r_q`, `pq`, `pk`, `pv`, `p_a`, `p_s`, `p_o`, `r_tf`,
+/// `p_g`, `p_u`, `p_z`), which remain 0 in later IRs' `TableKind::Eq { point_len }`
+/// display/export metadata only — they are never part of `slot_topo_key`, generated
+/// MSL kernels, or `ir_matches_closure`. `SC_RS` (which sets `IrPoints::lam_z`, a live
+/// coefficient value) is never skipped.
+#[cfg(feature = "gpu-metal")]
+#[cold]
+#[inline(never)]
+fn w2_is_static_cpu_slot(slot: usize, n: usize, n_tabs: usize) -> bool {
+    static SMALL_SLOT_OVERRIDE: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    if *SMALL_SLOT_OVERRIDE.get_or_init(|| std::env::var_os("HL_METAL_SMALL_SLOT_US").is_some()) {
+        return false;
+    }
+    n < 20
+        && (n_tabs << n) < METAL_MIN_TERMS
+        && matches!(
+            slot,
+            SC_TZC | SC_QMM | SC_KMM | SC_VMM | SC_WO | SC_GMM | SC_UMM | SC_DMM | SC_ZS | SC_SCORE | SC_PV
+        )
+}
+
+#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+#[cold]
+#[inline(never)]
+fn try_attach_cached_metal_slot(ir: &super::slot_ir::SlotIr, deg: usize, def: &mut SlotDef) -> bool {
+    let topo_key = super::metal_slot::slot_topo_key(ir);
+    let cf = super::metal_slot::extract_coefs(ir);
+    let k = ir.tables.len();
+    match crate::gpu::metal_slot_pipes_get_or_compile(topo_key, k, deg, cf.len(), || {
+        let (k0, k1, cf_gen, base) = super::metal_slot::msl_round_kernels(ir);
+        debug_assert_eq!(cf_gen, cf, "extract_coefs must match msl_round_kernels");
+        (format!("{k0}\n{k1}"), cf_gen.len(), base)
+    }) {
+        Ok(Some(cached)) => {
+            let lbl = if crate::gpu::metal_trace_on() {
+                format!(
+                    "slot {} ({}) at {}: {} tables ({} base), {} nodes, {} terms",
+                    ir.slot,
+                    ir.name,
+                    ir.profile,
+                    k,
+                    cached.base().iter().filter(|b| **b).count(),
+                    ir.nodes.len(),
+                    ir.terms.len()
+                )
+            } else {
+                String::new()
+            };
+            def.metal_cached = Some(Box::new((cached, cf, lbl)));
+            true
+        }
+        Ok(None) => false,
+        Err(e) => {
+            crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_PIPE_CACHE, &format!("W2-4 pipe cache: {e}"));
+            false
+        }
+    }
+}
+
 pub(crate) fn argument_with(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut super::timing::Phases, checked: Option<&super::protocol::CheckedPublic<'_>>) -> Result<Acc, String> {
     let mut acc = Acc::default();
     let mut pts = Points::default();
     let sh = ctx.lay.shape();
+    let prove_side = matches!(side, Side::Prove { .. });
+    pts.prove_side = prove_side;
     pts.registry_checked = checked.is_some_and(|c| c.covers_accuracy(ctx.accuracy, sh));
+    pts.weights_checked = prove_side && crate::zk::host_fast_w2_on() && checked.is_some_and(|c| c.covers_ctx(ctx, sh));
     // [HOST-FAST H6] use compact PubGen descriptors + direct_total on the proving
     // path only when HL_HOST_FAST=1; Side::Verify and direct define() callers keep
     // materialized Tab::Pub vectors untouched.
-    pts.pub_gen_prove = matches!(side, Side::Prove { .. }) && crate::zk::host_fast_on();
+    pts.pub_gen_prove = prove_side && crate::zk::host_fast_on();
     // [HOST-FAST H5] per-block cache of folded contiguous-prefix private planes
     // (`A_Y` across SC_QMM/KMM/VMM and `A_YM` across SC_GMM/UMM).
     let mut fold_cache = FoldCache::default();
@@ -3627,14 +4089,14 @@ pub(crate) fn argument_with(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph:
     // slot may run on the device is decided per slot by the runtime guard
     // below (the IR must equal THIS definition's closure), so a slot whose
     // IR does not model its profile stays on the CPU.
-    let metal_on = matches!(side, Side::Prove { .. }) && crate::gpu::enabled();
+    let metal_on = prove_side && crate::gpu::enabled();
     #[cfg(feature = "gpu-metal")]
     let metal_diag = std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false);
     #[cfg(feature = "gpu-metal")]
     if metal_diag {
         eprintln!(
             "[ZK60-METAL] argument: prove={} accuracy_none={} legacy_stack={} gpu_enabled={} -> metal_on={metal_on} ({})",
-            matches!(side, Side::Prove { .. }),
+            prove_side,
             ctx.accuracy.is_none(),
             sh.accuracy_stack() == crate::private_block::accuracy_precision::Stack::Legacy,
             crate::gpu::enabled(),
@@ -3648,45 +4110,57 @@ pub(crate) fn argument_with(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph:
         super::capture::start_slot(side, tr);
         #[cfg(test)]
         super::run_capture::start_slot(side, tr);
-        // The IR builder draws the same challenges, in the same order, as
-        // `define` (slot_ir.rs); it runs on a CLONE taken just before `define`,
-        // so it reads the very values `define` is about to draw and the real
-        // transcript is untouched. A slot without an IR keeps the CPU path.
+        // Save a 40-byte transcript snapshot before `define` so `build_slot_ir`
+        // (when `metal_on`) reads the exact challenges `define` drew, while
+        // letting W2-4a consult the real `def.tabs.len()`.
         #[cfg(feature = "gpu-metal")]
-        let metal_ir = if metal_on {
-            let mut twin = Transcript::clone_state(tr);
-            match super::slot_ir::build_slot_ir(slot, ctx, &mut ipts, &mut twin) {
-                Ok(ir) => Some(ir),
-                Err(e) => {
-                    if metal_diag {
-                        eprintln!("[ZK60-METAL] slot {slot}: no IR ({e})");
-                    }
-                    super::metal_slot::note_cpu_slot(slot, false);
-                    None
-                }
-            }
-        } else {
-            None
-        };
+        let twin_before = if metal_on { Some(Transcript::clone_state(tr)) } else { None };
         #[allow(unused_mut)]
         let mut def = define(slot, ctx, &mut pts, tr)?;
         #[cfg(feature = "gpu-metal")]
-        if let Some(ir) = metal_ir {
-            // RUNTIME GUARD: the IR (CPU interpreter) must equal THIS
-            // definition's closure at random points of the whole space before
-            // the device may evaluate it (Schwartz-Zippel: a wrong coefficient
-            // survives a point with probability <= deg/|F|). The points come
-            // from a local generator, never from the proof's randomness.
-            if ir.tables.len() == def.tabs.len() && super::metal_slot::ir_matches_closure(&ir, &*def.poly, slot) {
-                let (k0, k1, cf, base) = super::metal_slot::msl_round_kernels(&ir);
-                def.metal = Some((format!("{k0}\n{k1}"), cf, base));
+        if let Some(mut twin) = twin_before {
+            let skip_ir = crate::zk::host_fast_w2_on() && w2_is_static_cpu_slot(slot, sh.slots()[slot].0, def.tabs.len());
+            let metal_ir = if !skip_ir {
+                match super::slot_ir::build_slot_ir(slot, ctx, &mut ipts, &mut twin) {
+                    Ok(ir) => Some(ir),
+                    Err(e) => {
+                        if metal_diag {
+                            eprintln!("[ZK60-METAL] slot {slot}: no IR ({e})");
+                        }
+                        super::metal_slot::note_cpu_slot(slot, false);
+                        None
+                    }
+                }
             } else {
-                // NOT a device decline: this slot has no device path at this
-                // profile (the IR models the legacy slot set; a DD profile
-                // redefines slot 17 and appends the dictionary slot). It stays
-                // on the CPU, which is correct; the guard's job is that a wrong
-                // IR never reaches the GPU. Counted for the run's report.
-                super::metal_slot::note_cpu_slot(slot, metal_diag);
+                None
+            };
+            if let Some(ir) = metal_ir {
+                // RUNTIME GUARD: the IR (CPU interpreter) must equal THIS
+                // definition's closure at random points of the whole space before
+                // the device may evaluate it (Schwartz-Zippel: a wrong coefficient
+                // survives a point with probability <= deg/|F|). The points come
+                // from a local generator, never from the proof's randomness.
+                if ir.tables.len() == def.tabs.len() && super::metal_slot::ir_matches_closure(&ir, &*def.poly, slot) {
+                    #[cfg(not(feature = "gpu-cuda"))]
+                    let used_cache = if crate::zk::host_fast_w2_on() {
+                        try_attach_cached_metal_slot(&ir, sh.slots()[slot].2, &mut def)
+                    } else {
+                        false
+                    };
+                    #[cfg(feature = "gpu-cuda")]
+                    let used_cache = false;
+                    if !used_cache {
+                        let (k0, k1, cf, base) = super::metal_slot::msl_round_kernels(&ir);
+                        def.metal = Some((format!("{k0}\n{k1}"), cf, base));
+                    }
+                } else {
+                    // NOT a device decline: this slot has no device path at this
+                    // profile (the IR models the legacy slot set; a DD profile
+                    // redefines slot 17 and appends the dictionary slot). It stays
+                    // on the CPU, which is correct; the guard's job is that a wrong
+                    // IR never reaches the GPU. Counted for the run's report.
+                    super::metal_slot::note_cpu_slot(slot, metal_diag);
+                }
             }
         }
         // ROUND 5: the slot's counted ELEMENT-TERMS, its sumcheck cube
@@ -3923,5 +4397,106 @@ mod tests {
         let mut side = Side::Verify { slots: &slots };
         let err = run_slot(&mut side, &mut acc, def, &mut tr).expect_err("Side::Verify must refuse prover PubGen descriptors");
         assert!(err.contains("verifier received prover PubGen descriptors"), "unexpected error: {err}");
+    }
+
+    #[test]
+    fn host_fast_w2_score_pv_priv_table_fill_and_fused_mask_eval_eq() {
+        let _lock = crate::zk::host_fast_test_lock();
+        struct Reset {
+            prev_hf: Option<bool>,
+            prev_w2: Option<bool>,
+        }
+        impl Drop for Reset {
+            fn drop(&mut self) {
+                crate::zk::set_host_fast_for_test(self.prev_hf);
+                crate::zk::set_host_fast_w2_for_test(self.prev_w2);
+                set_lazy_for_test(None);
+            }
+        }
+        let _guard = Reset {
+            prev_hf: crate::zk::set_host_fast_for_test(Some(false)),
+            prev_w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
+        };
+        set_lazy_for_test(Some(true));
+
+        let mut st = 0x2026_1123_4428_9999u64;
+        fn next_u64(st: &mut u64) -> u64 {
+            *st ^= *st << 13;
+            *st ^= *st >> 7;
+            *st ^= *st << 17;
+            *st
+        }
+        fn next_fp2(st: &mut u64) -> Fp2 {
+            Fp2::new(Fp::new(next_u64(st)), Fp::new(next_u64(st)))
+        }
+        let sentinel = Fp2::new(Fp::new(0x1234_5678), Fp::new(0x9ABC_DEF0));
+
+        // 1. SC_SCORE (`A_QR8`: [Fixed(lt), Rho(0..lkv), Fixed(lhj), Rho(lkv..lkv+ldh)]),
+        //    SC_PV (`A_P`: [Rho(0..lkv), Fixed(lhj+lt), Rho(lkv..lkv+lt)],
+        //           `A_V8`: [Rho(lkv..lkv+lt), Rho(0..lkv), Fixed(ldh)]).
+        for &(lt, lkv, lhj, ldh) in &[(3usize, 2usize, 2usize, 4usize), (2, 0, 2, 3), (4, 3, 0, 3), (1, 1, 1, 2)] {
+            let max_log = (lt + lkv + lhj + ldh).max(lkv + lhj + lt + lt);
+            let slice_off = 13usize;
+            let data: Vec<Fp> = (0..slice_off + (1usize << max_log) + 7)
+                .map(|i| if i % 5 == 0 { Fp(crate::field::P - 1 - (i as u64 % 3)) } else { Fp::new(next_u64(&mut st)) })
+                .collect();
+
+            let r_t: Vec<Fp2> = (0..lt).map(|_| next_fp2(&mut st)).collect();
+            let r_hj: Vec<Fp2> = (0..lhj).map(|_| next_fp2(&mut st)).collect();
+            let r_i: Vec<Fp2> = (0..ldh).map(|_| next_fp2(&mut st)).collect();
+
+            let mut cq = fixed(&r_t);
+            cq.extend(rho(0..lkv));
+            cq.extend(fixed(&r_hj));
+            cq.extend((lkv..lkv + ldh).map(Coord::Rho));
+
+            let mut cp = rho(0..lkv);
+            cp.extend(fixed(&r_hj));
+            cp.extend(fixed(&r_t));
+            cp.extend((lkv..lkv + lt).map(Coord::Rho));
+
+            let mut cv: Vec<Coord> = (lkv..lkv + lt).map(Coord::Rho).collect();
+            cv.extend(rho(0..lkv));
+            cv.extend(fixed(&r_i));
+
+            for (label, coords, n_vars) in [
+                ("A_QR8", cq, lkv + ldh),
+                ("A_P", cp, lkv + lt),
+                ("A_V8", cv, lkv + lt),
+            ] {
+                let log = coords.len();
+                let p = Priv { cm: Cm::A, slices: vec![(slice_off, Fp2::ONE)], log, coords, mask_row: 0, ext_round: 0 };
+                for &par_min in &[1usize, usize::MAX] {
+                    let mut out0 = vec![sentinel; 1usize << n_vars];
+                    let mut out1 = vec![sentinel; 1usize << n_vars];
+                    crate::zk::set_host_fast_w2_for_test(Some(false));
+                    priv_table_fill(&p, &data, n_vars, &mut out0, false, par_min);
+                    crate::zk::set_host_fast_w2_for_test(Some(true));
+                    priv_table_fill(&p, &data, n_vars, &mut out1, false, par_min);
+                    assert_eq!(out1, out0, "W2-6c priv_table_fill mismatch {label} lt={lt} lkv={lkv} lhj={lhj} ldh={ldh} par_min={par_min}");
+                }
+            }
+        }
+
+        // 2. W2-8 fused 2-row `mask_eval_eq` (odd + even + large lengths, near-P wrap stress)
+        let sh = Shape::toy();
+        let n = 1usize << row_log(&sh, Cm::A);
+        let data: Vec<Fp> = (0..6 * n)
+            .map(|i| if i % 3 == 0 { Fp(crate::field::P - 1) } else { Fp::new(next_u64(&mut st)) })
+            .collect();
+        for &len in &[1usize, 2, 3, 15, 16, 17, n] {
+            let eq: Vec<Fp2> = (0..len).map(|_| next_fp2(&mut st)).collect();
+            let log = if len == n { row_log(&sh, Cm::A) } else { row_log(&sh, Cm::A) - 1 };
+            let p = Priv { cm: Cm::A, slices: vec![(0, Fp2::ONE)], log, coords: vec![], mask_row: 2, ext_round: 0 };
+            crate::zk::set_host_fast_w2_for_test(Some(false));
+            let v0 = mask_eval_eq(&sh, &p, &data, &eq);
+
+            crate::zk::set_host_fast_w2_for_test(Some(true));
+            let hb1 = crate::zk::host_fast_w2_hits_for_test();
+            let v1 = mask_eval_eq(&sh, &p, &data, &eq);
+            let ha1 = crate::zk::host_fast_w2_hits_for_test();
+            assert_eq!(v1, v0, "W2-8 fused mask_eval_eq mismatch len={len}");
+            assert!(ha1[crate::zk::HF_W2_MASK_EVAL] > hb1[crate::zk::HF_W2_MASK_EVAL], "hw1 must bump HF_W2_MASK_EVAL");
+        }
     }
 }

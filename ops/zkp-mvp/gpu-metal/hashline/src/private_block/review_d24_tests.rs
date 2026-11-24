@@ -47,6 +47,33 @@ pub(super) struct Forge {
 thread_local! {
     static FORGE: Cell<Option<Forge>> = const { Cell::new(None) };
     static FORGED: Cell<usize> = const { Cell::new(0) };
+    /// Thread-local sealing-pass CS-3 lookup-miss test hook: when enabled, sets `rho = -1` at
+    /// `(h, t, j) == (0, 0, 0)` while leaving `q` (and therefore `x_out`) untouched so the
+    /// witness passes `build_shaped` + `x_out` parity and hits `check_lookup_misses_sealed`.
+    static FORGE_SEAL_BYTE_MISS: Cell<bool> = const { Cell::new(false) };
+}
+
+/// RAII thread-local guard that plants a byte-table lookup miss (`rho = -1` at `(0, 0, 0)`)
+/// inside `witness::build_shaped` without changing `q` or `x_out`, for sealing-pass refusal tests.
+pub(crate) struct ForgeSealByteMissGuard {
+    prev: bool,
+}
+
+impl ForgeSealByteMissGuard {
+    pub(crate) fn on() -> Self {
+        FORGED.with(|n| n.set(0));
+        let prev = FORGE_SEAL_BYTE_MISS.with(|b| b.replace(true));
+        Self { prev }
+    }
+    pub(crate) fn count(&self) -> usize {
+        FORGED.with(|n| n.get())
+    }
+}
+
+impl Drop for ForgeSealByteMissGuard {
+    fn drop(&mut self) {
+        FORGE_SEAL_BYTE_MISS.with(|b| b.set(self.prev));
+    }
 }
 
 fn set_forge(v: Option<Forge>) {
@@ -63,6 +90,10 @@ fn forged_count() -> usize {
 /// leave `[0, Sum)` is NOT applied (and not counted): at an admitted `f_e`
 /// none exists.
 pub(super) fn forge_softmax(h: usize, t: usize, j: usize, total: i64, q: i64, rho: i64, sigma: i64) -> (i64, i64, i64) {
+    if h == 0 && t == 0 && j == 0 && FORGE_SEAL_BYTE_MISS.with(|b| b.get()) {
+        FORGED.with(|n| n.set(n.get() + 1));
+        return (q, -1, sigma);
+    }
     match FORGE.with(|f| f.get()) {
         Some(f) if f.h == h && f.t == t && f.j == j => {
             if f.naive {

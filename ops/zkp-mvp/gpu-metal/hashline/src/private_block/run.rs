@@ -1069,6 +1069,13 @@ pub(crate) fn peak_rss_mib() -> f64 {
 pub(crate) trait RunWitnessSource {
     /// block `k`'s integer witness, built just in time and consumed by the stage
     fn witness(&mut self, k: usize) -> Result<Witness, String>;
+    /// **[HOST-FAST-W2 W2-2]** block `k`'s witness together with any ownership-bound
+    /// sealing-pass histograms collected by [`super::protocol::check_lookup_misses_sealed`].
+    /// Default implementation wraps [`Self::witness`] with no histograms so every existing
+    /// source stays unchanged.
+    fn witness_sealed(&mut self, k: usize) -> Result<super::protocol::SealedWitness, String> {
+        self.witness(k).map(super::protocol::SealedWitness::unsealed)
+    }
     /// the PADDED plane the prover commits at internal boundary `k`
     fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String>;
 }

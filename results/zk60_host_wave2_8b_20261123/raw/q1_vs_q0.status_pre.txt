@@ -1,0 +1,25 @@
+2026-11-23T23:46:18Z
+binary /Users/victorrielly/IntelligenceRegulation/.agy-worktrees/host-wave2/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-5d23267366f4fc6a sha256 864d96525955541eda6e0af7e808d12c3bd2b0280101e4c1f6c2444affd12971
+arms serve8+lanes2+ba1+frs1+sf1+sc1+hf1+q0,serve8+lanes2+ba1+frs1+sf1+sc1+hf1+q1
+passes 6
+env {'HL_GPU': '1', 'HL_GPU_REQUIRED': '1', 'HL_PB_ORACLE': '0', 'HL_METAL_TIMING': '0', 'HL_D55_PROFILE': 'W16R2_8B_T128_H24', 'HL_D55_L': '32', 'HL_D55_WORKERS': '6', 'HL_A19_BUDGET_GIB': '32', 'HL_D55_AB_ALTERNATE': '1'}
+--- guard status ---
+RAM   206.24 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 0 of 252.5 GiB committed by guarded jobs
+LOCKS heavy free, build free
+GPU   519 of 196608 MiB used
+DISK  /System/Volumes/VM 77.0 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  16727 MiB  pid 48978   agy
+  rss   4764 MiB  pid 1578    claude
+  rss   1910 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1450 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1361 MiB  pid 17265   claude
+  rss   1095 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/
+--- sysctl -n vm.loadavg ---
+{ 5.15 5.35 5.71 }
+--- pgrep -fl ds4-bench ---
+(none)
+--- after the run, 2026-11-23T23:52:37Z ---
+loadavg { 15.42 13.82 9.88 }
+ds4-bench (none)

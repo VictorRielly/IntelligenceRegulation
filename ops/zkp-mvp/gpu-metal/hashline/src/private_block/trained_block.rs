@@ -2159,8 +2159,9 @@ struct SealedChain {
     shapes: Vec<Shape>,
     /// block k's padded output plane, sealed
     outs: Vec<Vec<i16>>,
-    /// the witnesses kept from the sealing pass (within the budget)
-    kept: Vec<Option<Witness>>,
+    /// the witnesses kept from the sealing pass (within the budget), carrying optional
+    /// ownership-bound sealing-pass histograms when `HL_HOST_FAST_W2=1` on a shared-block D55 run
+    kept: Vec<Option<super::protocol::SealedWitness>>,
     kept_bytes: u64,
     first: Vec<i16>,
     last: Vec<i16>,
@@ -2298,12 +2299,12 @@ impl<'a> StackSource<'a> {
     }
     /// block k's witness: the one kept from the sealing pass, or a rebuild
     /// from the sealed input whose output must be the sealed output
-    fn witness_of(&mut self, k: usize) -> Result<Witness, String> {
+    fn witness_of(&mut self, k: usize) -> Result<super::protocol::SealedWitness, String> {
         if k >= self.n {
             return Err(format!("trained stack: no block {k} in a {}-block run", self.n));
         }
-        if let Some(w) = self.chain.kept[k].take() {
-            return Ok(w);
+        if let Some(sw) = self.chain.kept[k].take() {
+            return Ok(sw);
         }
         let t = Instant::now();
         let x = if k == 0 { self.chain.x_in0.clone() } else { true_words(self.sh, &self.chain.outs[k - 1]) };
@@ -2334,7 +2335,7 @@ impl<'a> StackSource<'a> {
         }
         self.chain.rebuilt += 1;
         self.busy_s += t.elapsed().as_secs_f64();
-        Ok(w)
+        Ok(super::protocol::SealedWitness::unsealed(w))
     }
 }
 
@@ -2370,6 +2371,9 @@ impl RunWitnessSource for StackSource<'_> {
         Ok(out)
     }
     fn witness(&mut self, k: usize) -> Result<Witness, String> {
+        self.witness_of(k).map(super::protocol::SealedWitness::into_witness)
+    }
+    fn witness_sealed(&mut self, k: usize) -> Result<super::protocol::SealedWitness, String> {
         self.witness_of(k)
     }
 }
@@ -2762,6 +2766,15 @@ trait SealHand {
     /// block `k`'s witness, built at `ssh`: taken (`Ok(None)`: a fork's
     /// before-challenge part is made from it) or handed back
     fn witness(&mut self, k: usize, w: Witness, ssh: &Shape) -> Result<Option<Witness>, String>;
+    /// Whether this hand shares the sealing pass's `BlockPublic` objects with the proving pass
+    /// (required for `HL_HOST_FAST_W2=1` `SealedWitness` histogram reuse to match `BlkSig`).
+    fn shares_blocks(&self) -> bool {
+        false
+    }
+    /// Whether block `k` falls inside the ahead-window where `hand.witness` takes ownership.
+    fn takes_window(&self, _k: usize) -> bool {
+        false
+    }
 }
 
 /// the sealing pass of D12a (and of a D55 run before A19): every block
@@ -2784,6 +2797,8 @@ struct D55Hand<'h> {
     push: &'h mut dyn FnMut(usize, Witness, &Shape) -> Result<Option<Witness>, String>,
     /// [A22] the model's records carry their own blocks' digests ([`StackModel::fresh_digests`])
     fresh: bool,
+    /// [A19] ahead window length (0 when no plan or `HL_A19_SHARE=0`)
+    window: usize,
 }
 
 impl SealHand for D55Hand<'_> {
@@ -2803,6 +2818,12 @@ impl SealHand for D55Hand<'_> {
             return Ok(Some(w));
         }
         (self.push)(k, w, ssh)
+    }
+    fn shares_blocks(&self) -> bool {
+        self.blocks.is_some()
+    }
+    fn takes_window(&self, k: usize) -> bool {
+        self.blocks.is_some() && k < self.window
     }
 }
 
@@ -2981,7 +3002,7 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
     let mut metas = Vec::with_capacity(l);
     let mut digests = Vec::with_capacity(l);
     let mut outs: Vec<Vec<i16>> = Vec::with_capacity(l);
-    let mut kept: Vec<Option<Witness>> = Vec::with_capacity(l);
+    let mut kept: Vec<Option<super::protocol::SealedWitness>> = Vec::with_capacity(l);
     let (mut kept_bytes, mut load_s, mut witness_s) = (0u64, 0.0f64, 0.0f64);
     // [A19] the witnesses handed to a D55 run's window, and the bytes counted for them
     let (mut handed, mut part_bytes) = (0usize, 0u64);
@@ -3050,19 +3071,34 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
         // `check_for_shape` runs at a non-Legacy shape) when the block carries accuracy data, on
         // `ssh` with its gate shift set to the data's. So the shapes are equal exactly when `ssh`
         // already carries the data's gate shift; any other block or shape takes the full check.
-        let build_checked = cur.blk.accuracy().is_some_and(|d| d.folds().gate.shift == ssh.accuracy_gate_shift);
-        let misses = if build_checked {
-            super::protocol::check_lookup_misses_after_public_check(&ssh, lay, &cur.blk, &w)
-        } else {
-            super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w)
-        };
-        misses.map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?;
         // [A19] what a fork's before-challenge part holds beyond the witness: `A`'s
-        // host rows and its encoding (the device's copy on Metal), an estimate
+        // host rows and its encoding (the device's copy on Metal), an estimate.
+        // Note on `HL_HOST_FAST_ASYNC_DROP`: it is OFF by default even when `HL_HOST_FAST_W2=1`;
+        // if an operator explicitly enables `HL_HOST_FAST_ASYNC_DROP=1`, up to 2 committed
+        // payloads per process may stay queued on the background dropper thread outside `budget_bytes`.
         let part_extra = 8 * (lay.a_rows * lay.n()) as u64 * (1 + ssh.inv_rate as u64);
-        let out = padded_plane(&w, ids.at(A_X2))?;
+        let wb = witness_bytes(&w);
+        let will_hand = hand.takes_window(k) && kept_bytes + part_bytes + wb + part_extra <= budget_bytes;
+        let will_keep = !will_hand && kept_bytes + part_bytes + wb <= budget_bytes;
+        let build_checked = cur.blk.accuracy().is_some_and(|d| d.folds().gate.shift == ssh.accuracy_gate_shift);
+        // [W2-2] Only collect sealing-pass histograms when `HL_HOST_FAST_W2=1` AND this witness
+        // will actually be kept alongside a shared `BlockPublic` (never for D12a `NoHand`,
+        // `HL_A19_SHARE=0`, over-budget witnesses, or ahead-window parts).
+        let sw = if hand.shares_blocks() && will_keep && crate::zk::host_fast_w2_on() {
+            super::protocol::check_lookup_misses_sealed(&ssh, lay, &cur.blk, w, build_checked)
+                .map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?
+        } else {
+            let misses = if build_checked {
+                super::protocol::check_lookup_misses_after_public_check(&ssh, lay, &cur.blk, &w)
+            } else {
+                super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w)
+            };
+            misses.map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?;
+            super::protocol::SealedWitness::unsealed(w)
+        };
+        let out = padded_plane(sw.witness(), ids.at(A_X2))?;
         if k == 0 {
-            first = Some(padded_plane(&w, ids.at(A_X))?);
+            first = Some(padded_plane(sw.witness(), ids.at(A_X))?);
         }
         let xt = true_words(&sh, &out);
         let (_, x_out_ref) = m.seq(layer)?;
@@ -3076,25 +3112,26 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
         // run's forks (dropped otherwise, as before), and its witness is offered to
         // the window when the budget holds it as a part
         hand.block(k, cur.blk, &digests[k])?;
-        let wb = witness_bytes(&w);
-        let w = if kept_bytes + part_bytes + wb + part_extra <= budget_bytes {
-            match hand.witness(k, w, &ssh)? {
+        let sw = if will_hand {
+            match hand.witness(k, sw.into_witness(), &ssh)? {
                 None => {
                     handed += 1;
                     part_bytes += wb + part_extra;
                     None
                 }
-                back => back,
+                Some(back) => Some(super::protocol::SealedWitness::unsealed(back)),
             }
         } else {
-            Some(w)
+            Some(sw)
         };
-        match w {
-            Some(w) if kept_bytes + part_bytes + wb <= budget_bytes => {
+        match sw {
+            Some(sw) if kept_bytes + part_bytes + wb <= budget_bytes => {
                 kept_bytes += wb;
-                kept.push(Some(w));
+                kept.push(Some(sw));
             }
-            _ => kept.push(None),
+            _ => {
+                kept.push(None);
+            }
         }
         outs.push(out);
         shapes.push(ssh);
@@ -3470,7 +3507,7 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
         // ---- (1) the sealing pass (ruling H-1): every refusal of an inadmissible
         //      chain happens here, before anything of the run exists
         |push| {
-            let mut hand = D55Hand { blocks: shared.then_some(&blocks), push, fresh: m.fresh_digests() };
+            let mut hand = D55Hand { blocks: shared.then_some(&blocks), push, fresh: m.fresh_digests(), window };
             let r = seal_chain(m, run.budget, &mut hand)?;
             #[cfg(test)]
             a19_after_the_sealing_pass();
@@ -4951,7 +4988,7 @@ pub(crate) fn a20_seal_summary_for_tests(m: &dyn StackModel, budget_bytes: u64) 
         .iter()
         .map(|w| match w {
             None => "-".to_string(),
-            Some(w) => hex(&sha256(&w.planes.iter().flat_map(|p| p.iter().flat_map(|x| x.to_le_bytes())).collect::<Vec<u8>>()))[..16].to_string(),
+            Some(w) => hex(&sha256(&w.witness().planes.iter().flat_map(|p| p.iter().flat_map(|x| x.to_le_bytes())).collect::<Vec<u8>>()))[..16].to_string(),
         })
         .collect();
     let line = format!(
@@ -5817,6 +5854,151 @@ mod a3_tests {
                 eprintln!("A3: {r:.0} GiB of RAM, default witness cache {g:.1} GiB");
             }
             None => assert_eq!(g, 4.0),
+        }
+    }
+
+    /// **[HOST-FAST-W2] Fix-read M2 (sealing pass #3: `trained_block::seal_chain`)**:
+    /// plants a byte-table lookup miss inside `witness::build_shaped` (via thread-local
+    /// `ForgeSealByteMissGuard`, leaving `q` and `x_out` unchanged) and drives it through
+    /// `trained_block::seal_chain` with `shares_blocks() == true`, `will_keep == true`, and
+    /// `HL_HOST_FAST_W2=1` (as well as `0`), verifying the exact wrapped CS-3 refusal string.
+    #[test]
+    fn host_fast_w2_trained_seal_chain_planted_lookup_miss_refusal() {
+        use super::{
+            padded_plane, seal_chain, set_seal_pool_for_test, true_words, Digest, LayerRecord, RunShape,
+            SealHand, StackModel, TrainedLayer, TrainedModelStatement,
+        };
+        use crate::private_block::layout::{Ids, A_X2};
+        use crate::private_block::protocol::LOOKUP_MISS_REFUSAL;
+        use crate::private_block::review_d24_tests::ForgeSealByteMissGuard;
+        use crate::private_block::shape::Shape;
+        use crate::private_block::trained_calib_tests::{
+            rung_tc_calibration, trained_dense_block_with, TRAINED_BANDS,
+        };
+        use crate::private_block::{run, witness, BlockPublic};
+
+        struct OneLayerModel {
+            sh: Shape,
+            layers: [u32; 1],
+            blk: BlockPublic,
+            record: LayerRecord,
+            x_in: Vec<i16>,
+            x_out: Vec<i16>,
+        }
+
+        impl StackModel for OneLayerModel {
+            fn shape(&self) -> &Shape {
+                &self.sh
+            }
+            fn layers(&self) -> &[u32] {
+                &self.layers
+            }
+            fn load_layer(&self, k: usize) -> Result<TrainedLayer, String> {
+                assert_eq!(k, 0);
+                Ok(TrainedLayer {
+                    index: 0,
+                    manifest_sha256: [0; 32],
+                    blk: self.blk.clone(),
+                    record: self.record.clone(),
+                    rope_note: String::new(),
+                })
+            }
+            fn reload_block(&self, _k: usize) -> Result<BlockPublic, String> {
+                Ok(self.blk.clone())
+            }
+            fn seq(&self, _layer: u32) -> Result<(Vec<i16>, Vec<i16>), String> {
+                Ok((self.x_in.clone(), self.x_out.clone()))
+            }
+            fn statement_of_records(&self, _records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+                unreachable!("seal_chain does not call statement_of_records")
+            }
+            fn run_shape(&self) -> Result<RunShape, String> {
+                unreachable!("seal_chain does not call run_shape")
+            }
+            fn context(&self) -> Result<Digest, String> {
+                unreachable!("seal_chain does not call context")
+            }
+            fn variant(&self) -> &str {
+                "w2-seal-miss-rung"
+            }
+            fn scope(&self) -> &'static str {
+                "test"
+            }
+        }
+
+        struct SharingKeepHand;
+        impl SealHand for SharingKeepHand {
+            fn block(&mut self, _k: usize, _blk: run::fork::LayerBlock, _digest: &Digest) -> Result<(), String> {
+                Ok(())
+            }
+            fn witness(&mut self, _k: usize, w: witness::Witness, _ssh: &Shape) -> Result<Option<witness::Witness>, String> {
+                Ok(Some(w))
+            }
+            fn shares_blocks(&self) -> bool {
+                true
+            }
+            fn takes_window(&self, _k: usize) -> bool {
+                false
+            }
+        }
+
+        let _hf_lock = crate::zk::host_fast_test_lock();
+        struct Reset {
+            prev_w2: Option<bool>,
+        }
+        impl Drop for Reset {
+            fn drop(&mut self) {
+                crate::zk::set_host_fast_w2_for_test(self.prev_w2);
+                set_seal_pool_for_test(None);
+            }
+        }
+        let _guard = Reset {
+            prev_w2: crate::zk::set_host_fast_w2_for_test(Some(true)),
+        };
+        // Run witness builds inline on the calling thread so the thread-local forge hook fires
+        // without touching any concurrent test threads.
+        set_seal_pool_for_test(Some(0));
+
+        let sh = Shape::rung_tc(&rung_tc_calibration()).expect("rung_tc");
+        let (blk, x_in) = trained_dense_block_with(&sh, TRAINED_BANDS);
+        let ids = Ids::new(&sh).expect("Ids");
+        let honest_w = witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &x_in).expect("honest witness");
+        let x_out = true_words(&sh, &padded_plane(&honest_w, ids.at(A_X2)).expect("x2 plane"));
+        let model = OneLayerModel {
+            sh,
+            layers: [0],
+            record: LayerRecord::of_block(0, &blk, vec![]),
+            blk,
+            x_in,
+            x_out,
+        };
+
+        // Control: honest seal_chain with W2 on succeeds and keeps the sealed witness
+        let (_, _, chain, _) = seal_chain(&model, u64::MAX, &mut SharingKeepHand).expect("honest seal_chain with W2 on");
+        assert!(chain.kept[0].is_some(), "honest seal_chain must keep SealedWitness");
+
+        let want = format!(
+            "layer 0, in the sealing pass (before the run header; ruling H-1): {LOOKUP_MISS_REFUSAL}; the table family that missed: the byte table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9)."
+        );
+        // Run witness builds inline on a private 1-thread Rayon pool so `rayon::join(build, ...)`
+        // inside `seal_chain` stays on that worker thread and sees the thread-local forge hook
+        // without touching any concurrent test threads.
+        let inline_pool = rayon::ThreadPoolBuilder::new()
+            .num_threads(1)
+            .build()
+            .expect("1-thread rayon pool");
+        for w2_on in [false, true] {
+            crate::zk::set_host_fast_w2_for_test(Some(w2_on));
+            let (res, count) = inline_pool.install(|| {
+                let forge = ForgeSealByteMissGuard::on();
+                let res = seal_chain(&model, u64::MAX, &mut SharingKeepHand);
+                (res, forge.count())
+            });
+            let err = res
+                .err()
+                .unwrap_or_else(|| panic!("trained_block::seal_chain (w2={w2_on}) admitted a planted byte-table lookup miss"));
+            assert_eq!(count, 1, "forge hook must fire exactly once (w2={w2_on})");
+            assert_eq!(err, want, "trained_block::seal_chain refusal mismatch (w2={w2_on})");
         }
     }
 }

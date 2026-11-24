@@ -25,7 +25,7 @@ use rayon::prelude::*;
 use std::collections::HashMap;
 use std::ffi::c_void;
 use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, AtomicUsize, Ordering};
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock, RwLock};
 use zkp_core::pcs::PcsParams;
 
 const SRC: &str = include_str!("metal_kernels.metal");
@@ -102,6 +102,10 @@ struct Ctx {
     head_tw: Mutex<HashMap<u32, (Buffer, Buffer)>>,
     /// [M3] compiled sumcheck round kernels, one per generated slot polynomial
     sc_pipes: Mutex<HashMap<String, ComputePipelineState>>,
+    /// [HOST-FAST-W2 W2-4] structural-keyed sumcheck pipeline cache (`(topo_key, req_sc_fast)`)
+    slot_pipe_cache: RwLock<HashMap<(Arc<[u8]>, bool), Arc<CachedSlotPipes>>>,
+    /// [HOST-FAST-W2 W2-4] cached `with_host_tail` `per_eval` micro-benchmark per `(topo_key, n_vars)`
+    tail_per_eval: RwLock<HashMap<(Arc<[u8]>, usize), f64>>,
 }
 
 static CTX: OnceLock<Result<Ctx, String>> = OnceLock::new();
@@ -130,6 +134,8 @@ fn ctx() -> Result<&'static Ctx, String> {
                 twiddles: Mutex::new(HashMap::new()),
                 head_tw: Mutex::new(HashMap::new()),
                 sc_pipes: Mutex::new(HashMap::new()),
+                slot_pipe_cache: RwLock::new(HashMap::new()),
+                tail_per_eval: RwLock::new(HashMap::new()),
             })
         })
     })
@@ -1317,7 +1323,7 @@ fn trace_cell() -> &'static Option<Mutex<(std::fs::File, String, f64)>> {
     })
 }
 
-fn trace_on() -> bool {
+pub fn trace_on() -> bool {
     trace_cell().is_some()
 }
 
@@ -1629,6 +1635,11 @@ pub struct MetalCommit {
     /// Some(rows x n data) for the hiding form; None for the plain form, whose
     /// fold reads the systematic positions of the encoding.
     data: Option<PBuf>,
+    /// [HOST-FAST-W2 W2-7a] Retained ZK pads buffer `(buf, len)` from
+    /// `commit_impl` when `HL_HOST_FAST_W2=1` so `fold_rows_sparse_device`
+    /// reuses it after full byte-for-byte slice verification without re-uploading
+    /// 11.5 MB/blk. Freed on `drop(MetalCommit)`.
+    pads: Option<(PBuf, usize)>,
 }
 
 impl MetalCommit {
@@ -1659,7 +1670,7 @@ impl MetalCommit {
             c.push(FoldCapture { rows: self.rows, n: self.n, nn, ir, src: src.to_vec(), rhos: rhos.to_vec(), pads: None });
         }
         if sparse_fold_on() {
-            match fold_rows_sparse_device(buf, self.rows, self.n, nn, ir, rhos, &[], 0) {
+            match fold_rows_sparse_device(buf, self.rows, self.n, nn, ir, rhos, &[], 0, None) {
                 Ok(Some(out)) => {
                     if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
                         eprintln!("[ZK60-METAL] store fold (sparse-gpu): {} rho x {} rows x {} cols ({}) in {:.4} s", rhos.len(), self.rows, self.n, if self.data.is_some() { "zk data" } else { "systematic" }, t.elapsed().as_secs_f64());
@@ -1712,7 +1723,12 @@ impl MetalCommit {
             c.push(FoldCapture { rows: self.rows, n: self.n, nn: self.n, ir: 1, src: src.to_vec(), rhos: rhos.to_vec(), pads: Some((pw.to_vec(), q)) });
         }
         if sparse_fold_on() {
-            match fold_rows_sparse_device(data, self.rows, self.n, self.n, 1, rhos, pads, q) {
+            let cached_pads = if q > 0 && crate::zk::host_fast_w2_on() {
+                cached_pads_ref_w2(&self.pads, pads.len(), pw)
+            } else {
+                None
+            };
+            match fold_rows_sparse_device(data, self.rows, self.n, self.n, 1, rhos, pads, q, cached_pads) {
                 Ok(Some(out)) => {
                     if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
                         eprintln!("[ZK60-METAL] store fold with pads (sparse-gpu): {} rho x {} rows x ({} + {q}) cols (zk data) in {:.4} s", rhos.len(), self.rows, self.n, t.elapsed().as_secs_f64());
@@ -1826,6 +1842,52 @@ struct GatherArgs {
     nidx: u64,
 }
 
+#[cold]
+#[inline(never)]
+fn cached_pads_ref_w2<'a>(pads_slot: &'a Option<(PBuf, usize)>, want_len: usize, pw: &[u64]) -> Option<&'a Buffer> {
+    match pads_slot {
+        Some((pb, plen)) if *plen == want_len && as_u64s(pb, *plen) == pw => {
+            crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PADS_REUSE);
+            Some(pb)
+        }
+        _ => {
+            crate::zk::record_host_fast_w2_fallback(
+                crate::zk::HF_W2_FB_PADS_REUSE,
+                "W2-7a pads_reuse: cached pads absent or mismatched",
+            );
+            None
+        }
+    }
+}
+
+#[cold]
+#[inline(never)]
+fn read_gather_cols_w2(ob: &PBuf, n_cols: usize, rows: usize) -> Vec<Vec<Fp>> {
+    crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PAR_OPEN);
+    // SAFETY: `Fp` is `#[repr(transparent)]` over `u64` (size 8, align 8 checked by caller);
+    // `ob` is page-aligned shared memory holding `n_cols * rows` completed `u64` words.
+    let fp_all = unsafe { std::slice::from_raw_parts(ob.contents() as *const Fp, n_cols * rows) };
+    if n_cols > 1 && n_cols * rows >= 16_384 {
+        fp_all.par_chunks_exact(rows).map(|col| col.to_vec()).collect()
+    } else {
+        fp_all.chunks_exact(rows).map(|col| col.to_vec()).collect()
+    }
+}
+
+#[cold]
+#[inline(never)]
+fn read_sparse_fold_out_w2(out_buf: &PBuf, k: usize, total_cols: usize) -> Vec<Vec<Fp2>> {
+    crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PAR_OPEN);
+    // SAFETY: `Fp2` layout `(c0: Fp, c1: Fp)` verified by caller (16 bytes, align <= 8);
+    // `out_buf` is page-aligned shared memory holding `k * total_cols` completed `Fp2` elements.
+    let all = unsafe { std::slice::from_raw_parts(out_buf.contents() as *const Fp2, k * total_cols) };
+    if k > 1 && k * total_cols >= 65_536 {
+        all.par_chunks_exact(total_cols).map(|row| row.to_vec()).collect()
+    } else {
+        all.chunks_exact(total_cols).map(|row| row.to_vec()).collect()
+    }
+}
+
 /// The opened columns on the device (k_gather_cols): a scattered read is cheap
 /// on the GPU, while the host's strided walk over a multi-GB encoding pays a TLB
 /// miss per element.
@@ -1847,6 +1909,12 @@ fn gather_columns_device(enc: &Buffer, rows: usize, nn: usize, idx: &[usize]) ->
             dispatch_2d(c, e, "k_gather_cols", idx.len() as u64, rows as u64);
             Ok(())
         })?;
+        if crate::zk::host_fast_w2_on()
+            && std::mem::size_of::<Fp>() == 8
+            && std::mem::align_of::<Fp>() == 8
+        {
+            return Ok(read_gather_cols_w2(&ob, idx.len(), rows));
+        }
         let o = as_u64s(&ob, idx.len() * rows);
         Ok(o.chunks_exact(rows).map(|col| col.iter().map(|&v| Fp(v)).collect()).collect())
     })
@@ -1941,6 +2009,7 @@ fn fold_rows_sparse_device(
     rhos: &[Vec<Fp2>],
     pads: &[Fp],
     q: usize,
+    cached_pads: Option<&Buffer>,
 ) -> Result<Option<Vec<Vec<Fp2>>>, String> {
     let k = rhos.len();
     let total_cols = n + q;
@@ -2046,7 +2115,7 @@ fn fold_rows_sparse_device(
     let meta_bytes = off_blk_starts + blk_starts.len() * 4;
 
     objc::rc::autoreleasepool(|| {
-        let pads_buf = if q > 0 { Some(upload(c, pads)?) } else { None };
+        let pads_buf = if q > 0 && cached_pads.is_none() { Some(upload(c, pads)?) } else { None };
         let meta_buf = shared_buffer(c, meta_bytes as u64)?;
         // SAFETY: meta_buf has >= meta_bytes of exclusively owned shared memory;
         // every section offset is 256-byte aligned (4-byte aligned for u32) and disjoint.
@@ -2069,7 +2138,7 @@ fn fold_rows_sparse_device(
         } else {
             None
         };
-        let pads_ref: &Buffer = pads_buf.as_deref().unwrap_or(data);
+        let pads_ref: &Buffer = cached_pads.or_else(|| pads_buf.as_deref()).unwrap_or(data);
         let dst_ref: &Buffer = part_buf.as_deref().unwrap_or(&out_buf);
         let args = SparseFoldArgs {
             n: n as u64,
@@ -2105,22 +2174,31 @@ fn fold_rows_sparse_device(
             Ok(())
         })?;
         SPARSE_FOLD_CALLS.fetch_add(1, Ordering::Relaxed);
-        let o = as_u64s(&out_buf, k * total_cols * 2);
-        let out: Vec<Vec<Fp2>> = if k > 1 && k * total_cols >= 65_536 {
-            (0..k)
-                .into_par_iter()
-                .map(|g| {
-                    let row = &o[g * total_cols * 2..(g + 1) * total_cols * 2];
-                    row.chunks_exact(2).map(|p| Fp2::new(Fp(p[0]), Fp(p[1]))).collect()
-                })
-                .collect()
+        let out: Vec<Vec<Fp2>> = if crate::zk::host_fast_w2_on()
+            && std::mem::size_of::<Fp2>() == 16
+            && std::mem::offset_of!(Fp2, c0) == 0
+            && std::mem::offset_of!(Fp2, c1) == 8
+            && std::mem::align_of::<Fp2>() <= 8
+        {
+            read_sparse_fold_out_w2(&out_buf, k, total_cols)
         } else {
-            (0..k)
-                .map(|g| {
-                    let row = &o[g * total_cols * 2..(g + 1) * total_cols * 2];
-                    row.chunks_exact(2).map(|p| Fp2::new(Fp(p[0]), Fp(p[1]))).collect()
-                })
-                .collect()
+            let o = as_u64s(&out_buf, k * total_cols * 2);
+            if k > 1 && k * total_cols >= 65_536 {
+                (0..k)
+                    .into_par_iter()
+                    .map(|g| {
+                        let row = &o[g * total_cols * 2..(g + 1) * total_cols * 2];
+                        row.chunks_exact(2).map(|p| Fp2::new(Fp(p[0]), Fp(p[1]))).collect()
+                    })
+                    .collect()
+            } else {
+                (0..k)
+                    .map(|g| {
+                        let row = &o[g * total_cols * 2..(g + 1) * total_cols * 2];
+                        row.chunks_exact(2).map(|p| Fp2::new(Fp(p[0]), Fp(p[1]))).collect()
+                    })
+                    .collect()
+            }
         };
         Ok(Some(out))
     })
@@ -2150,7 +2228,7 @@ pub fn fold_rows_sparse_for_test(
         } else {
             upload(c, src_fp)?
         };
-        fold_rows_sparse_device(&data_buf, rows, n, nn, ir, rhos, pads_fp, q)
+        fold_rows_sparse_device(&data_buf, rows, n, nn, ir, rhos, pads_fp, q, None)
     })
 }
 
@@ -2741,7 +2819,12 @@ fn commit_impl(
                 if pads.len() != rows * q || pows.len() != nn || n + q > nn {
                     return Err(format!("metal zk: pads {} / pows {} / q {q} do not fit rows {rows} n {n} nn {nn}", pads.len(), pows.len()));
                 }
-                Some((upload(c, pads)?, upload(c, pows)?, *q))
+                let meta = if crate::zk::host_fast_w2_on() && !pads.is_empty() {
+                    Some(pads.len())
+                } else {
+                    None
+                };
+                Some((upload(c, pads)?, upload(c, pows)?, *q, meta))
             }
         };
         let ninv = Fp::new(n as u64).inv();
@@ -2774,7 +2857,7 @@ fn commit_impl(
                     // [OPT-NEXT-1] 3-pass zero-gather DIF-INTT -> DIT-FWD coset RS encoder
                     match &zk_bufs {
                         None => encode_fused_rs(c, fp, enc, &d, &t, None, None, &e, &tw_i, &tw_f, hw.as_ref(), hx.as_ref(), rows64, log_n, log_nn, MODE_PLAIN, 0, ntt.max_log, ninv.0),
-                        Some((pb, wb, q)) => {
+                        Some((pb, wb, q, _)) => {
                             encode_fused_rs(c, fp, enc, &d, &t, Some(pb), Some(wb), &e, &tw_i, &tw_f, hw.as_ref(), hx.as_ref(), rows64, log_n, log_nn, MODE_ZK, *q as u64, ntt.max_log, ninv.0)
                         }
                     }
@@ -2783,7 +2866,7 @@ fn commit_impl(
                     encode_fused(c, enc, &d, None, None, &t, &tw_i, hw_i, rows64, log_n, log_n, MODE_COPY, 0, ntt.max_log, Some(ninv.0));
                     match &zk_bufs {
                         None => encode_fused(c, enc, &t, None, None, &e, &tw_f, hw_f, rows64, log_nn, log_n, MODE_PLAIN, 0, ntt.max_log, None),
-                        Some((pb, wb, q)) => {
+                        Some((pb, wb, q, _)) => {
                             encode_fused(c, enc, &t, Some(pb), Some(wb), &e, &tw_f, hw_f, rows64, log_nn, log_n, MODE_ZK, *q as u64, ntt.max_log, None)
                         }
                     }
@@ -2811,7 +2894,7 @@ fn commit_impl(
                     set_args(enc, 2, &InitArgs { rows: rows64, log_n, log_nn, q: 0 });
                     dispatch_2d(c, enc, "k_init_plain_bitrev", nn as u64, rows64);
                 }
-                Some((pb, wb, q)) => {
+                Some((pb, wb, q, _)) => {
                     enc.set_buffer(0, Some(&t), 0);
                     enc.set_buffer(1, Some(pb), 0);
                     enc.set_buffer(2, Some(wb), 0);
@@ -2846,7 +2929,7 @@ fn commit_impl(
             if let Some(fp) = fused_rs_fp {
                 let frs = part(&|enc| match &zk_bufs {
                     None => encode_fused_rs(c, fp, enc, &d, &t2, None, None, &e2, &tw_i, &tw_f, hw.as_ref(), hx.as_ref(), rows64, log_n, log_nn, MODE_PLAIN, 0, ntt.max_log, ninv.0),
-                    Some((pb, wb, q)) => {
+                    Some((pb, wb, q, _)) => {
                         encode_fused_rs(c, fp, enc, &d, &t2, Some(pb), Some(wb), &e2, &tw_i, &tw_f, hw.as_ref(), hx.as_ref(), rows64, log_n, log_nn, MODE_ZK, *q as u64, ntt.max_log, ninv.0)
                     }
                 })?;
@@ -2881,13 +2964,19 @@ fn commit_impl(
         // SAFETY: nn * 32 bytes, completed command buffer
         let raw = unsafe { std::slice::from_raw_parts(leaves_buf.contents() as *const u8, nn * 32) };
         let leaves: Vec<Digest> = raw.chunks_exact(32).map(|ch| ch.try_into().expect("32-byte leaf")).collect();
+        let (data, pads) = match zk_bufs {
+            Some((pb, _wb, _q, Some(plen))) => (Some(d), Some((pb, plen))),
+            Some(_) => (Some(d), None),
+            None => (None, None),
+        };
         let store = MetalCommit {
             rows,
             n,
             nn,
             ir: params.inv_rate,
             enc: e,
-            data: if zk_bufs.is_some() { Some(d) } else { None },
+            data,
+            pads,
         };
         N_COMMITS.fetch_add(1, Ordering::Relaxed);
         SECS_COMMIT_NS.fetch_add(t0.elapsed().as_nanos() as u64, Ordering::Relaxed);
@@ -3080,6 +3169,91 @@ fn sc_pipelines(c: &Ctx, kernel_src: &str, k: usize, degree: usize, sc_fast: boo
     Ok((p0, p1))
 }
 
+/// **[HOST-FAST-W2 W2-4]** Cached Metal sumcheck pipelines + metadata keyed by
+/// the zero-allocation structural topology fingerprint of `SlotIr`.
+pub struct CachedSlotPipes {
+    topo_key: Arc<[u8]>,
+    p0: ComputePipelineState,
+    p1: ComputePipelineState,
+    p_mat: Option<ComputePipelineState>,
+    k: usize,
+    degree: usize,
+    m: usize,
+    de: usize,
+    base: Vec<bool>,
+    cf_len: usize,
+    sc_fast: bool,
+}
+
+impl CachedSlotPipes {
+    pub fn base(&self) -> &[bool] {
+        &self.base
+    }
+}
+
+/// **[HOST-FAST-W2 W2-4]** Resolve `(p0, p1, p_mat, m, de, base)` from `Ctx::slot_pipe_cache`
+/// without generating MSL strings or locking `sc_pipes`. Returns `Ok(None)` when
+/// `HL_METAL_DUMP` is set so the caller takes the verbatim dump path.
+#[cold]
+#[inline(never)]
+pub fn slot_pipes_get_or_compile(
+    topo_key: Vec<u8>,
+    k: usize,
+    degree: usize,
+    cf_len: usize,
+    build_src: impl FnOnce() -> (String, usize, Vec<bool>),
+) -> Result<Option<Arc<CachedSlotPipes>>, String> {
+    if std::env::var_os("HL_METAL_DUMP").is_some() {
+        return Ok(None);
+    }
+    let c = ctx()?;
+    let req_sc_fast = sc_chain_fast_ready(c, degree);
+    let topo_key: Arc<[u8]> = Arc::from(topo_key);
+    let cache_key = (Arc::clone(&topo_key), req_sc_fast);
+    {
+        let cache = c.slot_pipe_cache.read().map_err(|_| "metal: slot_pipe_cache poisoned")?;
+        if let Some(hit) = cache.get(&cache_key) {
+            if hit.k == k && hit.degree == degree && hit.cf_len == cf_len {
+                crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PIPE_CACHE);
+                return Ok(Some(Arc::clone(hit)));
+            }
+            crate::zk::record_host_fast_w2_fallback(
+                crate::zk::HF_W2_FB_PIPE_CACHE,
+                "W2-4 pipe cache: metadata mismatch on topo_key hit",
+            );
+            return Ok(None);
+        }
+    }
+    let (kernel_src, gen_cf_len, base) = build_src();
+    if gen_cf_len != cf_len || base.len() != k {
+        crate::zk::record_host_fast_w2_fallback(
+            crate::zk::HF_W2_FB_PIPE_CACHE,
+            "W2-4 pipe cache: cf_len or base.len mismatch on compile",
+        );
+        return Ok(None);
+    }
+    let (p0, p1, actual_sc_fast) = sc_pipelines_checked(c, &kernel_src, k, degree, req_sc_fast)?;
+    let m = kernel_m(&kernel_src);
+    let de = kernel_de(&kernel_src, degree);
+    let p_mat = sc_mat_pipeline(c, &kernel_src, k, degree, actual_sc_fast)?;
+    let entry = Arc::new(CachedSlotPipes {
+        topo_key,
+        p0,
+        p1,
+        p_mat,
+        k,
+        degree,
+        m,
+        de,
+        base,
+        cf_len,
+        sc_fast: actual_sc_fast,
+    });
+    let mut cache = c.slot_pipe_cache.write().map_err(|_| "metal: slot_pipe_cache poisoned")?;
+    let stored = cache.entry(cache_key).or_insert_with(|| Arc::clone(&entry));
+    Ok(Some(Arc::clone(stored)))
+}
+
 /// A sumcheck whose tables live on the Apple GPU and whose round polynomial is
 /// the generated MSL function `slot_poly(T, cf)` (`poly_fn`), with `coefs` as
 /// `cf`. The same contract as `ClosureRounds` (zkp-core sumcheck/rounds.rs):
@@ -3140,6 +3314,8 @@ pub struct MetalRounds {
     /// [K9] fast sumcheck chain (`HL_METAL_SC_CHAIN_FAST=1`): SIMD-reduced SoA `part`,
     /// `k_sc_fs_step_v3`, and fused `k_fold_tables_dev3_xy` (skips dead `j == nd` xfold)
     sc_fast: bool,
+    /// [HOST-FAST-W2 W2-4] structural topology key for caching `with_host_tail`'s `per_eval`
+    topo_key: Option<Arc<[u8]>>,
 }
 
 #[repr(C)]
@@ -3468,6 +3644,7 @@ fn assemble_rounds(tabs: PBuf, k: usize, cap: usize, degree: usize, pipe0: Compu
         pipe_mat: None,
         mat_pending: false,
         sc_fast,
+        topo_key: None,
     }
 }
 
@@ -3591,6 +3768,134 @@ pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs
     // [A12] the deferred build runs ahead of the first round
     r.prelude = pending;
     // [A27] the materialized tables (prepared above: a failure there declined)
+    r.install_mat(mat);
+    Ok(r)
+}
+
+/// **[HOST-FAST-W2 W2-4]** [`metal_rounds`] using pre-resolved [`CachedSlotPipes`]
+/// (skipping MSL generation, `sc_pipes` Mutex, and 100 KB string hashing).
+#[inline(never)]
+pub fn metal_rounds_cached(cached: &CachedSlotPipes, label: String, tables: &[Vec<Fp2>], degree: usize, coefs: &[Fp2]) -> Result<Option<MetalRounds>, String> {
+    let c = ctx()?;
+    if tables.is_empty() || degree == 0 {
+        return Err("metal sumcheck: no tables or degree 0".into());
+    }
+    let cap = tables[0].len();
+    if !cap.is_power_of_two() || cap < 2 || tables.iter().any(|t| t.len() != cap) {
+        return Err("metal sumcheck: table lengths".into());
+    }
+    let k = tables.len();
+    if cached.k != k || cached.degree != degree || cached.base.len() != k || cached.cf_len != coefs.len() {
+        return Err("metal sumcheck: cached pipe metadata mismatch".into());
+    }
+    let sc_fast = cached.sc_fast;
+    let t_setup = std::time::Instant::now();
+    objc::rc::autoreleasepool(|| {
+        let tabs = shared_buffer(c, (k * cap * 16) as u64)?;
+        {
+            // SAFETY: k * cap * 2 u64 of shared, CPU-visible memory, written
+            // once here before any GPU use; tasks write disjoint table ranges.
+            let dst = unsafe { std::slice::from_raw_parts_mut(tabs.contents() as *mut u64, k * cap * 2) };
+            let typed_ok: bool = dst
+                .par_chunks_mut(cap * 2)
+                .zip(tables.par_iter())
+                .zip(cached.base.par_iter())
+                .map(|((d, t), &b)| {
+                    let mut ok = true;
+                    for (pair, v) in d.chunks_exact_mut(2).zip(t.iter()) {
+                        pair[0] = v.c0.0;
+                        pair[1] = v.c1.0;
+                        ok &= !b || v.c1.0 == 0;
+                    }
+                    ok
+                })
+                .reduce(|| true, |a, b| a && b);
+            if !typed_ok {
+                return Ok(None);
+            }
+        }
+        if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+            eprintln!("[ZK60-METAL] sumcheck setup: {k} tables x 2^{} in {:.4} s", cap.trailing_zeros(), t_setup.elapsed().as_secs_f64());
+        }
+        let parts = rounds_parts(c, cap, degree, coefs, sc_fast)?;
+        let mat = if cached.m > 0 {
+            let pm = cached.p_mat.clone().ok_or("metal: no cached materialization kernel")?;
+            let x = shared_buffer(c, (cached.m * cap * 16) as u64)?;
+            Some((cached.m, pm, x))
+        } else {
+            None
+        };
+        let mut r = assemble_rounds(tabs, k, cap, degree, cached.p0.clone(), cached.p1.clone(), parts, sc_fast);
+        r.label = label;
+        r.de = cached.de;
+        r.topo_key = Some(Arc::clone(&cached.topo_key));
+        r.install_mat(mat);
+        Ok(Some(r))
+    })
+}
+
+/// **[HOST-FAST-W2 W2-4]** [`metal_rounds_owned`] using pre-resolved [`CachedSlotPipes`].
+#[inline(never)]
+pub fn metal_rounds_owned_cached(
+    cached: &CachedSlotPipes,
+    label: String,
+    t: MetalTables,
+    degree: usize,
+    coefs: &[Fp2],
+) -> Result<MetalRounds, (MetalTables, Option<String>)> {
+    let fail = |mut t: MetalTables, why: Option<String>| -> Result<MetalRounds, (MetalTables, Option<String>)> {
+        if let Err(e) = t.flush() {
+            panic!("[ZK60-METAL A12] a deferred table build failed before a decline ({e}): the attempt is refused");
+        }
+        Err((t, why))
+    };
+    let c = match ctx() {
+        Ok(c) => c,
+        Err(e) => return fail(t, Some(e)),
+    };
+    if degree == 0 || cached.k != t.k || cached.degree != degree || cached.base.len() != t.k || cached.cf_len != coefs.len() {
+        return fail(t, Some("metal sumcheck: cached pipe metadata mismatch".into()));
+    }
+    let sc_fast = cached.sc_fast;
+    let t_setup = std::time::Instant::now();
+    let (k, cap) = (t.k, t.cap);
+    let typed_ok = match t.typed {
+        Some(ok) => ok,
+        None => {
+            // SAFETY: as in `MetalTables::to_vecs`
+            let all = unsafe { std::slice::from_raw_parts(t.buf.contents() as *const Fp2, k * cap) };
+            all.par_chunks(cap).zip(cached.base.par_iter()).all(|(tab, &b)| !b || tab.iter().all(|v| v.c1.0 == 0))
+        }
+    };
+    if !typed_ok {
+        return fail(t, None);
+    }
+    if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+        eprintln!("[ZK60-METAL] sumcheck setup (tables in place): {k} tables x 2^{} in {:.4} s", cap.trailing_zeros(), t_setup.elapsed().as_secs_f64());
+    }
+    let parts = match objc::rc::autoreleasepool(|| rounds_parts(c, cap, degree, coefs, sc_fast)) {
+        Ok(p) => p,
+        Err(e) => return fail(t, Some(e)),
+    };
+    let mat = if cached.m > 0 {
+        let pm = match cached.p_mat.clone() {
+            Some(p) => p,
+            None => return fail(t, Some("metal: no cached materialization kernel".into())),
+        };
+        let x = match objc::rc::autoreleasepool(|| shared_buffer(c, (cached.m * cap * 16) as u64)) {
+            Ok(b) => b,
+            Err(e) => return fail(t, Some(e)),
+        };
+        Some((cached.m, pm, x))
+    } else {
+        None
+    };
+    let MetalTables { buf, pending, .. } = t;
+    let mut r = assemble_rounds(buf, k, cap, degree, cached.p0.clone(), cached.p1.clone(), parts, sc_fast);
+    r.label = label;
+    r.de = cached.de;
+    r.topo_key = Some(Arc::clone(&cached.topo_key));
+    r.prelude = pending;
     r.install_mat(mat);
     Ok(r)
 }
@@ -3732,15 +4037,15 @@ using namespace metal;
 struct TabPubGenArgs {
     ulong out_off;    // the table's first word in `tabs`
     ulong cap;        // its length, elements
-    uint kind;        // 0=Box, 1=GroupCol, 2=Causal, 3=Repeat, 4=HeadQ, 5=HeadHt, 6=HeadS
-    uint shift;       // right-shift for lifted support indicators (rep = 1 << shift)
-    uint rows_live;   // live rows (Box/GroupCol) or tokens (Head*)
-    uint cols_live;   // live cols (Box/GroupCol) or group = q_heads / kv_heads (Head*)
-    uint row_stride;  // row stride (Box/GroupCol), t_pad (Causal/HeadHt/HeadS), or head_dim (HeadQ)
-    uint vals_off;    // offset into `aux64` (GroupCol/Repeat)
-    uint vals_len;    // length in `aux64` (GroupCol/Repeat)
-    uint aux_a;       // h_pad (Head*)
-    uint aux_b;       // slots_per_kv_group = h_pad / kv_heads (Head*)
+    uint kind;        // 0=Box, 1=GroupCol, 2=Causal, 3=Repeat, 4=HeadQ, 5=HeadHt, 6=HeadS, 7=Rope, 8=ConstOne
+    uint shift;       // right-shift for lifted support indicators (rep = 1 << shift), or is_sin (0/1) for Rope
+    uint rows_live;   // live rows (Box/GroupCol) or tokens (Head*/Rope)
+    uint cols_live;   // live cols (Box/GroupCol) or group = q_heads / kv_heads (Head*/Rope; 1 for Kv)
+    uint row_stride;  // row stride (Box/GroupCol), t_pad (Causal/HeadHt/HeadS), or head_dim (HeadQ/Rope)
+    uint vals_off;    // offset into `aux64` (GroupCol/Repeat/Rope)
+    uint vals_len;    // length in `aux64` (GroupCol/Repeat/Rope)
+    uint aux_a;       // h_pad (Head*) or heads (Rope: h_pad for Q, kv_heads for Kv)
+    uint aux_b;       // slots_per_kv_group = h_pad / kv_heads (Head*/Rope; 1 for Kv)
     uint pad0;
 };
 kernel void k_tab_pub_gen(device ulong *tabs [[buffer(0)]],
@@ -3787,6 +4092,56 @@ kernel void k_tab_pub_gen(device ulong *tabs [[buffer(0)]],
         ulong t = (idx / tp) % tp;
         ulong h = idx / (tp * tp);
         val = (h < ulong(a.aux_a) && (h % ulong(a.aux_b)) < ulong(a.cols_live) && t < ulong(a.rows_live) && j < ulong(a.rows_live)) ? 1UL : 0UL;
+    }
+    ulong o = a.out_off + 2UL * x;
+    tabs[o] = val;
+    tabs[o + 1UL] = 0UL;
+}
+"#;
+
+/// [HOST-FAST-W2 W2-4c] Separate standalone MSL source for `PUB_GEN_ROPE` (kind 7)
+/// and `PUB_GEN_CONST_ONE` (kind 8), kept out of `k_tab_pub_gen` so the `HL_HOST_FAST_W2`
+/// unset path compiles and dispatches the exact base `k_tab_pub_gen` shader with zero
+/// extra 64-bit div/mod register pressure.
+const TAB_PUB_GEN_W2_SRC: &str = r#"
+#include <metal_stdlib>
+using namespace metal;
+
+struct TabPubGenArgs {
+    ulong out_off;
+    ulong cap;
+    uint kind;        // 7=Rope, 8=ConstOne
+    uint shift;       // is_sin (0/1) for Rope
+    uint rows_live;   // tokens for Rope
+    uint cols_live;   // group = q_heads / kv_heads (1 for Kv)
+    uint row_stride;  // head_dim for Rope
+    uint vals_off;    // offset into `aux64`
+    uint vals_len;    // length in `aux64`
+    uint aux_a;       // heads (h_pad for Q, kv_heads for Kv)
+    uint aux_b;       // slots_per_kv_group = h_pad / kv_heads (1 for Kv)
+    uint pad0;
+};
+kernel void k_tab_pub_gen_w2(device ulong *tabs [[buffer(0)]],
+                             device const ulong *aux64 [[buffer(1)]],
+                             constant TabPubGenArgs &a [[buffer(2)]],
+                             uint gid [[thread_position_in_grid]]) {
+    ulong x = ulong(gid);
+    if (x >= a.cap) { return; }
+    ulong val = 0UL;
+    if (a.kind == 7u) {
+        ulong dh = ulong(a.row_stride);
+        ulong half_d = dh >> 1;
+        ulong heads = ulong(a.aux_a);
+        ulong i = x % dh;
+        ulong sl = (x / dh) % heads;
+        ulong t = x / (dh * heads);
+        if (t < ulong(a.rows_live) && (sl % ulong(a.aux_b)) < ulong(a.cols_live)) {
+            ulong at = t * half_d + (i % half_d);
+            ulong w = aux64[ulong(a.vals_off) + at];
+            val = (a.shift != 0u && i < half_d) ? ((w == 0UL) ? 0UL : (0xFFFFFFFF00000001UL - w)) : w;
+        }
+    } else if (a.kind == 8u) {
+        val = 1UL;
     }
     ulong o = a.out_off + 2UL * x;
     tabs[o] = val;
@@ -3864,6 +4219,7 @@ struct TabPipes {
 
 static TAB_PIPES: OnceLock<Result<TabPipes, String>> = OnceLock::new();
 static TAB_PUB_GEN_PIPE: OnceLock<Result<ComputePipelineState, String>> = OnceLock::new();
+static TAB_PUB_GEN_W2_PIPE: OnceLock<Result<ComputePipelineState, String>> = OnceLock::new();
 
 /// [A12] the table kernels, compiled once (the field code of the commit
 /// and round kernels: `gl_header`, `SC_PRELUDE`)
@@ -3893,6 +4249,23 @@ fn tab_pub_gen_pipe(c: &Ctx) -> Result<&'static ComputePipelineState, String> {
                 let lib = c.device.new_library_with_source(TAB_PUB_GEN_SRC, &CompileOptions::new()).map_err(|e| format!("metal pub_gen kernel compile: {e}"))?;
                 let f = lib.get_function("k_tab_pub_gen", None).map_err(|e| format!("metal table function k_tab_pub_gen: {e}"))?;
                 c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal table pipeline k_tab_pub_gen: {e}"))
+            })
+        })
+        .as_ref()
+        .map_err(|e| e.clone())
+}
+
+/// [HOST-FAST-W2 W2-4c] optional `k_tab_pub_gen_w2` pipeline for `PUB_GEN_ROPE`
+/// and `PUB_GEN_CONST_ONE`, compiled lazily only when `HL_HOST_FAST_W2=1` plans one.
+#[cold]
+#[inline(never)]
+fn tab_pub_gen_w2_pipe(c: &Ctx) -> Result<&'static ComputePipelineState, String> {
+    TAB_PUB_GEN_W2_PIPE
+        .get_or_init(|| {
+            objc::rc::autoreleasepool(|| {
+                let lib = c.device.new_library_with_source(TAB_PUB_GEN_W2_SRC, &CompileOptions::new()).map_err(|e| format!("metal pub_gen_w2 kernel compile: {e}"))?;
+                let f = lib.get_function("k_tab_pub_gen_w2", None).map_err(|e| format!("metal table function k_tab_pub_gen_w2: {e}"))?;
+                c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal table pipeline k_tab_pub_gen_w2: {e}"))
             })
         })
         .as_ref()
@@ -4061,7 +4434,11 @@ impl TabBuild {
                     enc.dispatch_threads(MTLSize::new(self.cap, 1, 1), MTLSize::new(tg, 1, 1));
                 }
                 TabArg::PubGen(ga) => {
-                    let pg = tab_pub_gen_pipe(c)?;
+                    let pg = if ga.kind >= MetalTables::PUB_GEN_ROPE {
+                        tab_pub_gen_w2_pipe(c)?
+                    } else {
+                        tab_pub_gen_pipe(c)?
+                    };
                     enc.set_compute_pipeline_state(pg);
                     enc.set_buffer(0, Some(tabs), 0);
                     enc.set_buffer(1, Some(&self.a64), 0);
@@ -4143,6 +4520,8 @@ impl MetalTables {
     pub const PUB_GEN_HEAD_Q: u32 = 4;
     pub const PUB_GEN_HEAD_HT: u32 = 5;
     pub const PUB_GEN_HEAD_S: u32 = 6;
+    pub const PUB_GEN_ROPE: u32 = 7;
+    pub const PUB_GEN_CONST_ONE: u32 = 8;
 
     /// **[HOST-FAST H6]** whether the optional `k_tab_pub_gen` pipeline compiled
     /// cleanly (compiled lazily on first `PubGen` query so a missing pipeline
@@ -4270,7 +4649,7 @@ impl MetalTables {
                         && inv_lo.iter().chain(inv_hi.iter()).chain(zbits.iter()).all(fits)
                         && slices.iter().all(|(off, _)| off.checked_add(1usize << log).is_some_and(|e| e <= data[*src].len()))
                 }
-                TabJob::PubGen { kind, shift, cols_live, row_stride, aux_a, aux_b, vals, .. } => {
+                TabJob::PubGen { kind, shift, rows_live, cols_live, row_stride, aux_a, aux_b, vals, .. } => {
                     // Always base-field (`c1 = 0`) by construction.
                     vals.len() <= u32::MAX as usize
                         && vals.iter().all(|&w| w < crate::field::P)
@@ -4282,6 +4661,16 @@ impl MetalTables {
                             Self::PUB_GEN_HEAD_Q => *row_stride > 0 && *aux_a > 0 && *aux_b > 0 && *shift < 64,
                             Self::PUB_GEN_HEAD_HT => *row_stride > 0 && *aux_b > 0 && *shift < 64,
                             Self::PUB_GEN_HEAD_S => *row_stride > 0 && *aux_b > 0 && *shift < 64,
+                            Self::PUB_GEN_ROPE => {
+                                *row_stride >= 2
+                                    && (*row_stride & 1) == 0
+                                    && *aux_a > 0
+                                    && *aux_b > 0
+                                    && (*rows_live as usize)
+                                        .checked_mul((*row_stride as usize) / 2)
+                                        .is_some_and(|need| vals.len() >= need)
+                            }
+                            Self::PUB_GEN_CONST_ONE => true,
                             _ => false,
                         }
                 }
@@ -4293,16 +4682,32 @@ impl MetalTables {
         let c = ctx()?;
         tab_pipes(c)?;
         let mut plan = plan;
-        if plan.iter().any(|j| matches!(j, TabJob::PubGen { .. })) {
+        if plan.iter().any(|j| matches!(j, TabJob::PubGen { kind, .. } if *kind < Self::PUB_GEN_ROPE)) {
             if let Err(e) = tab_pub_gen_pipe(c) {
                 crate::gpu::declined("[ZK60-HOST-FAST H6] k_tab_pub_gen pipeline", &e);
                 for j in &plan {
-                    if let TabJob::PubGen { t, .. } = j {
-                        planned[*t] = false;
-                        crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H6_GPU_PUB_GEN, "H6 pub_gen: k_tab_pub_gen pipeline unavailable");
+                    if let TabJob::PubGen { t, kind, .. } = j {
+                        if *kind < Self::PUB_GEN_ROPE {
+                            planned[*t] = false;
+                            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H6_GPU_PUB_GEN, "H6 pub_gen: k_tab_pub_gen pipeline unavailable");
+                        }
                     }
                 }
-                plan.retain(|j| !matches!(j, TabJob::PubGen { .. }));
+                plan.retain(|j| !matches!(j, TabJob::PubGen { kind, .. } if *kind < Self::PUB_GEN_ROPE));
+            }
+        }
+        if plan.iter().any(|j| matches!(j, TabJob::PubGen { kind, .. } if *kind >= Self::PUB_GEN_ROPE)) {
+            if let Err(e) = tab_pub_gen_w2_pipe(c) {
+                crate::gpu::declined("[ZK60-HOST-FAST-W2 W2-4c] k_tab_pub_gen_w2 pipeline", &e);
+                for j in &plan {
+                    if let TabJob::PubGen { t, kind, .. } = j {
+                        if *kind >= Self::PUB_GEN_ROPE {
+                            planned[*t] = false;
+                            crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_ROPE_GEN, "W2-4c pub_gen_w2: k_tab_pub_gen_w2 pipeline unavailable");
+                        }
+                    }
+                }
+                plan.retain(|j| !matches!(j, TabJob::PubGen { kind, .. } if *kind >= Self::PUB_GEN_ROPE));
             }
         }
         objc::rc::autoreleasepool(|| {
@@ -4624,6 +5029,36 @@ fn tail_round_budget_s() -> f64 {
     *B.get_or_init(|| std::env::var("HL_METAL_TAIL_BUDGET_US").ok().and_then(|v| v.parse::<f64>().ok()).filter(|v| v.is_finite() && *v >= 0.0).map(|us| us * 1e-6).unwrap_or(TAIL_ROUND_BUDGET_S))
 }
 
+fn measure_per_eval(poly: &(dyn Fn(&[Fp2]) -> Fp2 + Sync), k: usize) -> f64 {
+    let pts: Vec<Vec<Fp2>> = (0..8u64).map(|s| (0..k as u64).map(|t| Fp2::new(Fp::new(s * 7919 + t * 104_729 + 1), Fp::new(t + 3 * s + 1))).collect()).collect();
+    let t = std::time::Instant::now();
+    let mut sink = Fp2::ZERO;
+    for p in &pts {
+        sink = sink.add(poly(p));
+    }
+    std::hint::black_box(sink);
+    t.elapsed().as_secs_f64() / 8.0
+}
+
+#[cold]
+#[inline(never)]
+fn measure_per_eval_w2(poly: &(dyn Fn(&[Fp2]) -> Fp2 + Sync), k: usize, topo_key: Option<&Arc<[u8]>>, n_vars: usize) -> f64 {
+    if let Some(tk) = topo_key {
+        let key = (Arc::clone(tk), n_vars);
+        if let Ok(c) = ctx() {
+            if let Some(pe) = c.tail_per_eval.read().ok().and_then(|g| g.get(&key).copied()) {
+                return pe;
+            }
+            let pe = measure_per_eval(poly, k);
+            if let Ok(mut g) = c.tail_per_eval.write() {
+                g.insert(key, pe);
+            }
+            return pe;
+        }
+    }
+    measure_per_eval(poly, k)
+}
+
 impl MetalRounds {
     /// **[ZK60-METAL M4k]** this sumcheck, finished on the HOST from the first
     /// round whose host cost (pairs x points evaluated x one evaluation of
@@ -4635,14 +5070,11 @@ impl MetalRounds {
     /// value. `HL_METAL_HOST_TAIL=0` keeps every round on the device.
     pub fn with_host_tail(self, poly: &(dyn Fn(&[Fp2]) -> Fp2 + Sync)) -> TailedRounds<'_> {
         let k = self.k;
-        let pts: Vec<Vec<Fp2>> = (0..8u64).map(|s| (0..k as u64).map(|t| Fp2::new(Fp::new(s * 7919 + t * 104_729 + 1), Fp::new(t + 3 * s + 1))).collect()).collect();
-        let t = std::time::Instant::now();
-        let mut sink = Fp2::ZERO;
-        for p in &pts {
-            sink = sink.add(poly(p));
-        }
-        std::hint::black_box(sink);
-        let per_eval = t.elapsed().as_secs_f64() / 8.0;
+        let per_eval = if crate::zk::host_fast_w2_on() {
+            measure_per_eval_w2(poly, k, self.topo_key.as_ref(), self.n_vars)
+        } else {
+            measure_per_eval(poly, k)
+        };
         let on = std::env::var("HL_METAL_HOST_TAIL").map(|v| v != "0").unwrap_or(true);
         let (degree, n_vars) = (self.degree, self.n_vars);
         TailedRounds { dev: Some(self), host: Vec::new(), poly, per_eval, on, degree, n_vars, next: 0, pending: None, recover_one: false, unmasked_claim: None, host_rounds: 0 }

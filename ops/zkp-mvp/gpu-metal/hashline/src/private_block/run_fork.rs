@@ -1484,7 +1484,7 @@ impl ForkCtx<'_> {
     /// transcript and generator. [A13] Run during the sealing pass (`late` is
     /// `None`), it stops after the before-challenge part and returns the fork
     /// PARKED, its generator inside.
-    fn prove_one(&self, k: usize, wit: Witness) -> Result<Done, String> {
+    fn prove_one(&self, k: usize, sealed: protocol::SealedWitness) -> Result<Done, String> {
         // D60 review F8 (b), test builds only: the every-fork-panics switch
         #[cfg(test)]
         if PANIC_IN_FORK.with(|c| c.get()) {
@@ -1518,7 +1518,7 @@ impl ForkCtx<'_> {
         // none yet (the preflight has not run): such a part checks its block itself.
         let hints = protocol::CoreHints { checked: self.late.as_ref().and_then(|late| late.checked.get(k)) };
         let t = Instant::now();
-        let ahead = protocol::prove_core_before_with(&ssh, &lay, blk, wit, self.ntt, &mut rng, &mut ph, &mut phases, &mut tick, hints)?;
+        let ahead = protocol::prove_core_before_sealed(&ssh, &lay, blk, sealed, self.ntt, &mut rng, &mut ph, &mut phases, &mut tick, hints)?;
         let p = Parked {
             k,
             rng,
@@ -1628,7 +1628,7 @@ pub(crate) fn prove_run_with_forks_tampered(fr: &ForkRun, blocks: &dyn ForkBlock
 /// [A13] the work one fork worker is handed: a witness (the whole fork), a
 /// fork parked after its before-challenge part, or that part's refusal
 enum Job {
-    Raw(Witness),
+    Raw(protocol::SealedWitness),
     Parked(Box<Parked>),
     Failed(String),
 }
@@ -1782,7 +1782,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                         ahead_wait += waited;
                         Ok(j)
                     }
-                    Ok(_) => src.witness(k).map(Job::Raw),
+                    Ok(_) => src.witness_sealed(k).map(Job::Raw),
                     Err(e) => Err(e),
                 };
                 match job {
@@ -2155,9 +2155,9 @@ impl Slots {
             Slot::Absent => None,
             Slot::Queued(w) => {
                 g.taken_back += 1;
-                Some(Job::Raw(w))
+                Some(Job::Raw(protocol::SealedWitness::unsealed(w)))
             }
-            Slot::Raw(w) => Some(Job::Raw(w)),
+            Slot::Raw(w) => Some(Job::Raw(protocol::SealedWitness::unsealed(w))),
             Slot::Parked(p) => Some(Job::Parked(p)),
             Slot::Failed(e) => Some(Job::Failed(e)),
             Slot::Taken | Slot::Pending => return Err(format!("D55: block {k}'s before-challenge slot was taken twice")),
@@ -2216,9 +2216,9 @@ fn ahead_worker(ctx: &ForkCtx<'_>, slots: &Slots, pool: Option<std::sync::Arc<ra
             Some(p) => p.install(|| {
                 #[cfg(test)]
                 let _hooks = hooks.install();
-                ctx.prove_one(k, wit)
+                ctx.prove_one(k, protocol::SealedWitness::unsealed(wit))
             }),
-            None => ctx.prove_one(k, wit),
+            None => ctx.prove_one(k, protocol::SealedWitness::unsealed(wit)),
         };
         let slot = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(run)) {
             Ok(Ok(Done::Parked(p))) => Slot::Parked(p),
