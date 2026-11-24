@@ -801,6 +801,18 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 24, 08:29 UTC, ruling (D82, Victor): the proof-size work restarts as a build.** A receipt
+    is about 0.8 GB per 128-token request today (818.7 MB at the 8B profile, MEASURED in an earlier
+    record), which many of the applications under D81 cannot carry. First step: "switch the clear
+    vectors" (B6a of the Nov 5 design study), modelled at 387 MB per 8B request with prover time
+    within about 5 percent [MODEL, not built]. A build plan is being written from the source (state
+    of the prerequisites, the change against today's opening code, the receipt size for the three
+    profiles, the proofs it needs, ordered work packages, a spike with pass and kill lines fixed
+    beforehand). It is a protocol change: a new profile, existing receipts unchanged, and nothing is
+    called production before its two Lean statements are proved. Not started and kept at study
+    level: the second size step (40 to 50 MB), hidden weights, and a small wrapper proof for
+    kilobyte receipts. Also on Victor's instruction a list of potential customers is being compiled
+    for his outreach; it is business material and stays outside this repository.
     **Tick 53, Nov 24 08:05 UTC [reading and arithmetic by the background researcher; its script re-
     run by Claude with identical output; citations checked by Claude except the per-round medians
     its script derives]: the future-protocol candidate A (lookups with no committed helper columns)
