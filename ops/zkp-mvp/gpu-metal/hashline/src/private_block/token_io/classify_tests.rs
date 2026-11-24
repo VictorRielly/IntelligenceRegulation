@@ -570,3 +570,245 @@ fn r14_a_margin_read_at_another_row_than_the_verdict_row_is_refused() {
     assert!(e.contains("OUT-C") || e.contains("boundary"), "refused elsewhere than stage OUT-C: {e}");
     eprintln!("TOKEN-IO R14 | a margin read at row T - 1 instead of the verdict row 28: refused ({e})");
 }
+
+#[test]
+fn classify_host_fast_emb_fold_neon_matches_scalar() {
+    let scalar_emb_fold = |emb: &[i16], v: usize, d: usize, e: &[Fp2]| -> Vec<Fp2> {
+        (0..v)
+            .map(|row| {
+                emb[row * d..(row + 1) * d]
+                    .iter()
+                    .zip(e.iter())
+                    .fold(Fp2::ZERO, |acc, (&w, &c)| if w == 0 { acc } else { acc.add(c.mul_base(Fp::from_i64(i64::from(w)))) })
+            })
+            .collect()
+    };
+
+    let mut seed = 0x5c4f_1234_9e37_79b9u64;
+    let pm1 = Fp::ZERO.sub(Fp::ONE);
+    let shapes = [(1usize, 1usize), (2, 3), (3, 7), (4, 8), (5, 9), (7, 15), (9, 64), (13, 513), (5, 3072)];
+
+    {
+        let _off = ClassifyHostFastGuard::set(false);
+        for &(v, d) in &shapes {
+            let emb: Vec<i16> = (0..v * d)
+                .map(|i| match i % 13 {
+                    0 => i16::MIN,
+                    1 => i16::MAX,
+                    2 => 0,
+                    3 => -1,
+                    4 => 1,
+                    _ => (lcg(&mut seed) >> 16) as i16,
+                })
+                .collect();
+            let w = vec![0i16; d];
+            let t = ClassifierTables::new(v, d, emb.clone(), w).unwrap();
+            let logd = d.next_power_of_two().trailing_zeros() as usize;
+            let r: Vec<Fp2> = (0..logd).map(|_| Fp2::new(Fp::new(lcg(&mut seed)), Fp::new(lcg(&mut seed)))).collect();
+            let e = eq_table_msb(&r);
+            let want = scalar_emb_fold(&emb, v, d, &e);
+            assert_eq!(t.emb_fold(&r), want, "OFF: {v} x {d}");
+        }
+    }
+
+    {
+        let _on = ClassifyHostFastGuard::set(true);
+        let h0 = classify_host_fast_hits_snapshot();
+        for &(v, d) in &shapes {
+            let emb: Vec<i16> = (0..v * d)
+                .map(|i| match i % 11 {
+                    0 => i16::MIN,
+                    1 => i16::MAX,
+                    2 => 0,
+                    3 => -1,
+                    4 => 1,
+                    _ => (lcg(&mut seed) >> 16) as i16,
+                })
+                .collect();
+            let w = vec![0i16; d];
+            let t = ClassifierTables::new(v, d, emb.clone(), w).unwrap();
+            let logd = d.next_power_of_two().trailing_zeros() as usize;
+            for kind in 0..3 {
+                let r: Vec<Fp2> = (0..logd)
+                    .map(|i| match kind {
+                        0 => Fp2::new(Fp::new(lcg(&mut seed)), Fp::new(lcg(&mut seed))),
+                        1 => if i % 2 == 0 { Fp2::new(pm1, pm1) } else { Fp2::new(Fp::ZERO, pm1) },
+                        _ => if i == 0 { Fp2::ZERO } else { Fp2::new(Fp::ONE, Fp::ZERO) },
+                    })
+                    .collect();
+                let e = eq_table_msb(&r);
+                let want = scalar_emb_fold(&emb, v, d, &e);
+                assert_eq!(t.emb_fold(&r), want, "base emb_fold must stay untouched even with switch ON: {v} x {d} kind {kind}");
+                let got = t.emb_fold_fast(&r);
+                assert_eq!(got, want, "ON: {v} x {d} kind {kind}");
+            }
+        }
+        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+        {
+            let h1 = classify_host_fast_hits_snapshot();
+            assert!(h1[CHF_C5_EMB_FOLD_NEON] > h0[CHF_C5_EMB_FOLD_NEON], "C5 NEON hit must fire on aarch64+neon");
+            // Directly exercise exact bit-31 / bit-63 boundary words and extreme all-MIN/all-MAX rows.
+            let edges_u64 = [
+                0u64,
+                1,
+                0x7FFF_FFFF,
+                0x8000_0000,
+                0xFFFF_FFFF,
+                0x7FFF_FFFF_0000_0000,
+                0x8000_0000_0000_0000,
+                0x7FFF_FFFF_FFFF_FFFF,
+                0x8000_0000_7FFF_FFFF,
+                0x8000_0000_8000_0000,
+                P - 2,
+                P - 1,
+            ];
+            for &(v, d) in &[(1usize, 1usize), (5, 7), (7, 513), (6, 3072)] {
+                let mut emb = Vec::with_capacity(v * d);
+                for row in 0..v {
+                    for col in 0..d {
+                        let val = match row {
+                            0 => i16::MIN,
+                            1 => i16::MAX,
+                            2 => if col % 2 == 0 { i16::MIN } else { i16::MAX },
+                            _ => (lcg(&mut seed) >> 16) as i16,
+                        };
+                        emb.push(val);
+                    }
+                }
+                let e: Vec<Fp2> = (0..d)
+                    .map(|j| Fp2::new(Fp(edges_u64[j % edges_u64.len()]), Fp(edges_u64[(j * 5 + 3) % edges_u64.len()])))
+                    .collect();
+                let want = scalar_emb_fold(&emb, v, d, &e);
+                let got = emb_fold_neon_from_eq_for_test(&emb, v, d, &e);
+                assert_eq!(got, want, "NEON direct edge eq words: {v} x {d}");
+                // All-zero eq entries force every centered limb to i32::MIN (-2^31) -> max product magnitude.
+                let all_zero_e = vec![Fp2::ZERO; d];
+                assert_eq!(emb_fold_neon_from_eq_for_test(&emb, v, d, &all_zero_e), vec![Fp2::ZERO; v]);
+                // All-(P-1) eq entries.
+                let all_pm1_e = vec![Fp2::new(pm1, pm1); d];
+                assert_eq!(
+                    emb_fold_neon_from_eq_for_test(&emb, v, d, &all_pm1_e),
+                    scalar_emb_fold(&emb, v, d, &all_pm1_e),
+                    "NEON all-(P-1): {v} x {d}"
+                );
+            }
+        }
+        #[cfg(not(all(target_arch = "aarch64", target_feature = "neon")))]
+        let _ = h0;
+    }
+}
+
+#[test]
+fn classify_host_fast_bound_digests_match_tables() {
+    let cx = cx();
+    assert_eq!(cx.bound.emb_digest(), cx.tables.emb_digest(), "cached emb_digest must match ClassifierTables::emb_digest");
+    assert_eq!(cx.bound.w_digest(), cx.tables.w_digest(), "cached w_digest must match ClassifierTables::w_digest");
+    // Repeat calls stay identical (cached OnceLock path).
+    assert_eq!(cx.bound.emb_digest(), cx.tables.emb_digest());
+    assert_eq!(cx.bound.w_digest(), cx.tables.w_digest());
+
+    let cp_off = {
+        let _off = ClassifyHostFastGuard::set(false);
+        let cp = ClassifierProfile::new_bound(&cx.sh, &cx.bound, &cx.policy, n_of(&cx), Tier::R1_MVP).unwrap();
+        let st = statement(&cx, [7u8; 32], 0).unwrap();
+        st.check_tables_prover(&cx.bound).unwrap();
+        cp
+    };
+
+    let cp_on = {
+        let _on = ClassifyHostFastGuard::set(true);
+        let st_ver = statement(&cx, [7u8; 32], 0).unwrap();
+        st_ver.check_tables(&cx.bound).unwrap();
+        let h0 = classify_host_fast_hits_snapshot();
+        let cp = ClassifierProfile::new_bound(&cx.sh, &cx.bound, &cx.policy, n_of(&cx), Tier::R1_MVP).unwrap();
+        let st = ClassifyRunStatement::new_chunk_prover(
+            RunShape::new(cx.sh.clone(), cx.blocks.len(), RUN_PROFILE_CLASSIFY_RUNG_TC).unwrap(),
+            ctx(),
+            cx.blocks.iter().map(|b| b.digest()).collect(),
+            &cx.model,
+            &cx.bound,
+            &cx.policy,
+            n_of(&cx),
+            Tier::R1_MVP,
+            [7u8; 32],
+            0,
+            n_of(&cx),
+            0,
+        )
+        .unwrap();
+        assert_eq!(st.cp, st_ver.cp, "new_chunk_prover must match new_chunk");
+        st.check_tables_prover(&cx.bound).unwrap();
+        // Tampered tables (different w_delta) must still be refused by check_tables_prover.
+        let mut bad_tables = cx.tables.clone();
+        bad_tables.w_delta[0] = bad_tables.w_delta[0].wrapping_add(1);
+        let bad_bound = bind(&cx.sh, &bad_tables, &cx.model, &cx.policy);
+        assert!(st.check_tables_prover(&bad_bound).is_err(), "check_tables_prover must refuse mismatched tables");
+        let h1 = classify_host_fast_hits_snapshot();
+        assert!(h1[CHF_C1_DIGESTS] >= h0[CHF_C1_DIGESTS] + 4, "C1 hits must fire when ON");
+        cp
+    };
+
+    assert_eq!(cp_on, cp_off, "ClassifierProfile::new_bound must be identical ON vs OFF");
+    assert_eq!(
+        cp_on.digest_under(RUN_PROFILE_CLASSIFY_RUNG_TC),
+        cp_off.digest_under(RUN_PROFILE_CLASSIFY_RUNG_TC),
+        "profile digest must be identical ON vs OFF"
+    );
+}
+
+#[test]
+fn classify_host_fast_boundary_prepare_i16_matches_prepare() {
+    use super::super::boundary::{self, BoundarySpec};
+    use crate::ntt::NttTables;
+    use crate::zk::ZkRng;
+    use zkp_core::hashtag::HashTag;
+
+    let spec = BoundarySpec::new(ctx(), 32, 128, 0, 1, 2, 10, 4, 256, 10).unwrap();
+    let ntt = NttTables::new(spec.enc_log());
+    let mut seed = 0xb00d_cafe_1234_5678u64;
+    let plane: Vec<i16> = (0..spec.len())
+        .map(|i| match i % 11 {
+            0 => i16::MIN,
+            1 => i16::MAX,
+            2 => 0,
+            3 => -1,
+            4 => 1,
+            _ => (lcg(&mut seed) >> 16) as i16,
+        })
+        .collect();
+    let words: Vec<Fp> = plane.iter().map(|&v| Fp::from_i64(i64::from(v))).collect();
+
+    let mut rng_off = ZkRng::new(42, b"chf-boundary-parity");
+    let mut rng_on = ZkRng::new(42, b"chf-boundary-parity");
+    let mut rng_i16 = ZkRng::new(42, b"chf-boundary-parity");
+
+    let (p_off, tail_off) = {
+        let _off = ClassifyHostFastGuard::set(false);
+        let p = boundary::prepare(&spec, &words, &ntt, &mut rng_off, &HashTag::legacy()).unwrap();
+        let tail: Vec<Fp> = (0..16).map(|_| rng_off.fp()).collect();
+        (p, tail)
+    };
+
+    let (p_on, tail_on, p_i16, tail_i16) = {
+        let _on = ClassifyHostFastGuard::set(true);
+        let mut rng_base = ZkRng::new(42, b"chf-boundary-parity");
+        let p_base = boundary::prepare(&spec, &words, &ntt, &mut rng_base, &HashTag::legacy()).unwrap();
+        assert_eq!(p_base.root(), p_off.root());
+        let h0 = classify_host_fast_hits_snapshot();
+        let p1 = boundary::prepare_fast(&spec, &words, &ntt, &mut rng_on, &HashTag::legacy()).unwrap();
+        let tail1: Vec<Fp> = (0..16).map(|_| rng_on.fp()).collect();
+        let p2 = boundary::prepare_i16(&spec, &plane, &ntt, &mut rng_i16, &HashTag::legacy()).unwrap();
+        let tail2: Vec<Fp> = (0..16).map(|_| rng_i16.fp()).collect();
+        assert!(boundary::prepare_i16(&spec, &plane[..plane.len() - 1], &ntt, &mut rng_i16, &HashTag::legacy()).is_err());
+        let h1 = classify_host_fast_hits_snapshot();
+        assert!(h1[CHF_C3_SEQ_BOUNDARY] >= h0[CHF_C3_SEQ_BOUNDARY] + 2, "C3 hits must fire when ON");
+        (p1, tail1, p2, tail2)
+    };
+
+    assert_eq!(p_on.root(), p_off.root(), "boundary::prepare root must match ON vs OFF");
+    assert_eq!(p_on.data(), p_off.data(), "boundary::prepare data must match ON vs OFF");
+    assert_eq!(tail_on, tail_off, "boundary::prepare RNG state must match ON vs OFF");
+    assert_eq!(p_i16.root(), p_off.root(), "boundary::prepare_i16 root must match prepare");
+    assert_eq!(p_i16.data(), p_off.data(), "boundary::prepare_i16 data must match prepare");
+    assert_eq!(tail_i16, tail_off, "boundary::prepare_i16 RNG state must match prepare");
+}

@@ -261,6 +261,20 @@ fn challenges(tr: &mut Transcript, cp: &ClassifierProfile, tables: &ClassifierTa
     (beta, alpha, g_emb, r_emb, ef)
 }
 
+/// Prover-only (`HL_CLASSIFY_HOST_FAST=1`) counterpart of [`challenges`] using
+/// `ClassifierTables::emb_fold_fast`. [`verify`] always calls [`challenges`] and never
+/// reaches `emb_fold_fast`.
+#[inline(never)]
+fn challenges_prover_fast(tr: &mut Transcript, cp: &ClassifierProfile, tables: &ClassifierTables) -> (Fp2, Fp2, Fp2, Vec<Fp2>, Vec<Fp2>) {
+    let beta = tr.challenge_fp2();
+    let gamma = tr.challenge_fp2();
+    let alpha = tr.challenge_fp2();
+    let r_emb = tr.challenge_fp2_vec(clog2(cp.d_pad));
+    let g_emb = gamma.mul_base(Fp::new(TAG_EMB));
+    let ef = tables.emb_fold_fast(&r_emb);
+    (beta, alpha, g_emb, r_emb, ef)
+}
+
 fn inv_or_refuse(d: Fp2) -> Result<Fp2, String> {
     if d.is_zero() {
         return Err("zero LogUp denominator; discard attempt".into());
@@ -303,7 +317,11 @@ pub(crate) fn prove(
     tr.absorb_u64(b"pb-run-stage", 0);
     tr.absorb(b"pb-run-block", &cp.emb_digest);
     let b_words: Vec<Fp> = b_plane.iter().map(|x| Fp::from_i64(i64::from(*x))).collect();
-    let b_owner = boundary::prepare(b_spec, &b_words, ntt, rng, tag)?;
+    let b_owner = if super::classify::classify_host_fast_on() {
+        boundary::prepare_fast(b_spec, &b_words, ntt, rng, tag)?
+    } else {
+        boundary::prepare(b_spec, &b_words, ntt, rng, tag)?
+    };
     protocol::absorb_root(tr, b"B", &b_owner.root(), b_spec.commitment_rows(), b_spec.log_n());
     let params = lay.params;
     let zko = ZkOpts::standard(&params);
@@ -321,7 +339,11 @@ pub(crate) fn prove(
     let mc = crate::zk::mask_commit_tagged(&lay.mask_specs(), ntt, rng, tag);
     let mask_root = mc.tree.root();
     tr.absorb(b"M", &mask_root);
-    let (beta, alpha, g_emb, r_emb, ef) = challenges(tr, cp, tables);
+    let (beta, alpha, g_emb, r_emb, ef) = if super::classify::classify_host_fast_on() {
+        challenges_prover_fast(tr, cp, tables)
+    } else {
+        challenges(tr, cp, tables)
+    };
     let tau_tab = tau_table(cp, &ef, beta, g_emb);
     // D66(3) (L4 finding 2, the D34 term): refuse on the challenges and public tables alone.
     // Every admissible query is a table tuple (its control term matches the token's), so

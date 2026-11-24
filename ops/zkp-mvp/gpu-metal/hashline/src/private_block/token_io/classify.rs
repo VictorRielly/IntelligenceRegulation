@@ -493,6 +493,333 @@ fn a26_emb_on() -> bool {
 #[cfg(test)]
 pub(crate) static A26_EMB_TEST: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
 
+// ---------------------------------------------------------------- HL_CLASSIFY_HOST_FAST (opt-in, default OFF)
+
+/// Component indices into [`CLASSIFY_HOST_FAST_HITS`] and [`CLASSIFY_HOST_FAST_FALLBACKS`].
+pub(crate) const CHF_C1_DIGESTS: usize = 0;
+pub(crate) const CHF_C2_ASYNC_SINK: usize = 1;
+pub(crate) const CHF_C3_SEQ_BOUNDARY: usize = 2;
+pub(crate) const CHF_C4_CS3_SKIP: usize = 3;
+pub(crate) const CHF_C5_EMB_FOLD_NEON: usize = 4;
+
+/// Per-component fast-path hit counts for C1..C5 under `HL_CLASSIFY_HOST_FAST=1`.
+pub(crate) static CLASSIFY_HOST_FAST_HITS: [std::sync::atomic::AtomicU64; 5] = [
+    std::sync::atomic::AtomicU64::new(0),
+    std::sync::atomic::AtomicU64::new(0),
+    std::sync::atomic::AtomicU64::new(0),
+    std::sync::atomic::AtomicU64::new(0),
+    std::sync::atomic::AtomicU64::new(0),
+];
+
+/// Per-component fallback counts when `HL_CLASSIFY_HOST_FAST=1` is active but a fast-path
+/// precondition is not met.
+pub(crate) static CLASSIFY_HOST_FAST_FALLBACKS: [std::sync::atomic::AtomicU64; 5] = [
+    std::sync::atomic::AtomicU64::new(0),
+    std::sync::atomic::AtomicU64::new(0),
+    std::sync::atomic::AtomicU64::new(0),
+    std::sync::atomic::AtomicU64::new(0),
+    std::sync::atomic::AtomicU64::new(0),
+];
+
+#[cfg(test)]
+static CLASSIFY_HOST_FAST_TEST: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
+
+/// Opt-in same-words host speedup switch (`HL_CLASSIFY_HOST_FAST=1`, default OFF).
+pub(crate) fn classify_host_fast_on() -> bool {
+    static ENV: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    #[cfg(test)]
+    match CLASSIFY_HOST_FAST_TEST.load(std::sync::atomic::Ordering::Relaxed) {
+        1 => return false,
+        2 => return true,
+        _ => {}
+    }
+    *ENV.get_or_init(|| std::env::var("HL_CLASSIFY_HOST_FAST").map(|v| v == "1").unwrap_or(false))
+}
+
+/// TEST BUILDS ONLY: override `HL_CLASSIFY_HOST_FAST` (`Some(true)` = ON, `Some(false)` = OFF,
+/// `None` = follow environment); returns the previous override.
+#[cfg(test)]
+pub(crate) fn set_classify_host_fast_for_test(v: Option<bool>) -> Option<bool> {
+    let encoded = match v {
+        None => 0,
+        Some(false) => 1,
+        Some(true) => 2,
+    };
+    match CLASSIFY_HOST_FAST_TEST.swap(encoded, std::sync::atomic::Ordering::SeqCst) {
+        1 => Some(false),
+        2 => Some(true),
+        _ => None,
+    }
+}
+
+/// TEST BUILDS ONLY: lock shared by tests toggling `A26_EMB_TEST` or `CLASSIFY_HOST_FAST_TEST`.
+#[cfg(test)]
+pub(crate) fn classify_emb_test_lock() -> std::sync::MutexGuard<'static, ()> {
+    static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    LOCK.lock().unwrap_or_else(|e| e.into_inner())
+}
+
+/// TEST BUILDS ONLY: serializes tests that toggle `HL_CLASSIFY_HOST_FAST` and check hit counts,
+/// restoring the previous override on drop. While held, concurrent tests in the same process run
+/// with this override active (so concurrent prover tests see the switch on and may advance the
+/// process-wide hit/fallback counters; strict zero-hit / zero-fallback equalities belong only in
+/// fresh-process `#[ignore]` gates run alone).
+#[cfg(test)]
+pub(crate) struct ClassifyHostFastGuard {
+    prev: Option<bool>,
+    prev_emb: u8,
+    _lock: std::sync::MutexGuard<'static, ()>,
+}
+
+#[cfg(test)]
+impl ClassifyHostFastGuard {
+    pub(crate) fn set(on: bool) -> Self {
+        let lock = classify_emb_test_lock();
+        let prev = set_classify_host_fast_for_test(Some(on));
+        let prev_emb = A26_EMB_TEST.swap(if on { 2 } else { 0 }, std::sync::atomic::Ordering::SeqCst);
+        Self { prev, prev_emb, _lock: lock }
+    }
+}
+
+#[cfg(test)]
+impl Drop for ClassifyHostFastGuard {
+    fn drop(&mut self) {
+        A26_EMB_TEST.store(self.prev_emb, std::sync::atomic::Ordering::SeqCst);
+        let _ = set_classify_host_fast_for_test(self.prev);
+    }
+}
+
+#[inline]
+pub(crate) fn record_classify_host_fast_hit(idx: usize) {
+    CLASSIFY_HOST_FAST_HITS[idx].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+}
+
+#[inline]
+pub(crate) fn record_classify_host_fast_fallback(idx: usize) {
+    CLASSIFY_HOST_FAST_FALLBACKS[idx].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+}
+
+pub(crate) fn classify_host_fast_hits_snapshot() -> [u64; 5] {
+    std::array::from_fn(|i| CLASSIFY_HOST_FAST_HITS[i].load(std::sync::atomic::Ordering::Relaxed))
+}
+
+pub(crate) fn classify_host_fast_fallbacks_snapshot() -> [u64; 5] {
+    std::array::from_fn(|i| CLASSIFY_HOST_FAST_FALLBACKS[i].load(std::sync::atomic::Ordering::Relaxed))
+}
+
+/// Condition (a) diagnostic summary gate (`HL_PB_TIMING=1` or `HL_METAL_TIMING=1`).
+pub(crate) fn classify_host_fast_timing_on() -> bool {
+    static METAL_TIMING: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    super::super::timing::enabled()
+        || *METAL_TIMING.get_or_init(|| std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false))
+}
+
+#[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+mod emb_neon {
+    use crate::field::{Fp, Fp2};
+    use core::arch::aarch64::*;
+
+    /// Exact centered-limb reduction: for each `u64` word `x = u_hi * 2^32 + u_lo`,
+    /// writing `s_hi = (u_hi ^ 0x8000_0000) as i32` and `s_lo = (u_lo ^ 0x8000_0000) as i32`
+    /// gives `x = s_hi * 2^32 + s_lo + 2^63 + 2^31` identically, so
+    /// `sum w_j x_j = 2^32 * (sum w_j s_hi_j) + (sum w_j s_lo_j) + (2^63 + 2^31) * (sum w_j)`.
+    #[inline(always)]
+    fn reduce_centered(hi: i64, lo: i64, sum_w: i64) -> Fp {
+        let s = (i128::from(hi) << 32)
+            + i128::from(lo)
+            + (i128::from(sum_w) << 63)
+            + (i128::from(sum_w) << 31);
+        let m = Fp::from_u128(s.unsigned_abs());
+        if s < 0 { Fp::ZERO.sub(m) } else { m }
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    #[inline(always)]
+    unsafe fn mac4(
+        w: int32x4_t,
+        lh0: int32x4_t,
+        ll0: int32x4_t,
+        lh1: int32x4_t,
+        ll1: int32x4_t,
+        ah0: &mut int64x2_t,
+        al0: &mut int64x2_t,
+        ah1: &mut int64x2_t,
+        al1: &mut int64x2_t,
+    ) {
+        let w2 = vget_low_s32(w);
+        *ah0 = vmlal_s32(*ah0, w2, vget_low_s32(lh0));
+        *ah0 = vmlal_high_s32(*ah0, w, lh0);
+        *al0 = vmlal_s32(*al0, w2, vget_low_s32(ll0));
+        *al0 = vmlal_high_s32(*al0, w, ll0);
+        *ah1 = vmlal_s32(*ah1, w2, vget_low_s32(lh1));
+        *ah1 = vmlal_high_s32(*ah1, w, lh1);
+        *al1 = vmlal_s32(*al1, w2, vget_low_s32(ll1));
+        *al1 = vmlal_high_s32(*al1, w, ll1);
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    #[inline(always)]
+    unsafe fn finish_row(
+        row: &[i16],
+        tail_start: usize,
+        h0: &[i32],
+        l0: &[i32],
+        h1: &[i32],
+        l1: &[i32],
+        ah0: int64x2_t,
+        al0: int64x2_t,
+        ah1: int64x2_t,
+        al1: int64x2_t,
+        sw: int32x4_t,
+    ) -> Fp2 {
+        let mut sh0 = vaddvq_s64(ah0);
+        let mut sl0 = vaddvq_s64(al0);
+        let mut sh1 = vaddvq_s64(ah1);
+        let mut sl1 = vaddvq_s64(al1);
+        let mut sum_w = vaddvq_s64(vpaddlq_s32(sw));
+        for j in tail_start..h0.len() {
+            let w = i64::from(row[j]);
+            sum_w += w;
+            sh0 += w * i64::from(h0[j]);
+            sl0 += w * i64::from(l0[j]);
+            sh1 += w * i64::from(h1[j]);
+            sl1 += w * i64::from(l1[j]);
+        }
+        Fp2::new(reduce_centered(sh0, sl0, sum_w), reduce_centered(sh1, sl1, sum_w))
+    }
+
+    #[inline(never)]
+    pub(super) fn fold_all(emb: &[i16], v: usize, d: usize, e: &[Fp2]) -> Vec<Fp2> {
+        use rayon::prelude::*;
+        assert!(d < (1 << 16) && e.len() >= d && emb.len() == v * d);
+        let mut h0 = Vec::with_capacity(d);
+        let mut l0 = Vec::with_capacity(d);
+        let mut h1 = Vec::with_capacity(d);
+        let mut l1 = Vec::with_capacity(d);
+        for c in &e[..d] {
+            let x0 = c.c0.0;
+            let x1 = c.c1.0;
+            h0.push((((x0 >> 32) as u32) ^ 0x8000_0000) as i32);
+            l0.push(((x0 as u32) ^ 0x8000_0000) as i32);
+            h1.push((((x1 >> 32) as u32) ^ 0x8000_0000) as i32);
+            l1.push(((x1 as u32) ^ 0x8000_0000) as i32);
+        }
+        let mut out = vec![Fp2::ZERO; v];
+        let d8 = d & !7;
+        out.par_chunks_mut(4).enumerate().for_each(|(chunk_idx, out_chunk)| {
+            let row0 = chunk_idx * 4;
+            if out_chunk.len() == 4 {
+                let r0 = &emb[row0 * d..(row0 + 1) * d];
+                let r1 = &emb[(row0 + 1) * d..(row0 + 2) * d];
+                let r2 = &emb[(row0 + 2) * d..(row0 + 3) * d];
+                let r3 = &emb[(row0 + 3) * d..(row0 + 4) * d];
+                // SAFETY: NEON is guaranteed by the module's `cfg`; every slice (`r0..r3`,
+                // `h0..l1`) has length `d >= d8`, so `j + 8 <= d8 <= d` on every iteration.
+                unsafe {
+                    let z64 = vdupq_n_s64(0);
+                    let z32 = vdupq_n_s32(0);
+                    let (mut a0_h0, mut a0_l0, mut a0_h1, mut a0_l1, mut sw0) = (z64, z64, z64, z64, z32);
+                    let (mut a1_h0, mut a1_l0, mut a1_h1, mut a1_l1, mut sw1) = (z64, z64, z64, z64, z32);
+                    let (mut a2_h0, mut a2_l0, mut a2_h1, mut a2_l1, mut sw2) = (z64, z64, z64, z64, z32);
+                    let (mut a3_h0, mut a3_l0, mut a3_h1, mut a3_l1, mut sw3) = (z64, z64, z64, z64, z32);
+
+                    let (p0, p1, p2, p3) = (r0.as_ptr(), r1.as_ptr(), r2.as_ptr(), r3.as_ptr());
+                    let (ph0, pl0, ph1, pl1) = (h0.as_ptr(), l0.as_ptr(), h1.as_ptr(), l1.as_ptr());
+
+                    const TILE: usize = 512;
+                    let mut t = 0usize;
+                    while t < d8 {
+                        let tend = (t + TILE).min(d8);
+                        let mut j = t;
+                        while j < tend {
+                            let lh0_a = vld1q_s32(ph0.add(j));
+                            let ll0_a = vld1q_s32(pl0.add(j));
+                            let lh1_a = vld1q_s32(ph1.add(j));
+                            let ll1_a = vld1q_s32(pl1.add(j));
+                            let lh0_b = vld1q_s32(ph0.add(j + 4));
+                            let ll0_b = vld1q_s32(pl0.add(j + 4));
+                            let lh1_b = vld1q_s32(ph1.add(j + 4));
+                            let ll1_b = vld1q_s32(pl1.add(j + 4));
+
+                            let w8 = vld1q_s16(p0.add(j));
+                            let w_lo = vmovl_s16(vget_low_s16(w8));
+                            sw0 = vaddq_s32(sw0, w_lo);
+                            mac4(w_lo, lh0_a, ll0_a, lh1_a, ll1_a, &mut a0_h0, &mut a0_l0, &mut a0_h1, &mut a0_l1);
+                            let w_hi = vmovl_high_s16(w8);
+                            sw0 = vaddq_s32(sw0, w_hi);
+                            mac4(w_hi, lh0_b, ll0_b, lh1_b, ll1_b, &mut a0_h0, &mut a0_l0, &mut a0_h1, &mut a0_l1);
+
+                            let w8 = vld1q_s16(p1.add(j));
+                            let w_lo = vmovl_s16(vget_low_s16(w8));
+                            sw1 = vaddq_s32(sw1, w_lo);
+                            mac4(w_lo, lh0_a, ll0_a, lh1_a, ll1_a, &mut a1_h0, &mut a1_l0, &mut a1_h1, &mut a1_l1);
+                            let w_hi = vmovl_high_s16(w8);
+                            sw1 = vaddq_s32(sw1, w_hi);
+                            mac4(w_hi, lh0_b, ll0_b, lh1_b, ll1_b, &mut a1_h0, &mut a1_l0, &mut a1_h1, &mut a1_l1);
+
+                            let w8 = vld1q_s16(p2.add(j));
+                            let w_lo = vmovl_s16(vget_low_s16(w8));
+                            sw2 = vaddq_s32(sw2, w_lo);
+                            mac4(w_lo, lh0_a, ll0_a, lh1_a, ll1_a, &mut a2_h0, &mut a2_l0, &mut a2_h1, &mut a2_l1);
+                            let w_hi = vmovl_high_s16(w8);
+                            sw2 = vaddq_s32(sw2, w_hi);
+                            mac4(w_hi, lh0_b, ll0_b, lh1_b, ll1_b, &mut a2_h0, &mut a2_l0, &mut a2_h1, &mut a2_l1);
+
+                            let w8 = vld1q_s16(p3.add(j));
+                            let w_lo = vmovl_s16(vget_low_s16(w8));
+                            sw3 = vaddq_s32(sw3, w_lo);
+                            mac4(w_lo, lh0_a, ll0_a, lh1_a, ll1_a, &mut a3_h0, &mut a3_l0, &mut a3_h1, &mut a3_l1);
+                            let w_hi = vmovl_high_s16(w8);
+                            sw3 = vaddq_s32(sw3, w_hi);
+                            mac4(w_hi, lh0_b, ll0_b, lh1_b, ll1_b, &mut a3_h0, &mut a3_l0, &mut a3_h1, &mut a3_l1);
+
+                            j += 8;
+                        }
+                        t = tend;
+                    }
+
+                    out_chunk[0] = finish_row(r0, d8, &h0, &l0, &h1, &l1, a0_h0, a0_l0, a0_h1, a0_l1, sw0);
+                    out_chunk[1] = finish_row(r1, d8, &h0, &l0, &h1, &l1, a1_h0, a1_l0, a1_h1, a1_l1, sw1);
+                    out_chunk[2] = finish_row(r2, d8, &h0, &l0, &h1, &l1, a2_h0, a2_l0, a2_h1, a2_l1, sw2);
+                    out_chunk[3] = finish_row(r3, d8, &h0, &l0, &h1, &l1, a3_h0, a3_l0, a3_h1, a3_l1, sw3);
+                }
+            } else {
+                for (off, dst) in out_chunk.iter_mut().enumerate() {
+                    let r = &emb[(row0 + off) * d..(row0 + off + 1) * d];
+                    // SAFETY: same bounds as the 4-row loop above.
+                    unsafe {
+                        let z64 = vdupq_n_s64(0);
+                        let z32 = vdupq_n_s32(0);
+                        let (mut ah0, mut al0, mut ah1, mut al1, mut sw) = (z64, z64, z64, z64, z32);
+                        let p = r.as_ptr();
+                        let (ph0, pl0, ph1, pl1) = (h0.as_ptr(), l0.as_ptr(), h1.as_ptr(), l1.as_ptr());
+                        let mut j = 0usize;
+                        while j < d8 {
+                            let w8 = vld1q_s16(p.add(j));
+                            let w_lo = vmovl_s16(vget_low_s16(w8));
+                            sw = vaddq_s32(sw, w_lo);
+                            mac4(w_lo, vld1q_s32(ph0.add(j)), vld1q_s32(pl0.add(j)), vld1q_s32(ph1.add(j)), vld1q_s32(pl1.add(j)), &mut ah0, &mut al0, &mut ah1, &mut al1);
+                            let w_hi = vmovl_high_s16(w8);
+                            sw = vaddq_s32(sw, w_hi);
+                            mac4(w_hi, vld1q_s32(ph0.add(j + 4)), vld1q_s32(pl0.add(j + 4)), vld1q_s32(ph1.add(j + 4)), vld1q_s32(pl1.add(j + 4)), &mut ah0, &mut al0, &mut ah1, &mut al1);
+                            j += 8;
+                        }
+                        *dst = finish_row(r, d8, &h0, &l0, &h1, &l1, ah0, al0, ah1, al1, sw);
+                    }
+                }
+            }
+        });
+        out
+    }
+}
+
+/// TEST BUILDS ONLY: directly exercise the NEON `emb_fold` kernel on arbitrary `e` slices
+/// (including exact bit-31 / bit-63 boundary words).
+#[cfg(all(test, target_arch = "aarch64", target_feature = "neon"))]
+pub(crate) fn emb_fold_neon_from_eq_for_test(emb: &[i16], v: usize, d: usize, e: &[Fp2]) -> Vec<Fp2> {
+    emb_neon::fold_all(emb, v, d, e)
+}
+
 fn update_le_words(h: &mut blake3::Hasher, words: &[i16]) {
     const PIECE: usize = 1 << 19;
     let mut buf: Vec<u8> = Vec::with_capacity(2 * PIECE.min(words.len()));
@@ -605,6 +932,53 @@ impl ClassifierTables {
             .map(|v| self.emb_row(v).iter().zip(e.iter()).fold(Fp2::ZERO, |a, (w, c)| if *w == 0 { a } else { a.add(c.mul_base(Fp::from_i64(i64::from(*w)))) }))
             .collect()
     }
+
+    /// Prover-only (`HL_CLASSIFY_HOST_FAST=1`) C5 embedding fold. Called only from
+    /// `stage_in_c::prove` so `stage_in_c::verify` and `emb_fold` stay strictly on the base path.
+    #[inline(never)]
+    pub(crate) fn emb_fold_fast(&self, r: &[Fp2]) -> Vec<Fp2> {
+        use rayon::prelude::*;
+        let e = eq_table_msb(r);
+        if a26_emb_on() && self.d < 1 << 16 && e.len() >= self.d {
+            #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+            {
+                record_classify_host_fast_hit(CHF_C5_EMB_FOLD_NEON);
+                return emb_neon::fold_all(&self.emb, self.v, self.d, &e);
+            }
+            #[cfg(not(all(target_arch = "aarch64", target_feature = "neon")))]
+            {
+                record_classify_host_fast_fallback(CHF_C5_EMB_FOLD_NEON);
+                let split = |x: u64| (i64::from((x >> 32) as u32), i64::from(x as u32));
+                let limbs: Vec<[i64; 4]> = e[..self.d].iter().map(|c| {
+                    let ((h0, l0), (h1, l1)) = (split(c.c0.0), split(c.c1.0));
+                    [h0, l0, h1, l1]
+                }).collect();
+                let reduce = |hi: i64, lo: i64| {
+                    let s = (i128::from(hi) << 32) + i128::from(lo);
+                    let m = Fp::from_u128(s.unsigned_abs());
+                    if s < 0 { Fp::ZERO.sub(m) } else { m }
+                };
+                return (0..self.v)
+                    .into_par_iter()
+                    .map(|v| {
+                        let mut s = [0i64; 4];
+                        for (w, l) in self.emb_row(v).iter().zip(limbs.iter()) {
+                            let w = i64::from(*w);
+                            for (a, b) in s.iter_mut().zip(l.iter()) {
+                                *a += w * b;
+                            }
+                        }
+                        Fp2::new(reduce(s[0], s[1]), reduce(s[2], s[3]))
+                    })
+                    .collect();
+            }
+        }
+        record_classify_host_fast_fallback(CHF_C5_EMB_FOLD_NEON);
+        (0..self.v)
+            .into_par_iter()
+            .map(|v| self.emb_row(v).iter().zip(e.iter()).fold(Fp2::ZERO, |a, (w, c)| if *w == 0 { a } else { a.add(c.mul_base(Fp::from_i64(i64::from(*w)))) }))
+            .collect()
+    }
     /// the integer margin `Delta = sum_i y_i w_i`
     pub(crate) fn margin(&self, y: &[i64]) -> i64 {
         self.w_delta.iter().zip(y.iter()).map(|(w, a)| i64::from(*w) * a).sum()
@@ -650,6 +1024,40 @@ impl ClassifierProfile {
     /// **THE CLASSIFIER DOOR.** Refuses by name every constant outside its
     /// class, on the prover's AND the verifier's side.
     pub(crate) fn new(sh: &Shape, tables: &ClassifierTables, bos: u64, norm: FinalNorm, policy: &Policy, n: usize, tier: Tier) -> Result<ClassifierProfile, String> {
+        Self::new_with_digests(sh, tables, bos, norm, policy, n, tier, || (tables.emb_digest(), tables.w_digest()))
+    }
+
+    /// Same validation and exact same profile as [`ClassifierProfile::new`]; when
+    /// `HL_CLASSIFY_HOST_FAST=1`, reads the cached `emb_digest` and `w_digest` from
+    /// `bound` instead of re-hashing the immutable table on every request.
+    #[inline(never)]
+    pub(crate) fn new_bound(sh: &Shape, bound: &super::classify_tied::BoundClassifierTables, policy: &Policy, n: usize, tier: Tier) -> Result<ClassifierProfile, String> {
+        if classify_host_fast_on() {
+            return Self::new_bound_fast(sh, bound, policy, n, tier);
+        }
+        Self::new(sh, bound.tables(), bound.bos(), bound.norm(), policy, n, tier)
+    }
+
+    #[inline(never)]
+    fn new_bound_fast(sh: &Shape, bound: &super::classify_tied::BoundClassifierTables, policy: &Policy, n: usize, tier: Tier) -> Result<ClassifierProfile, String> {
+        Self::new_with_digests(sh, bound.tables(), bound.bos(), bound.norm(), policy, n, tier, || {
+            record_classify_host_fast_hit(CHF_C1_DIGESTS);
+            (bound.emb_digest(), bound.w_digest())
+        })
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    #[inline(always)]
+    fn new_with_digests<F: FnOnce() -> (Digest, Digest)>(
+        sh: &Shape,
+        tables: &ClassifierTables,
+        bos: u64,
+        norm: FinalNorm,
+        policy: &Policy,
+        n: usize,
+        tier: Tier,
+        digests: F,
+    ) -> Result<ClassifierProfile, String> {
         rulings_are_built()?;
         tier.check()?;
         if !registered_policies().contains(policy) {
@@ -727,6 +1135,7 @@ impl ClassifierProfile {
         if LAM_BASE + limbs > 1usize << clog2(2 * 3 * LIMBS_ISQRT).max(lt) {
             return Err("classifier: the margin limbs do not fit the isqrt-limb domain".into());
         }
+        let (emb_digest, w_digest) = digests();
         Ok(ClassifierProfile {
             v,
             v_pad,
@@ -741,8 +1150,8 @@ impl ClassifierProfile {
             d_max,
             limbs,
             window_bits,
-            emb_digest: tables.emb_digest(),
-            w_digest: tables.w_digest(),
+            emb_digest,
+            w_digest,
             policy: policy.clone(),
             n,
             tier,
@@ -1103,9 +1512,81 @@ impl ClassifyRunStatement {
         Ok(st)
     }
 
+    /// Prover-only (`HL_CLASSIFY_HOST_FAST=1`) counterpart of [`ClassifyRunStatement::new_chunk`]:
+    /// builds `ClassifierProfile` through [`ClassifierProfile::new_bound`] (reusing cached table
+    /// digests on the immutable `BoundClassifierTables`). The verifier and `check-serve` always
+    /// call [`ClassifyRunStatement::new_chunk`], which recomputes digests from raw tables.
+    #[allow(clippy::too_many_arguments)]
+    #[inline(never)]
+    pub(crate) fn new_chunk_prover(
+        rs: RunShape,
+        context: Digest,
+        block_digests: Vec<Digest>,
+        model: &TrainedModelStatement,
+        tables: &super::classify_tied::BoundClassifierTables,
+        policy: &Policy,
+        n: usize,
+        tier: Tier,
+        in_root: Digest,
+        verdict: u8,
+        total: usize,
+        chunk_index: usize,
+    ) -> Result<ClassifyRunStatement, String> {
+        if !super::super::run::is_classify_run_profile(rs.profile()) {
+            return Err(format!("classifier run: {} is not a classifier run profile", rs.profile()));
+        }
+        if context == [0; 32] {
+            return Err("classifier run: a nonempty context is required".into());
+        }
+        if verdict > 1 {
+            return Err("classifier run: the verdict is one bit".into());
+        }
+        let sh = rs.sh();
+        if !sh.trained_calibration {
+            return Err("classifier run: the blocks must be a trained-calibration shape bound to its trained-model statement".into());
+        }
+        let l = rs.l();
+        let scales = model.calibration.block_scales;
+        if scales.0 != scales.1 {
+            return Err("classifier run: a boundary has ONE scale (M-4)".into());
+        }
+        model.check_against(sh, rs.profile(), &block_digests, &vec![scales; l])?;
+        tables.check_for(sh, rs.profile(), model, policy)?;
+        let cp = ClassifierProfile::new_bound(sh, tables, policy, n, tier)?;
+        let size = sh.tokens.checked_sub(policy.prefix.len() + policy.suffix.len()).filter(|x| *x > 0).ok_or("classifier run: the policy's template leaves no content position")?;
+        let chunk = ChunkRef::derive(total, chunk_index, ChunkPlan { size, overlap: chunk_overlap_of(rs.profile())? })?;
+        if chunk.b - chunk.a != n {
+            return Err(format!("classifier run: chunk {} of a {total}-id content holds {} ids; the statement's n is {n}", chunk.index, chunk.b - chunk.a));
+        }
+        let in_spec = input_endpoint_spec(sh, context, &cp)?;
+        let whole_run = whole_run_of_classifier(sh, l, &cp);
+        let base = sh.norm_calibration();
+        let mut stage_cal = vec![base; l];
+        let mut stage_gate: Vec<Option<u32>> = vec![None; l];
+        for (k, r) in model.layers.iter().enumerate() {
+            if block_digests.get(k) != Some(&r.block_digest) {
+                return Err(format!("classifier run: layer record {k} (layer {}) is not block {k}'s digest (review TR3-3)", r.index));
+            }
+            r.check_accuracy_gate(sh).map_err(|e| format!("classifier run: layer {}: {e}", r.index))?;
+            stage_gate[k] = r.accuracy_gate_shift;
+            if has_own(&r.own) {
+                let cal = apply_own(&base, &r.own).map_err(|e| format!("classifier run: layer {}: {e}", r.index))?;
+                sh.with_layer_calibration(&cal).map_err(|e| format!("classifier run: layer {}'s own calibration: {e}", r.index))?;
+                stage_cal[k] = cal;
+            }
+        }
+        let st = ClassifyRunStatement { rs, context, block_digests, model_identity: model.identity(), cp, in_spec, in_root, scale: scales.0, whole_run, stage_cal, stage_gate, verdict, chunk, tables_profile_sha256: tables.profile_sha256(), tables_derived: tables.is_derived() };
+        for k in 0..l {
+            st.stage_shape(k)?;
+        }
+        Ok(st)
+    }
+
     /// **ROUND 14 (N-r13-1): the prover's and the verifier's tables are the
     /// statement's**: bound to its trained statement and profile digest, with
-    /// its embedding and margin digests, BOS and final norm
+    /// its embedding and margin digests, BOS and final norm.
+    /// The verifier ALWAYS calls this method so it independently recomputes
+    /// `t.tables().emb_digest()` and `t.tables().w_digest()`.
     pub(crate) fn check_tables(&self, t: &super::classify_tied::BoundClassifierTables) -> Result<(), String> {
         if t.model_identity() != self.model_identity || t.profile_sha256() != self.tables_profile_sha256 || t.is_derived() != self.tables_derived {
             return Err("classifier run: the tables handed are bound to another trained statement than the statement's (N-r13-1)".into());
@@ -1114,6 +1595,33 @@ impl ClassifyRunStatement {
             return Err("classifier run: the tables handed are not the ones the statement names".into());
         }
         Ok(())
+    }
+
+    /// Prover-only counterpart of [`ClassifyRunStatement::check_tables`]: under
+    /// `HL_CLASSIFY_HOST_FAST=1`, uses the cached digests on the immutable `BoundClassifierTables`
+    /// instead of re-hashing the 805 MB embedding table a third time per request.
+    ///
+    /// Note (L3): when `self` was constructed via [`ClassifyRunStatement::new_chunk_prover`] from
+    /// the same `BoundClassifierTables`, this digest comparison reads the same `OnceLock` cache
+    /// that populated `self.cp`, so the prover's own N-r13-1 digest self-check is circular under
+    /// `HL_CLASSIFY_HOST_FAST=1`. The verifier (`verify_classify_run_with` / `check-serve`) always
+    /// calls [`ClassifyRunStatement::new_chunk`] and [`ClassifyRunStatement::check_tables`], which
+    /// independently recompute both digests from raw tables; any mismatch produces a refused receipt.
+    /// When the switch is off, delegates directly to [`ClassifyRunStatement::check_tables`].
+    #[inline(never)]
+    pub(crate) fn check_tables_prover(&self, t: &super::classify_tied::BoundClassifierTables) -> Result<(), String> {
+        if classify_host_fast_on() {
+            if t.model_identity() != self.model_identity || t.profile_sha256() != self.tables_profile_sha256 || t.is_derived() != self.tables_derived {
+                return Err("classifier run: the tables handed are bound to another trained statement than the statement's (N-r13-1)".into());
+            }
+            record_classify_host_fast_hit(CHF_C1_DIGESTS);
+            if t.emb_digest() != self.cp.emb_digest || t.w_digest() != self.cp.w_digest || t.bos() != self.cp.bos || t.norm() != self.cp.norm {
+                return Err("classifier run: the tables handed are not the ones the statement names".into());
+            }
+            Ok(())
+        } else {
+            self.check_tables(t)
+        }
     }
 
     /// test builds: whether the statement's tables came from the tied derivation

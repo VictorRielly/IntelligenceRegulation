@@ -603,6 +603,114 @@ fn seal_chain_keeping(p: &ExportPublic, seq: &SeqIn, blocks: &mut dyn TokenBlock
     Ok((x, kept))
 }
 
+/// `HL_CLASSIFY_HOST_FAST=1` counterpart of [`CliSource`] carrying the `x_out_L{k}` outputs
+/// retained from [`seal_chain_keeping_fast`] (C3: verified against `manifest.json` when present,
+/// otherwise raw reads of the same files the sealing pass compared).
+struct CliSourceFast<'a> {
+    p: &'a ExportPublic,
+    seq: &'a SeqIn,
+    ids: Ids,
+    stage_in: Option<(StageInWitness, Vec<i16>)>,
+    stage_out: Option<StageOutCWitness>,
+    x: Vec<i16>,
+    parity: usize,
+    sealed: bool,
+    kept: Vec<Option<KeptWitness>>,
+    verified_outs: Vec<Vec<i16>>,
+}
+
+impl ClassifyRunSource for CliSourceFast<'_> {
+    fn stage_in(&mut self) -> Result<(StageInWitness, Vec<i16>), String> {
+        self.stage_in.take().ok_or_else(|| "classifier run: stage IN-C asked twice".to_string())
+    }
+    fn witness(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<Witness, String> {
+        let sh = &self.p.sh;
+        let w = match self.kept.get_mut(k).and_then(Option::take) {
+            Some((ks, kx, kw)) if ks == *ssh && kx == self.x => kw,
+            _ => super::super::witness::build_for_block(ssh, blk, &self.x)?,
+        };
+        let ids = Ids::new(ssh)?;
+        if ids.at(A_X2) != self.ids.at(A_X2) {
+            return Err(format!("classifier run: block {k}'s stage shape moves the output plane"));
+        }
+        let out: Vec<i16> = w.planes[ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| "classifier run: a block output outside int16".to_string())).collect::<Result<_, _>>()?;
+        let next = unpad(sh, &out);
+        let expected_out;
+        let want: &[i16] = if let Some(cached) = self.verified_outs.get(k) {
+            record_classify_host_fast_hit(CHF_C3_SEQ_BOUNDARY);
+            cached.as_slice()
+        } else {
+            expected_out = self.seq.load(&self.p.ex, sh, self.p.layers[k])?.1;
+            expected_out.as_slice()
+        };
+        if next != want {
+            return Err(format!("classifier run: block {k}'s output is not the export's x_out_L{:02} (parity)", self.p.layers[k]));
+        }
+        self.parity += 1;
+        self.x = next;
+        Ok(w)
+    }
+    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
+        if let Some(cached) = self.verified_outs.get(k) {
+            record_classify_host_fast_hit(CHF_C3_SEQ_BOUNDARY);
+            Ok(pad_plane(&self.p.sh, cached))
+        } else {
+            Ok(pad_plane(&self.p.sh, &self.seq.load(&self.p.ex, &self.p.sh, self.p.layers[k])?.1))
+        }
+    }
+    fn stage_out(&mut self) -> Result<StageOutCWitness, String> {
+        self.stage_out.take().ok_or_else(|| "classifier run: stage OUT-C asked twice".to_string())
+    }
+    fn seal_check(&mut self, k: usize, _blk: &BlockPublic, _ssh: &Shape, _check: &mut dyn FnMut(&Witness) -> Result<(), String>) -> Result<(), String> {
+        if self.sealed {
+            Ok(())
+        } else {
+            Err(format!("classifier run: block {k} was not sealed by the CLI's sealing pass"))
+        }
+    }
+}
+
+/// Out-of-line `HL_CLASSIFY_HOST_FAST=1` sealing chain (C3 retained verified outputs + C4 A33
+/// `check_lookup_misses_after_public_check`), keeping [`seal_chain_keeping`] verbatim when unset.
+#[allow(clippy::type_complexity)]
+#[inline(never)]
+fn seal_chain_keeping_fast(p: &ExportPublic, seq: &SeqIn, blocks: &mut dyn TokenBlocks, x_in0: Vec<i16>, budget: u64) -> Result<(Vec<i16>, Vec<Option<KeptWitness>>, Vec<Vec<i16>>), String> {
+    let sh = &p.sh;
+    let mut x = x_in0;
+    let mut kept: Vec<Option<KeptWitness>> = Vec::with_capacity(if budget > 0 { p.model.layers.len() } else { 0 });
+    let mut verified_outs: Vec<Vec<i16>> = Vec::with_capacity(p.model.layers.len());
+    let mut used = 0u64;
+    for (k, r) in p.model.layers.iter().enumerate() {
+        let ssh = r.shape_at(sh).map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?;
+        let ids = Ids::new(&ssh)?;
+        let lay = super::super::layout::Layout::for_shape(&ssh)?;
+        let blk = blocks.block(k)?;
+        let w = super::super::witness::build_for_block(&ssh, &blk, &x).map_err(|e| format!("block {k}: the witness builder refuses: {e} (the sealing pass, before any header)"))?;
+        let out: Vec<i16> = w.planes[ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| format!("block {k}: an output outside int16 (the sealing pass, before any header)"))).collect::<Result<_, _>>()?;
+        let next = unpad(sh, &out);
+        let loaded = seq.load(&p.ex, sh, p.layers[k])?.1;
+        if next != loaded {
+            return Err(format!("block {k}: the builder's output is not the export's x_out_L{:02} (parity, in the sealing pass, before any header)", p.layers[k]));
+        }
+        // C4 (A33): `witness::build_for_block(&ssh, &blk, &x)` above always ran
+        // `blk.check_for_shape(&ssh)` on this exact `&blk` and `&ssh`.
+        record_classify_host_fast_hit(CHF_C4_CS3_SKIP);
+        super::super::protocol::check_lookup_misses_after_public_check(&ssh, &lay, &blk, &w).map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?;
+        verified_outs.push(loaded);
+        let x_in = std::mem::replace(&mut x, next);
+        if budget > 0 {
+            let wb = witness_bytes(&w);
+            if used.saturating_add(wb) <= budget {
+                used += wb;
+                kept.push(Some((ssh, x_in, w)));
+            } else {
+                kept.push(None);
+            }
+        }
+    }
+    Ok((x, kept, verified_outs))
+}
+
 /// `zk60_classify prove ...` (see the module text)
 pub fn classify_prove_command(args: &[String]) -> i32 {
     if args.iter().any(|a| a == "--content") {
@@ -621,6 +729,19 @@ pub fn classify_prove_command(args: &[String]) -> i32 {
         // D65(2): one constant external refusal; the detail goes to the owner's private log
         Err(e) => crate::private_block::trained_block::refusal::refuse("classify-prove", &e),
     }
+}
+
+/// TEST BUILDS ONLY: run [`classify_prove_command`] capturing this thread's JSON event lines.
+#[cfg(test)]
+pub(crate) fn classify_prove_capturing_for_test(args: &[String]) -> (i32, Vec<String>) {
+    with_captured_events(|| classify_prove_command(args))
+}
+
+/// TEST BUILDS ONLY: run [`classify_prove_command`] under `catch_unwind` while still capturing
+/// all JSON event lines emitted on this thread before a panic unwinds.
+#[cfg(test)]
+pub(crate) fn classify_prove_capturing_unwind_for_test(args: &[String]) -> (Result<i32, Box<dyn std::any::Any + Send>>, Vec<String>) {
+    with_captured_events(|| std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| classify_prove_command(args))))
 }
 
 #[path = "classify_batch.rs"]
@@ -678,6 +799,9 @@ fn cli_phase(side: &str, what: &str, t: &mut Instant) {
 }
 
 fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) -> Result<(), String> {
+    if classify_host_fast_on() {
+        return prove_with_public_fast(f, shared);
+    }
     let t_all = Instant::now();
     let mut tp = Instant::now();
     let out = PathBuf::from(need(f, "--out")?);
@@ -782,7 +906,7 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
     let t = Instant::now();
     // [A26] with a resident server's kept blocks, the prover may take their startup records
     // (`HL_A26_KEPT`); `None` for every other caller
-    let (_, dec) = prove_classify_run_with(&st, run_blocks, resident, bound, &mut src, owner, &mut |k, bytes| {
+    let (_, dec) = prove_classify_run_with(&st, run_blocks, resident, bound, &mut src, owner, None, &mut |k, bytes| {
         let n = bytes.len();
         SegmentSink::accept(&mut disk, k, bytes)?;
         event(format!("{{\"event\":\"segment\",\"index\":{k},\"bytes\":{n},\"elapsed_seconds\":{:.3}}}", t.elapsed().as_secs_f64()));
@@ -827,6 +951,169 @@ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) ->
         st.whole_run().floor_bits,
         t_all.elapsed().as_secs_f64()
     ));
+    Ok(())
+}
+
+/// Out-of-line `HL_CLASSIFY_HOST_FAST=1` prover driver (C1..C5), keeping [`prove_with_public`]
+/// verbatim on the unset path.
+#[inline(never)]
+fn prove_with_public_fast(f: &[(String, String)], shared: Option<SharedProve<'_>>) -> Result<(), String> {
+    let t_all = Instant::now();
+    let mut tp = Instant::now();
+    let fast_telemetry = classify_host_fast_timing_on();
+    let (hits_before, fb_before) = if fast_telemetry {
+        (classify_host_fast_hits_snapshot(), classify_host_fast_fallbacks_snapshot())
+    } else {
+        ([0; 5], [0; 5])
+    };
+    let out = PathBuf::from(need(f, "--out")?);
+    let (incomplete, unverified) = (sibling(&out, ".incomplete"), sibling(&out, ".unverified-statement"));
+    if std::fs::symlink_metadata(&out).is_ok() {
+        return Err(format!("{} exists; a classifier run's directories must be new", out.display()));
+    }
+    let home = std::env::var_os("HOME").map(PathBuf::from);
+    let owners_dir = owner_dir_at(f, &out, home.as_deref())?;
+    let mut claimed = Claimed(Vec::new());
+    claimed.dir(&incomplete, false, "a classifier run's directories")?;
+    claimed.dir(&unverified, false, "a classifier run's directories")?;
+    claimed.dir(&owners_dir, true, "a run's owner directory")?;
+    let label = label_of(f)?;
+    let seq = SeqIn::of(f)?;
+    let export = PathBuf::from(need(f, "--export")?);
+    let loaded_p;
+    let p = match shared.as_ref() {
+        Some(s) => s.p,
+        None => { loaded_p = load_export_for(&export, f)?; &loaded_p }
+    };
+    cli_phase("prove", "args + directories + load_export (the digest pass)", &mut tp);
+    let sh = &p.sh;
+    let policy = policy_by_id(need(f, "--policy")?)?;
+    let loaded_bound;
+    let bound = match shared.as_ref() {
+        Some(s) => s.bound,
+        None => {
+            loaded_bound = super::classify_tied::load_tied_classifier_tables(p, &export, Path::new(need(f, "--tables")?), &policy)?;
+            &loaded_bound
+        }
+    };
+    bound.check_for(sh, p.profile, &p.model, &policy)?;
+    cli_phase("prove", "tied classifier tables (re-derived from the pinned checkpoint)", &mut tp);
+    let tables = bound.tables();
+    let loaded_whole;
+    let whole: &[u64] = match shared.as_ref() {
+        Some(s) => s.whole,
+        None => { loaded_whole = content_of(f)?; &loaded_whole }
+    };
+    let index: usize = flag(f, "--chunk").unwrap_or("0").parse().map_err(|_| "--chunk: a chunk index (0, 1, ...)")?;
+    let ch = ChunkRef::derive(whole.len(), index, chunk_plan(sh, &policy, p.profile)?)?;
+    let content = whole[ch.a..ch.b].to_vec();
+    let cp = ClassifierProfile::new_bound(sh, bound, &policy, content.len(), Tier::R1_MVP)?;
+    let tokens = cp.tokens_of(&content)?;
+    event(format!("{{\"event\":\"loaded\",\"export_variant\":{},\"run_profile\":{},\"blocks\":{},\"trained_statement_identity\":{},\"policy\":{},\"chunk\":{},\"chunks\":{},\"content_length_n\":{}}}", js(&p.ex.variant), js(p.profile), p.layers.len(), js(&hex(&p.model.identity())), js(&policy.id), ch.index, ch.count, cp.n));
+    let (wit_in, b_in, in_plane) = super::stage_in_c::honest_inputs(&cp, tables, &tokens)?;
+    let x_in0 = seq.load(&p.ex, sh, p.layers[0])?.0;
+    if unpad(sh, &b_in) != x_in0 {
+        return Err("classifier run: the embedding table does not embed the item to the export's x_in_L00".into());
+    }
+    cli_phase("prove", "content, honest stage IN-C inputs, x_in load", &mut tp);
+    let resident = shared.as_ref().and_then(|s| s.blocks);
+    let budget = shared.as_ref().map_or(0, |s| s.witness_budget);
+    let (x_last, seal_loads, kept_witnesses, verified_outs) = match resident {
+        Some(kept) => {
+            let (x_last, w, outs) = seal_chain_keeping_fast(p, &seq, &mut super::run::KeptResidentBlocks(kept), x_in0.clone(), budget)?;
+            (x_last, 0, w, outs)
+        }
+        None => {
+            let mut seal_blocks = ExportTokenBlocks::new(p);
+            let (x_last, _, outs) = seal_chain_keeping_fast(p, &seq, &mut seal_blocks, x_in0.clone(), 0)?;
+            (x_last, seal_blocks.loads, Vec::new(), outs)
+        }
+    };
+    cli_phase("prove", "seal_chain (every block: load, witness, int16, parity, CS-3)", &mut tp);
+    let vr = cp.verdict_row();
+    let mut row = vec![0i64; cp.d_pad];
+    for (i, v) in x_last[vr * cp.d..(vr + 1) * cp.d].iter().enumerate() {
+        row[i] = i64::from(*v);
+    }
+    let ov = super::stage_out_c::out_values(&cp, tables, &row, true)?;
+    let wout = super::stage_out_c::witness_from_values(&cp, &ov)?;
+    let ctx = stack_context(&p.ex.variant, &p.layers, label)?;
+    let spec = input_endpoint_spec(sh, ctx, &cp)?;
+    let (root, owner) = seal_input(&spec, &in_plane, &sh.hash_tag())?;
+    let st = ClassifyRunStatement::new_chunk_prover(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, bound, &policy, content.len(), Tier::R1_MVP, root, ov.verdict, whole.len(), index)?;
+    if st.chunk() != ch {
+        return Err("classifier run: the statement's chunk is not the prover's slice".into());
+    }
+    let disk = run_sink::DirSink::create(&incomplete, p.layers.len() + 2)?;
+    let mut src = CliSourceFast { p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, sealed: true, kept: kept_witnesses, verified_outs };
+    let mut blocks = ExportTokenBlocks::new(p);
+    let mut kept = resident.map(super::run::KeptResidentBlocks);
+    let run_blocks: &mut dyn TokenBlocks = match kept.as_mut() {
+        Some(r) => r,
+        None => &mut blocks,
+    };
+    cli_phase("prove", "stage OUT-C values, input endpoint seal, statement", &mut tp);
+    let mut run_turn = shared.as_ref().and_then(|s| s.run_gate).map(|g| g.lock().unwrap_or_else(|e| e.into_inner()));
+    let t = Instant::now();
+    let (_, dec, disk) = prove_classify_run_with_dir_sink(&st, run_blocks, resident, bound, &mut src, owner, disk, &mut |k, n| {
+        event(format!("{{\"event\":\"segment\",\"index\":{k},\"bytes\":{n},\"elapsed_seconds\":{:.3}}}", t.elapsed().as_secs_f64()));
+    })?;
+    let prove_s = t.elapsed().as_secs_f64();
+    cli_phase("prove", "the run (prove_classify_run_with: sealing pass, IN-C, 26 blocks, OUT-C)", &mut tp);
+    if super::super::timing::enabled() {
+        let s = crate::gpu::dev_stats();
+        event(format!(
+            "PB-CLI prove | gpu | {} | declines {} | h2d {:.3} s {} B | ntt {:.3} s | hash {:.3} s | d2h {:.3} s {} B | reenc {:.3} s | chunked {} | fold {:.3} s | vram_peak {} B",
+            crate::gpu::label(), crate::gpu::declines(), s.secs_h2d, s.bytes_h2d, s.secs_ntt, s.secs_hash, s.secs_d2h, s.bytes_d2h, s.secs_reenc, s.n_chunked, s.secs_fold, s.vram_peak
+        ));
+    }
+    if src.parity != p.layers.len() {
+        return Err(format!("classifier run: parity was checked at {} of {} layers", src.parity, p.layers.len()));
+    }
+    if disk.lengths() != st.segment_lens()?.as_slice() {
+        return Err("classifier run: the written segments are not the counted lengths".into());
+    }
+    // Release the lane's GPU run gate once the run and segment length check complete so the
+    // final `input.dec` / `statement.json` / rename fsyncs don't block the next queued run
+    // (`Claimed` continues to guard this request's directories).
+    run_turn.take();
+    write_private(&owners_dir.join("input.dec"), &dec.to_bytes())?;
+    write_new(&unverified.join("statement.json"), render(p, &st, label, Writer::Prover)?.as_bytes())?;
+    std::fs::rename(&incomplete, &out).map_err(|e| format!("{} -> {}: {e}", incomplete.display(), out.display()))?;
+    cli_phase("prove", "owner file, unverified statement, rename", &mut tp);
+    if let Some(claim) = shared.and_then(|s| s.claim) {
+        claim.hold([&out, &unverified, &owners_dir], (seal_loads, blocks.loads));
+    }
+    claimed.keep();
+    event(format!(
+        "{{\"event\":\"proved\",\"run\":{},\"owner_dir\":{},\"verdict\":{},\"policy\":{},\"chunk\":{},\"chunks\":{},\"segments\":{},\"receipt_bytes\":{},\"prove_seconds\":{prove_s:.3},\"whole_run_floor_bits\":{},\"total_seconds\":{:.3},\"statement\":\"UNVERIFIED until zk60_classify verify publishes <run>/statement/\"}}",
+        js(&out.display().to_string()),
+        js(&owners_dir.display().to_string()),
+        js(verdict_text(st.verdict())),
+        js(&policy.id),
+        ch.index,
+        ch.count,
+        disk.lengths().len(),
+        disk.total_bytes(),
+        st.whole_run().floor_bits,
+        t_all.elapsed().as_secs_f64()
+    ));
+    // Note: CLASSIFY_HOST_FAST_HITS/FALLBACKS are process-wide atomics, so in multi-lane runs
+    // `req_hits` deltas include concurrent lanes' hits; `total_hits`/`total_fallbacks` are exact process-wide totals.
+    if fast_telemetry {
+        let h_after = classify_host_fast_hits_snapshot();
+        let f_after = classify_host_fast_fallbacks_snapshot();
+        let dh: [u64; 5] = std::array::from_fn(|i| h_after[i].saturating_sub(hits_before[i]));
+        let df: [u64; 5] = std::array::from_fn(|i| f_after[i].saturating_sub(fb_before[i]));
+        eprintln!(
+            "[ZK60-CLASSIFY-HOST-FAST] active=1 req_hits=C1:{},C2:{},C3:{},C4:{},C5:{} req_fallbacks=C1:{},C2:{},C3:{},C4:{},C5:{} total_hits=C1:{},C2:{},C3:{},C4:{},C5:{} total_fallbacks=C1:{},C2:{},C3:{},C4:{},C5:{}",
+            dh[0], dh[1], dh[2], dh[3], dh[4],
+            df[0], df[1], df[2], df[3], df[4],
+            h_after[0], h_after[1], h_after[2], h_after[3], h_after[4],
+            f_after[0], f_after[1], f_after[2], f_after[3], f_after[4],
+        );
+    }
+    drop(run_turn);
     Ok(())
 }
 

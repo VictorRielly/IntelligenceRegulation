@@ -327,6 +327,7 @@ fn a26_the_split_limb_embedding_fold_equals_the_field_fold() {
         x
     };
     let pm1 = Fp::ZERO.sub(Fp::ONE);
+    let _emb_lock = super::classify::classify_emb_test_lock();
     for (v, d) in [(5usize, 3usize), (7, 64), (33, 100), (9, 3072)] {
         let emb: Vec<i16> = (0..v * d).map(|i| match i % 11 { 0 => i16::MIN, 1 => i16::MAX, 2 => 0, _ => (next() >> 20) as i16 }).collect();
         let w: Vec<i16> = (0..d).map(|_| (next() >> 40) as i16).collect();
@@ -445,4 +446,107 @@ fn a28_the_seal_ahead_dispatch_fills_idle_lanes_first_and_never_sends_a_third_re
         }
     }
     eprintln!("A28 | the seal-ahead dispatch: idle lanes first, then the earliest-begun lane, never three on a lane; every request served once (2 and 1 request threads a lane)");
+}
+
+/// M1 + M2: `classify-serve` under `HL_CLASSIFY_HOST_FAST=1` in BOTH seal-ahead modes
+/// (`ahead = false` and `ahead = true`, exercising early `run_turn` release with a lane gate),
+/// plus `check-serve` verifying every receipt while `HL_CLASSIFY_HOST_FAST` remains ON.
+/// Strict zero-fallback and zero-verifier-hit counter equalities live in the fresh-process gate
+/// `classify_host_fast_verifier_isolation_and_serve_gate` (concurrent suite tests share the
+/// process-wide override and counters while `ClassifyHostFastGuard` is held).
+#[test]
+fn classify_host_fast_serve_and_check_serve_both_seal_ahead_modes() {
+    let _on = ClassifyHostFastGuard::set(true);
+    for ahead in [false, true] {
+        let cc = Cc::new(&format!("chf-serve-ahead-{ahead}"));
+        let post = Post::new(&cc, "chfs", None);
+        let sh0 = classify_host_fast_hits_snapshot();
+        let out = serve_for_tests_ahead(&serve_args(&cc, "1", "1"), vec![post.request(0), post.request(1)], ahead).expect("serve starts");
+        let sh1 = classify_host_fast_hits_snapshot();
+        let j = parsed(&out);
+        assert_eq!(j[0].get("event").unwrap().str().unwrap(), "serve-start");
+        assert_eq!(j[0].get("seal_ahead").unwrap(), &J::Bool(ahead));
+        assert_eq!(j.last().unwrap().get("accepted").unwrap().i64().unwrap(), 2);
+        for i in 0..2 {
+            assert_eq!(status(served(&j, &format!("c{i}"))), "proved");
+        }
+        let sdh: [u64; 5] = std::array::from_fn(|i| sh1[i].saturating_sub(sh0[i]));
+        assert!(sdh[CHF_C1_DIGESTS] > 0, "serve ahead={ahead}: C1 hits expected > 0, got {sdh:?}");
+        assert!(sdh[CHF_C2_ASYNC_SINK] >= 6, "serve ahead={ahead}: C2 hits expected >= 6, got {sdh:?}");
+        assert!(sdh[CHF_C3_SEQ_BOUNDARY] > 0, "serve ahead={ahead}: C3 hits expected > 0, got {sdh:?}");
+        assert!(sdh[CHF_C4_CS3_SKIP] > 0, "serve ahead={ahead}: C4 hits expected > 0, got {sdh:?}");
+        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+        assert!(sdh[CHF_C5_EMB_FOLD_NEON] > 0, "serve ahead={ahead}: C5 hits expected > 0, got {sdh:?}");
+
+        // M1: verify with check-serve while HL_CLASSIFY_HOST_FAST is STILL ON.
+        let req = check_line(&post, &cc, "cat", POLICY_RUNG_DEV, 27, &post.content, &[0, 1]);
+        let cout = check_serve_for_tests(&check_args_lanes(&cc, &cc.identity, "1"), vec![req]).expect("check-serve starts");
+        let cj = parsed(&cout);
+        assert_eq!(status(served(&cj, "cat")), "checked");
+
+        // Refusal in sealing pass followed by honest request on the same lane.
+        let cc_ref = Cc::new(&format!("chf-serve-refuse-{ahead}"));
+        let bad = Post::new(&cc_ref, "chfr", Some(0));
+        let rout = serve_for_tests_ahead(&serve_args(&cc_ref, "1", "1"), vec![bad.request(0), bad.request(1)], ahead).expect("serve starts");
+        let rj = parsed(&rout);
+        assert_eq!(status(served(&rj, "c0")), "refused");
+        assert!(bad.created(0).iter().all(|(_, e)| !*e), "refused request created {:?}", bad.created(0));
+        assert_eq!(status(served(&rj, "c1")), "proved");
+        assert_eq!(cc_ref.verify(&bad.outs[1], &cc_ref.tables), 0);
+    }
+    eprintln!("HL_CLASSIFY_HOST_FAST | M1+M2 serve (ahead=false,true) + check-serve verifier isolation verified");
+}
+
+/// Fresh-process gate test (run alone with `HL_CLASSIFY_HOST_FAST=1` in the real OS environment):
+/// unconditionally asserts strict verifier isolation (`verify`, `input-owner`, and `check-serve`
+/// move zero `C1..C5` hit or fallback counters) while `serve` in both seal-ahead modes hits all
+/// five components with zero fallbacks.
+#[test]
+#[ignore = "CLASSIFY-HOST-FAST: fresh-process gate verifying strict verifier isolation and serve in both seal-ahead modes; run alone by name with HL_CLASSIFY_HOST_FAST=1"]
+fn classify_host_fast_verifier_isolation_and_serve_gate() {
+    assert!(
+        classify_host_fast_on(),
+        "run this gate test with HL_CLASSIFY_HOST_FAST=1 in the environment"
+    );
+    for ahead in [false, true] {
+        let cc = Cc::new(&format!("chf-gate-ahead-{ahead}"));
+        let post = Post::new(&cc, "chfg", None);
+        let sh0 = classify_host_fast_hits_snapshot();
+        let sf0 = classify_host_fast_fallbacks_snapshot();
+        let out = serve_for_tests_ahead(&serve_args(&cc, "1", "1"), vec![post.request(0), post.request(1)], ahead).expect("serve starts");
+        let sh1 = classify_host_fast_hits_snapshot();
+        let sf1 = classify_host_fast_fallbacks_snapshot();
+        let j = parsed(&out);
+        assert_eq!(j.last().unwrap().get("accepted").unwrap().i64().unwrap(), 2);
+        let sdh: [u64; 5] = std::array::from_fn(|i| sh1[i] - sh0[i]);
+        let sdf: [u64; 5] = std::array::from_fn(|i| sf1[i] - sf0[i]);
+        assert!(sdh[CHF_C1_DIGESTS] > 0 && sdh[CHF_C2_ASYNC_SINK] >= 6 && sdh[CHF_C3_SEQ_BOUNDARY] > 0 && sdh[CHF_C4_CS3_SKIP] > 0, "serve ahead={ahead}: expected C1..C4 > 0, got {sdh:?}");
+        #[cfg(all(target_arch = "aarch64", target_feature = "neon"))]
+        assert!(sdh[CHF_C5_EMB_FOLD_NEON] > 0, "serve ahead={ahead}: expected C5 > 0, got {sdh:?}");
+        assert_eq!(sdf, [0; 5], "serve ahead={ahead}: expected 0 fallbacks, got {sdf:?}");
+
+        // Unconditional M1 check on check-serve (real HL_CLASSIFY_HOST_FAST=1 env, no concurrent tests).
+        let req = check_line(&post, &cc, "cat", POLICY_RUNG_DEV, 27, &post.content, &[0, 1]);
+        let vh0 = classify_host_fast_hits_snapshot();
+        let vf0 = classify_host_fast_fallbacks_snapshot();
+        let cout = check_serve_for_tests(&check_args_lanes(&cc, &cc.identity, "1"), vec![req]).expect("check-serve starts");
+        let vh1 = classify_host_fast_hits_snapshot();
+        let vf1 = classify_host_fast_fallbacks_snapshot();
+        assert_eq!(status(served(&parsed(&cout), "cat")), "checked");
+        assert_eq!(vh1, vh0, "M1 gate: check-serve ahead={ahead} hit fast path: before={vh0:?} after={vh1:?}");
+        assert_eq!(vf1, vf0, "M1 gate: check-serve ahead={ahead} recorded fallback: before={vf0:?} after={vf1:?}");
+
+        // Unconditional M1 check on CLI verify + input-owner.
+        let ch0 = classify_host_fast_hits_snapshot();
+        let cf0 = classify_host_fast_fallbacks_snapshot();
+        for o in &post.outs {
+            assert_eq!(cc.verify(o, &cc.tables), 0);
+            assert_eq!(cc.input_owner(o, &cc.tables, &post.whole), 0);
+        }
+        let ch1 = classify_host_fast_hits_snapshot();
+        let cf1 = classify_host_fast_fallbacks_snapshot();
+        assert_eq!(ch1, ch0, "M1 gate: CLI verify/input-owner ahead={ahead} hit fast path: before={ch0:?} after={ch1:?}");
+        assert_eq!(cf1, cf0, "M1 gate: CLI verify/input-owner ahead={ahead} recorded fallback: before={cf0:?} after={cf1:?}");
+    }
+    eprintln!("HL_CLASSIFY_HOST_FAST | GATE PASS: strict verifier isolation (check-serve + CLI verify/input-owner) and serve (ahead=false,true) all green");
 }

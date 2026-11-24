@@ -385,6 +385,11 @@ pub(crate) fn check_files_against(tied: &TiedClassifier, w_file: &[i16], emb_fil
 #[derive(Clone, Debug)]
 pub(crate) struct BoundClassifierTables {
     tables: ClassifierTables,
+    /// Cached BLAKE3 statement digests of the immutable `tables` (CL2 / CL3), populated
+    /// lazily on first call to `emb_digest()` / `w_digest()` under `HL_CLASSIFY_HOST_FAST=1`
+    /// (`tables` is private and has no `&mut` accessor).
+    emb_digest_cache: std::sync::Arc<std::sync::OnceLock<Digest>>,
+    w_digest_cache: std::sync::Arc<std::sync::OnceLock<Digest>>,
     bos: u64,
     norm: FinalNorm,
     source: TiedSource,
@@ -403,6 +408,15 @@ impl BoundClassifierTables {
     /// the tables (the RECOMPUTED margin row; the derived embedding)
     pub(crate) fn tables(&self) -> &ClassifierTables {
         &self.tables
+    }
+    /// Cached BLAKE3 embedding digest (CL2), identical to `self.tables().emb_digest()`
+    /// (since `tables` is immutable for the life of this value).
+    pub(crate) fn emb_digest(&self) -> Digest {
+        *self.emb_digest_cache.get_or_init(|| self.tables.emb_digest())
+    }
+    /// Cached BLAKE3 margin-vector digest (CL3), identical to `self.tables().w_digest()`.
+    pub(crate) fn w_digest(&self) -> Digest {
+        *self.w_digest_cache.get_or_init(|| self.tables.w_digest())
     }
     /// BOS, the export's `token_io_parameters.bos`
     pub(crate) fn bos(&self) -> u64 {
@@ -473,6 +487,8 @@ impl BoundClassifierTables {
         }
         Ok(BoundClassifierTables {
             tables,
+            emb_digest_cache: std::sync::Arc::new(std::sync::OnceLock::new()),
+            w_digest_cache: std::sync::Arc::new(std::sync::OnceLock::new()),
             bos,
             norm,
             source,
@@ -509,6 +525,8 @@ pub(crate) fn load_bound_tables_pre(sh: &Shape, model: &TrainedModelStatement, e
     let ClassifierTables { v, d, emb, .. } = files;
     Ok(BoundClassifierTables {
         tables: ClassifierTables::new(v, d, emb, tied.w)?,
+        emb_digest_cache: std::sync::Arc::new(std::sync::OnceLock::new()),
+        w_digest_cache: std::sync::Arc::new(std::sync::OnceLock::new()),
         bos: tied.bos,
         norm: tied.norm,
         source,
