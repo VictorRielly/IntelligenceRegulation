@@ -6577,9 +6577,11 @@ fn host_fast_w2_all_call_sites_byte_identical() {
         assert_eq!(h0, [0; 10], "single hw0 must not record W2 hits");
         assert_eq!(fb0, [0; 5], "single hw0 unexpected W2 fallbacks: {fb0:?}");
         assert_eq!(fb1, [0; 5], "single hw1 unexpected W2 fallbacks: {fb1:?}");
+        if std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() != Ok("1") {
+            assert_eq!(h1[crate::zk::HF_W2_ASYNC_DROP], 0, "single rung_g hw1 with default AD must not hit HF_W2_ASYNC_DROP, got {h1:?}");
+        }
         for i in [
             crate::zk::HF_W2_TWOTERM_EXP,
-            crate::zk::HF_W2_ASYNC_DROP,
             crate::zk::HF_W2_PAR_OPEN,
             crate::zk::HF_W2_MASK_EVAL,
         ] {
@@ -6626,10 +6628,12 @@ fn host_fast_w2_all_call_sites_byte_identical() {
         let fbd: [u64; 5] = std::array::from_fn(|i| fba[i] - fbb[i]);
         assert_eq!(fbd, [0; 5], "run_fork W16R2 L=2 hw1 unexpected W2 fallbacks: {fbd:?}");
         assert_eq!(hd[crate::zk::HF_W2_SEAL_HIST], 2, "run_fork W16R2 L=2 hw1 expected HF_W2_SEAL_HIST == 2, got {hd:?}");
+        if std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() != Ok("1") {
+            assert_eq!(hd[crate::zk::HF_W2_ASYNC_DROP], 0, "run_fork W16R2 L=2 hw1 with default AD must not hit HF_W2_ASYNC_DROP, got {hd:?}");
+        }
         for i in [
             crate::zk::HF_W2_TWOTERM_EXP,
             crate::zk::HF_W2_FLAT_W16,
-            crate::zk::HF_W2_ASYNC_DROP,
             crate::zk::HF_W2_PUB_GEN_ROPE,
             crate::zk::HF_W2_FOLD_TILED,
             crate::zk::HF_W2_PADS_REUSE,
@@ -6893,9 +6897,11 @@ fn host_fast_w2_all_call_sites_byte_identical() {
         assert_eq!(cfb0, [0; 5], "classifier hw0 unexpected W2 fallbacks: {cfb0:?}");
         assert_eq!(cfb1, [0; 5], "classifier hw1 unexpected W2 fallbacks: {cfb1:?}");
         assert_eq!(ch1[crate::zk::HF_W2_SEAL_HIST], l_c as u64, "classifier hw1 expected HF_W2_SEAL_HIST == {l_c}, got {ch1:?}");
+        if std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() != Ok("1") {
+            assert_eq!(ch1[crate::zk::HF_W2_ASYNC_DROP], 0, "classifier hw1 with default AD must not hit HF_W2_ASYNC_DROP, got {ch1:?}");
+        }
         for i in [
             crate::zk::HF_W2_TWOTERM_EXP,
-            crate::zk::HF_W2_ASYNC_DROP,
             crate::zk::HF_W2_PAR_OPEN,
             crate::zk::HF_W2_MASK_EVAL,
         ] {

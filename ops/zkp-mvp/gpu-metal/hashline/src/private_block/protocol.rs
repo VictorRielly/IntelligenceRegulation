@@ -2838,9 +2838,9 @@ pub(crate) fn prove_core_before_with(
     tick: &mut std::time::Instant,
     hints: CoreHints<'_, '_>,
 ) -> Result<CoreAhead, String> {
-    let w2_on_entry = crate::zk::host_fast_w2_on();
-    let w2_hits_b0 = if w2_on_entry { crate::zk::host_fast_w2_hits_for_test() } else { [0; 10] };
-    let w2_fb_b0 = if w2_on_entry { crate::zk::host_fast_w2_fallbacks_for_test() } else { [0; 5] };
+    let w2_timing = crate::zk::host_fast_w2_on() && crate::zk::host_fast_timing_on();
+    let w2_hits_b0 = if w2_timing { crate::zk::host_fast_w2_hits_for_test() } else { [0; 10] };
+    let w2_fb_b0 = if w2_timing { crate::zk::host_fast_w2_fallbacks_for_test() } else { [0; 5] };
     let (public, ff) = (blk.attention(), blk.feed_forward());
     // RULING CS-8, in the body every proving path shares: the shape is one
     // `Shape::new` builds and the layout the CALLER hands is the one
@@ -3046,7 +3046,7 @@ pub(crate) fn prove_core_before_with(
     // the same: `zk::mask_commit` is `hashline/src/zk.rs`, one enclosing call
     ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", lay.m_rows() as u64, "rows");
     lap(phases, tick, "commit M");
-    let (w2_before_hits, w2_before_fb) = if w2_on_entry {
+    let (w2_before_hits, w2_before_fb) = if w2_timing {
         let w2_hits_b1 = crate::zk::host_fast_w2_hits_for_test();
         let w2_fb_b1 = crate::zk::host_fast_w2_fallbacks_for_test();
         (
@@ -3477,8 +3477,9 @@ pub(crate) fn prove_core_after_with(
     }
     let hf_hits_start = crate::zk::host_fast_hits_for_test();
     let hf_fb_start = crate::zk::host_fast_fallbacks_for_test();
-    let w2_hits_start = crate::zk::host_fast_w2_hits_for_test();
-    let w2_fb_start = crate::zk::host_fast_w2_fallbacks_for_test();
+    let w2_timing = crate::zk::host_fast_w2_on() && crate::zk::host_fast_timing_on();
+    let w2_hits_start = if w2_timing { crate::zk::host_fast_w2_hits_for_test() } else { [0; 10] };
+    let w2_fb_start = if w2_timing { crate::zk::host_fast_w2_fallbacks_for_test() } else { [0; 5] };
     let (public, ff) = (blk.attention(), blk.feed_forward());
     let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
     // [A17] the views again, over the same witness and built columns

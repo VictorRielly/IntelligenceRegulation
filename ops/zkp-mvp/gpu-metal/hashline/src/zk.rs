@@ -317,8 +317,10 @@ pub fn host_fast_w2_for_test() -> bool {
     host_fast_w2_on()
 }
 
-/// Optional async `munmap` sub-switch (`HL_HOST_FAST_ASYNC_DROP`): defaults to `host_fast_w2_on()`
-/// unless explicitly forced `0` or `1` via env or `set_host_fast_async_drop_for_test`.
+/// Optional async `munmap` sub-switch (`HL_HOST_FAST_ASYNC_DROP`): defaults to `false`
+/// (off even when `HL_HOST_FAST_W2=1`, per the 8B `ad1` vs `ad0` ablation) unless explicitly
+/// enabled via `HL_HOST_FAST_ASYNC_DROP=1` or `set_host_fast_async_drop_for_test(Some(true))`
+/// while `host_fast_w2_on()` is true.
 pub fn host_fast_async_drop_on() -> bool {
     if !host_fast_w2_on() {
         return false;
@@ -336,7 +338,7 @@ pub fn host_fast_async_drop_on() -> bool {
         _ => None,
     }) {
         Some(b) => b,
-        None => host_fast_w2_on(),
+        None => false,
     }
 }
 
