@@ -1,0 +1,4 @@
+[01:08:28] launching w2_ab8
+[zk60-guard 01:08:28] START hostw2-w2_ab8 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=563d09a2b961
+[zk60-guard 01:57:10] END hostw2-w2_ab8 exit=0 child_wall=2922s peak_rss=56.81G min_avail=133.77G peak_vram=23518MiB
+[01:57:10] w2_ab8 guard exit 0
