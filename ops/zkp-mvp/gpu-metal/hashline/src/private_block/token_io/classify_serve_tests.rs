@@ -553,10 +553,10 @@ fn classify_host_fast_verifier_isolation_and_serve_gate() {
 
 /// Fresh-process gate test (run alone with `HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1`):
 /// verifies that resident `classify-serve` under BOTH `HL_CLASSIFY_HOST_FAST=1` and `HL_HOST_FAST_W2=1`
-/// hits both `CHF_C1..C5` (including C4 CS-3 skip) AND `HF_W2_SEAL_HIST` (W2-2 `SealedHistograms`
-/// passed through `seal_chain_keeping_fast` -> `CliSourceFast::witness_with_hists` ->
-/// `prove_classify_run_loop_fast` -> `prove_core_with`) with zero fallbacks in both seal-ahead modes,
-/// while `check-serve` moves zero counters on either switch.
+/// hits both `CHF_C1..C5` (including C4 CS-3 skip) AND `HF_W2_SEAL_HIST` (W2-2 ownership-bound
+/// `SealedWitness` passed through `seal_chain_keeping_fast` -> `CliSourceFast::witness_sealed` ->
+/// `prove_classify_run_loop_fast` -> `prove_core_sealed`) with zero fallbacks in both seal-ahead modes,
+/// while `check-serve` moves zero counters on all three host-fast switches.
 #[test]
 #[ignore = "HOST-FAST-W2 + CLASSIFY-HOST-FAST: fresh-process gate verifying combined classify-serve W2-2 + C1..C5 hits and check-serve verifier isolation; run alone with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1"]
 fn classify_host_fast_plus_w2_serve_gate() {
@@ -594,20 +594,74 @@ fn classify_host_fast_plus_w2_serve_gate() {
         assert_eq!(wdf, [0; 5], "serve ahead={ahead}: expected 0 W2 fallbacks, got {wdf:?}");
 
         let req = check_line(&post, &cc, "cat", POLICY_RUNG_DEV, 27, &post.content, &[0, 1]);
+        let vhf0 = crate::zk::host_fast_hits_for_test();
+        let vhff0 = crate::zk::host_fast_fallbacks_for_test();
         let vch0 = classify_host_fast_hits_snapshot();
         let vcf0 = classify_host_fast_fallbacks_snapshot();
         let vwh0 = crate::zk::host_fast_w2_hits_for_test();
         let vwf0 = crate::zk::host_fast_w2_fallbacks_for_test();
         let cout = check_serve_for_tests(&check_args_lanes(&cc, &cc.identity, "1"), vec![req]).expect("check-serve starts");
+        let vhf1 = crate::zk::host_fast_hits_for_test();
+        let vhff1 = crate::zk::host_fast_fallbacks_for_test();
         let vch1 = classify_host_fast_hits_snapshot();
         let vcf1 = classify_host_fast_fallbacks_snapshot();
         let vwh1 = crate::zk::host_fast_w2_hits_for_test();
         let vwf1 = crate::zk::host_fast_w2_fallbacks_for_test();
         assert_eq!(status(served(&parsed(&cout), "cat")), "checked");
+        assert_eq!(vhf1, vhf0, "check-serve ahead={ahead} hit host_fast");
+        assert_eq!(vhff1, vhff0, "check-serve ahead={ahead} recorded host_fast fallback");
         assert_eq!(vch1, vch0, "check-serve ahead={ahead} hit classify_host_fast");
         assert_eq!(vcf1, vcf0, "check-serve ahead={ahead} recorded classify_host_fast fallback");
         assert_eq!(vwh1, vwh0, "check-serve ahead={ahead} hit host_fast_w2");
         assert_eq!(vwf1, vwf0, "check-serve ahead={ahead} recorded host_fast_w2 fallback");
     }
-    eprintln!("HL_CLASSIFY_HOST_FAST + HL_HOST_FAST_W2 | COMBINED SERVE GATE PASS: both switches hit (including C4 + W2-2 SealedHistograms) with 0 fallbacks and strict check-serve isolation");
+    eprintln!("HL_CLASSIFY_HOST_FAST + HL_HOST_FAST_W2 | COMBINED SERVE GATE PASS: both switches hit (including C4 + W2-2 SealedWitness) with 0 fallbacks and strict 3-switch check-serve isolation");
+}
+
+/// **[HOST-FAST-W2] Read B M3(1) fresh-process gate: `HL_HOST_FAST_W2=1` ALONE (`HL_CLASSIFY_HOST_FAST` unset)**
+/// exercises resident `classify-serve` through `seal_chain_keeping` -> `CliSource::witness_sealed` ->
+/// `prove_classify_run_with` -> `prove_core_sealed` (without `classify_host_fast`), asserting
+/// `HF_W2_SEAL_HIST == 2` with zero W2 fallbacks, zero `classify_host_fast` counter movement,
+/// and strict `check-serve` verification with zero counter movement.
+#[test]
+#[ignore = "HOST-FAST-W2: fresh-process gate exercising classifier seal_chain_keeping -> CliSource::witness_sealed -> prove_classify_run_with with HL_HOST_FAST_W2=1 alone (HL_CLASSIFY_HOST_FAST unset)"]
+fn host_fast_w2_alone_classify_serve_gate() {
+    assert!(
+        crate::zk::host_fast_w2_on() && !classify_host_fast_on(),
+        "run this gate test with HL_HOST_FAST_W2=1 and HL_CLASSIFY_HOST_FAST unset"
+    );
+    for ahead in [false, true] {
+        let cc = Cc::new(&format!("w2-alone-gate-ahead-{ahead}"));
+        let post = Post::new(&cc, "w2alone", None);
+        let ch0 = classify_host_fast_hits_snapshot();
+        let cf0 = classify_host_fast_fallbacks_snapshot();
+        let wh0 = crate::zk::host_fast_w2_hits_for_test();
+        let wf0 = crate::zk::host_fast_w2_fallbacks_for_test();
+        let out = serve_for_tests_ahead(&serve_args(&cc, "1", "1"), vec![post.request(0), post.request(1)], ahead).expect("serve starts");
+        let ch1 = classify_host_fast_hits_snapshot();
+        let cf1 = classify_host_fast_fallbacks_snapshot();
+        let wh1 = crate::zk::host_fast_w2_hits_for_test();
+        let wf1 = crate::zk::host_fast_w2_fallbacks_for_test();
+        let j = parsed(&out);
+        assert_eq!(j.last().unwrap().get("accepted").unwrap().i64().unwrap(), 2);
+        let wdh: [u64; 10] = std::array::from_fn(|i| wh1[i] - wh0[i]);
+        let wdf: [u64; 5] = std::array::from_fn(|i| wf1[i] - wf0[i]);
+        assert_eq!(ch1, ch0, "W2-alone ahead={ahead} must not hit classify_host_fast");
+        assert_eq!(cf1, cf0, "W2-alone ahead={ahead} must not record classify_host_fast fallbacks");
+        assert_eq!(wdh[crate::zk::HF_W2_SEAL_HIST], 2, "W2-alone ahead={ahead}: expected HF_W2_SEAL_HIST == 2, got {wdh:?}");
+        assert!(wdh[crate::zk::HF_W2_PAR_OPEN] > 0 && wdh[crate::zk::HF_W2_MASK_EVAL] > 0, "W2-alone ahead={ahead}: expected W2 hits > 0, got {wdh:?}");
+        if std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() != Ok("1") {
+            assert_eq!(wdh[crate::zk::HF_W2_ASYNC_DROP], 0, "W2-alone ahead={ahead}: default AD must not fire HF_W2_ASYNC_DROP");
+        }
+        assert_eq!(wdf, [0; 5], "W2-alone ahead={ahead}: expected 0 W2 fallbacks, got {wdf:?}");
+
+        let req = check_line(&post, &cc, "cat", POLICY_RUNG_DEV, 27, &post.content, &[0, 1]);
+        let vwh0 = crate::zk::host_fast_w2_hits_for_test();
+        let vwf0 = crate::zk::host_fast_w2_fallbacks_for_test();
+        let cout = check_serve_for_tests(&check_args_lanes(&cc, &cc.identity, "1"), vec![req]).expect("check-serve starts");
+        assert_eq!(status(served(&parsed(&cout), "cat")), "checked");
+        assert_eq!(crate::zk::host_fast_w2_hits_for_test(), vwh0, "W2-alone check-serve hit host_fast_w2");
+        assert_eq!(crate::zk::host_fast_w2_fallbacks_for_test(), vwf0, "W2-alone check-serve recorded host_fast_w2 fallback");
+    }
+    eprintln!("HL_HOST_FAST_W2 ALONE | CLASSIFY SERVE GATE PASS: seal_chain_keeping -> CliSource::witness_sealed -> prove_classify_run_with hit HF_W2_SEAL_HIST=2 with 0 fallbacks");
 }

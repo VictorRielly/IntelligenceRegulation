@@ -612,19 +612,11 @@ fn dd_moved_multiplicity() -> Option<(usize, usize)> {
     DD_MOVED_MULTIPLICITY.with(|c| c.get())
 }
 
-/// **NATIVE R6 (review r5 note N-r5-a): ruling CS-3's lookup-miss refusal,
-/// run on a witness BEFORE any proof exists.** The trained stack's sealing
-/// pass calls it on every sealed witness, so "every refusal of an
-/// inadmissible chain happens before the run header" (ruling H-1) is a
-/// fact of the code rather than an argument about the witness builder's
-/// range checks. The same counts `prove_core` computes (the looked byte
-/// columns, the exp and activation pairs) and the same named refusal (the
-/// class of the miss only, never a count; a cheating prover skips it in
-/// test builds exactly as in `prove_core`).
 /// [HOST-FAST-W2 W2-2] Parallel row-wise fused exp histogram directly over
 /// `(A_S8, A_MX, A_E)` without allocating `deltas: Vec<i64>` or dividing per word.
 /// Returns exact integer counts and miss count identical to
 /// `exp_histogram(&exp_deltas(lay, wit), &wit.planes[ids.at(A_E)], &public.exp)`.
+#[cold]
 #[inline(never)]
 fn exp_histogram_direct(lay: &Layout, wit: &Witness, public: &super::AttentionPublic) -> (Vec<u64>, usize) {
     let (sh, ids) = (lay.shape(), lay.ids());
@@ -708,6 +700,15 @@ fn exp_histogram_direct(lay: &Layout, wit: &Witness, public: &super::AttentionPu
     }
 }
 
+/// **NATIVE R6 (review r5 note N-r5-a): ruling CS-3's lookup-miss refusal,
+/// run on a witness BEFORE any proof exists.** The trained stack's sealing
+/// pass calls it on every sealed witness, so "every refusal of an
+/// inadmissible chain happens before the run header" (ruling H-1) is a
+/// fact of the code rather than an argument about the witness builder's
+/// range checks. The same counts `prove_core` computes (the looked byte
+/// columns, the exp and activation pairs) and the same named refusal (the
+/// class of the miss only, never a count; a cheating prover skips it in
+/// test builds exactly as in `prove_core`).
 pub(crate) fn check_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness) -> Result<(), String> {
     lay.check_is_for_shape(sh)?;
     blk.check_for_shape(sh)?;
@@ -727,20 +728,29 @@ pub(crate) fn check_lookup_misses_after_public_check(sh: &Shape, lay: &Layout, b
     scan_lookup_misses(sh, lay, blk, wit, false).map(|_| ())
 }
 
-/// [HOST-FAST-W2 W2-2] Exact same CS-3 miss checks and refusal strings as
+/// **[HOST-FAST-W2 W2-2]** Exact same CS-3 miss checks and refusal strings as
 /// [`check_lookup_misses`] (or [`check_lookup_misses_after_public_check`] when
-/// `public_checked` is true), returning the computed `(m_u8, m_rng, m_exp, m_act)`
-/// histograms for reuse in `prove_core_before_with` when `HL_HOST_FAST_W2=1`.
+/// `public_checked` is true), taking ownership of `wit` and binding the computed
+/// `(m_u8, m_rng, m_exp, m_act)` histograms privately inside a [`SealedWitness`]
+/// so no caller can mutate `wit` or pair its histograms with a different witness.
+#[cold]
 #[inline(never)]
-pub(crate) fn check_lookup_misses_collecting(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness, public_checked: bool) -> Result<SealedHistograms, String> {
+pub(crate) fn check_lookup_misses_sealed(
+    sh: &Shape,
+    lay: &Layout,
+    blk: &BlockPublic,
+    wit: Witness,
+    public_checked: bool,
+) -> Result<SealedWitness, String> {
     lay.check_is_for_shape(sh)?;
     if !public_checked {
         blk.check_for_shape(sh)?;
     }
-    Ok(scan_lookup_misses(sh, lay, blk, wit, true)?.expect("collect=true always produces SealedHistograms"))
+    let hists = scan_lookup_misses(sh, lay, blk, &wit, true)?;
+    Ok(SealedWitness { wit, hists })
 }
 
-fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness, collect: bool) -> Result<Option<SealedHistograms>, String> {
+fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness, collect: bool) -> Result<Option<Box<SealedHistograms>>, String> {
     let ids = lay.ids();
     if wit.planes.len() != ids.n_a() {
         return Err("private block: witness shape".into());
@@ -750,7 +760,8 @@ fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness
     let views_on = sh.range16() && looked_cols_on();
     let looked: Vec<(Dom, Vec<Vec<i64>>)> = if views_on { Vec::new() } else { lay.lookup_doms().iter().map(|d| (*d, lookup_values(lay, wit, *d))).collect() };
     let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
-    let (m_exp, exp_missed) = if crate::zk::host_fast_w2_on() {
+    let w2_on = crate::zk::host_fast_w2_on();
+    let (m_exp, exp_missed) = if w2_on {
         exp_histogram_direct(lay, wit, blk.attention())
     } else {
         exp_histogram(&exp_deltas(lay, wit), &wit.planes[ids.at(A_E)], &blk.attention().exp)
@@ -760,9 +771,13 @@ fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness
         None => act_histogram(&act_indices(lay, wit), &wit.planes[ids.at(A_A16)], &blk.feed_forward().act),
     };
     let (m_u8, m_rng, u8_or_range_missed) = if views_on {
-        let built: Vec<(Dom, Vec<Option<Vec<i64>>>)> = lay.lookup_doms().iter().map(|d| (*d, looked_built(lay, wit, *d))).collect();
-        let views: Vec<(Dom, Vec<LookedCol<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols(lay, wit, *d, b))).collect();
-        w16_histograms_cols(lay, &views)
+        if w2_on {
+            w16_histograms_w2_from_wit(lay, wit)
+        } else {
+            let built: Vec<(Dom, Vec<Option<Vec<i64>>>)> = lay.lookup_doms().iter().map(|d| (*d, looked_built(lay, wit, *d))).collect();
+            let views: Vec<(Dom, Vec<LookedCol<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols(lay, wit, *d, b))).collect();
+            w16_histograms_cols(lay, &views)
+        }
     } else if sh.range16() {
         w16_histograms(lay, &looked)
     } else {
@@ -779,16 +794,15 @@ fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness
     if !collect {
         return Ok(None);
     }
-    Ok(Some(SealedHistograms {
+    Ok(Some(Box::new(SealedHistograms {
         sh: sh.clone(),
         blk_sig: blk_sig(blk),
-        wit_sig: wit_sig(wit),
         m_u8,
         m_rng,
         m_exp,
         m_act,
         zero_misses: u8_or_range_missed == 0 && exp_missed == 0 && act_missed == 0,
-    }))
+    })))
 }
 
 // **RULING CS-3's test-only switch: the soundness tests' CHEATING PROVER.**
@@ -1684,15 +1698,6 @@ pub(crate) fn set_a17_for_test(looked: Option<bool>, checked: Option<bool>) {
 pub(super) enum LookedCol<'a> {
     Words(&'a [i64]),
     Term { plane: &'a [i64], c: i64, cst: i64 },
-    /// [HOST-FAST-W2 W2-2] Zero-alloc 2-term lookup (e.g. `word24` low limb:
-    /// `cst + c0 * p0[x] + c1 * p1[x]`), eliminating the 16 MiB `Dom::F` heap copy.
-    TwoTerm {
-        p0: &'a [i64],
-        c0: i64,
-        p1: &'a [i64],
-        c1: i64,
-        cst: i64,
-    },
 }
 
 impl LookedCol<'_> {
@@ -1700,7 +1705,6 @@ impl LookedCol<'_> {
         match self {
             LookedCol::Words(w) => w.len(),
             LookedCol::Term { plane, .. } => plane.len(),
-            LookedCol::TwoTerm { p0, .. } => p0.len(),
         }
     }
 
@@ -1712,16 +1716,6 @@ impl LookedCol<'_> {
             LookedCol::Words(w) => out.copy_from_slice(&w[s..e]),
             LookedCol::Term { plane, c: 1, cst } => out.iter_mut().zip(&plane[s..e]).for_each(|(o, v)| *o = cst.wrapping_add(*v)),
             LookedCol::Term { plane, c, cst } => out.iter_mut().zip(&plane[s..e]).for_each(|(o, v)| *o = cst.wrapping_add(c.wrapping_mul(*v))),
-            LookedCol::TwoTerm { p0, c0: 1, p1, c1, cst: 0 } => {
-                for ((o, &v0), &v1) in out.iter_mut().zip(&p0[s..e]).zip(&p1[s..e]) {
-                    *o = v0.wrapping_add(c1.wrapping_mul(v1));
-                }
-            }
-            LookedCol::TwoTerm { p0, c0, p1, c1, cst } => {
-                for ((o, &v0), &v1) in out.iter_mut().zip(&p0[s..e]).zip(&p1[s..e]) {
-                    *o = cst.wrapping_add(c0.wrapping_mul(v0)).wrapping_add(c1.wrapping_mul(v1));
-                }
-            }
         }
     }
 
@@ -1737,23 +1731,16 @@ impl LookedCol<'_> {
 /// [A17] the words of one sub-block a reader holds at once (an L1-resident buffer)
 const LOOKED_BLOCK: usize = 1 << 10;
 
-/// [A17 / HOST-FAST-W2 W2-2] the columns of a domain that are NOT one term
-/// (and under `HL_HOST_FAST_W2=1`, not two terms), built as [`lookup_values_at`]
-/// builds them (in parallel over the column's words above [`LOOKUP_PAR_MIN`]: an
-/// indexed map, so the same vector), in lookup order; `None` for a borrowed view
+/// [A17] the columns of a domain that are NOT one term, built as
+/// [`lookup_values_at`] builds them (in parallel over the column's words above
+/// [`LOOKUP_PAR_MIN`]: an indexed map, so the same vector), in lookup order;
+/// `None` for a one-term column
 pub(super) fn looked_built(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Option<Vec<i64>>> {
     let len = lay.shape().size(dom);
-    let twoterm_on = crate::zk::host_fast_w2_on();
-    let mut twoterm_used = false;
-    let out = lay
-        .lookups(dom)
+    lay.lookups(dom)
         .iter()
         .map(|l| {
             if l.terms.len() == 1 {
-                return None;
-            }
-            if twoterm_on && l.terms.len() == 2 {
-                twoterm_used = true;
                 return None;
             }
             let word = |x: usize| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])));
@@ -1764,17 +1751,12 @@ pub(super) fn looked_built(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Option<
                 Some((0..len).map(word).collect())
             }
         })
-        .collect();
-    if twoterm_used {
-        crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_TWOTERM_EXP);
-    }
-    out
+        .collect()
 }
 
-/// [A17 / HOST-FAST-W2 W2-2] a domain's looked columns: each one-term (and under
-/// `HL_HOST_FAST_W2=1`, two-term) lookup borrowed from its witness plane(s) over
-/// the domain's padded extent (what [`lookup_values_at`] reads), each other one
-/// from `built` ([`looked_built`] of the same domain)
+/// [A17] a domain's looked columns: each one-term lookup borrowed from its
+/// witness plane over the domain's padded extent (what [`lookup_values_at`]
+/// reads), each other one from `built` ([`looked_built`] of the same domain)
 pub(super) fn looked_cols<'a>(lay: &Layout, wit: &'a Witness, dom: Dom, built: &'a [Option<Vec<i64>>]) -> Vec<LookedCol<'a>> {
     let len = lay.shape().size(dom);
     lay.lookups(dom)
@@ -1783,14 +1765,7 @@ pub(super) fn looked_cols<'a>(lay: &Layout, wit: &'a Witness, dom: Dom, built: &
         .map(|(l, b)| match (b, l.terms.as_slice()) {
             (Some(v), _) => LookedCol::Words(v),
             (None, [(p, c)]) => LookedCol::Term { plane: &wit.planes[*p][..len], c: *c, cst: l.cst },
-            (None, [(p0, c0), (p1, c1)]) => LookedCol::TwoTerm {
-                p0: &wit.planes[*p0][..len],
-                c0: *c0,
-                p1: &wit.planes[*p1][..len],
-                c1: *c1,
-                cst: l.cst,
-            },
-            (None, _) => unreachable!("looked_built builds every column that is not one or two terms"),
+            (None, _) => unreachable!("looked_built builds every column that is not one term"),
         })
         .collect()
 }
@@ -1878,16 +1853,6 @@ fn w16_bin_chunk<T: W16BinWord, const IS_U8: bool>(col: LookedCol<'_>, s: usize,
         LookedCol::Term { plane, c, cst } => {
             for &v in &plane[s..e] {
                 step!(cst.wrapping_add(c.wrapping_mul(v)));
-            }
-        }
-        LookedCol::TwoTerm { p0, c0: 1, p1, c1, cst: 0 } => {
-            for (&v0, &v1) in p0[s..e].iter().zip(&p1[s..e]) {
-                step!(v0.wrapping_add(c1.wrapping_mul(v1)));
-            }
-        }
-        LookedCol::TwoTerm { p0, c0, p1, c1, cst } => {
-            for (&v0, &v1) in p0[s..e].iter().zip(&p1[s..e]) {
-                step!(cst.wrapping_add(c0.wrapping_mul(v0)).wrapping_add(c1.wrapping_mul(v1)));
             }
         }
     }
@@ -2074,9 +2039,273 @@ pub(super) fn write_helpers_w16_cols(h: &mut [Fp], jobs: &[HelperJobCols<'_>], a
     }
 }
 
+/// [HOST-FAST-W2 W2-2/W2-3] Out-of-line looked-column view with zero-alloc
+/// `TwoTerm` support (kept completely separate from 40-byte [`LookedCol`] so
+/// the `HL_HOST_FAST_W2` unset path has zero struct widening or extra match arms).
+#[derive(Clone, Copy)]
+enum LookedColW2<'a> {
+    Words(&'a [i64]),
+    Term { plane: &'a [i64], c: i64, cst: i64 },
+    TwoTerm { p0: &'a [i64], c0: i64, p1: &'a [i64], c1: i64, cst: i64 },
+}
+
+impl LookedColW2<'_> {
+    #[inline(always)]
+    fn len(&self) -> usize {
+        match self {
+            LookedColW2::Words(w) => w.len(),
+            LookedColW2::Term { plane, .. } => plane.len(),
+            LookedColW2::TwoTerm { p0, .. } => p0.len(),
+        }
+    }
+
+    #[cfg(test)]
+    fn to_vec(&self) -> Vec<i64> {
+        let len = self.len();
+        let mut out = vec![0i64; len];
+        match *self {
+            LookedColW2::Words(w) => out.copy_from_slice(w),
+            LookedColW2::Term { plane, c: 1, cst } => out.iter_mut().zip(plane).for_each(|(o, v)| *o = cst.wrapping_add(*v)),
+            LookedColW2::Term { plane, c, cst } => out.iter_mut().zip(plane).for_each(|(o, v)| *o = cst.wrapping_add(c.wrapping_mul(*v))),
+            LookedColW2::TwoTerm { p0, c0: 1, p1, c1, cst: 0 } => {
+                for ((o, &v0), &v1) in out.iter_mut().zip(p0).zip(p1) {
+                    *o = v0.wrapping_add(c1.wrapping_mul(v1));
+                }
+            }
+            LookedColW2::TwoTerm { p0, c0, p1, c1, cst } => {
+                for ((o, &v0), &v1) in out.iter_mut().zip(p0).zip(p1) {
+                    *o = cst.wrapping_add(c0.wrapping_mul(v0)).wrapping_add(c1.wrapping_mul(v1));
+                }
+            }
+        }
+        out
+    }
+}
+
+#[cold]
+#[inline(never)]
+fn looked_built_w2(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Option<Vec<i64>>> {
+    let len = lay.shape().size(dom);
+    let mut twoterm_used = false;
+    let out = lay
+        .lookups(dom)
+        .iter()
+        .map(|l| {
+            if l.terms.len() == 1 {
+                return None;
+            }
+            if l.terms.len() == 2 {
+                twoterm_used = true;
+                return None;
+            }
+            let word = |x: usize| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])));
+            if len >= LOOKUP_PAR_MIN {
+                use rayon::prelude::*;
+                Some((0..len).into_par_iter().map(word).collect())
+            } else {
+                Some((0..len).map(word).collect())
+            }
+        })
+        .collect();
+    if twoterm_used {
+        crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_TWOTERM_EXP);
+    }
+    out
+}
+
+#[cold]
+#[inline(never)]
+fn looked_cols_w2<'a>(lay: &Layout, wit: &'a Witness, dom: Dom, built: &'a [Option<Vec<i64>>]) -> Vec<LookedColW2<'a>> {
+    let len = lay.shape().size(dom);
+    lay.lookups(dom)
+        .iter()
+        .zip(built)
+        .map(|(l, b)| match (b, l.terms.as_slice()) {
+            (Some(v), _) => LookedColW2::Words(v),
+            (None, [(p, c)]) => LookedColW2::Term { plane: &wit.planes[*p][..len], c: *c, cst: l.cst },
+            (None, [(p0, c0), (p1, c1)]) => LookedColW2::TwoTerm {
+                p0: &wit.planes[*p0][..len],
+                c0: *c0,
+                p1: &wit.planes[*p1][..len],
+                c1: *c1,
+                cst: l.cst,
+            },
+            (None, _) => unreachable!("looked_built_w2 builds every column that is not one or two terms"),
+        })
+        .collect()
+}
+
+/// [HOST-FAST-W2] Materialize any deferred 2-term `None` slots in `built` before
+/// falling back to base 40-byte `looked_cols` / `write_helpers_w16_cols`.
+#[cold]
+#[inline(never)]
+fn ensure_twoterm_built(lay: &Layout, wit: &Witness, built: &mut [(Dom, Vec<Option<Vec<i64>>>)]) {
+    for (dom, cols) in built.iter_mut() {
+        let len = lay.shape().size(*dom);
+        for (l, slot) in lay.lookups(*dom).iter().zip(cols.iter_mut()) {
+            if slot.is_none() && l.terms.len() != 1 {
+                let word = |x: usize| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])));
+                *slot = if len >= LOOKUP_PAR_MIN {
+                    use rayon::prelude::*;
+                    Some((0..len).into_par_iter().map(word).collect())
+                } else {
+                    Some((0..len).map(word).collect())
+                };
+            }
+        }
+    }
+}
+
+#[inline(always)]
+fn w16_bin_chunk_w2<T: W16BinWord, const IS_U8: bool>(col: LookedColW2<'_>, s: usize, e: usize, slice: &mut [T], missed: &mut usize) {
+    let lim = slice.len() as u64;
+    let mut miss = 0usize;
+    macro_rules! step {
+        ($v:expr) => {{
+            let u = ($v) as u64;
+            if u < lim {
+                slice[u as usize].inc();
+            } else {
+                if IS_U8 {
+                    slice[0].inc();
+                }
+                miss += 1;
+            }
+        }};
+    }
+    match col {
+        LookedColW2::Words(w) => {
+            for &v in &w[s..e] {
+                step!(v);
+            }
+        }
+        LookedColW2::Term { plane, c: 1, cst: 0 } => {
+            for &v in &plane[s..e] {
+                step!(v);
+            }
+        }
+        LookedColW2::Term { plane, c: 1, cst } => {
+            for &v in &plane[s..e] {
+                step!(cst.wrapping_add(v));
+            }
+        }
+        LookedColW2::Term { plane, c, cst } => {
+            for &v in &plane[s..e] {
+                step!(cst.wrapping_add(c.wrapping_mul(v)));
+            }
+        }
+        LookedColW2::TwoTerm { p0, c0: 1, p1, c1, cst: 0 } => {
+            for (&v0, &v1) in p0[s..e].iter().zip(&p1[s..e]) {
+                step!(v0.wrapping_add(c1.wrapping_mul(v1)));
+            }
+        }
+        LookedColW2::TwoTerm { p0, c0, p1, c1, cst } => {
+            for (&v0, &v1) in p0[s..e].iter().zip(&p1[s..e]) {
+                step!(cst.wrapping_add(c0.wrapping_mul(v0)).wrapping_add(c1.wrapping_mul(v1)));
+            }
+        }
+    }
+    *missed += miss;
+}
+
+#[cold]
+#[inline(never)]
+fn w16_histograms_cols_flat_w2<T: W16BinWord>(
+    chunks: &[(LookedColW2<'_>, usize, usize, usize, usize, bool)],
+    total_bins: usize,
+    widths: &[u32],
+    fam_off: &[usize],
+) -> (Vec<u64>, Vec<Vec<u64>>, usize) {
+    use rayon::prelude::*;
+    let pool: std::sync::Mutex<Vec<(Vec<T>, usize)>> = std::sync::Mutex::new(Vec::new());
+    chunks.par_iter().for_each_init(
+        || {
+            let (bins, missed) = pool.lock().ok().and_then(|mut p| p.pop()).unwrap_or_else(|| (vec![T::ZERO; total_bins], 0));
+            W16LocalHist { bins, missed, pool: &pool }
+        },
+        |local, &(col, s, e, base_off, bin_len, is_u8)| {
+            let slice = &mut local.bins[base_off..base_off + bin_len];
+            if is_u8 {
+                w16_bin_chunk_w2::<T, true>(col, s, e, slice, &mut local.missed);
+            } else {
+                w16_bin_chunk_w2::<T, false>(col, s, e, slice, &mut local.missed);
+            }
+        },
+    );
+    let mut m_u8 = vec![0u64; U8_LEN];
+    let mut m_rng: Vec<Vec<u64>> = widths.iter().map(|w| vec![0u64; 1usize << w]).collect();
+    let mut missed = 0usize;
+    let locals = pool.into_inner().expect("w16 histogram pool poisoned");
+    for (bins, m) in locals {
+        missed += m;
+        for (dst, &src) in m_u8.iter_mut().zip(&bins[..U8_LEN]) {
+            *dst += src.to_u64();
+        }
+        for ((dst_f, &off), &w) in m_rng.iter_mut().zip(fam_off).zip(widths) {
+            let len = 1usize << w;
+            for (dst, &src) in dst_f.iter_mut().zip(&bins[off..off + len]) {
+                *dst += src.to_u64();
+            }
+        }
+    }
+    (m_u8, m_rng, missed)
+}
+
+#[cold]
+#[inline(never)]
+fn w16_histograms_cols_w2(lay: &Layout, looked: &[(Dom, Vec<LookedColW2<'_>>)]) -> (Vec<u64>, Vec<Vec<u64>>, usize) {
+    let widths: Vec<u32> = lay.shape().range_families().iter().map(|f| f.width).collect();
+    let mut fam_off: Vec<usize> = Vec::with_capacity(widths.len());
+    let mut total_bins = U8_LEN;
+    for &w in &widths {
+        fam_off.push(total_bins);
+        total_bins += 1usize << w;
+    }
+    let mut chunks: Vec<(LookedColW2<'_>, usize, usize, usize, usize, bool)> = Vec::new();
+    let mut total_words: u64 = 0;
+    for (dom, cols) in looked {
+        for (c, l) in cols.iter().zip(lay.lookups(*dom)) {
+            let (base_off, bin_len, is_u8) = match l.tag {
+                LkTag::U8 => (0usize, U8_LEN, true),
+                LkTag::Range(w) => {
+                    let f = widths.iter().position(|x| *x == w).expect("a W16 lookup's width is one of the shape's range families");
+                    (fam_off[f], 1usize << w, false)
+                }
+            };
+            let n = c.len();
+            total_words = total_words.saturating_add(n as u64);
+            chunks.extend((0..n).step_by(1 << 16).map(|s| (*c, s, (s + (1 << 16)).min(n), base_off, bin_len, is_u8)));
+        }
+    }
+    if total_words <= u32::MAX as u64 {
+        w16_histograms_cols_flat_w2::<u32>(&chunks, total_bins, &widths, &fam_off)
+    } else {
+        w16_histograms_cols_flat_w2::<u64>(&chunks, total_bins, &widths, &fam_off)
+    }
+}
+
+#[cold]
+#[inline(never)]
+fn w16_histograms_w2_from_wit(lay: &Layout, wit: &Witness) -> (Vec<u64>, Vec<Vec<u64>>, usize) {
+    let built: Vec<(Dom, Vec<Option<Vec<i64>>>)> = lay.lookup_doms().iter().map(|d| (*d, looked_built_w2(lay, wit, *d))).collect();
+    let views: Vec<(Dom, Vec<LookedColW2<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols_w2(lay, wit, *d, b))).collect();
+    w16_histograms_cols_w2(lay, &views)
+}
+
+#[cfg(test)]
+#[cold]
+#[inline(never)]
+fn misfile_range_misses_cols_w2(lay: &Layout, looked: &[(Dom, Vec<LookedColW2<'_>>)], m_rng: Vec<Vec<u64>>) -> Vec<Vec<u64>> {
+    if MISFILED_RANGE.with(|c| c.get()).is_none() {
+        return m_rng;
+    }
+    let built: Vec<(Dom, Vec<Vec<i64>>)> = looked.iter().map(|(d, cols)| (*d, cols.iter().map(|c| c.to_vec()).collect())).collect();
+    misfile_range_misses(lay, &built, m_rng)
+}
+
 /// [HOST-FAST-W2 W2-3] Flat `&[Fp2]` lookup column for zero-copy W16 helper fill.
 struct FlatTaggedCol<'a> {
-    col: LookedCol<'a>,
+    col: LookedColW2<'a>,
     tbl: &'a [Fp2],
 }
 
@@ -2087,7 +2316,7 @@ struct FlatHelperJobCols<'a> {
     b: Option<FlatTaggedCol<'a>>,
 }
 
-fn flat_tagged_col<'c>(col: LookedCol<'c>, tag: LkTag, u8_inv: &'c [Fp2], tabs: &'c [(u32, Fp2, Vec<Fp2>)]) -> Result<FlatTaggedCol<'c>, String> {
+fn flat_tagged_col<'c>(col: LookedColW2<'c>, tag: LkTag, u8_inv: &'c [Fp2], tabs: &'c [(u32, Fp2, Vec<Fp2>)]) -> Result<FlatTaggedCol<'c>, String> {
     match tag {
         LkTag::U8 => Ok(FlatTaggedCol { col, tbl: u8_inv }),
         LkTag::Range(w) => {
@@ -2098,7 +2327,7 @@ fn flat_tagged_col<'c>(col: LookedCol<'c>, tag: LkTag, u8_inv: &'c [Fp2], tabs: 
 }
 
 #[inline(always)]
-fn write_col_flat<const ADD: bool>(col: LookedCol<'_>, tbl: &[Fp2], s: usize, r: &mut [Fp], m: &mut [Fp]) -> bool {
+fn write_col_flat<const ADD: bool>(col: LookedColW2<'_>, tbl: &[Fp2], s: usize, r: &mut [Fp], m: &mut [Fp]) -> bool {
     let len = r.len();
     let e = s + len;
     let tlen = tbl.len() as u64;
@@ -2119,38 +2348,38 @@ fn write_col_flat<const ADD: bool>(col: LookedCol<'_>, tbl: &[Fp2], s: usize, r:
         }};
     }
     match col {
-        LookedCol::Words(w) => {
+        LookedColW2::Words(w) => {
             let src = &w[s..e];
             for i in 0..len {
                 emit!(i, src[i]);
             }
         }
-        LookedCol::Term { plane, c: 1, cst: 0 } => {
+        LookedColW2::Term { plane, c: 1, cst: 0 } => {
             let src = &plane[s..e];
             for i in 0..len {
                 emit!(i, src[i]);
             }
         }
-        LookedCol::Term { plane, c: 1, cst } => {
+        LookedColW2::Term { plane, c: 1, cst } => {
             let src = &plane[s..e];
             for i in 0..len {
                 emit!(i, cst.wrapping_add(src[i]));
             }
         }
-        LookedCol::Term { plane, c, cst } => {
+        LookedColW2::Term { plane, c, cst } => {
             let src = &plane[s..e];
             for i in 0..len {
                 emit!(i, cst.wrapping_add(c.wrapping_mul(src[i])));
             }
         }
-        LookedCol::TwoTerm { p0, c0: 1, p1, c1, cst: 0 } => {
+        LookedColW2::TwoTerm { p0, c0: 1, p1, c1, cst: 0 } => {
             let s0 = &p0[s..e];
             let s1 = &p1[s..e];
             for i in 0..len {
                 emit!(i, s0[i].wrapping_add(c1.wrapping_mul(s1[i])));
             }
         }
-        LookedCol::TwoTerm { p0, c0, p1, c1, cst } => {
+        LookedColW2::TwoTerm { p0, c0, p1, c1, cst } => {
             let s0 = &p0[s..e];
             let s1 = &p1[s..e];
             for i in 0..len {
@@ -2162,11 +2391,13 @@ fn write_col_flat<const ADD: bool>(col: LookedCol<'_>, tbl: &[Fp2], s: usize, r:
 }
 
 /// **[HOST-FAST-W2 W2-3] Zero-copy flat `&[Fp2]` version of [`write_helpers_w16_cols`]**:
-/// reads `LookedCol` (`Words`, `Term`, `TwoTerm`) directly into `H`'s `(re, im)` rows
+/// reads [`LookedColW2`] (`Words`, `Term`, `TwoTerm`) directly into `H`'s `(re, im)` rows
 /// without copying into `[0i64; 1024]` scratch arrays and without per-word `Option`/`Result`
 /// branching. Returns `Ok(true)` when all words were in-table and written, `Ok(false)` if
 /// any word fell outside its flat table (triggering baseline fallback), or `Err(...)` on
 /// malformed/overlapping job ranges.
+#[cold]
+#[inline(never)]
 fn write_helpers_w16_cols_flat(h: &mut [Fp], jobs: &[FlatHelperJobCols<'_>]) -> Result<bool, String> {
     let mut ranges: Vec<(usize, usize, usize, bool)> = Vec::with_capacity(2 * jobs.len());
     for (i, j) in jobs.iter().enumerate() {
@@ -2205,8 +2436,8 @@ fn write_helpers_w16_cols_flat(h: &mut [Fp], jobs: &[FlatHelperJobCols<'_>]) -> 
     let fill = |(r, m, s, j): Item<'_, '_>| -> bool {
         match (j.a.col, &j.b) {
             (
-                LookedCol::Term { plane: pa, c: 1, cst: ca },
-                Some(FlatTaggedCol { col: LookedCol::Term { plane: pb, c: 1, cst: cb }, tbl: tb }),
+                LookedColW2::Term { plane: pa, c: 1, cst: ca },
+                Some(FlatTaggedCol { col: LookedColW2::Term { plane: pb, c: 1, cst: cb }, tbl: tb }),
             ) => {
                 let len = r.len();
                 let ta = j.a.tbl;
@@ -2248,18 +2479,22 @@ fn write_helpers_w16_cols_flat(h: &mut [Fp], jobs: &[FlatHelperJobCols<'_>]) -> 
     Ok(items.into_par_iter().map(fill).reduce(|| true, |x, y| x && y))
 }
 
-/// [HOST-FAST-W2 W2-3b] Optional bounded-1 background dropper to move large host
-/// `munmap` / macOS `vm_map_lock` teardowns off the proving threads. Non-blocking
-/// `try_send` over `sync_channel(1)`: if the single worker is busy and the channel
-/// is full, the value drops synchronously right here (zero risk of stalling or
-/// unbounded memory growth).
-fn async_drop<T: Send + 'static>(val: T) {
+/// **[HOST-FAST-W2 W2-3b]** Optional bounded-1 background dropper to move large host
+/// `munmap` / macOS `vm_map_lock` teardowns off the proving threads.
+///
+/// **OFF by default** even when `HL_HOST_FAST_W2=1` (explicit `HL_HOST_FAST_ASYNC_DROP=1`
+/// opt-in only). Non-blocking `try_send` over `sync_channel(1)`: if the single worker
+/// is busy and the channel is full, the value drops synchronously right here.
+///
+/// **Memory budget note (A-M3 / B-L8):** when explicitly enabled, up to two large
+/// payloads (one in the worker, one queued in `sync_channel(1)`; ~1.5 GB each at 125M,
+/// larger at 8B) may remain allocated briefly past the synchronous S2 / post-open drop
+/// points that the witness-cache budget assumes freed them.
+#[cold]
+#[inline(never)]
+fn async_drop_boxed(val: Box<dyn std::any::Any + Send>) {
     use std::any::Any;
     use std::sync::{mpsc, OnceLock};
-    if !crate::zk::host_fast_async_drop_on() {
-        drop(val);
-        return;
-    }
     static TX: OnceLock<Option<mpsc::SyncSender<Box<dyn Any + Send>>>> = OnceLock::new();
     let tx = TX.get_or_init(|| {
         let (tx, rx) = mpsc::sync_channel::<Box<dyn Any + Send>>(1);
@@ -2273,7 +2508,7 @@ fn async_drop<T: Send + 'static>(val: T) {
         }
     });
     if let Some(tx) = tx {
-        match tx.try_send(Box::new(val)) {
+        match tx.try_send(val) {
             Ok(()) => {
                 crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_ASYNC_DROP);
                 return;
@@ -2364,30 +2599,13 @@ fn blk_sig(blk: &BlockPublic) -> BlkSig {
     }
 }
 
-fn wit_sig(wit: &Witness) -> Vec<(usize, usize, i64, i64, i64)> {
-    wit.planes
-        .iter()
-        .map(|p| {
-            (
-                p.as_ptr() as usize,
-                p.len(),
-                p.first().copied().unwrap_or(0),
-                p.get(p.len() / 2).copied().unwrap_or(0),
-                p.last().copied().unwrap_or(0),
-            )
-        })
-        .collect()
-}
-
-/// **[HOST-FAST-W2 W2-2] Histograms computed during the sealing pass's CS-3
-/// lookup-miss check** ([`check_lookup_misses_collecting`]), reusable by
-/// [`prove_core_before_with`] when the exact same `(Shape, BlockPublic, Witness)`
-/// arrives under `HL_HOST_FAST_W2=1` with `dd_cap == 0` and zero misses.
+/// [HOST-FAST-W2 W2-2] Private histograms computed during the sealing pass's
+/// CS-3 lookup-miss check ([`check_lookup_misses_sealed`]), owned inseparably
+/// beside its `Witness` inside [`SealedWitness`].
 #[derive(Clone, Debug)]
-pub(crate) struct SealedHistograms {
+struct SealedHistograms {
     sh: Shape,
     blk_sig: BlkSig,
-    wit_sig: Vec<(usize, usize, i64, i64, i64)>,
     m_u8: Vec<u64>,
     m_rng: Vec<Vec<u64>>,
     m_exp: Vec<u64>,
@@ -2396,20 +2614,70 @@ pub(crate) struct SealedHistograms {
 }
 
 impl SealedHistograms {
-    pub(crate) fn matches(&self, sh: &Shape, blk: &BlockPublic, wit: &Witness) -> bool {
-        self.zero_misses && self.sh == *sh && self.blk_sig == blk_sig(blk) && self.wit_sig == wit_sig(wit)
+    fn matches_block(&self, sh: &Shape, blk: &BlockPublic) -> bool {
+        self.zero_misses && self.sh == *sh && self.blk_sig == blk_sig(blk)
+    }
+
+    fn bytes(&self) -> u64 {
+        let u8_b = self.m_u8.len();
+        let rng_b: usize = self.m_rng.iter().map(|v| v.len()).sum();
+        let exp_b = self.m_exp.len();
+        let act_b = self.m_act.len();
+        8 * (u8_b + rng_b + exp_b + act_b) as u64
     }
 }
 
-/// **[A17 / HOST-FAST-W2] What a D55 fork or classifier run hands its core proof
-/// beside the block**: the preflight's record of the block's public checks, and
-/// (under `HL_HOST_FAST_W2=1`) optional sealing-pass histograms for this exact
-/// `(Shape, BlockPublic, Witness)`. `CoreHints::default()` (no record) is every
-/// other caller's, through [`prove_core`].
+/// **[HOST-FAST-W2 W2-2] Ownership-bound pair of a witness and its sealing-pass
+/// lookup histograms** (private fields, created with histograms ONLY by
+/// [`check_lookup_misses_sealed`] and consumed ONLY by [`prove_core_before_sealed`]
+/// / [`prove_core_sealed`]).
+///
+/// Because `wit` is private with no `&mut Witness` accessor, callers can neither
+/// mutate a sealed witness in place nor pair a histogram record with a different
+/// witness. `SealedHistograms` additionally checks `(Shape, BlkSig)` so handing a
+/// `SealedWitness` built for one block/shape to a different block/shape falls back
+/// cleanly to the full CS-3 scan. The histogram payload is heap-boxed (`8` bytes
+/// when `None`) so the `HL_HOST_FAST_W2` unset path carries zero struct bloat.
+pub(crate) struct SealedWitness {
+    wit: Witness,
+    hists: Option<Box<SealedHistograms>>,
+}
+
+impl SealedWitness {
+    /// Wrap a witness with no sealing-pass histograms (core runs full CS-3 scan).
+    pub(crate) fn unsealed(wit: Witness) -> Self {
+        Self { wit, hists: None }
+    }
+
+    /// Read-only view of the owned witness (no `&mut` accessor is exposed).
+    pub(crate) fn witness(&self) -> &Witness {
+        &self.wit
+    }
+
+    /// Extract the owned witness, dropping any attached histograms.
+    pub(crate) fn into_witness(self) -> Witness {
+        self.wit
+    }
+
+    /// Whether sealing-pass histograms are attached.
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn has_hists(&self) -> bool {
+        self.hists.is_some()
+    }
+
+    /// Approximate heap bytes of any attached histograms (0 when unsealed).
+    #[cfg_attr(not(test), allow(dead_code))]
+    pub(crate) fn hist_bytes(&self) -> u64 {
+        self.hists.as_ref().map_or(0, |h| h.bytes())
+    }
+}
+
+/// **[A17] What a D55 fork or classifier run hands its core proof beside the
+/// block**: the preflight's record of the block's public checks.
+/// `CoreHints::default()` (no record) is every other caller's, through [`prove_core`].
 #[derive(Default, Clone, Copy)]
 pub(crate) struct CoreHints<'h, 'b> {
     pub(crate) checked: Option<&'h CheckedPublic<'b>>,
-    pub(crate) sealed_hists: Option<&'h SealedHistograms>,
 }
 
 // ---------------------------------------------------------------- [A18] the forks' host work, after A16 and A17
@@ -2537,7 +2805,9 @@ pub(super) fn range_table_helper(f: super::range16::Fam, s: usize, log_cols: usi
 
 /// [HOST-FAST-W2 W2-3] Flat `&[Fp2]` version of [`range_table_helper`] over a
 /// table from [`super::range16::denominator_inverses_flat`], where every entry
-/// in `0 .. 2^width` is already known invertible.
+/// in `0 .. 2^width` is already known invertible. Checks all `1 << log_cols`
+/// entries (including padded copies) to match [`range_table_helper`] identically.
+#[cold]
 #[inline(never)]
 fn range_table_helper_flat(f: super::range16::Fam, s: usize, log_cols: usize, tbl: &[Fp2], m: &[u64], base: usize, sup: usize) -> Option<Vec<Fp2>> {
     if tbl.len() < (1usize << f.width) {
@@ -2545,10 +2815,12 @@ fn range_table_helper_flat(f: super::range16::Fam, s: usize, log_cols: usize, tb
     }
     let len = 1usize << log_cols;
     let mut col = vec![Fp2::ZERO; len];
-    for i in 0..sup {
+    for (i, c) in col.iter_mut().enumerate() {
         let v = usize::try_from(super::range16::value(f, s, i, log_cols)).ok()?;
         let x = *tbl.get(v)?;
-        col[i] = x.mul_base(Fp::new(m[base + i]));
+        if i < sup {
+            *c = x.mul_base(Fp::new(m[base + i]));
+        }
     }
     Some(col)
 }
@@ -2760,6 +3032,27 @@ pub(crate) fn prove_core_with(
     prove_core_after_with(sh, lay, blk, ahead, io_data, ntt, rng, tr, ph, phases, tick, hints)
 }
 
+/// **[HOST-FAST-W2 W2-2]** [`prove_core_with`] consuming an ownership-bound
+/// [`SealedWitness`] created by [`check_lookup_misses_sealed`].
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn prove_core_sealed(
+    sh: &Shape,
+    lay: &Layout,
+    blk: &BlockPublic,
+    sealed: SealedWitness,
+    io_data: [&[Fp]; 2],
+    ntt: &NttTables,
+    rng: &mut ZkRng,
+    tr: &mut Transcript,
+    ph: &mut timing::Phases,
+    phases: &mut Vec<(&'static str, f64)>,
+    tick: &mut std::time::Instant,
+    hints: CoreHints<'_, '_>,
+) -> Result<CoreProof, String> {
+    let ahead = prove_core_before_sealed(sh, lay, blk, sealed, ntt, rng, ph, phases, tick, hints)?;
+    prove_core_after_with(sh, lay, blk, ahead, io_data, ntt, rng, tr, ph, phases, tick, hints)
+}
+
 /// **[A13] What [`prove_core`] holds at its first transcript use**, made by
 /// [`prove_core_before_with`] from block `k`'s witness, shape, layout and
 /// public block, the NTT tables and the block's generator ALONE: no
@@ -2777,6 +3070,7 @@ pub(crate) struct CoreAhead {
     rows: (usize, usize, usize),
     blk_at: usize,
     views_on: bool,
+    twoterm_deferred: bool,
     params: PcsParams,
     zko: ZkOpts,
     tag: zkp_core::hashtag::HashTag,
@@ -2798,8 +3092,7 @@ pub(crate) struct CoreAhead {
     mc: zk::MaskCommit,
     mask_root: crate::merkle::Digest,
     hf_h2_delta: u64,
-    w2_before_hits: [u64; 10],
-    w2_before_fb: [u64; 5],
+    w2_timing_before: Option<Box<([u64; 10], [u64; 5])>>,
 }
 
 impl CoreAhead {
@@ -2819,6 +3112,89 @@ impl CoreAhead {
 /// before-challenge part of THIS block)
 fn block_at(blk: &BlockPublic) -> usize {
     blk as *const BlockPublic as usize
+}
+
+/// [HOST-FAST-W2 W2-2] Out-of-line histogram + CS-3 path for `HL_HOST_FAST_W2=1`
+/// (reusing ownership-bound `SealedHistograms` when present and matching `(sh, blk)`,
+/// or scanning directly via `w16_histograms_cols_w2` + `exp_histogram_direct`).
+#[cold]
+#[inline(never)]
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
+fn compute_histograms_w2(
+    sh: &Shape,
+    lay: &Layout,
+    blk: &BlockPublic,
+    wit: &Witness,
+    views_on: bool,
+    looked: &[(Dom, Vec<Vec<i64>>)],
+    built: &[(Dom, Vec<Option<Vec<i64>>>)],
+    lookup_words: u64,
+    sealed_hists: Option<Box<SealedHistograms>>,
+    ph: &mut timing::Phases,
+) -> Result<(Vec<u64>, Vec<Vec<u64>>, usize, Vec<u64>, usize, Vec<u64>, usize, Vec<i64>, Vec<i64>), String> {
+    let (public, ff) = (blk.attention(), blk.feed_forward());
+    let ids = lay.ids();
+    #[cfg(test)]
+    let cheat_hooks_active = cheating_prover_is_on() || MISFILED_RANGE.with(|c| c.get()).is_some();
+    #[cfg(not(test))]
+    let cheat_hooks_active = false;
+    let sealed_hit = match sealed_hists {
+        Some(shist) => {
+            if sh.dd_cap != 0 {
+                crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_SEAL_HIST, "W2-2 seal_hist: dd_cap > 0");
+                None
+            } else if cheat_hooks_active {
+                crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_SEAL_HIST, "W2-2 seal_hist: test cheat hook active");
+                None
+            } else if shist.matches_block(sh, blk) {
+                crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_SEAL_HIST);
+                Some(shist)
+            } else {
+                crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_SEAL_HIST, "W2-2 seal_hist: shape/block mismatch");
+                None
+            }
+        }
+        None => None,
+    };
+    if let Some(shist) = sealed_hit {
+        ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
+        let deltas = if crate::zk::host_fast_on() { Vec::new() } else { exp_deltas(lay, wit) };
+        let act_idx = if blk.accuracy().is_some() { Vec::new() } else { act_indices(lay, wit) };
+        let SealedHistograms { m_u8, m_rng, m_exp, m_act, .. } = *shist;
+        return Ok((m_u8, m_rng, 0usize, m_exp, 0usize, m_act, 0usize, deltas, act_idx));
+    }
+    let views: Vec<(Dom, Vec<LookedColW2<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols_w2(lay, wit, *d, b))).collect();
+    let (m_u8, m_rng, w16_missed) = if views_on {
+        w16_histograms_cols_w2(lay, &views)
+    } else if sh.range16() {
+        w16_histograms(lay, looked)
+    } else {
+        (byte_histogram_at(looked, lookup_words, HISTOGRAM_PAR_MIN), Vec::new(), 0)
+    };
+    #[cfg(test)]
+    let m_rng = if views_on { misfile_range_misses_cols_w2(lay, &views, m_rng) } else { misfile_range_misses(lay, looked, m_rng) };
+    drop(views);
+    ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
+    let (deltas, m_exp, exp_missed) = if crate::zk::host_fast_on() {
+        let (m_exp, exp_missed) = exp_histogram_direct(lay, wit, public);
+        crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_TWOTERM_EXP);
+        let deltas = if exp_missed == 0 { Vec::new() } else { exp_deltas(lay, wit) };
+        (deltas, m_exp, exp_missed)
+    } else {
+        let deltas = exp_deltas(lay, wit);
+        let (m_exp, exp_missed) = exp_histogram(&deltas, &wit.planes[ids.at(A_E)], &public.exp);
+        (deltas, m_exp, exp_missed)
+    };
+    let act_idx = if blk.accuracy().is_some() { Vec::new() } else { act_indices(lay, wit) };
+    let (m_act, act_missed) = match blk.accuracy() {
+        Some(data) => super::accuracy_act::histogram(sh, data, &wit.planes[ids.at(A_G8)], &wit.planes[ids.at(A_A16)])?,
+        None => act_histogram(&act_idx, &wit.planes[ids.at(A_A16)], &ff.act),
+    };
+    refuse_lookup_misses(if sh.range16() { w16_missed } else { u8_misses_of(looked, lookup_words) }, exp_missed, act_missed)?;
+    if sh.dd_cap > 0 {
+        refuse_dictionary_misses(dd_misses(lay, wit, &public.dd_e_column(sh.dd_cap)?))?;
+    }
+    Ok((m_u8, m_rng, w16_missed, m_exp, exp_missed, m_act, act_missed, deltas, act_idx))
 }
 
 /// **[A13] THE BEFORE-CHALLENGE PART OF [`prove_core_with`]**: the shape,
@@ -2841,9 +3217,31 @@ pub(crate) fn prove_core_before_with(
     tick: &mut std::time::Instant,
     hints: CoreHints<'_, '_>,
 ) -> Result<CoreAhead, String> {
-    let w2_timing = crate::zk::host_fast_w2_on() && crate::zk::host_fast_timing_on();
-    let w2_hits_b0 = if w2_timing { crate::zk::host_fast_w2_hits_for_test() } else { [0; 10] };
-    let w2_fb_b0 = if w2_timing { crate::zk::host_fast_w2_fallbacks_for_test() } else { [0; 5] };
+    prove_core_before_sealed(sh, lay, blk, SealedWitness::unsealed(wit), ntt, rng, ph, phases, tick, hints)
+}
+
+/// **[HOST-FAST-W2 W2-2]** [`prove_core_before_with`] consuming an ownership-bound
+/// [`SealedWitness`] (created by [`check_lookup_misses_sealed`]).
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn prove_core_before_sealed(
+    sh: &Shape,
+    lay: &Layout,
+    blk: &BlockPublic,
+    sealed: SealedWitness,
+    ntt: &NttTables,
+    rng: &mut ZkRng,
+    ph: &mut timing::Phases,
+    phases: &mut Vec<(&'static str, f64)>,
+    tick: &mut std::time::Instant,
+    hints: CoreHints<'_, '_>,
+) -> Result<CoreAhead, String> {
+    let SealedWitness { wit, hists: sealed_hists } = sealed;
+    let w2_on = crate::zk::host_fast_w2_on();
+    let w2_timing_start = if w2_on && crate::zk::host_fast_timing_on() {
+        Some((crate::zk::host_fast_w2_hits_for_test(), crate::zk::host_fast_w2_fallbacks_for_test()))
+    } else {
+        None
+    };
     let (public, ff) = (blk.attention(), blk.feed_forward());
     // RULING CS-8, in the body every proving path shares: the shape is one
     // `Shape::new` builds and the layout the CALLER hands is the one
@@ -2880,9 +3278,16 @@ pub(crate) fn prove_core_before_with(
     // byte/exp and legacy ACT have 256 entries; ACT3 has groups*4096.
     // Invalid queries retain the bucket-0/miss refusal before A masks.
     let looked: Vec<(Dom, Vec<Vec<i64>>)> = if views_on { Vec::new() } else { lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, &wit, *d))).collect() };
-    // [A17 / HOST-FAST-W2 W2-2] the views: the columns that are not one term
-    // (and under `HL_HOST_FAST_W2=1`, not two terms) built, every other one borrowed
-    let built: Vec<(Dom, Vec<Option<Vec<i64>>>)> = if views_on { lay.lookup_doms().iter().map(|d| (*d, looked_built(lay, &wit, *d))).collect() } else { Vec::new() };
+    let twoterm_deferred = views_on && w2_on;
+    let built: Vec<(Dom, Vec<Option<Vec<i64>>>)> = if views_on {
+        if w2_on {
+            lay.lookup_doms().iter().map(|d| (*d, looked_built_w2(lay, &wit, *d))).collect()
+        } else {
+            lay.lookup_doms().iter().map(|d| (*d, looked_built(lay, &wit, *d))).collect()
+        }
+    } else {
+        Vec::new()
+    };
     // a public count: how many lookup words the six lookup domains carry at
     // THIS shape. It is a function of the geometry and of nothing private.
     let lookup_words: u64 = if views_on {
@@ -2890,40 +3295,11 @@ pub(crate) fn prove_core_before_with(
     } else {
         looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum()
     };
-    #[cfg(test)]
-    let cheat_hooks_active = cheating_prover_is_on() || MISFILED_RANGE.with(|c| c.get()).is_some();
-    #[cfg(not(test))]
-    let cheat_hooks_active = false;
-    let w2_on = crate::zk::host_fast_w2_on();
-    let sealed_hit = if w2_on {
-        match hints.sealed_hists {
-            Some(shist) => {
-                if sh.dd_cap != 0 {
-                    crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_SEAL_HIST, "W2-2 seal_hist: dd_cap > 0");
-                    None
-                } else if cheat_hooks_active {
-                    crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_SEAL_HIST, "W2-2 seal_hist: test cheat hook active");
-                    None
-                } else if shist.matches(sh, blk, &wit) {
-                    crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_SEAL_HIST);
-                    Some(shist)
-                } else {
-                    crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_SEAL_HIST, "W2-2 seal_hist: shape/block/witness mismatch");
-                    None
-                }
-            }
-            None => None,
-        }
-    } else {
-        None
-    };
     #[allow(unused_mut)]
-    let (mut m_u8, mut m_rng, w16_missed, mut m_exp, exp_missed, mut m_act, act_missed, deltas, act_idx) = if let Some(shist) = sealed_hit {
-        ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
-        let deltas = if crate::zk::host_fast_on() { Vec::new() } else { exp_deltas(lay, &wit) };
-        let act_idx = if blk.accuracy().is_some() { Vec::new() } else { act_indices(lay, &wit) };
-        (shist.m_u8.clone(), shist.m_rng.clone(), 0usize, shist.m_exp.clone(), 0usize, shist.m_act.clone(), 0usize, deltas, act_idx)
+    let (mut m_u8, mut m_rng, w16_missed, mut m_exp, exp_missed, mut m_act, act_missed, deltas, act_idx) = if w2_on {
+        compute_histograms_w2(sh, lay, blk, &wit, views_on, &looked, &built, lookup_words, sealed_hists, ph)?
     } else {
+        drop(sealed_hists);
         let views: Vec<(Dom, Vec<LookedCol<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols(lay, &wit, *d, b))).collect();
         // W16 (D54): the byte histogram plus one histogram per range family, and
         // the looked words outside their own table; every other profile keeps the
@@ -2941,16 +3317,8 @@ pub(crate) fn prove_core_before_with(
         let m_rng = if views_on { misfile_range_misses_cols(lay, &views, m_rng) } else { misfile_range_misses(lay, &looked, m_rng) };
         drop(views);
         ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
-        let (deltas, m_exp, exp_missed) = if w2_on && crate::zk::host_fast_on() {
-            let (m_exp, exp_missed) = exp_histogram_direct(lay, &wit, public);
-            crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_TWOTERM_EXP);
-            let deltas = if exp_missed == 0 { Vec::new() } else { exp_deltas(lay, &wit) };
-            (deltas, m_exp, exp_missed)
-        } else {
-            let deltas = exp_deltas(lay, &wit);
-            let (m_exp, exp_missed) = exp_histogram(&deltas, &wit.planes[ids.at(A_E)], &public.exp);
-            (deltas, m_exp, exp_missed)
-        };
+        let deltas = exp_deltas(lay, &wit);
+        let (m_exp, exp_missed) = exp_histogram(&deltas, &wit.planes[ids.at(A_E)], &public.exp);
         let act_idx = if blk.accuracy().is_some() { Vec::new() } else { act_indices(lay, &wit) };
         let (m_act, act_missed) = match blk.accuracy() {
             Some(data) => super::accuracy_act::histogram(sh, data, &wit.planes[ids.at(A_G8)], &wit.planes[ids.at(A_A16)])?,
@@ -3049,21 +3417,20 @@ pub(crate) fn prove_core_before_with(
     // the same: `zk::mask_commit` is `hashline/src/zk.rs`, one enclosing call
     ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", lay.m_rows() as u64, "rows");
     lap(phases, tick, "commit M");
-    let (w2_before_hits, w2_before_fb) = if w2_timing {
+    let w2_timing_before = w2_timing_start.map(|(w2_hits_b0, w2_fb_b0)| {
         let w2_hits_b1 = crate::zk::host_fast_w2_hits_for_test();
         let w2_fb_b1 = crate::zk::host_fast_w2_fallbacks_for_test();
-        (
+        Box::new((
             std::array::from_fn(|i| w2_hits_b1[i].saturating_sub(w2_hits_b0[i])),
             std::array::from_fn(|i| w2_fb_b1[i].saturating_sub(w2_fb_b0[i])),
-        )
-    } else {
-        ([0; 10], [0; 5])
-    };
+        ))
+    });
     Ok(CoreAhead {
         sh: sh.clone(),
         rows: (lay.a_rows, lay.h_rows, n),
         blk_at: block_at(blk),
         views_on,
+        twoterm_deferred,
         params,
         zko,
         tag,
@@ -3085,45 +3452,21 @@ pub(crate) fn prove_core_before_with(
         mc,
         mask_root,
         hf_h2_delta,
-        w2_before_hits,
-        w2_before_fb,
+        w2_timing_before,
     })
 }
 
-/// [HOST-FAST-W2 W2-2] Source of `exp` deltas for [`fill_exp_helpers_with`]:
-/// precomputed `deltas` slice, or direct on-the-fly `(A_S8, A_MX)` planes.
-enum ExpSource<'a> {
-    Deltas(&'a [i64]),
-    Direct { s8: &'a [i64], mx: &'a [i64] },
-}
-
-/// [HOST-FAST H1] Fill `sexp` helpers in `h_data` using pre-inverted 256-row
-/// exp table denominators when `HL_HOST_FAST=1` and `exp_missed == 0`,
-/// returning the cached table inverses for `gexp` reuse. Any miss, bounds
-/// mismatch, or zero table denominator falls back to the exact baseline path
-/// and increments `HF_FB_H1_EXP`.
-#[cfg_attr(not(test), allow(dead_code))]
+/// [HOST-FAST-W2 W2-2] Out-of-line direct `(A_S8, A_MX)` exp helper fill when
+/// `deltas` was skipped under `HL_HOST_FAST_W2=1`.
+#[cold]
+#[inline(never)]
 #[allow(clippy::too_many_arguments)]
-fn fill_exp_helpers(
+fn fill_exp_helpers_direct_w2(
     h_data: &mut [Fp],
     lay: &Layout,
     public: &super::AttentionPublic,
-    deltas: &[i64],
-    a_e: &[i64],
-    exp_missed: usize,
-    alpha: Fp2,
-    beta: Fp2,
-    g_exp: Fp2,
-) -> Result<Option<Vec<Fp2>>, String> {
-    fill_exp_helpers_with(h_data, lay, public, ExpSource::Deltas(deltas), a_e, exp_missed, alpha, beta, g_exp)
-}
-
-#[allow(clippy::too_many_arguments)]
-fn fill_exp_helpers_with(
-    h_data: &mut [Fp],
-    lay: &Layout,
-    public: &super::AttentionPublic,
-    source: ExpSource<'_>,
+    s8: &[i64],
+    mx: &[i64],
     a_e: &[i64],
     exp_missed: usize,
     alpha: Fp2,
@@ -3137,13 +3480,9 @@ fn fill_exp_helpers_with(
     let expected_len = n_rows * tp;
     let mut exp_inv_cached: Option<Vec<Fp2>> = None;
     if crate::zk::host_fast_on() {
-        let len_ok = match source {
-            ExpSource::Deltas(d) => d.len() == a_e.len(),
-            ExpSource::Direct { s8, mx } => s8.len() == expected_len && mx.len() == n_rows && a_e.len() == expected_len,
-        };
         if exp_missed != 0 {
             crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_EXP, "H1 exp: exp_missed > 0");
-        } else if !len_ok {
+        } else if s8.len() != expected_len || mx.len() != n_rows || a_e.len() != expected_len {
             crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_EXP, "H1 exp: deltas/A_E length mismatch");
         } else {
             let tv_exp = table_values_exp(public, beta, g_exp);
@@ -3156,63 +3495,123 @@ fn fill_exp_helpers_with(
                         let (head, tail) = h_data.split_at_mut(hi);
                         let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
                         let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
-                        match source {
-                            ExpSource::Deltas(deltas) => {
-                                if len >= WRITE_H_PAR_MIN {
-                                    re.par_chunks_mut(HELPER_CHUNK)
-                                        .zip(im.par_chunks_mut(HELPER_CHUNK))
-                                        .zip(deltas.par_chunks(HELPER_CHUNK))
-                                        .for_each(|((r, m), ds)| {
-                                            for ((r, m), &d) in r.iter_mut().zip(m.iter_mut()).zip(ds.iter()) {
-                                                let v = exp_inv[d as usize];
-                                                *r = v.c0;
-                                                *m = v.c1;
-                                            }
-                                        });
-                                } else {
-                                    for ((r, m), &d) in re.iter_mut().zip(im.iter_mut()).zip(deltas.iter()) {
+                        let head_len = tp * tp;
+                        let fill_head = |h: usize, r_h: &mut [Fp], m_h: &mut [Fp]| {
+                            let h_row = h * tp;
+                            for t in 0..tp {
+                                let ht = h_row + t;
+                                let m_ht = mx[ht];
+                                let row_off = t * tp;
+                                let s_row = &s8[ht * tp..(ht + 1) * tp];
+                                let rr = &mut r_h[row_off..row_off + tp];
+                                let rm = &mut m_h[row_off..row_off + tp];
+                                for j in 0..=t {
+                                    let d = m_ht.wrapping_sub(s_row[j]);
+                                    let v = exp_inv[d as usize];
+                                    rr[j] = v.c0;
+                                    rm[j] = v.c1;
+                                }
+                                if t + 1 < tp {
+                                    let d_mask = m_ht.wrapping_sub(MASK_SCORE);
+                                    let v = exp_inv[d_mask as usize];
+                                    rr[t + 1..tp].fill(v.c0);
+                                    rm[t + 1..tp].fill(v.c1);
+                                }
+                            }
+                        };
+                        if len >= WRITE_H_PAR_MIN && sh.h_pad > 1 {
+                            re.par_chunks_mut(head_len)
+                                .zip(im.par_chunks_mut(head_len))
+                                .enumerate()
+                                .for_each(|(h, (r_h, m_h))| fill_head(h, r_h, m_h));
+                        } else {
+                            for (h, (r_h, m_h)) in re.chunks_mut(head_len).zip(im.chunks_mut(head_len)).enumerate() {
+                                fill_head(h, r_h, m_h);
+                            }
+                        }
+                        crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_TWOTERM_EXP);
+                        exp_inv_cached = Some(exp_inv);
+                        crate::zk::record_host_fast_hit(crate::zk::HF_H1_INV_TBL);
+                    } else {
+                        crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_EXP, "H1 exp: sexp slice bounds");
+                    }
+                }
+                Err(_) => {
+                    crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_EXP, "H1 exp: zero table denominator");
+                }
+            }
+        }
+    }
+    if exp_inv_cached.is_none() {
+        let reconstructed: Vec<i64> = (0..expected_len)
+            .map(|x| {
+                let (ht, j) = (x / tp, x % tp);
+                let masked = if j <= ht % tp { s8[x] } else { MASK_SCORE };
+                mx[ht].wrapping_sub(masked)
+            })
+            .collect();
+        let exp_den = reconstructed
+            .par_iter()
+            .zip(a_e.par_iter())
+            .map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp)))
+            .collect();
+        write_h(h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
+    }
+    Ok(exp_inv_cached)
+}
+
+/// [HOST-FAST H1] Fill `sexp` helpers in `h_data` using pre-inverted 256-row
+/// exp table denominators when `HL_HOST_FAST=1` and `exp_missed == 0`,
+/// returning the cached table inverses for `gexp` reuse. Any miss, bounds
+/// mismatch, or zero table denominator falls back to the exact baseline path
+/// and increments `HF_FB_H1_EXP`.
+#[allow(clippy::too_many_arguments)]
+fn fill_exp_helpers(
+    h_data: &mut [Fp],
+    lay: &Layout,
+    public: &super::AttentionPublic,
+    deltas: &[i64],
+    a_e: &[i64],
+    exp_missed: usize,
+    alpha: Fp2,
+    beta: Fp2,
+    g_exp: Fp2,
+) -> Result<Option<Vec<Fp2>>, String> {
+    use rayon::prelude::*;
+    let hids = lay.hids();
+    let mut exp_inv_cached: Option<Vec<Fp2>> = None;
+    if crate::zk::host_fast_on() {
+        if exp_missed != 0 {
+            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_EXP, "H1 exp: exp_missed > 0");
+        } else if deltas.len() != a_e.len() {
+            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H1_EXP, "H1 exp: deltas/A_E length mismatch");
+        } else {
+            let tv_exp = table_values_exp(public, beta, g_exp);
+            match inverses(tv_exp.iter().map(|t| alpha.sub(*t)).collect()) {
+                Ok(exp_inv) => {
+                    let len = a_e.len();
+                    let off = lay.h_off[hids.sexp()];
+                    let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
+                    if lo + len <= hi && hi + len <= h_data.len() {
+                        let (head, tail) = h_data.split_at_mut(hi);
+                        let (first, second) = (&mut head[lo..lo + len], &mut tail[..len]);
+                        let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
+                        if len >= WRITE_H_PAR_MIN {
+                            re.par_chunks_mut(HELPER_CHUNK)
+                                .zip(im.par_chunks_mut(HELPER_CHUNK))
+                                .zip(deltas.par_chunks(HELPER_CHUNK))
+                                .for_each(|((r, m), ds)| {
+                                    for ((r, m), &d) in r.iter_mut().zip(m.iter_mut()).zip(ds.iter()) {
                                         let v = exp_inv[d as usize];
                                         *r = v.c0;
                                         *m = v.c1;
                                     }
-                                }
-                            }
-                            ExpSource::Direct { s8, mx } => {
-                                let head_len = tp * tp;
-                                let fill_head = |h: usize, r_h: &mut [Fp], m_h: &mut [Fp]| {
-                                    let h_row = h * tp;
-                                    for t in 0..tp {
-                                        let ht = h_row + t;
-                                        let m_ht = mx[ht];
-                                        let row_off = t * tp;
-                                        let s_row = &s8[ht * tp..(ht + 1) * tp];
-                                        let rr = &mut r_h[row_off..row_off + tp];
-                                        let rm = &mut m_h[row_off..row_off + tp];
-                                        for j in 0..=t {
-                                            let d = m_ht.wrapping_sub(s_row[j]);
-                                            let v = exp_inv[d as usize];
-                                            rr[j] = v.c0;
-                                            rm[j] = v.c1;
-                                        }
-                                        if t + 1 < tp {
-                                            let d_mask = m_ht.wrapping_sub(MASK_SCORE);
-                                            let v = exp_inv[d_mask as usize];
-                                            rr[t + 1..tp].fill(v.c0);
-                                            rm[t + 1..tp].fill(v.c1);
-                                        }
-                                    }
-                                };
-                                if len >= WRITE_H_PAR_MIN && sh.h_pad > 1 {
-                                    re.par_chunks_mut(head_len)
-                                        .zip(im.par_chunks_mut(head_len))
-                                        .enumerate()
-                                        .for_each(|(h, (r_h, m_h))| fill_head(h, r_h, m_h));
-                                } else {
-                                    for (h, (r_h, m_h)) in re.chunks_mut(head_len).zip(im.chunks_mut(head_len)).enumerate() {
-                                        fill_head(h, r_h, m_h);
-                                    }
-                                }
-                                crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_TWOTERM_EXP);
+                                });
+                        } else {
+                            for ((r, m), &d) in re.iter_mut().zip(im.iter_mut()).zip(deltas.iter()) {
+                                let v = exp_inv[d as usize];
+                                *r = v.c0;
+                                *m = v.c1;
                             }
                         }
                         exp_inv_cached = Some(exp_inv);
@@ -3228,21 +3627,7 @@ fn fill_exp_helpers_with(
         }
     }
     if exp_inv_cached.is_none() {
-        let reconstructed: Vec<i64>;
-        let deltas_slice: &[i64] = match source {
-            ExpSource::Deltas(d) => d,
-            ExpSource::Direct { s8, mx } => {
-                reconstructed = (0..expected_len)
-                    .map(|x| {
-                        let (ht, j) = (x / tp, x % tp);
-                        let masked = if j <= ht % tp { s8[x] } else { MASK_SCORE };
-                        mx[ht].wrapping_sub(masked)
-                    })
-                    .collect();
-                &reconstructed
-            }
-        };
-        let exp_den = deltas_slice
+        let exp_den = deltas
             .par_iter()
             .zip(a_e.par_iter())
             .map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp)))
@@ -3366,19 +3751,15 @@ fn fill_act_helpers(
     Ok(act_inv_cached)
 }
 
-/// **[A13] THE REST OF [`prove_core_with`], from its first transcript use.**
-/// The two roots the before-challenge part made are absorbed here, `A`'s then
-/// `M`'s (the order and bytes `prove_core` has always absorbed), and only then
-/// is anything squeezed. `ahead` must be the state [`prove_core_before_with`]
-/// returned for this very block object, shape and layout, with `rng` the
-/// generator it drew from (and nothing drawn from it since); any other state
-/// is refused before anything is absorbed.
-#[allow(clippy::too_many_arguments, clippy::type_complexity)]
+/// [HOST-FAST-W2 W2-3] Out-of-line flat `&[Fp2]` W16 helper fill over [`LookedColW2`].
+#[cold]
 #[inline(never)]
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
 fn try_write_helpers_w16_flat(
     sh: &Shape,
     lay: &Layout,
-    views: &[(Dom, Vec<LookedCol<'_>>)],
+    wit: &Witness,
+    built: &[(Dom, Vec<Option<Vec<i64>>>)],
     w16_missed: usize,
     alpha: Fp2,
     g_u8: Fp2,
@@ -3403,8 +3784,9 @@ fn try_write_helpers_w16_flat(
             }
         }
     }
+    let views: Vec<(Dom, Vec<LookedColW2<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols_w2(lay, wit, *d, b))).collect();
     let mut fjobs: Vec<FlatHelperJobCols<'_>> = Vec::new();
-    for (dom, cols) in views {
+    for (dom, cols) in &views {
         let tags: Vec<LkTag> = lay.lookups(*dom).iter().map(|l| l.tag).collect();
         let (first, count) = lay.helpers(*dom);
         for k in 0..count {
@@ -3428,6 +3810,28 @@ fn try_write_helpers_w16_flat(
     }
 }
 
+#[cold]
+#[inline(never)]
+fn log_w2_timing(w2_hits_start: [u64; 10], w2_fb_start: [u64; 5], before: Option<&([u64; 10], [u64; 5])>) {
+    let w2_hits_end = crate::zk::host_fast_w2_hits_for_test();
+    let w2_fb_end = crate::zk::host_fast_w2_fallbacks_for_test();
+    let (bh, bf) = before.copied().unwrap_or(([0; 10], [0; 5]));
+    let hd: [u64; 10] = std::array::from_fn(|i| w2_hits_end[i].saturating_sub(w2_hits_start[i]).saturating_add(bh[i]));
+    let fd: [u64; 5] = std::array::from_fn(|i| w2_fb_end[i].saturating_sub(w2_fb_start[i]).saturating_add(bf[i]));
+    eprintln!(
+        "[ZK60-HOST-FAST-W2] block hits=s:{},te:{},fw:{},ad:{},pc:{},rg:{},ft:{},pr:{},po:{},me:{} fallbacks=s:{},fw:{},pc:{},rg:{},pr:{}",
+        hd[0], hd[1], hd[2], hd[3], hd[4], hd[5], hd[6], hd[7], hd[8], hd[9],
+        fd[0], fd[1], fd[2], fd[3], fd[4],
+    );
+}
+
+/// **[A13] THE REST OF [`prove_core_with`], from its first transcript use.**
+/// The two roots the before-challenge part made are absorbed here, `A`'s then
+/// `M`'s (the order and bytes `prove_core` has always absorbed), and only then
+/// is anything squeezed. `ahead` must be the state [`prove_core_before_with`]
+/// returned for this very block object, shape and layout, with `rng` the
+/// generator it drew from (and nothing drawn from it since); any other state
+/// is refused before anything is absorbed.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn prove_core_after_with(
     sh: &Shape,
@@ -3448,12 +3852,13 @@ pub(crate) fn prove_core_after_with(
         rows,
         blk_at,
         views_on,
+        twoterm_deferred,
         params,
         zko,
         tag,
         wit,
         looked,
-        built,
+        mut built,
         lookup_words,
         m_u8,
         m_rng,
@@ -3469,8 +3874,7 @@ pub(crate) fn prove_core_after_with(
         mc,
         mask_root,
         hf_h2_delta,
-        w2_before_hits,
-        w2_before_fb,
+        w2_timing_before,
     } = ahead;
     if made_for != *sh || rows != (lay.a_rows, lay.h_rows, lay.n()) {
         return Err("private block: the before-challenge state was made for another shape or layout".into());
@@ -3480,13 +3884,13 @@ pub(crate) fn prove_core_after_with(
     }
     let hf_hits_start = crate::zk::host_fast_hits_for_test();
     let hf_fb_start = crate::zk::host_fast_fallbacks_for_test();
-    let w2_timing = crate::zk::host_fast_w2_on() && crate::zk::host_fast_timing_on();
-    let w2_hits_start = if w2_timing { crate::zk::host_fast_w2_hits_for_test() } else { [0; 10] };
-    let w2_fb_start = if w2_timing { crate::zk::host_fast_w2_fallbacks_for_test() } else { [0; 5] };
+    let w2_timing_after = if crate::zk::host_fast_w2_on() && crate::zk::host_fast_timing_on() {
+        Some((crate::zk::host_fast_w2_hits_for_test(), crate::zk::host_fast_w2_fallbacks_for_test()))
+    } else {
+        None
+    };
     let (public, ff) = (blk.attention(), blk.feed_forward());
     let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
-    // [A17] the views again, over the same witness and built columns
-    let views: Vec<(Dom, Vec<LookedCol<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols(lay, &wit, *d, b))).collect();
     // ---- the first transcript use: the A root, then the M root ----
     absorb_root(tr, b"A", &a_root, lay.a_rows, sh.log_cols);
     tr.absorb(b"M", &mask_root);
@@ -3513,13 +3917,18 @@ pub(crate) fn prove_core_after_with(
     let mut flat_tabs: Vec<(u32, Fp2, Vec<Fp2>)> = Vec::new();
     let mut w16_done_flat = false;
     if crate::zk::host_fast_w2_on() && sh.range16() && views_on {
-        if let Some((u8_f, ftabs)) = try_write_helpers_w16_flat(sh, lay, &views, w16_missed, alpha, g_u8, &mut h_data)? {
+        if let Some((u8_f, ftabs)) = try_write_helpers_w16_flat(sh, lay, &wit, &built, w16_missed, alpha, g_u8, &mut h_data)? {
             flat_u8_inv = Some(u8_f);
             flat_tabs = ftabs;
             w16_done_flat = true;
         }
     }
     let tabs: Vec<(u32, Fp2, Vec<Option<Fp2>>)> = if !w16_done_flat {
+        if twoterm_deferred {
+            ensure_twoterm_built(lay, &wit, &mut built);
+        }
+        // [A17] the views again, over the same witness and built columns
+        let views: Vec<(Dom, Vec<LookedCol<'_>>)> = built.iter().map(|(d, b)| (*d, looked_cols(lay, &wit, *d, b))).collect();
         // **STAGE 28.** The 256 byte-table denominators, inverted once for the
         // whole of `H`: what was an element-wise batch inversion over every looked
         // word is a table build plus one indexed lookup per word. Same words, same
@@ -3597,22 +4006,32 @@ pub(crate) fn prove_core_after_with(
     };
     ph.mark_bytes(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words", 16 * lookup_words);
     // [M4h] / [HOST-FAST H1] / [HOST-FAST-W2 W2-2] exp and activation helpers
-    let exp_source = if deltas.is_empty() && sh.size(Dom::S) > 0 {
-        ExpSource::Direct { s8: &wit.planes[ids.at(A_S8)], mx: &wit.planes[ids.at(A_MX)] }
+    let exp_inv_cached = if deltas.is_empty() && sh.size(Dom::S) > 0 {
+        fill_exp_helpers_direct_w2(
+            &mut h_data,
+            lay,
+            public,
+            &wit.planes[ids.at(A_S8)],
+            &wit.planes[ids.at(A_MX)],
+            &wit.planes[ids.at(A_E)],
+            exp_missed,
+            alpha,
+            beta,
+            g_exp,
+        )?
     } else {
-        ExpSource::Deltas(&deltas)
+        fill_exp_helpers(
+            &mut h_data,
+            lay,
+            public,
+            &deltas,
+            &wit.planes[ids.at(A_E)],
+            exp_missed,
+            alpha,
+            beta,
+            g_exp,
+        )?
     };
-    let exp_inv_cached = fill_exp_helpers_with(
-        &mut h_data,
-        lay,
-        public,
-        exp_source,
-        &wit.planes[ids.at(A_E)],
-        exp_missed,
-        alpha,
-        beta,
-        g_exp,
-    )?;
     let act_inv_cached = fill_act_helpers(
         sh,
         lay,
@@ -3683,10 +4102,8 @@ pub(crate) fn prove_core_after_with(
     // buffers are moved, so any later read fails to build. That is a stronger
     // guarantee than the acceptance test the memo asks for, and it is why this
     // step takes the witness by value rather than by reference.
-    // [A17] the views borrow the planes and the built columns
-    drop(views);
     if crate::zk::host_fast_async_drop_on() {
-        async_drop((looked, built, wit, deltas, act_idx));
+        async_drop_boxed(Box::new((looked, built, wit, deltas, act_idx)));
     } else {
         drop(looked);
         drop(built);
@@ -3853,7 +4270,7 @@ pub(crate) fn prove_core_after_with(
     if crate::zk::host_fast_async_drop_on() {
         let a_host = std::mem::take(&mut a.data);
         drop(a);
-        async_drop(a_host);
+        async_drop_boxed(Box::new(a_host));
     } else {
         drop(a);
     }
@@ -3865,7 +4282,7 @@ pub(crate) fn prove_core_after_with(
     if crate::zk::host_fast_async_drop_on() {
         let h_host = std::mem::take(&mut h.data);
         drop(h);
-        async_drop(h_host);
+        async_drop_boxed(Box::new(h_host));
     } else {
         drop(h);
     }
@@ -3885,20 +4302,8 @@ pub(crate) fn prove_core_after_with(
             fd[0], fd[1], fd[2], fd[3], fd[4],
         );
     }
-    if crate::zk::host_fast_w2_on() && crate::zk::host_fast_timing_on() {
-        let w2_hits_end = crate::zk::host_fast_w2_hits_for_test();
-        let w2_fb_end = crate::zk::host_fast_w2_fallbacks_for_test();
-        let hd: [u64; 10] = std::array::from_fn(|i| {
-            w2_hits_end[i].saturating_sub(w2_hits_start[i]).saturating_add(w2_before_hits[i])
-        });
-        let fd: [u64; 5] = std::array::from_fn(|i| {
-            w2_fb_end[i].saturating_sub(w2_fb_start[i]).saturating_add(w2_before_fb[i])
-        });
-        eprintln!(
-            "[ZK60-HOST-FAST-W2] block hits=s:{},te:{},fw:{},ad:{},pc:{},rg:{},ft:{},pr:{},po:{},me:{} fallbacks=s:{},fw:{},pc:{},rg:{},pr:{}",
-            hd[0], hd[1], hd[2], hd[3], hd[4], hd[5], hd[6], hd[7], hd[8], hd[9],
-            fd[0], fd[1], fd[2], fd[3], fd[4],
-        );
+    if let Some((w2_hits_start, w2_fb_start)) = w2_timing_after {
+        log_w2_timing(w2_hits_start, w2_fb_start, w2_timing_before.as_deref());
     }
     Ok(CoreProof {
         a_root,
@@ -4411,7 +4816,7 @@ mod tests {
         let ids = lay.ids();
         let hids = lay.hids();
 
-        // ---- (a) W2-2b: Zero-alloc LookedCol::TwoTerm parity ----
+        // ---- (a) W2-2b: Zero-alloc LookedColW2::TwoTerm parity ----
         crate::zk::set_host_fast_w2_for_test(Some(false));
         let built0: Vec<(Dom, Vec<Option<Vec<i64>>>)> = lay.lookup_doms().iter().map(|d| (*d, looked_built(&lay, &wit, *d))).collect();
         assert!(
@@ -4423,31 +4828,30 @@ mod tests {
 
         crate::zk::set_host_fast_w2_for_test(Some(true));
         let w2_hb = crate::zk::host_fast_w2_hits_for_test();
-        let built1: Vec<(Dom, Vec<Option<Vec<i64>>>)> = lay.lookup_doms().iter().map(|d| (*d, looked_built(&lay, &wit, *d))).collect();
+        let built1: Vec<(Dom, Vec<Option<Vec<i64>>>)> = lay.lookup_doms().iter().map(|d| (*d, looked_built_w2(&lay, &wit, *d))).collect();
         let w2_ha = crate::zk::host_fast_w2_hits_for_test();
         assert!(
             built1.iter().all(|(_, b)| b.iter().all(Option::is_none)),
             "W2-2b must skip all 2-term Vec allocations"
         );
         assert!(w2_ha[crate::zk::HF_W2_TWOTERM_EXP] > w2_hb[crate::zk::HF_W2_TWOTERM_EXP]);
-        let views1: Vec<(Dom, Vec<LookedCol<'_>>)> = built1.iter().map(|(d, b)| (*d, looked_cols(&lay, &wit, *d, b))).collect();
+        let views1: Vec<(Dom, Vec<LookedColW2<'_>>)> = built1.iter().map(|(d, b)| (*d, looked_cols_w2(&lay, &wit, *d, b))).collect();
         assert!(
-            views1.iter().any(|(_, cols)| cols.iter().any(|c| matches!(c, LookedCol::TwoTerm { .. }))),
-            "W2-2b must expose LookedCol::TwoTerm"
+            views1.iter().any(|(_, cols)| cols.iter().any(|c| matches!(c, LookedColW2::TwoTerm { .. }))),
+            "W2-2b must expose LookedColW2::TwoTerm"
         );
-        let hist1 = w16_histograms_cols(&lay, &views1);
+        let hist1 = w16_histograms_cols_w2(&lay, &views1);
         assert_eq!(hist1, hist0, "W2-2b TwoTerm histograms must match baseline");
         for ((_, b0), (_, v1)) in built0.iter().zip(views1.iter()) {
             for (orig, col) in b0.iter().zip(v1.iter()) {
                 if let Some(expected) = orig {
-                    let mut got = vec![0i64; expected.len()];
-                    col.fill(0, &mut got);
-                    assert_eq!(&got, expected, "LookedCol::TwoTerm::fill mismatch");
+                    let got = col.to_vec();
+                    assert_eq!(&got, expected, "LookedColW2::TwoTerm::to_vec mismatch");
                 }
             }
         }
 
-        // ---- (b) W2-2c: On-the-fly exp_histogram_direct & ExpSource::Direct ----
+        // ---- (b) W2-2c: On-the-fly exp_histogram_direct & fill_exp_helpers_direct_w2 ----
         let deltas_ref = exp_deltas(&lay, &wit);
         let a_e = &wit.planes[ids.at(A_E)];
         let exp_h_ref = exp_histogram(&deltas_ref, a_e, &blk.attention().exp);
@@ -4485,11 +4889,12 @@ mod tests {
             crate::zk::set_host_fast_for_test(Some(true));
             crate::zk::set_host_fast_w2_for_test(Some(true));
             let hb = crate::zk::host_fast_w2_hits_for_test();
-            let c1 = fill_exp_helpers_with(
+            let c1 = fill_exp_helpers_direct_w2(
                 &mut h1,
                 &lay,
                 blk.attention(),
-                ExpSource::Direct { s8: &wit.planes[ids.at(A_S8)], mx: &wit.planes[ids.at(A_MX)] },
+                &wit.planes[ids.at(A_S8)],
+                &wit.planes[ids.at(A_MX)],
                 a_e,
                 0,
                 alpha_ok,
@@ -4498,11 +4903,11 @@ mod tests {
             )
             .unwrap();
             let ha = crate::zk::host_fast_w2_hits_for_test();
-            assert_eq!(h1, h0, "ExpSource::Direct happy path h_data mismatch");
+            assert_eq!(h1, h0, "fill_exp_helpers_direct_w2 happy path h_data mismatch");
             assert!(c1.is_some());
             assert!(ha[crate::zk::HF_W2_TWOTERM_EXP] > hb[crate::zk::HF_W2_TWOTERM_EXP]);
 
-            // Zero table denominator fallback parity on ExpSource::Direct
+            // Zero table denominator fallback parity on fill_exp_helpers_direct_w2
             let alpha_zero = tv_exp[0];
             let mut h0z = vec![Fp::ZERO; h_len];
             let mut h1z = vec![Fp::ZERO; h_len];
@@ -4510,11 +4915,12 @@ mod tests {
             let r0 = fill_exp_helpers(&mut h0z, &lay, blk.attention(), &deltas_ref, a_e, 0, alpha_zero, beta, g_exp);
             crate::zk::set_host_fast_for_test(Some(true));
             let fbb = crate::zk::host_fast_fallbacks_for_test();
-            let r1 = fill_exp_helpers_with(
+            let r1 = fill_exp_helpers_direct_w2(
                 &mut h1z,
                 &lay,
                 blk.attention(),
-                ExpSource::Direct { s8: &wit.planes[ids.at(A_S8)], mx: &wit.planes[ids.at(A_MX)] },
+                &wit.planes[ids.at(A_S8)],
+                &wit.planes[ids.at(A_MX)],
                 a_e,
                 0,
                 alpha_zero,
@@ -4522,7 +4928,7 @@ mod tests {
                 g_exp,
             );
             let fba = crate::zk::host_fast_fallbacks_for_test();
-            assert_eq!(r1, r0, "ExpSource::Direct zero-denom fallback parity mismatch");
+            assert_eq!(r1, r0, "fill_exp_helpers_direct_w2 zero-denom fallback parity mismatch");
             assert_eq!(h1z, h0z);
             assert!(fba[crate::zk::HF_FB_H1_EXP] > fbb[crate::zk::HF_FB_H1_EXP]);
         }
@@ -4549,20 +4955,20 @@ mod tests {
                 .collect();
             let mut wjobs: Vec<HelperJobCols<'_>> = Vec::new();
             let mut fjobs: Vec<FlatHelperJobCols<'_>> = Vec::new();
-            for (dom, cols) in &views1 {
+            for ((dom, cols0), (_, cols1)) in views0.iter().zip(views1.iter()) {
                 let tags: Vec<LkTag> = lay.lookups(*dom).iter().map(|l| l.tag).collect();
                 let (first, count) = lay.helpers(*dom);
                 for k in 0..count {
-                    let wb = cols.get(2 * k + 1).map(|c| tagged_col(*c, tags[2 * k + 1], g_u8, &u8_opt, &tabs_opt).unwrap());
+                    let wb = cols0.get(2 * k + 1).map(|c| tagged_col(*c, tags[2 * k + 1], g_u8, &u8_opt, &tabs_opt).unwrap());
                     wjobs.push(HelperJobCols {
                         off: lay.h_off[first + k],
-                        a: tagged_col(cols[2 * k], tags[2 * k], g_u8, &u8_opt, &tabs_opt).unwrap(),
+                        a: tagged_col(cols0[2 * k], tags[2 * k], g_u8, &u8_opt, &tabs_opt).unwrap(),
                         b: wb,
                     });
-                    let fb = cols.get(2 * k + 1).map(|c| flat_tagged_col(*c, tags[2 * k + 1], &u8_flat, &tabs_flat).unwrap());
+                    let fb = cols1.get(2 * k + 1).map(|c| flat_tagged_col(*c, tags[2 * k + 1], &u8_flat, &tabs_flat).unwrap());
                     fjobs.push(FlatHelperJobCols {
                         off: lay.h_off[first + k],
-                        a: flat_tagged_col(cols[2 * k], tags[2 * k], &u8_flat, &tabs_flat).unwrap(),
+                        a: flat_tagged_col(cols1[2 * k], tags[2 * k], &u8_flat, &tabs_flat).unwrap(),
                         b: fb,
                     });
                 }
@@ -4583,11 +4989,45 @@ mod tests {
                 let col_ref = range_table_helper(f, s, sh.log_cols, opt_tbl, &m_rng0[fi], base, sup).unwrap().unwrap();
                 let col_flat = range_table_helper_flat(f, s, sh.log_cols, flat_tbl, &m_rng0[fi], base, sup).unwrap();
                 assert_eq!(col_flat, col_ref, "range_table_helper_flat mismatch for {:?} s={s}", f);
+                // Read A L4: range_table_helper_flat must reject truncated table slices for ANY index in 0..len
+                if !flat_tbl.is_empty() && base + sup > 1 {
+                    let short = &flat_tbl[..base + sup - 1];
+                    assert!(
+                        range_table_helper_flat(f, s, sh.log_cols, short, &m_rng0[fi], base, sup).is_none(),
+                        "range_table_helper_flat must check upper bound base + len <= inv.len()"
+                    );
+                }
             }
             let _ = hids;
         }
 
-        // ---- (d) Full seeded prove_core_with bit-for-bit parity + SealedHistograms hit/mismatch ----
+        // ---- (d) Sealing-pass CS-3 lookup-miss refusal parity on check_lookup_misses_sealed (incl. interior words) ----
+        let rng_plane = lay.lookups(Dom::D)[0].terms[0].0;
+        for w2_flag in [false, true] {
+            crate::zk::set_host_fast_w2_for_test(Some(w2_flag));
+            for (plane, delta, idx, family) in [
+                (rng_plane, 1i64 << 17, 0usize, "the byte table"),
+                (rng_plane, 1i64 << 17, 7usize, "the byte table"),
+                (ids.at(A_E), 1i64, 0usize, "the exp table"),
+                (ids.at(A_E), 1i64, 7usize, "the exp table"),
+                (ids.at(A_A16), 1i64, 0usize, "the activation table"),
+                (ids.at(A_A16), 1i64, 7usize, "the activation table"),
+            ] {
+                let mut wb = wit.clone();
+                let pos = idx.min(wb.planes[plane].len().saturating_sub(1));
+                wb.planes[plane][pos] = wb.planes[plane][pos].wrapping_add(delta);
+                let ref_err = check_lookup_misses(&sh, &lay, &blk, &wb).expect_err("baseline must refuse lookup miss");
+                assert!(ref_err.starts_with(LOOKUP_MISS_REFUSAL) && ref_err.contains(family), "{ref_err}");
+                for public_checked in [false, true] {
+                    let got_err = check_lookup_misses_sealed(&sh, &lay, &blk, wb.clone(), public_checked)
+                        .err()
+                        .expect("check_lookup_misses_sealed must refuse lookup miss");
+                    assert_eq!(got_err, ref_err, "w2={w2_flag} public_checked={public_checked} plane={plane} idx={pos} family={family}");
+                }
+            }
+        }
+
+        // ---- (e) Full seeded prove_core_sealed bit-for-bit parity + ownership-bound SealedWitness hit & cross-block mismatch ----
         let (rows_ep, n_ep) = (sh.endpoint_rows, 1usize << sh.endpoint_log_n);
         let make_io = |p: usize| -> Vec<Fp> {
             let mut d = vec![Fp::ZERO; rows_ep * n_ep];
@@ -4599,14 +5039,14 @@ mod tests {
         let (ein, eout) = (make_io(ids.at(A_X)), make_io(ids.at(A_X2)));
         let ntt = NttTables::new(ntt_log_at(&sh));
 
-        let run_core = |w_in: Witness, hints: CoreHints<'_, '_>| -> (CoreProof, [u8; 32]) {
+        let run_core = |blk_in: &BlockPublic, sw_in: SealedWitness, hints: CoreHints<'_, '_>| -> (CoreProof, [u8; 32]) {
             let mut rng = ZkRng::new(20261123, b"host-fast-w2-core-parity");
             let mut tr = tagged_transcript(&sh, b"host-fast-w2-core-parity");
             tr.absorb(b"profile", sh.profile.as_bytes());
             tr.absorb(b"schedule", &lay.schedule_digest());
             let mut ph = timing::Phases::start();
             let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
-            let core = prove_core_with(&sh, &lay, &blk, w_in, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints).unwrap();
+            let core = prove_core_sealed(&sh, &lay, blk_in, sw_in, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints).unwrap();
             let st = tr.state();
             // Verify every produced proof with verify_core
             let mut vtr = tagged_transcript(&sh, b"host-fast-w2-core-parity");
@@ -4622,7 +5062,7 @@ mod tests {
                 a_open: &core.a_open,
                 h_open: &core.h_open,
             };
-            let (vclaims, vorder) = verify_core(&sh, &lay, &blk, view, &ntt, &mut vtr, &mut vph).unwrap();
+            let (vclaims, vorder) = verify_core(&sh, &lay, blk_in, view, &ntt, &mut vtr, &mut vph).unwrap();
             assert_eq!(format!("{vclaims:?}"), format!("{:?}", core.io_claims));
             assert_eq!(vorder, core.order);
             assert_eq!(vtr.state(), st);
@@ -4639,22 +5079,24 @@ mod tests {
         crate::zk::set_host_fast_for_test(Some(false));
         crate::zk::set_host_fast_w2_for_test(Some(false));
         crate::zk::set_host_fast_async_drop_for_test(Some(false));
-        let (core0, st0) = run_core(wit.clone(), CoreHints::default());
+        let (core0, st0) = run_core(&blk, SealedWitness::unsealed(wit.clone()), CoreHints::default());
         let text0 = fp_text(&core0, st0);
 
-        // W2 hit: HF=true, W2=true, AD=true with matching SealedHistograms
+        // W2 hit: HF=true, W2=true, AD=true with ownership-bound SealedWitness
         crate::zk::set_host_fast_for_test(Some(true));
         crate::zk::set_host_fast_w2_for_test(Some(true));
         crate::zk::set_host_fast_async_drop_for_test(Some(true));
-        let w_hit = wit.clone();
-        let shist = check_lookup_misses_collecting(&sh, &lay, &blk, &w_hit, false).unwrap();
-        assert!(shist.matches(&sh, &blk, &w_hit), "SealedHistograms must match exact (sh, blk, wit)");
-        assert!(!shist.matches(&sh, &blk, &w_hit.clone()), "SealedHistograms must reject cloned witness");
-        assert!(!shist.matches(&sh, &blk.clone(), &w_hit), "SealedHistograms must reject cloned block");
-        assert!(!shist.matches(&Shape::toy(), &blk, &w_hit), "SealedHistograms must reject other shape");
+        let sw_hit = check_lookup_misses_sealed(&sh, &lay, &blk, wit.clone(), false).unwrap();
+        assert!(sw_hit.has_hists(), "check_lookup_misses_sealed must attach histograms");
+        assert!(sw_hit.hist_bytes() > 0);
+        let shist_ref = sw_hit.hists.as_ref().unwrap();
+        assert!(shist_ref.matches_block(&sh, &blk), "SealedHistograms must match exact (sh, blk)");
+        let blk_other = blk.clone();
+        assert!(!shist_ref.matches_block(&sh, &blk_other), "SealedHistograms must reject live distinct block object");
+        assert!(!shist_ref.matches_block(&Shape::toy(), &blk), "SealedHistograms must reject other shape");
 
         let hb1 = crate::zk::host_fast_w2_hits_for_test();
-        let (core1, st1) = run_core(w_hit, CoreHints { checked: None, sealed_hists: Some(&shist) });
+        let (core1, st1) = run_core(&blk, sw_hit, CoreHints::default());
         let ha1 = crate::zk::host_fast_w2_hits_for_test();
         assert_eq!(fp_text(&core1, st1), text0, "W2 full-hit CoreProof must be bit-identical to baseline");
         assert!(ha1[crate::zk::HF_W2_SEAL_HIST] > hb1[crate::zk::HF_W2_SEAL_HIST], "HF_W2_SEAL_HIST must hit");
@@ -4663,18 +5105,20 @@ mod tests {
         assert!(ha1[crate::zk::HF_W2_ASYNC_DROP] > hb1[crate::zk::HF_W2_ASYNC_DROP], "HF_W2_ASYNC_DROP must hit");
         assert!(ha1[crate::zk::HF_W2_PAR_OPEN] > hb1[crate::zk::HF_W2_PAR_OPEN], "HF_W2_PAR_OPEN must hit");
 
-        // W2 mismatch fallback + AD=false: stale SealedHistograms passed with cloned witness
-        // (strict zero-hit / zero-fallback equalities live in fresh-process `host_fast_w2_rung_golden`
-        // since concurrent suite tests share process-wide W2 counters).
+        // W2 deterministic cross-block mismatch fallback + AD=false: seal against `blk`, prove against
+        // live `blk_other` (keeping `blk` alive so their BlkSig addresses are guaranteed distinct!).
         crate::zk::set_host_fast_async_drop_for_test(Some(false));
+        let sw_cross = check_lookup_misses_sealed(&sh, &lay, &blk, wit.clone(), false).unwrap();
         let hb2 = crate::zk::host_fast_w2_hits_for_test();
         let fb2 = crate::zk::host_fast_w2_fallbacks_for_test();
-        let (core2, st2) = run_core(wit.clone(), CoreHints { checked: None, sealed_hists: Some(&shist) });
+        let (core2, st2) = run_core(&blk_other, sw_cross, CoreHints::default());
         let ha2 = crate::zk::host_fast_w2_hits_for_test();
         let fa2 = crate::zk::host_fast_w2_fallbacks_for_test();
-        assert_eq!(fp_text(&core2, st2), text0, "W2 fallback CoreProof must be bit-identical to baseline");
-        assert!(fa2[crate::zk::HF_W2_FB_SEAL_HIST] > fb2[crate::zk::HF_W2_FB_SEAL_HIST], "mismatched witness must increment HF_W2_FB_SEAL_HIST");
+        assert_eq!(fp_text(&core2, st2), text0, "W2 cross-block fallback CoreProof must be bit-identical to baseline");
+        assert!(fa2[crate::zk::HF_W2_FB_SEAL_HIST] > fb2[crate::zk::HF_W2_FB_SEAL_HIST], "mismatched block must increment HF_W2_FB_SEAL_HIST");
         assert!(ha2[crate::zk::HF_W2_FLAT_W16] > hb2[crate::zk::HF_W2_FLAT_W16]);
         assert!(ha2[crate::zk::HF_W2_PAR_OPEN] > hb2[crate::zk::HF_W2_PAR_OPEN]);
+        drop(blk_other);
+        let _ = &blk;
     }
 }

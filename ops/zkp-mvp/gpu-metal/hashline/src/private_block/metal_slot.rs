@@ -185,6 +185,8 @@ fn push_product_coef(c: &Coef, cf: &mut Vec<Fp2>) {
 /// **[HOST-FAST-W2 W2-4]** Zero-`String` extraction of the `cf` coefficient
 /// buffer in the exact push order of [`msl_round_kernels`] / [`node_pass`].
 #[cfg_attr(feature = "gpu-cuda", allow(dead_code))]
+#[cold]
+#[inline(never)]
 pub(super) fn extract_coefs(ir: &SlotIr) -> Vec<Fp2> {
     let mut cf = Vec::new();
     for n in &ir.nodes {
@@ -208,10 +210,6 @@ pub(super) fn extract_coefs(ir: &SlotIr) -> Vec<Fp2> {
     cf
 }
 
-/// **[HOST-FAST-W2 W2-4]** Zero-allocation structural fingerprint of `ir`'s
-/// exact MSL-generating topology: `(degree, pad_on, a27_lin, a27_deg,
-/// table base-field flags, every node's id/body/coef-class/c1_is_zero/factors,
-/// every term's coef-class/c1_is_zero/wrapper/inner)`. Two `SlotIr`s with equal
 /// **[HOST-FAST-W2 W2-4]** Lossless canonical structural key of a slot's IR
 /// topology (`degree`, `pad_on`, `a27_lin_on`, `a27_deg_on`, table base-field
 /// kinds, node graph, term structure, and coefficient class / `c1.is_zero()`
@@ -220,6 +218,8 @@ pub(super) fn extract_coefs(ir: &SlotIr) -> Vec<Fp2> {
 /// header comment line) and equal `cf.len()`, with zero hash collisions and no
 /// protocol hash call sites.
 #[cfg_attr(feature = "gpu-cuda", allow(dead_code))]
+#[cold]
+#[inline(never)]
 pub(super) fn slot_topo_key(ir: &SlotIr) -> Vec<u8> {
     struct KeyBuf(Vec<u8>);
     impl KeyBuf {

@@ -1723,20 +1723,8 @@ impl MetalCommit {
             c.push(FoldCapture { rows: self.rows, n: self.n, nn: self.n, ir: 1, src: src.to_vec(), rhos: rhos.to_vec(), pads: Some((pw.to_vec(), q)) });
         }
         if sparse_fold_on() {
-            let cached_pads: Option<&Buffer> = if q > 0 && crate::zk::host_fast_w2_on() {
-                match &self.pads {
-                    Some((pb, plen)) if *plen == pads.len() && as_u64s(pb, *plen) == pw => {
-                        crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PADS_REUSE);
-                        Some(pb)
-                    }
-                    _ => {
-                        crate::zk::record_host_fast_w2_fallback(
-                            crate::zk::HF_W2_FB_PADS_REUSE,
-                            "W2-7a pads_reuse: cached pads absent or mismatched",
-                        );
-                        None
-                    }
-                }
+            let cached_pads = if q > 0 && crate::zk::host_fast_w2_on() {
+                cached_pads_ref_w2(&self.pads, pads.len(), pw)
             } else {
                 None
             };
@@ -1854,6 +1842,52 @@ struct GatherArgs {
     nidx: u64,
 }
 
+#[cold]
+#[inline(never)]
+fn cached_pads_ref_w2<'a>(pads_slot: &'a Option<(PBuf, usize)>, want_len: usize, pw: &[u64]) -> Option<&'a Buffer> {
+    match pads_slot {
+        Some((pb, plen)) if *plen == want_len && as_u64s(pb, *plen) == pw => {
+            crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PADS_REUSE);
+            Some(pb)
+        }
+        _ => {
+            crate::zk::record_host_fast_w2_fallback(
+                crate::zk::HF_W2_FB_PADS_REUSE,
+                "W2-7a pads_reuse: cached pads absent or mismatched",
+            );
+            None
+        }
+    }
+}
+
+#[cold]
+#[inline(never)]
+fn read_gather_cols_w2(ob: &PBuf, n_cols: usize, rows: usize) -> Vec<Vec<Fp>> {
+    crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PAR_OPEN);
+    // SAFETY: `Fp` is `#[repr(transparent)]` over `u64` (size 8, align 8 checked by caller);
+    // `ob` is page-aligned shared memory holding `n_cols * rows` completed `u64` words.
+    let fp_all = unsafe { std::slice::from_raw_parts(ob.contents() as *const Fp, n_cols * rows) };
+    if n_cols > 1 && n_cols * rows >= 16_384 {
+        fp_all.par_chunks_exact(rows).map(|col| col.to_vec()).collect()
+    } else {
+        fp_all.chunks_exact(rows).map(|col| col.to_vec()).collect()
+    }
+}
+
+#[cold]
+#[inline(never)]
+fn read_sparse_fold_out_w2(out_buf: &PBuf, k: usize, total_cols: usize) -> Vec<Vec<Fp2>> {
+    crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PAR_OPEN);
+    // SAFETY: `Fp2` layout `(c0: Fp, c1: Fp)` verified by caller (16 bytes, align <= 8);
+    // `out_buf` is page-aligned shared memory holding `k * total_cols` completed `Fp2` elements.
+    let all = unsafe { std::slice::from_raw_parts(out_buf.contents() as *const Fp2, k * total_cols) };
+    if k > 1 && k * total_cols >= 65_536 {
+        all.par_chunks_exact(total_cols).map(|row| row.to_vec()).collect()
+    } else {
+        all.chunks_exact(total_cols).map(|row| row.to_vec()).collect()
+    }
+}
+
 /// The opened columns on the device (k_gather_cols): a scattered read is cheap
 /// on the GPU, while the host's strided walk over a multi-GB encoding pays a TLB
 /// miss per element.
@@ -1879,16 +1913,7 @@ fn gather_columns_device(enc: &Buffer, rows: usize, nn: usize, idx: &[usize]) ->
             && std::mem::size_of::<Fp>() == 8
             && std::mem::align_of::<Fp>() == 8
         {
-            crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PAR_OPEN);
-            // SAFETY: `Fp` is `#[repr(transparent)]` over `u64` (size 8, align 8 checked above);
-            // `ob` is page-aligned shared memory holding `idx.len() * rows` completed `u64` words.
-            let fp_all = unsafe { std::slice::from_raw_parts(ob.contents() as *const Fp, idx.len() * rows) };
-            let cols = if idx.len() > 1 && idx.len() * rows >= 16_384 {
-                fp_all.par_chunks_exact(rows).map(|col| col.to_vec()).collect()
-            } else {
-                fp_all.chunks_exact(rows).map(|col| col.to_vec()).collect()
-            };
-            return Ok(cols);
+            return Ok(read_gather_cols_w2(&ob, idx.len(), rows));
         }
         let o = as_u64s(&ob, idx.len() * rows);
         Ok(o.chunks_exact(rows).map(|col| col.iter().map(|&v| Fp(v)).collect()).collect())
@@ -2155,15 +2180,7 @@ fn fold_rows_sparse_device(
             && std::mem::offset_of!(Fp2, c1) == 8
             && std::mem::align_of::<Fp2>() <= 8
         {
-            crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_PAR_OPEN);
-            // SAFETY: `Fp2` layout `(c0: Fp, c1: Fp)` verified above (16 bytes, align <= 8);
-            // `out_buf` is page-aligned shared memory holding `k * total_cols` completed `Fp2` elements.
-            let all = unsafe { std::slice::from_raw_parts(out_buf.contents() as *const Fp2, k * total_cols) };
-            if k > 1 && k * total_cols >= 65_536 {
-                all.par_chunks_exact(total_cols).map(|row| row.to_vec()).collect()
-            } else {
-                all.chunks_exact(total_cols).map(|row| row.to_vec()).collect()
-            }
+            read_sparse_fold_out_w2(&out_buf, k, total_cols)
         } else {
             let o = as_u64s(&out_buf, k * total_cols * 2);
             if k > 1 && k * total_cols >= 65_536 {
@@ -3177,6 +3194,7 @@ impl CachedSlotPipes {
 /// **[HOST-FAST-W2 W2-4]** Resolve `(p0, p1, p_mat, m, de, base)` from `Ctx::slot_pipe_cache`
 /// without generating MSL strings or locking `sc_pipes`. Returns `Ok(None)` when
 /// `HL_METAL_DUMP` is set so the caller takes the verbatim dump path.
+#[cold]
 #[inline(never)]
 pub fn slot_pipes_get_or_compile(
     topo_key: Vec<u8>,
@@ -4074,7 +4092,43 @@ kernel void k_tab_pub_gen(device ulong *tabs [[buffer(0)]],
         ulong t = (idx / tp) % tp;
         ulong h = idx / (tp * tp);
         val = (h < ulong(a.aux_a) && (h % ulong(a.aux_b)) < ulong(a.cols_live) && t < ulong(a.rows_live) && j < ulong(a.rows_live)) ? 1UL : 0UL;
-    } else if (a.kind == 7u) {
+    }
+    ulong o = a.out_off + 2UL * x;
+    tabs[o] = val;
+    tabs[o + 1UL] = 0UL;
+}
+"#;
+
+/// [HOST-FAST-W2 W2-4c] Separate standalone MSL source for `PUB_GEN_ROPE` (kind 7)
+/// and `PUB_GEN_CONST_ONE` (kind 8), kept out of `k_tab_pub_gen` so the `HL_HOST_FAST_W2`
+/// unset path compiles and dispatches the exact base `k_tab_pub_gen` shader with zero
+/// extra 64-bit div/mod register pressure.
+const TAB_PUB_GEN_W2_SRC: &str = r#"
+#include <metal_stdlib>
+using namespace metal;
+
+struct TabPubGenArgs {
+    ulong out_off;
+    ulong cap;
+    uint kind;        // 7=Rope, 8=ConstOne
+    uint shift;       // is_sin (0/1) for Rope
+    uint rows_live;   // tokens for Rope
+    uint cols_live;   // group = q_heads / kv_heads (1 for Kv)
+    uint row_stride;  // head_dim for Rope
+    uint vals_off;    // offset into `aux64`
+    uint vals_len;    // length in `aux64`
+    uint aux_a;       // heads (h_pad for Q, kv_heads for Kv)
+    uint aux_b;       // slots_per_kv_group = h_pad / kv_heads (1 for Kv)
+    uint pad0;
+};
+kernel void k_tab_pub_gen_w2(device ulong *tabs [[buffer(0)]],
+                             device const ulong *aux64 [[buffer(1)]],
+                             constant TabPubGenArgs &a [[buffer(2)]],
+                             uint gid [[thread_position_in_grid]]) {
+    ulong x = ulong(gid);
+    if (x >= a.cap) { return; }
+    ulong val = 0UL;
+    if (a.kind == 7u) {
         ulong dh = ulong(a.row_stride);
         ulong half_d = dh >> 1;
         ulong heads = ulong(a.aux_a);
@@ -4165,6 +4219,7 @@ struct TabPipes {
 
 static TAB_PIPES: OnceLock<Result<TabPipes, String>> = OnceLock::new();
 static TAB_PUB_GEN_PIPE: OnceLock<Result<ComputePipelineState, String>> = OnceLock::new();
+static TAB_PUB_GEN_W2_PIPE: OnceLock<Result<ComputePipelineState, String>> = OnceLock::new();
 
 /// [A12] the table kernels, compiled once (the field code of the commit
 /// and round kernels: `gl_header`, `SC_PRELUDE`)
@@ -4194,6 +4249,23 @@ fn tab_pub_gen_pipe(c: &Ctx) -> Result<&'static ComputePipelineState, String> {
                 let lib = c.device.new_library_with_source(TAB_PUB_GEN_SRC, &CompileOptions::new()).map_err(|e| format!("metal pub_gen kernel compile: {e}"))?;
                 let f = lib.get_function("k_tab_pub_gen", None).map_err(|e| format!("metal table function k_tab_pub_gen: {e}"))?;
                 c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal table pipeline k_tab_pub_gen: {e}"))
+            })
+        })
+        .as_ref()
+        .map_err(|e| e.clone())
+}
+
+/// [HOST-FAST-W2 W2-4c] optional `k_tab_pub_gen_w2` pipeline for `PUB_GEN_ROPE`
+/// and `PUB_GEN_CONST_ONE`, compiled lazily only when `HL_HOST_FAST_W2=1` plans one.
+#[cold]
+#[inline(never)]
+fn tab_pub_gen_w2_pipe(c: &Ctx) -> Result<&'static ComputePipelineState, String> {
+    TAB_PUB_GEN_W2_PIPE
+        .get_or_init(|| {
+            objc::rc::autoreleasepool(|| {
+                let lib = c.device.new_library_with_source(TAB_PUB_GEN_W2_SRC, &CompileOptions::new()).map_err(|e| format!("metal pub_gen_w2 kernel compile: {e}"))?;
+                let f = lib.get_function("k_tab_pub_gen_w2", None).map_err(|e| format!("metal table function k_tab_pub_gen_w2: {e}"))?;
+                c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal table pipeline k_tab_pub_gen_w2: {e}"))
             })
         })
         .as_ref()
@@ -4362,7 +4434,11 @@ impl TabBuild {
                     enc.dispatch_threads(MTLSize::new(self.cap, 1, 1), MTLSize::new(tg, 1, 1));
                 }
                 TabArg::PubGen(ga) => {
-                    let pg = tab_pub_gen_pipe(c)?;
+                    let pg = if ga.kind >= MetalTables::PUB_GEN_ROPE {
+                        tab_pub_gen_w2_pipe(c)?
+                    } else {
+                        tab_pub_gen_pipe(c)?
+                    };
                     enc.set_compute_pipeline_state(pg);
                     enc.set_buffer(0, Some(tabs), 0);
                     enc.set_buffer(1, Some(&self.a64), 0);
@@ -4606,16 +4682,32 @@ impl MetalTables {
         let c = ctx()?;
         tab_pipes(c)?;
         let mut plan = plan;
-        if plan.iter().any(|j| matches!(j, TabJob::PubGen { .. })) {
+        if plan.iter().any(|j| matches!(j, TabJob::PubGen { kind, .. } if *kind < Self::PUB_GEN_ROPE)) {
             if let Err(e) = tab_pub_gen_pipe(c) {
                 crate::gpu::declined("[ZK60-HOST-FAST H6] k_tab_pub_gen pipeline", &e);
                 for j in &plan {
-                    if let TabJob::PubGen { t, .. } = j {
-                        planned[*t] = false;
-                        crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H6_GPU_PUB_GEN, "H6 pub_gen: k_tab_pub_gen pipeline unavailable");
+                    if let TabJob::PubGen { t, kind, .. } = j {
+                        if *kind < Self::PUB_GEN_ROPE {
+                            planned[*t] = false;
+                            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H6_GPU_PUB_GEN, "H6 pub_gen: k_tab_pub_gen pipeline unavailable");
+                        }
                     }
                 }
-                plan.retain(|j| !matches!(j, TabJob::PubGen { .. }));
+                plan.retain(|j| !matches!(j, TabJob::PubGen { kind, .. } if *kind < Self::PUB_GEN_ROPE));
+            }
+        }
+        if plan.iter().any(|j| matches!(j, TabJob::PubGen { kind, .. } if *kind >= Self::PUB_GEN_ROPE)) {
+            if let Err(e) = tab_pub_gen_w2_pipe(c) {
+                crate::gpu::declined("[ZK60-HOST-FAST-W2 W2-4c] k_tab_pub_gen_w2 pipeline", &e);
+                for j in &plan {
+                    if let TabJob::PubGen { t, kind, .. } = j {
+                        if *kind >= Self::PUB_GEN_ROPE {
+                            planned[*t] = false;
+                            crate::zk::record_host_fast_w2_fallback(crate::zk::HF_W2_FB_ROPE_GEN, "W2-4c pub_gen_w2: k_tab_pub_gen_w2 pipeline unavailable");
+                        }
+                    }
+                }
+                plan.retain(|j| !matches!(j, TabJob::PubGen { kind, .. } if *kind >= Self::PUB_GEN_ROPE));
             }
         }
         objc::rc::autoreleasepool(|| {
@@ -4948,6 +5040,25 @@ fn measure_per_eval(poly: &(dyn Fn(&[Fp2]) -> Fp2 + Sync), k: usize) -> f64 {
     t.elapsed().as_secs_f64() / 8.0
 }
 
+#[cold]
+#[inline(never)]
+fn measure_per_eval_w2(poly: &(dyn Fn(&[Fp2]) -> Fp2 + Sync), k: usize, topo_key: Option<&Arc<[u8]>>, n_vars: usize) -> f64 {
+    if let Some(tk) = topo_key {
+        let key = (Arc::clone(tk), n_vars);
+        if let Ok(c) = ctx() {
+            if let Some(pe) = c.tail_per_eval.read().ok().and_then(|g| g.get(&key).copied()) {
+                return pe;
+            }
+            let pe = measure_per_eval(poly, k);
+            if let Ok(mut g) = c.tail_per_eval.write() {
+                g.insert(key, pe);
+            }
+            return pe;
+        }
+    }
+    measure_per_eval(poly, k)
+}
+
 impl MetalRounds {
     /// **[ZK60-METAL M4k]** this sumcheck, finished on the HOST from the first
     /// round whose host cost (pairs x points evaluated x one evaluation of
@@ -4960,24 +5071,7 @@ impl MetalRounds {
     pub fn with_host_tail(self, poly: &(dyn Fn(&[Fp2]) -> Fp2 + Sync)) -> TailedRounds<'_> {
         let k = self.k;
         let per_eval = if crate::zk::host_fast_w2_on() {
-            if let Some(tk) = self.topo_key.as_ref() {
-                let key = (Arc::clone(tk), self.n_vars);
-                if let Ok(c) = ctx() {
-                    if let Some(pe) = c.tail_per_eval.read().ok().and_then(|g| g.get(&key).copied()) {
-                        pe
-                    } else {
-                        let pe = measure_per_eval(poly, k);
-                        if let Ok(mut g) = c.tail_per_eval.write() {
-                            g.insert(key, pe);
-                        }
-                        pe
-                    }
-                } else {
-                    measure_per_eval(poly, k)
-                }
-            } else {
-                measure_per_eval(poly, k)
-            }
+            measure_per_eval_w2(poly, k, self.topo_key.as_ref(), self.n_vars)
         } else {
             measure_per_eval(poly, k)
         };

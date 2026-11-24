@@ -6235,12 +6235,12 @@ fn host_fast_w2_rope_and_const_pub_gen_gpu() {
             let len = sh.size(dom);
             check_pub_gen(
                 &format!("Rope(cos,{tag},{dom_name})"),
-                &PubGen::Rope { len, is_sin: false, tokens: sh.tokens, heads, head_dim: dh, per, group, vals: cos_words.clone() },
+                &PubGen::Rope(Box::new(super::argument::RopePubGen { len, is_sin: false, tokens: sh.tokens, heads, head_dim: dh, per, group, vals: cos_words.clone() })),
                 &ref_cos,
             );
             check_pub_gen(
                 &format!("Rope(sin,{tag},{dom_name})"),
-                &PubGen::Rope { len, is_sin: true, tokens: sh.tokens, heads, head_dim: dh, per, group, vals: sin_words.clone() },
+                &PubGen::Rope(Box::new(super::argument::RopePubGen { len, is_sin: true, tokens: sh.tokens, heads, head_dim: dh, per, group, vals: sin_words.clone() })),
                 &ref_sin,
             );
         }
@@ -6425,7 +6425,7 @@ fn host_fast_w2_rung_golden() {
         }
     }
 
-    // Full-stack prove_core_with beside CheckedPublic + SealedHistograms (exercises W2-2 seal_hist + W2-6b weights_checked!)
+    // Full-stack prove_core_sealed beside CheckedPublic + ownership-bound SealedWitness (exercises W2-2 seal_hist + W2-6b weights_checked!)
     crate::zk::set_host_fast_for_test(Some(true));
     crate::zk::set_host_fast_w2_for_test(Some(true));
     crate::zk::set_host_fast_async_drop_for_test(Some(true));
@@ -6444,12 +6444,12 @@ fn host_fast_w2_rung_golden() {
     let mut ph = super::timing::Phases::start();
     let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
     let record = protocol::CheckedPublic::check(&blk, &sh).expect("CheckedPublic");
-    let shist = protocol::check_lookup_misses_collecting(&sh, &lay, &blk, &w_run, true).expect("check_lookup_misses_collecting");
-    let hints = protocol::CoreHints { checked: Some(&record), sealed_hists: Some(&shist) };
+    let sealed = protocol::check_lookup_misses_sealed(&sh, &lay, &blk, w_run, true).expect("check_lookup_misses_sealed");
+    let hints = protocol::CoreHints { checked: Some(&record) };
     let w2_b = crate::zk::host_fast_w2_hits_for_test();
     let w2_fbb = crate::zk::host_fast_w2_fallbacks_for_test();
-    let core = protocol::prove_core_with(&sh, &lay, &blk, w_run, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints)
-        .expect("prove_core_with CheckedPublic + SealedHistograms");
+    let core = protocol::prove_core_sealed(&sh, &lay, &blk, sealed, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick, hints)
+        .expect("prove_core_sealed CheckedPublic + SealedWitness");
     let w2_a = crate::zk::host_fast_w2_hits_for_test();
     let w2_fba = crate::zk::host_fast_w2_fallbacks_for_test();
     let w2_d: [u64; 10] = std::array::from_fn(|i| w2_a[i] - w2_b[i]);
@@ -6459,48 +6459,62 @@ fn host_fast_w2_rung_golden() {
         core.a_root, core.h_root, core.mask_root, core.slots, core.mask_open, core.a_open, core.h_open, core.io_claims, core.order, core.lookups, tr.state()
     );
     let d_hints = blake3::hash(text.as_bytes()).to_hex().to_string();
-    assert_eq!(d_hints, cpu0, "Metal W16R2 rung digest with CheckedPublic+SealedHistograms differs from golden");
-    assert_eq!(w2_fbd, [0; 5], "CheckedPublic+SealedHistograms unexpected W2 fallbacks: {w2_fbd:?}");
+    assert_eq!(d_hints, cpu0, "Metal W16R2 rung digest with CheckedPublic+SealedWitness differs from golden");
+    assert_eq!(w2_fbd, [0; 5], "CheckedPublic+SealedWitness unexpected W2 fallbacks: {w2_fbd:?}");
     assert_eq!(w2_d[crate::zk::HF_W2_SEAL_HIST], 1, "expected HF_W2_SEAL_HIST == 1, got {w2_d:?}");
     for i in 0..10 {
-        assert!(w2_d[i] > 0, "CheckedPublic+SealedHistograms warm full-stack expected ALL 10 W2 counters > 0 (idx {i} was 0): {w2_d:?}");
+        assert!(w2_d[i] > 0, "CheckedPublic+SealedWitness warm full-stack expected ALL 10 W2 counters > 0 (idx {i} was 0): {w2_d:?}");
     }
-    eprintln!("HOST-FAST-W2-RUNG {} CheckedPublic+SealedHistograms: digest {} (golden); all 10 w2_hits={w2_d:?}", sh.name, &d_hints[..8]);
+    eprintln!("HOST-FAST-W2-RUNG {} CheckedPublic+SealedWitness: digest {} (golden); all 10 w2_hits={w2_d:?}", sh.name, &d_hints[..8]);
 
-    // Strict fresh-process stale-SealedHistograms mismatch fallback + AD=false zero-hit check
+    // Deterministic cross-block SealedWitness mismatch fallback (Read A M2) + AD=false zero-hit check:
+    // seal against `blk`, prove against live `blk_other = blk.clone()` (guaranteed distinct BlkSig).
     crate::zk::set_host_fast_async_drop_for_test(Some(false));
-    let w_stale = copy(&w);
-    let (ein2, eout2) = io_planes(&sh, &w_stale);
+    let blk_other = blk.clone();
+    let record_other = protocol::CheckedPublic::check(&blk_other, &sh).expect("CheckedPublic other");
+    let w_cross = copy(&w);
+    let (ein2, eout2) = io_planes(&sh, &w_cross);
+    let sw_cross = protocol::check_lookup_misses_sealed(&sh, &lay, &blk, w_cross, true).expect("check_lookup_misses_sealed cross");
     let mut rng2 = ZkRng::new(20261031, b"zk60 metal m4 accuracy");
     let mut tr2 = Transcript::new(b"zk60 metal m4 accuracy");
     tr2.absorb(b"profile", sh.profile.as_bytes());
     tr2.absorb(b"schedule", &lay.schedule_digest());
     let mut ph2 = super::timing::Phases::start();
     let (mut phases2, mut tick2) = (Vec::new(), std::time::Instant::now());
-    let hints_stale = protocol::CoreHints { checked: Some(&record), sealed_hists: Some(&shist) };
+    let hints_other = protocol::CoreHints { checked: Some(&record_other) };
     let sb = crate::zk::host_fast_w2_hits_for_test();
     let sfbb = crate::zk::host_fast_w2_fallbacks_for_test();
-    let core_stale = protocol::prove_core_with(&sh, &lay, &blk, w_stale, [ein2.as_slice(), eout2.as_slice()], &ntt, &mut rng2, &mut tr2, &mut ph2, &mut phases2, &mut tick2, hints_stale)
-        .expect("prove_core_with stale SealedHistograms fallback");
+    let core_cross = protocol::prove_core_sealed(&sh, &lay, &blk_other, sw_cross, [ein2.as_slice(), eout2.as_slice()], &ntt, &mut rng2, &mut tr2, &mut ph2, &mut phases2, &mut tick2, hints_other)
+        .expect("prove_core_sealed cross-block fallback");
     let sa = crate::zk::host_fast_w2_hits_for_test();
     let sfba = crate::zk::host_fast_w2_fallbacks_for_test();
     let sd: [u64; 10] = std::array::from_fn(|i| sa[i] - sb[i]);
     let sfd: [u64; 5] = std::array::from_fn(|i| sfba[i] - sfbb[i]);
-    let text_stale = format!(
+    let text_cross = format!(
         "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
-        core_stale.a_root, core_stale.h_root, core_stale.mask_root, core_stale.slots, core_stale.mask_open, core_stale.a_open, core_stale.h_open, core_stale.io_claims, core_stale.order, core_stale.lookups, tr2.state()
+        core_cross.a_root, core_cross.h_root, core_cross.mask_root, core_cross.slots, core_cross.mask_open, core_cross.a_open, core_cross.h_open, core_cross.io_claims, core_cross.order, core_cross.lookups, tr2.state()
     );
-    assert_eq!(blake3::hash(text_stale.as_bytes()).to_hex().to_string(), cpu0, "stale SealedHistograms fallback digest differs from golden");
-    assert_eq!(sd[crate::zk::HF_W2_SEAL_HIST], 0, "stale witness must not hit HF_W2_SEAL_HIST: {sd:?}");
+    assert_eq!(blake3::hash(text_cross.as_bytes()).to_hex().to_string(), cpu0, "cross-block SealedWitness fallback digest differs from golden");
+    assert_eq!(sd[crate::zk::HF_W2_SEAL_HIST], 0, "cross-block witness must not hit HF_W2_SEAL_HIST: {sd:?}");
     assert_eq!(sd[crate::zk::HF_W2_ASYNC_DROP], 0, "AD=false must not hit HF_W2_ASYNC_DROP: {sd:?}");
-    assert_eq!(sfd, [1, 0, 0, 0, 0], "stale witness must record exactly 1 HF_W2_FB_SEAL_HIST fallback: {sfd:?}");
+    assert_eq!(sfd, [1, 0, 0, 0, 0], "cross-block witness must record exactly 1 HF_W2_FB_SEAL_HIST fallback: {sfd:?}");
+    drop(blk_other);
+
+    // Interior-word mutation lookup-miss refusal check on check_lookup_misses_sealed (Read A M2)
+    let mut w_interior = copy(&w);
+    let ids = lay.ids();
+    let pos = 7.min(w_interior.planes[ids.at(A_E)].len().saturating_sub(1));
+    w_interior.planes[ids.at(A_E)][pos] = w_interior.planes[ids.at(A_E)][pos].wrapping_add(1);
+    let ref_err = protocol::check_lookup_misses(&sh, &lay, &blk, &w_interior).expect_err("baseline must refuse interior exp miss");
+    let got_err = protocol::check_lookup_misses_sealed(&sh, &lay, &blk, w_interior, true).err().expect("sealed must refuse interior exp miss");
+    assert_eq!(got_err, ref_err, "interior-word lookup-miss refusal mismatch");
 }
 
 /// **[HOST-FAST-W2] Full proof-byte identity (`hf1+hw0` vs `hf1+hw1`) across all prover call paths:**
 /// (1) single-block `prove_core` / full wire `Receipt` (`Shape::rung_g`),
-/// (2) multi-block `run_fork` (`W16R2_RUNG_H24`, `L = 2`) with `SealedHistograms` via
-///     `prove_run_with_forks_planned` / `prove_at_turn_with_hists` + `verify_run_with_forks`,
-/// (3) classifier `stage_in_c` + interior blocks (with `CheckedPublic` + `SealedHistograms`) +
+/// (2) multi-block `run_fork` (`W16R2_RUNG_H24`, `L = 2`) with ownership-bound `SealedWitness` via
+///     `prove_run_with_forks_planned` / `planned.prove` + `verify_run_with_forks`,
+/// (3) classifier `stage_in_c` + interior blocks (with `CheckedPublic` + `SealedWitness`) +
 ///     `stage_out_c` (`Shape::rung_tc`, `L = 2`) + `verify_classify_run`.
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
 #[test]
@@ -6640,7 +6654,7 @@ fn host_fast_w2_all_call_sites_byte_identical() {
         eprintln!("HOST-FAST-W2 [single rung_g]: hw0 == hw1 ({} B, w2_hits={h1:?}, w2_fb={fb1:?})", b1.len());
     }
 
-    // ---- 2. Multi-block run_fork (L = 2, W16R2_RUNG_H24) with SealedHistograms + sf1 ----
+    // ---- 2. Multi-block run_fork (L = 2, W16R2_RUNG_H24) with ownership-bound SealedWitness + sf1 ----
     {
         crate::zk::set_host_fast_w2_for_test(Some(true));
         crate::gpu::metal_set_sparse_fold_for_test(Some(true));
@@ -6649,26 +6663,42 @@ fn host_fast_w2_all_call_sites_byte_identical() {
         let mut src_live = rr2.chain();
         let blocks_live = rr2.blocks();
         let fr_live = ForkRun::new(&st_live, D55OptIn::unreviewed_prototype()).expect("ForkRun");
-        let sealed_hists: Vec<Option<protocol::SealedHistograms>> = (0..2)
+        let sealed_wits: Vec<Option<protocol::SealedWitness>> = (0..2)
             .map(|k| {
                 let ssh = st_live.stage_shape(k).expect("stage_shape");
                 let lay = Layout::for_shape(&ssh).expect("stage_layout");
-                let wit = src_live.witnesses[k].as_ref().expect("kept witness");
+                let wit = src_live.witnesses[k].take().expect("kept witness");
                 Some(
-                    protocol::check_lookup_misses_collecting(&ssh, &lay, &blocks_live[k], wit, false)
-                        .expect("check_lookup_misses_collecting"),
+                    protocol::check_lookup_misses_sealed(&ssh, &lay, &blocks_live[k], wit, false)
+                        .expect("check_lookup_misses_sealed"),
                 )
             })
             .collect();
+        struct SealedSrc {
+            planes: Vec<Vec<i16>>,
+            sealed: Vec<Option<protocol::SealedWitness>>,
+        }
+        impl super::run::RunWitnessSource for SealedSrc {
+            fn witness(&mut self, k: usize) -> Result<Witness, String> {
+                self.sealed[k].take().map(protocol::SealedWitness::into_witness).ok_or_else(|| format!("missing witness {k}"))
+            }
+            fn witness_sealed(&mut self, k: usize) -> Result<protocol::SealedWitness, String> {
+                self.sealed[k].take().ok_or_else(|| format!("missing sealed witness {k}"))
+            }
+            fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
+                Ok(self.planes[k].clone())
+            }
+        }
+        let mut src_sealed = SealedSrc { planes: src_live.planes.clone(), sealed: sealed_wits };
         let hb = crate::zk::host_fast_w2_hits_for_test();
         let fbb = crate::zk::host_fast_w2_fallbacks_for_test();
         let (rc_live, _) = super::run::fork::prove_run_with_forks_planned(
             None,
             &blocks_live,
             |_| Ok(()),
-            |(), planned| planned.prove_at_turn_with_hists(&fr_live, &blocks_live, &mut src_live, owners_live, 2, None, &sealed_hists),
+            |(), planned| planned.prove(&fr_live, &blocks_live, &mut src_sealed, owners_live, 2),
         )
-        .expect("prove_at_turn_with_hists hw1");
+        .expect("planned.prove with SealedWitness hw1");
         let ha = crate::zk::host_fast_w2_hits_for_test();
         let fba = crate::zk::host_fast_w2_fallbacks_for_test();
         let hd: [u64; 10] = std::array::from_fn(|i| ha[i] - hb[i]);
@@ -6690,7 +6720,7 @@ fn host_fast_w2_all_call_sites_byte_identical() {
             assert!(hd[i] > 0, "run_fork W16R2 L=2 hw1 expected W2 hit counter {i} > 0, got {hd:?}");
         }
         super::run::fork::verify_run_with_forks(&fr_live, &blocks_live, &rc_live, 2).expect("verify_run_with_forks hw1");
-        eprintln!("HOST-FAST-W2 [run_fork W16R2 L=2 + SealedHistograms]: live verified (w2_hits={hd:?}, w2_fb={fbd:?})");
+        eprintln!("HOST-FAST-W2 [run_fork W16R2 L=2 + SealedWitness]: live verified (w2_hits={hd:?}, w2_fb={fbd:?})");
     }
 
     // ---- 3. Full classifier run: stage_in_c + interior blocks (with SealedHistograms) + stage_out_c (Shape::rung_tc, L = 2) ----
@@ -6841,14 +6871,14 @@ fn host_fast_w2_all_call_sites_byte_identical() {
                 let wit = copy(honest_c.witnesses[k].as_ref().expect("block witness"));
                 let core = if hw_on {
                     let record = protocol::CheckedPublic::check(&c_blocks[k], &ssh).expect("CheckedPublic");
-                    let shist = protocol::check_lookup_misses_collecting(&ssh, &lay, &c_blocks[k], &wit, true)
-                        .expect("check_lookup_misses_collecting");
-                    let hints = protocol::CoreHints { checked: Some(&record), sealed_hists: Some(&shist) };
-                    protocol::prove_core_with(
+                    let sealed = protocol::check_lookup_misses_sealed(&ssh, &lay, &c_blocks[k], wit, true)
+                        .expect("check_lookup_misses_sealed");
+                    let hints = protocol::CoreHints { checked: Some(&record) };
+                    protocol::prove_core_sealed(
                         &ssh,
                         &lay,
                         &c_blocks[k],
-                        wit,
+                        sealed,
                         [prev.1.data(), cur.data()],
                         &c_ntt,
                         &mut rng,
@@ -6858,7 +6888,7 @@ fn host_fast_w2_all_call_sites_byte_identical() {
                         &mut tick,
                         hints,
                     )
-                    .expect("classify block prove_core_with")
+                    .expect("classify block prove_core_sealed")
                 } else {
                     protocol::prove_core(
                         &ssh,
@@ -6959,10 +6989,221 @@ fn host_fast_w2_all_call_sites_byte_identical() {
         classify_run::verify_classify_run(&c_st, &c_blocks, &c_bound, &cs1, VerifierPolicy { min_whole_run_bits: 93 })
             .expect("verify_classify_run hw1");
         eprintln!(
-            "HOST-FAST-W2 [stage_in_c + blocks(SealedHistograms) + stage_out_c]: hw0 == hw1 ({:?} B, w2_hits={ch1:?}, w2_fb={cfb1:?}) + verified",
+            "HOST-FAST-W2 [stage_in_c + blocks(SealedWitness) + stage_out_c]: hw0 == hw1 ({:?} B, w2_hits={ch1:?}, w2_fb={cfb1:?}) + verified",
             cs1.iter().map(|s| s.len()).collect::<Vec<_>>()
         );
     }
+}
+
+/// **[HOST-FAST + CLASSIFY-HOST-FAST + HOST-FAST-W2] Fix 1 (Read A M1 / Read B M1) fresh-process
+/// verifier-isolation gate:**
+/// Forces ALL THREE host-fast switches ON (`HL_HOST_FAST=1`, `HL_CLASSIFY_HOST_FAST=1`,
+/// `HL_HOST_FAST_W2=1`) and verifies BOTH:
+/// 1. **W16R2 accuracy stack** (`W16R2_RUNG_H24`): single-block `verify_core` AND 2-block
+///    `verify_run_with_forks` (directly exercising `accuracy_fold::fold_checked(..., prove_side=false)`
+///    on the verifier);
+/// 2. **R13 / classifier stack** (`Shape::rung_tc`, `L = 2`): `verify_classify_run` (exercising
+///    `stage_in_c::verify`, interior `verify_core`, `stage_out_c::verify`, `emb_fold`, `check_tables`).
+///
+/// Asserts **strict zero counter movement** (hits AND fallbacks) across ALL THREE switches during
+/// every verification call, while confirming the prover moved counters on all three switches.
+#[test]
+#[ignore = "HOST-FAST-W2 Fix 1: fresh-process verifier-isolation gate across W16R2 + R13 stacks; run alone with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1 -- --ignored --exact --test-threads=1"]
+fn host_fast_all_three_switches_verifier_isolation_gate() {
+    use super::token_io::{self as tio, classify, classify_run, classify_tied, run::VerifierPolicy};
+    assert!(
+        crate::zk::host_fast_on() && classify::classify_host_fast_on() && crate::zk::host_fast_w2_on(),
+        "run this fresh-process gate with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1 in the environment"
+    );
+
+    type AllSnap = ([u64; 8], [u64; 5], [u64; 5], [u64; 5], [u64; 10], [u64; 5]);
+    let snap = || -> AllSnap {
+        (
+            crate::zk::host_fast_hits_for_test(),
+            crate::zk::host_fast_fallbacks_for_test(),
+            classify::classify_host_fast_hits_snapshot(),
+            classify::classify_host_fast_fallbacks_snapshot(),
+            crate::zk::host_fast_w2_hits_for_test(),
+            crate::zk::host_fast_w2_fallbacks_for_test(),
+        )
+    };
+    let assert_zero_verifier_delta = |label: &str, before: AllSnap, after: AllSnap| {
+        assert_eq!(after.0, before.0, "{label}: verifier moved host_fast hits: before={:?} after={:?}", before.0, after.0);
+        assert_eq!(after.1, before.1, "{label}: verifier moved host_fast fallbacks: before={:?} after={:?}", before.1, after.1);
+        assert_eq!(after.2, before.2, "{label}: verifier moved classify_host_fast hits: before={:?} after={:?}", before.2, after.2);
+        assert_eq!(after.3, before.3, "{label}: verifier moved classify_host_fast fallbacks: before={:?} after={:?}", before.3, after.3);
+        assert_eq!(after.4, before.4, "{label}: verifier moved host_fast_w2 hits: before={:?} after={:?}", before.4, after.4);
+        assert_eq!(after.5, before.5, "{label}: verifier moved host_fast_w2 fallbacks: before={:?} after={:?}", before.5, after.5);
+    };
+
+    // ---- 1. W16R2 accuracy stack: single-block verify_core + 2-block verify_run_with_forks ----
+    {
+        let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
+        let lay = Layout::for_shape(&sh).expect("W16R2 layout");
+        let (ein, eout) = io_planes(&sh, &w);
+        let ntt = NttTables::new(protocol::ntt_log_at(&sh));
+        let mut rng = ZkRng::new(0xF101, b"w2-fix1-w16r2-core");
+        let mut tr = Transcript::new(b"w2-fix1-w16r2-core");
+        tr.absorb(b"profile", sh.profile.as_bytes());
+        tr.absorb(b"schedule", &lay.schedule_digest());
+        let mut ph = super::timing::Phases::start();
+        let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+        let pb = snap();
+        let core = protocol::prove_core(&sh, &lay, &blk, copy(&w), [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)
+            .expect("W16R2 prove_core");
+        let pa = snap();
+        assert!(pa.0[crate::zk::HF_H4_ACC_FOLD] > pb.0[crate::zk::HF_H4_ACC_FOLD], "prover must hit W1 acc fold on W16R2");
+        assert!(pa.4[crate::zk::HF_W2_FOLD_TILED] > pb.4[crate::zk::HF_W2_FOLD_TILED], "prover must hit W2 tiled fold on W16R2");
+        assert_eq!(pa.1, pb.1, "W16R2 prove_core W1 fallbacks");
+        assert_eq!(pa.5, pb.5, "W16R2 prove_core W2 fallbacks");
+
+        let mut vtr = Transcript::new(b"w2-fix1-w16r2-core");
+        vtr.absorb(b"profile", sh.profile.as_bytes());
+        vtr.absorb(b"schedule", &lay.schedule_digest());
+        let mut vph = super::timing::Phases::start();
+        let view = protocol::CoreView {
+            a_root: core.a_root,
+            h_root: core.h_root,
+            mask_root: core.mask_root,
+            slots: &core.slots,
+            mask_open: &core.mask_open,
+            a_open: &core.a_open,
+            h_open: &core.h_open,
+        };
+        let vb = snap();
+        protocol::verify_core(&sh, &lay, &blk, view, &ntt, &mut vtr, &mut vph).expect("W16R2 verify_core");
+        let va = snap();
+        assert_zero_verifier_delta("W16R2 verify_core", vb, va);
+
+        // Multi-block W16R2 D55 fork run verification
+        let rr = RungRun::new(shape::W16R2_RUNG_H24, 2);
+        let (st_r, owners_r) = rr.statement(0xF2);
+        let mut src_r = rr.chain();
+        let blocks_r = rr.blocks();
+        let fr = ForkRun::new(&st_r, D55OptIn::unreviewed_prototype()).expect("W16R2 ForkRun");
+        let (rc, _) = super::run::fork::prove_run_with_forks(&fr, &blocks_r, &mut src_r, owners_r, 2).expect("W16R2 prove_run_with_forks");
+        let vb2 = snap();
+        super::run::fork::verify_run_with_forks(&fr, &blocks_r, &rc, 2).expect("W16R2 verify_run_with_forks");
+        let va2 = snap();
+        assert_zero_verifier_delta("W16R2 verify_run_with_forks", vb2, va2);
+    }
+
+    // ---- 2. R13 / classifier stack: prove_classify_run + verify_classify_run ----
+    {
+        let sh_c = Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).expect("rung_tc");
+        let l_c = 2usize;
+        let (w0_c, _) = super::trained_calib_tests::trained_dense_words(&sh_c, super::trained_calib_tests::TRAINED_BANDS);
+        let c_blocks: Vec<BlockPublic> = (0..l_c)
+            .map(|k| {
+                let mut w = w0_c.clone();
+                for (i, m) in w.iter_mut().enumerate() {
+                    let len = m.len();
+                    m.rotate_left((k * (7 + i)) % len);
+                }
+                let (p, f) = super::dense_tests::statement_of_words(&sh_c, &w);
+                BlockPublic::new(p, f)
+            })
+            .collect();
+        let c_recs: Vec<LayerRecord> = c_blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
+        let c_src = ModelSource {
+            kind: SourceKind::PublicSyntheticRecipe,
+            repo: "hashline/token-io-r1/synthetic".into(),
+            revision: "token-io-r1".into(),
+            weights_sha256: [0; 32],
+            config_sha256: [0; 32],
+            checkpoint_parameters: 0,
+            checkpoint_layers: l_c as u32,
+        };
+        let mut c_prov = Provenance::recipe("token-io-r1/synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
+        c_prov.rope_theta = shape::trained_rope_theta(sh_c.profile).expect("trained_rope_theta");
+        let c_cal = IntegerCalibration::as_the_code_proves(&sh_c, &c_prov);
+        let c_model = TrainedModelStatement::new(&sh_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, c_src.clone(), c_cal.clone(), c_recs.clone())
+            .or_else(|_| TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(&sh_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, c_src, c_cal, c_recs))
+            .expect("classifier model statement");
+        let lcg = |s: &mut u64| -> u64 {
+            *s = s.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1_442_695_040_888_963_407);
+            *s >> 33
+        };
+        let (v_c, d_c) = (300usize, sh_c.width);
+        let mut s_emb = 0x636c_6173u64;
+        let emb_c: Vec<i16> = (0..v_c * d_c).map(|_| (lcg(&mut s_emb) % 12_001) as i16 - 6_000).collect();
+        let mut s_w = 0x6d61_7267u64;
+        let w_c: Vec<i16> = (0..d_c)
+            .map(|_| (lcg(&mut s_w) % 65_535) as i16 - 32_767)
+            .map(|x| if x == i16::MIN { x + 1 } else { x })
+            .collect();
+        let c_tables = classify::ClassifierTables::new(v_c, d_c, emb_c, w_c).expect("ClassifierTables");
+        let c_norm = tio::FinalNorm { g0: 127, cn: 2048, tn: 11, ceps: 33_554_467 };
+        let c_policy = classify::policy_rung_dev();
+        let c_bound = classify_tied::BoundClassifierTables::synthetic_for_relation_tests(
+            c_tables.clone(),
+            1,
+            c_norm,
+            &sh_c,
+            super::run::RUN_PROFILE_CLASSIFY_RUNG_TC,
+            &c_model,
+            &c_policy,
+        )
+        .expect("BoundClassifierTables");
+        let n_content = sh_c.tokens - c_policy.prefix.len() - c_policy.suffix.len();
+        let mut s_tok = 0x1000u64;
+        let content_ids: Vec<u64> = (0..n_content)
+            .map(|_| c_policy.num_special + lcg(&mut s_tok) % (c_policy.v as u64 - c_policy.num_special))
+            .collect();
+        let cp = classify::ClassifierProfile::new(&sh_c, &c_tables, 1, c_norm, &c_policy, n_content, tio::Tier::R1_MVP).expect("ClassifierProfile");
+        let full_tokens = classify::item_tokens(&c_policy, &content_ids);
+        let mut honest_c = classify_run::honest_classify(&vec![sh_c.clone(); l_c], &cp, &c_tables, &c_blocks, &full_tokens).expect("honest_classify");
+        let c_ctx = *blake3::hash(b"w2-fix1: classifier verifier isolation").as_bytes();
+        let ep_spec = classify::input_endpoint_spec(&sh_c, c_ctx, &cp).expect("input_endpoint_spec");
+        let c_tag = sh_c.hash_tag();
+        let c_ntt_ep = NttTables::new(ep_spec.enc_log());
+        let mut rng_ep = ZkRng::new(0xF1C4, b"w2-fix1-ep");
+        let params = ep_spec.params();
+        let n = params.cols();
+        let first_mask = ep_spec.data_rows();
+        let mut data = vec![Fp::ZERO; ep_spec.commitment_rows() * n];
+        data[..honest_c.in_plane.len()].copy_from_slice(&honest_c.in_plane);
+        for x in &mut data[first_mask * n..] {
+            *x = rng_ep.fp();
+        }
+        let mut owner = crate::pcs::commit_zk_owned_tagged(&params, data, &c_ntt_ep, &ZkOpts::standard(&params), &mut rng_ep, &c_tag);
+        owner.mask_rows = vec![first_mask, first_mask + 1];
+        owner.prox_mask_row = Some(first_mask + 2);
+        let ep_root = owner.commitment().root;
+        let c_st = classify::ClassifyRunStatement::new(
+            RunShape::new(sh_c.clone(), l_c, super::run::RUN_PROFILE_CLASSIFY_RUNG_TC).expect("RunShape"),
+            c_ctx,
+            c_blocks.iter().map(|b| b.digest()).collect(),
+            &c_model,
+            &c_bound,
+            &c_policy,
+            n_content,
+            tio::Tier::R1_MVP,
+            ep_root,
+            honest_c.out_values.verdict,
+        )
+        .expect("ClassifyRunStatement");
+
+        let mut src = classify_run::ClassifySource(&mut honest_c);
+        let mut segs: Vec<Vec<u8>> = Vec::new();
+        let pcb = snap();
+        classify_run::prove_classify_run(&c_st, &c_blocks, &c_bound, &mut src, owner, &mut |idx, bytes| {
+            assert_eq!(idx, segs.len());
+            segs.push(bytes);
+            Ok(())
+        })
+        .expect("prove_classify_run");
+        let pca = snap();
+        assert!(pca.2[classify::CHF_C1_DIGESTS] > pcb.2[classify::CHF_C1_DIGESTS], "R13 prover must hit classify_host_fast");
+
+        let vb = snap();
+        classify_run::verify_classify_run(&c_st, &c_blocks, &c_bound, &segs, VerifierPolicy { min_whole_run_bits: 93 })
+            .expect("R13 verify_classify_run");
+        let va = snap();
+        assert_zero_verifier_delta("R13 verify_classify_run", vb, va);
+    }
+
+    eprintln!("FIX-1 VERIFIER ISOLATION GATE PASS: HL_HOST_FAST=1 + HL_CLASSIFY_HOST_FAST=1 + HL_HOST_FAST_W2=1 moved 0 hits and 0 fallbacks across W16R2 verify_core, W16R2 verify_run_with_forks, and R13 verify_classify_run");
 }
 
 // D63 lane L10 (2026-11-07): the Lean lane's export of this rung's M / A / H openings (test only; the file is in `src/`)

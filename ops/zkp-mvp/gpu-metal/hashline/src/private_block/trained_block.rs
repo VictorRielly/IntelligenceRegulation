@@ -2159,10 +2159,9 @@ struct SealedChain {
     shapes: Vec<Shape>,
     /// block k's padded output plane, sealed
     outs: Vec<Vec<i16>>,
-    /// the witnesses kept from the sealing pass (within the budget)
-    kept: Vec<Option<Witness>>,
-    /// [W2-2] sealing histograms collected alongside kept witnesses (`HL_HOST_FAST_W2=1`)
-    sealed_hists: Vec<Option<super::protocol::SealedHistograms>>,
+    /// the witnesses kept from the sealing pass (within the budget), carrying optional
+    /// ownership-bound sealing-pass histograms when `HL_HOST_FAST_W2=1` on a shared-block D55 run
+    kept: Vec<Option<super::protocol::SealedWitness>>,
     kept_bytes: u64,
     first: Vec<i16>,
     last: Vec<i16>,
@@ -2300,12 +2299,12 @@ impl<'a> StackSource<'a> {
     }
     /// block k's witness: the one kept from the sealing pass, or a rebuild
     /// from the sealed input whose output must be the sealed output
-    fn witness_of(&mut self, k: usize) -> Result<Witness, String> {
+    fn witness_of(&mut self, k: usize) -> Result<super::protocol::SealedWitness, String> {
         if k >= self.n {
             return Err(format!("trained stack: no block {k} in a {}-block run", self.n));
         }
-        if let Some(w) = self.chain.kept[k].take() {
-            return Ok(w);
+        if let Some(sw) = self.chain.kept[k].take() {
+            return Ok(sw);
         }
         let t = Instant::now();
         let x = if k == 0 { self.chain.x_in0.clone() } else { true_words(self.sh, &self.chain.outs[k - 1]) };
@@ -2336,7 +2335,7 @@ impl<'a> StackSource<'a> {
         }
         self.chain.rebuilt += 1;
         self.busy_s += t.elapsed().as_secs_f64();
-        Ok(w)
+        Ok(super::protocol::SealedWitness::unsealed(w))
     }
 }
 
@@ -2372,6 +2371,9 @@ impl RunWitnessSource for StackSource<'_> {
         Ok(out)
     }
     fn witness(&mut self, k: usize) -> Result<Witness, String> {
+        self.witness_of(k).map(super::protocol::SealedWitness::into_witness)
+    }
+    fn witness_sealed(&mut self, k: usize) -> Result<super::protocol::SealedWitness, String> {
         self.witness_of(k)
     }
 }
@@ -2764,6 +2766,15 @@ trait SealHand {
     /// block `k`'s witness, built at `ssh`: taken (`Ok(None)`: a fork's
     /// before-challenge part is made from it) or handed back
     fn witness(&mut self, k: usize, w: Witness, ssh: &Shape) -> Result<Option<Witness>, String>;
+    /// Whether this hand shares the sealing pass's `BlockPublic` objects with the proving pass
+    /// (required for `HL_HOST_FAST_W2=1` `SealedWitness` histogram reuse to match `BlkSig`).
+    fn shares_blocks(&self) -> bool {
+        false
+    }
+    /// Whether block `k` falls inside the ahead-window where `hand.witness` takes ownership.
+    fn takes_window(&self, _k: usize) -> bool {
+        false
+    }
 }
 
 /// the sealing pass of D12a (and of a D55 run before A19): every block
@@ -2786,6 +2797,8 @@ struct D55Hand<'h> {
     push: &'h mut dyn FnMut(usize, Witness, &Shape) -> Result<Option<Witness>, String>,
     /// [A22] the model's records carry their own blocks' digests ([`StackModel::fresh_digests`])
     fresh: bool,
+    /// [A19] ahead window length (0 when no plan or `HL_A19_SHARE=0`)
+    window: usize,
 }
 
 impl SealHand for D55Hand<'_> {
@@ -2805,6 +2818,12 @@ impl SealHand for D55Hand<'_> {
             return Ok(Some(w));
         }
         (self.push)(k, w, ssh)
+    }
+    fn shares_blocks(&self) -> bool {
+        self.blocks.is_some()
+    }
+    fn takes_window(&self, k: usize) -> bool {
+        self.blocks.is_some() && k < self.window
     }
 }
 
@@ -2983,8 +3002,7 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
     let mut metas = Vec::with_capacity(l);
     let mut digests = Vec::with_capacity(l);
     let mut outs: Vec<Vec<i16>> = Vec::with_capacity(l);
-    let mut kept: Vec<Option<Witness>> = Vec::with_capacity(l);
-    let mut sealed_hists: Vec<Option<super::protocol::SealedHistograms>> = Vec::with_capacity(l);
+    let mut kept: Vec<Option<super::protocol::SealedWitness>> = Vec::with_capacity(l);
     let (mut kept_bytes, mut load_s, mut witness_s) = (0u64, 0.0f64, 0.0f64);
     // [A19] the witnesses handed to a D55 run's window, and the bytes counted for them
     let (mut handed, mut part_bytes) = (0usize, 0u64);
@@ -3053,12 +3071,22 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
         // `check_for_shape` runs at a non-Legacy shape) when the block carries accuracy data, on
         // `ssh` with its gate shift set to the data's. So the shapes are equal exactly when `ssh`
         // already carries the data's gate shift; any other block or shape takes the full check.
+        // [A19] what a fork's before-challenge part holds beyond the witness: `A`'s
+        // host rows and its encoding (the device's copy on Metal), an estimate.
+        // Note on `HL_HOST_FAST_ASYNC_DROP`: it is OFF by default even when `HL_HOST_FAST_W2=1`;
+        // if an operator explicitly enables `HL_HOST_FAST_ASYNC_DROP=1`, up to 2 committed
+        // payloads per process may stay queued on the background dropper thread outside `budget_bytes`.
+        let part_extra = 8 * (lay.a_rows * lay.n()) as u64 * (1 + ssh.inv_rate as u64);
+        let wb = witness_bytes(&w);
+        let will_hand = hand.takes_window(k) && kept_bytes + part_bytes + wb + part_extra <= budget_bytes;
+        let will_keep = !will_hand && kept_bytes + part_bytes + wb <= budget_bytes;
         let build_checked = cur.blk.accuracy().is_some_and(|d| d.folds().gate.shift == ssh.accuracy_gate_shift);
-        let hist_opt = if crate::zk::host_fast_w2_on() {
-            Some(
-                super::protocol::check_lookup_misses_collecting(&ssh, lay, &cur.blk, &w, build_checked)
-                    .map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?,
-            )
+        // [W2-2] Only collect sealing-pass histograms when `HL_HOST_FAST_W2=1` AND this witness
+        // will actually be kept alongside a shared `BlockPublic` (never for D12a `NoHand`,
+        // `HL_A19_SHARE=0`, over-budget witnesses, or ahead-window parts).
+        let sw = if hand.shares_blocks() && will_keep && crate::zk::host_fast_w2_on() {
+            super::protocol::check_lookup_misses_sealed(&ssh, lay, &cur.blk, w, build_checked)
+                .map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?
         } else {
             let misses = if build_checked {
                 super::protocol::check_lookup_misses_after_public_check(&ssh, lay, &cur.blk, &w)
@@ -3066,14 +3094,11 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
                 super::protocol::check_lookup_misses(&ssh, lay, &cur.blk, &w)
             };
             misses.map_err(|e| format!("layer {layer}, in the sealing pass (before the run header; ruling H-1): {e}"))?;
-            None
+            super::protocol::SealedWitness::unsealed(w)
         };
-        // [A19] what a fork's before-challenge part holds beyond the witness: `A`'s
-        // host rows and its encoding (the device's copy on Metal), an estimate
-        let part_extra = 8 * (lay.a_rows * lay.n()) as u64 * (1 + ssh.inv_rate as u64);
-        let out = padded_plane(&w, ids.at(A_X2))?;
+        let out = padded_plane(sw.witness(), ids.at(A_X2))?;
         if k == 0 {
-            first = Some(padded_plane(&w, ids.at(A_X))?);
+            first = Some(padded_plane(sw.witness(), ids.at(A_X))?);
         }
         let xt = true_words(&sh, &out);
         let (_, x_out_ref) = m.seq(layer)?;
@@ -3087,28 +3112,25 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
         // run's forks (dropped otherwise, as before), and its witness is offered to
         // the window when the budget holds it as a part
         hand.block(k, cur.blk, &digests[k])?;
-        let wb = witness_bytes(&w);
-        let w = if kept_bytes + part_bytes + wb + part_extra <= budget_bytes {
-            match hand.witness(k, w, &ssh)? {
+        let sw = if will_hand {
+            match hand.witness(k, sw.into_witness(), &ssh)? {
                 None => {
                     handed += 1;
                     part_bytes += wb + part_extra;
                     None
                 }
-                back => back,
+                Some(back) => Some(super::protocol::SealedWitness::unsealed(back)),
             }
         } else {
-            Some(w)
+            Some(sw)
         };
-        match w {
-            Some(w) if kept_bytes + part_bytes + wb <= budget_bytes => {
+        match sw {
+            Some(sw) if kept_bytes + part_bytes + wb <= budget_bytes => {
                 kept_bytes += wb;
-                kept.push(Some(w));
-                sealed_hists.push(hist_opt);
+                kept.push(Some(sw));
             }
             _ => {
                 kept.push(None);
-                sealed_hists.push(None);
             }
         }
         outs.push(out);
@@ -3119,7 +3141,7 @@ fn seal_chain(m: &dyn StackModel, budget_bytes: u64, hand: &mut dyn SealHand) ->
         return Err("trained stack: the builder's block-0 input plane is not the export's x_in (before the run header)".into());
     }
     let last = outs[l - 1].clone();
-    let chain = SealedChain { x_in0, shapes, outs, kept, sealed_hists, kept_bytes, first, last, rebuilt: 0, handed, part_bytes };
+    let chain = SealedChain { x_in0, shapes, outs, kept, kept_bytes, first, last, rebuilt: 0, handed, part_bytes };
     Ok((metas, digests, chain, SealTimes { wall_s: 0.0, load_s, witness_s, pool_threads: pool.threads(), loads_ahead: ahead.n, load_wait_s }))
     })
 }
@@ -3485,13 +3507,13 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
         // ---- (1) the sealing pass (ruling H-1): every refusal of an inadmissible
         //      chain happens here, before anything of the run exists
         |push| {
-            let mut hand = D55Hand { blocks: shared.then_some(&blocks), push, fresh: m.fresh_digests() };
+            let mut hand = D55Hand { blocks: shared.then_some(&blocks), push, fresh: m.fresh_digests(), window };
             let r = seal_chain(m, run.budget, &mut hand)?;
             #[cfg(test)]
             a19_after_the_sealing_pass();
             Ok(r)
         },
-        |(metas, digests, mut chain, mut seal), planned| {
+        |(metas, digests, chain, mut seal), planned| {
             let st = m.statement_of_records(metas.iter().map(|m| m.record.clone()).collect())?;
             seal.wall_s = t0.elapsed().as_secs_f64();
             let (kept_n, kept_bytes) = (chain.kept.iter().filter(|w| w.is_some()).count(), chain.kept_bytes);
@@ -3533,11 +3555,6 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
             // [A19] the plan the parts were made under is this fork run's (before
             // the run directory exists)
             planned.check(&fr)?;
-            let sealed_hists = if shared && crate::zk::host_fast_w2_on() {
-                std::mem::take(&mut chain.sealed_hists)
-            } else {
-                Vec::new()
-            };
             let mut src = StackSource::new(sh, if shared { StackBlocks::Sealed(&blocks) } else { StackBlocks::Model(m, &digests) }, l, chain, None)?;
             // [A22] a stream: this request's sealing side is done (the next request's
             // sealing pass may start); wait for its turn at the prover, before anything
@@ -3566,16 +3583,9 @@ pub(crate) fn d55_seal_and_prove(m: &dyn StackModel, opt_in: run::fork::D55OptIn
                     reloaded = v;
                     (&reloaded as &dyn run::fork::ForkBlocks, s)
                 };
-                let proof = if !sealed_hists.is_empty() {
-                    match run.turn {
-                        Some(turn) if bounds_ahead => planned.prove_at_turn_with_hists(&fr, b, &mut src, owners, run.workers, Some(&|| turn.at_prover()), &sealed_hists),
-                        _ => planned.prove_at_turn_with_hists(&fr, b, &mut src, owners, run.workers, None, &sealed_hists),
-                    }
-                } else {
-                    match run.turn {
-                        Some(turn) if bounds_ahead => planned.prove_at_turn(&fr, b, &mut src, owners, run.workers, Some(&|| turn.at_prover())),
-                        _ => planned.prove(&fr, b, &mut src, owners, run.workers),
-                    }
+                let proof = match run.turn {
+                    Some(turn) if bounds_ahead => planned.prove_at_turn(&fr, b, &mut src, owners, run.workers, Some(&|| turn.at_prover())),
+                    _ => planned.prove(&fr, b, &mut src, owners, run.workers),
                 };
                 // [A22] a stream: the prover is free for the next request, whatever the
                 // prove call returned (this run's receipt is written outside the turn)
@@ -4978,7 +4988,7 @@ pub(crate) fn a20_seal_summary_for_tests(m: &dyn StackModel, budget_bytes: u64) 
         .iter()
         .map(|w| match w {
             None => "-".to_string(),
-            Some(w) => hex(&sha256(&w.planes.iter().flat_map(|p| p.iter().flat_map(|x| x.to_le_bytes())).collect::<Vec<u8>>()))[..16].to_string(),
+            Some(w) => hex(&sha256(&w.witness().planes.iter().flat_map(|p| p.iter().flat_map(|x| x.to_le_bytes())).collect::<Vec<u8>>()))[..16].to_string(),
         })
         .collect();
     let line = format!(

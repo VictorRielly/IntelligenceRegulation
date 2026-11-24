@@ -313,6 +313,7 @@ fn accum_4rows_chunk_neon(
 }
 
 #[allow(clippy::too_many_arguments)]
+#[cold]
 #[inline(never)]
 fn fold_rows_fast_w2(
     matrix: &[i8],
@@ -844,6 +845,7 @@ fn dot_4rows_tiled_neon(
     (out, min_scalar == i8::MIN)
 }
 
+#[cold]
 #[inline(never)]
 fn fold_cols_fast_w2(
     matrix: &[i8],
@@ -1038,8 +1040,7 @@ fn fold_cols_fast(
     Ok(out)
 }
 
-#[allow(clippy::too_many_arguments)]
-fn fold_with_opts(
+fn fold_with_mode(
     matrix: &[i8],
     rows: usize,
     cols: usize,
@@ -1047,8 +1048,6 @@ fn fold_with_opts(
     coefficients: &[u64],
     eq: &[Fp2],
     fast: bool,
-    w2_tiled: bool,
-    skip_pad_i8_scan: bool,
 ) -> Result<Vec<Fp2>, String> {
     let outputs = if axis == Axis::Rows { rows } else { cols };
     if !rows.is_power_of_two()
@@ -1060,22 +1059,15 @@ fn fold_with_opts(
     {
         return Err(FOLD_ERR.into());
     }
-    if (fast || w2_tiled) && rows <= HOST_FAST_MAX_DIM && cols <= HOST_FAST_MAX_DIM {
+    if fast && rows <= HOST_FAST_MAX_DIM && cols <= HOST_FAST_MAX_DIM {
         let weighted: Vec<Fp2> = eq
             .iter()
             .zip(coefficients)
             .map(|(&e, &m)| e.mul_base(Fp2::from_i64(m as i64).c0))
             .collect();
-        return if w2_tiled {
-            match axis {
-                Axis::Rows => fold_rows_fast_w2(matrix, rows, cols, &weighted, skip_pad_i8_scan),
-                Axis::Columns => fold_cols_fast_w2(matrix, rows, cols, &weighted, skip_pad_i8_scan),
-            }
-        } else {
-            match axis {
-                Axis::Rows => fold_rows_fast(matrix, rows, cols, &weighted),
-                Axis::Columns => fold_cols_fast(matrix, rows, cols, &weighted),
-            }
+        return match axis {
+            Axis::Rows => fold_rows_fast(matrix, rows, cols, &weighted),
+            Axis::Columns => fold_cols_fast(matrix, rows, cols, &weighted),
         };
     }
     if has_i8_min(matrix) {
@@ -1092,19 +1084,56 @@ fn fold_with_opts(
     })
 }
 
-#[cfg(test)]
-fn fold_with_mode(
+#[cold]
+#[inline(never)]
+fn fold_w2(
     matrix: &[i8],
     rows: usize,
     cols: usize,
     axis: Axis,
     coefficients: &[u64],
     eq: &[Fp2],
-    fast: bool,
+    skip_pad_i8_scan: bool,
 ) -> Result<Vec<Fp2>, String> {
-    fold_with_opts(matrix, rows, cols, axis, coefficients, eq, fast, false, false)
+    let outputs = if axis == Axis::Rows { rows } else { cols };
+    if !rows.is_power_of_two()
+        || !cols.is_power_of_two()
+        || rows.checked_mul(cols) != Some(matrix.len())
+        || outputs != coefficients.len()
+        || outputs != eq.len()
+        || coefficients.iter().any(|&m| m > 1 << 14)
+    {
+        return Err(FOLD_ERR.into());
+    }
+    let fast = crate::zk::host_fast_on();
+    let in_dim = rows <= HOST_FAST_MAX_DIM && cols <= HOST_FAST_MAX_DIM;
+    let out = if in_dim {
+        let weighted: Vec<Fp2> = eq
+            .iter()
+            .zip(coefficients)
+            .map(|(&e, &m)| e.mul_base(Fp2::from_i64(m as i64).c0))
+            .collect();
+        match axis {
+            Axis::Rows => fold_rows_fast_w2(matrix, rows, cols, &weighted, skip_pad_i8_scan)?,
+            Axis::Columns => fold_cols_fast_w2(matrix, rows, cols, &weighted, skip_pad_i8_scan)?,
+        }
+    } else {
+        fold_with_mode(matrix, rows, cols, axis, coefficients, eq, false)?
+    };
+    if fast {
+        if in_dim {
+            crate::zk::record_host_fast_hit(crate::zk::HF_H4_ACC_FOLD);
+        } else {
+            crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H4_DIM, "H4 acc_fold: rows or cols > HOST_FAST_MAX_DIM");
+        }
+    }
+    if in_dim {
+        crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_FOLD_TILED);
+    }
+    Ok(out)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn fold_checked(
     matrix: &[i8],
     rows: usize,
@@ -1113,21 +1142,24 @@ pub(crate) fn fold_checked(
     coefficients: &[u64],
     eq: &[Fp2],
     registry_checked: bool,
+    prove_side: bool,
 ) -> Result<Vec<Fp2>, String> {
+    // Verifier side (and direct non-prover callers) NEVER read speed switches,
+    // ALWAYS run the base fold, and NEVER increment any speed-switch counter.
+    if !prove_side {
+        return fold_with_mode(matrix, rows, cols, axis, coefficients, eq, false);
+    }
+    if crate::zk::host_fast_w2_on() {
+        return fold_w2(matrix, rows, cols, axis, coefficients, eq, registry_checked);
+    }
     let fast = crate::zk::host_fast_on();
-    let w2 = crate::zk::host_fast_w2_on();
-    let skip_pad_i8_scan = registry_checked && w2;
-    let out = fold_with_opts(matrix, rows, cols, axis, coefficients, eq, fast, w2, skip_pad_i8_scan)?;
-    let in_dim = rows <= HOST_FAST_MAX_DIM && cols <= HOST_FAST_MAX_DIM;
+    let out = fold_with_mode(matrix, rows, cols, axis, coefficients, eq, fast)?;
     if fast {
-        if in_dim {
+        if rows <= HOST_FAST_MAX_DIM && cols <= HOST_FAST_MAX_DIM {
             crate::zk::record_host_fast_hit(crate::zk::HF_H4_ACC_FOLD);
         } else {
             crate::zk::record_host_fast_fallback(crate::zk::HF_FB_H4_DIM, "H4 acc_fold: rows or cols > HOST_FAST_MAX_DIM");
         }
-    }
-    if w2 && in_dim {
-        crate::zk::record_host_fast_w2_hit(crate::zk::HF_W2_FOLD_TILED);
     }
     Ok(out)
 }
@@ -1136,7 +1168,7 @@ pub(crate) fn fold_checked(
 pub(crate) fn fold(
     matrix:&[i8],rows:usize,cols:usize,axis:Axis,coefficients:&[u64],eq:&[Fp2],
 )->Result<Vec<Fp2>,String> {
-    fold_checked(matrix, rows, cols, axis, coefficients, eq, false)
+    fold_checked(matrix, rows, cols, axis, coefficients, eq, false, false)
 }
 
 #[cfg(test)]
@@ -1499,18 +1531,25 @@ mod tests {
             let coeffs_zero = vec![0u64; outputs];
 
             for (tag, coeffs) in [("span", &coeffs_span), ("all", &coeffs_all), ("zero", &coeffs_zero)] {
-                let want = fold_with_opts(&mat, rows, cols, axis, coeffs, &eq, false, false, false).unwrap();
+                let want = fold_with_mode(&mat, rows, cols, axis, coeffs, &eq, false).unwrap();
 
                 // hw0 parity (strict zero-hit check lives in fresh-process `host_fast_w2_all_call_sites_byte_identical`)
                 crate::zk::set_host_fast_w2_for_test(Some(false));
-                let got0 = fold_checked(&mat, rows, cols, axis, coeffs, &eq, false).unwrap();
+                let got0 = fold_checked(&mat, rows, cols, axis, coeffs, &eq, false, true).unwrap();
                 assert_eq!(got0, want, "hw0 mismatch {rows}x{cols} {axis:?} {tag}");
+
+                // prove_side = false (verifier) MUST match baseline and never take W2/H4 path even when both switches are ON
+                crate::zk::set_host_fast_for_test(Some(true));
+                crate::zk::set_host_fast_w2_for_test(Some(true));
+                let got_verify = fold_checked(&mat, rows, cols, axis, coeffs, &eq, true, false).unwrap();
+                assert_eq!(got_verify, want, "verifier prove_side=false mismatch {rows}x{cols} {axis:?} {tag}");
+                crate::zk::set_host_fast_for_test(Some(false));
 
                 // hw1 with registry_checked = false AND true must both match baseline bit-for-bit
                 crate::zk::set_host_fast_w2_for_test(Some(true));
                 for &reg_chk in &[false, true] {
                     let hb1 = crate::zk::host_fast_w2_hits_for_test();
-                    let got1 = fold_checked(&mat, rows, cols, axis, coeffs, &eq, reg_chk).unwrap();
+                    let got1 = fold_checked(&mat, rows, cols, axis, coeffs, &eq, reg_chk, true).unwrap();
                     let ha1 = crate::zk::host_fast_w2_hits_for_test();
                     assert_eq!(got1, want, "hw1 reg_chk={reg_chk} mismatch {rows}x{cols} {axis:?} {tag}");
                     assert!(
@@ -1531,7 +1570,7 @@ mod tests {
                     let mut bad = mat.clone();
                     bad[idx] = i8::MIN;
                     assert_eq!(
-                        fold_checked(&bad, rows, cols, axis, &coeffs_span, &eq, false),
+                        fold_checked(&bad, rows, cols, axis, &coeffs_span, &eq, false, true),
                         Err(FOLD_ERR.into()),
                         "hw1 unchecked must refuse i8::MIN at ({rows}x{cols} {axis:?} po={po} pi={pi})"
                     );
@@ -1542,7 +1581,7 @@ mod tests {
             let mut bad_active = mat.clone();
             bad_active[active_idx] = i8::MIN;
             assert_eq!(
-                fold_checked(&bad_active, rows, cols, axis, &coeffs_span, &eq, true),
+                fold_checked(&bad_active, rows, cols, axis, &coeffs_span, &eq, true, true),
                 Err(FOLD_ERR.into()),
                 "hw1 active i8::MIN must be refused even when registry_checked=true"
             );
@@ -1550,7 +1589,7 @@ mod tests {
             let mut bad_z = mat.clone();
             bad_z[rows * cols - 1] = i8::MIN;
             assert_eq!(
-                fold_checked(&bad_z, rows, cols, axis, &coeffs_zero, &eq, false),
+                fold_checked(&bad_z, rows, cols, axis, &coeffs_zero, &eq, false, true),
                 Err(FOLD_ERR.into()),
                 "hw1 zero-weights unchecked must refuse i8::MIN"
             );

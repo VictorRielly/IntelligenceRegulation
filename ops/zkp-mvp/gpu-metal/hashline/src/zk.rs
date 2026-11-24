@@ -108,7 +108,7 @@
 //! caveat class as the lattice line's lemmas Q4.7-Q4.9).
 
 use crate::field::{Fp, Fp2};
-use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, AtomicU8, AtomicUsize, Ordering};
 use std::sync::OnceLock;
 
 /// [HOST-FAST] Opt-in host-gap acceleration switch (`HL_HOST_FAST=1`, default OFF):
@@ -287,6 +287,18 @@ pub const HF_W2_FB_PIPE_CACHE: usize = 2;
 pub const HF_W2_FB_ROPE_GEN: usize = 3;
 pub const HF_W2_FB_PADS_REUSE: usize = 4;
 
+static HOST_FAST_W2_ENV: AtomicU8 = AtomicU8::new(0);
+static HOST_FAST_ASYNC_DROP_ENV: AtomicU8 = AtomicU8::new(0);
+
+#[cold]
+#[inline(never)]
+fn host_fast_w2_env_init() -> bool {
+    let on = std::env::var("HL_HOST_FAST_W2").map(|v| v == "1").unwrap_or(false);
+    HOST_FAST_W2_ENV.store(if on { 2 } else { 1 }, Ordering::Relaxed);
+    on
+}
+
+#[inline(always)]
 pub fn host_fast_w2_on() -> bool {
     #[cfg(test)]
     match HOST_FAST_W2_TEST.load(Ordering::Relaxed) {
@@ -294,8 +306,11 @@ pub fn host_fast_w2_on() -> bool {
         2 => return true,
         _ => {}
     }
-    static ENV: OnceLock<bool> = OnceLock::new();
-    *ENV.get_or_init(|| std::env::var("HL_HOST_FAST_W2").map(|v| v == "1").unwrap_or(false))
+    match HOST_FAST_W2_ENV.load(Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => host_fast_w2_env_init(),
+    }
 }
 
 #[cfg(test)]
@@ -317,10 +332,24 @@ pub fn host_fast_w2_for_test() -> bool {
     host_fast_w2_on()
 }
 
-/// Optional async `munmap` sub-switch (`HL_HOST_FAST_ASYNC_DROP`): defaults to `false`
-/// (off even when `HL_HOST_FAST_W2=1`, per the 8B `ad1` vs `ad0` ablation) unless explicitly
-/// enabled via `HL_HOST_FAST_ASYNC_DROP=1` or `set_host_fast_async_drop_for_test(Some(true))`
-/// while `host_fast_w2_on()` is true.
+#[cold]
+#[inline(never)]
+fn host_fast_async_drop_env_init() -> bool {
+    let on = std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() == Ok("1");
+    HOST_FAST_ASYNC_DROP_ENV.store(if on { 2 } else { 1 }, Ordering::Relaxed);
+    on
+}
+
+/// Optional async `munmap` sub-switch (`HL_HOST_FAST_ASYNC_DROP`): **OFF by default** even
+/// when `HL_HOST_FAST_W2=1` (per the 8B `ad1` vs `ad0` ablation) unless explicitly enabled
+/// via `HL_HOST_FAST_ASYNC_DROP=1` or `set_host_fast_async_drop_for_test(Some(true))` while
+/// `host_fast_w2_on()` is true.
+///
+/// **Memory budget note (A-M3 / B-L8):** when explicitly enabled, the bounded `sync_channel(1)`
+/// plus one background worker thread can hold up to 2 in-flight payloads (~1.5 GB each at
+/// 125M, larger at 8B) past the synchronous drop point that the witness-cache budget assumes
+/// freed them. Leave unset (off) on memory-constrained runs.
+#[inline(always)]
 pub fn host_fast_async_drop_on() -> bool {
     if !host_fast_w2_on() {
         return false;
@@ -331,14 +360,10 @@ pub fn host_fast_async_drop_on() -> bool {
         2 => return true,
         _ => {}
     }
-    static ENV: OnceLock<Option<bool>> = OnceLock::new();
-    match *ENV.get_or_init(|| match std::env::var("HL_HOST_FAST_ASYNC_DROP").as_deref() {
-        Ok("1") => Some(true),
-        Ok("0") => Some(false),
-        _ => None,
-    }) {
-        Some(b) => b,
-        None => false,
+    match HOST_FAST_ASYNC_DROP_ENV.load(Ordering::Relaxed) {
+        1 => false,
+        2 => true,
+        _ => host_fast_async_drop_env_init(),
     }
 }
 
@@ -366,6 +391,8 @@ pub fn record_host_fast_w2_hit(idx: usize) {
     HOST_FAST_W2_HITS[idx].fetch_add(1, Ordering::Relaxed);
 }
 
+#[cold]
+#[inline(never)]
 pub fn record_host_fast_w2_fallback(idx: usize, reason: &str) {
     HOST_FAST_W2_FALLBACKS[idx].fetch_add(1, Ordering::Relaxed);
     if !HOST_FAST_W2_FB_LOGGED[idx].swap(true, Ordering::Relaxed) {
@@ -947,6 +974,7 @@ fn mask_coset_tables() -> &'static ([Fp; 1usize << MASK_LOG_MSG], [Fp; 2usize <<
 }
 
 #[allow(clippy::too_many_arguments)]
+#[cold]
 #[inline(never)]
 fn mask_open_w2(
     mc: &MaskCommit,

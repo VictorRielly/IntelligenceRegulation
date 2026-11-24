@@ -301,6 +301,8 @@ pub(crate) fn denominator_inverses(width: u32, alpha: Fp2, g: Fp2) -> Vec<Option
 /// returning `None` if ANY denominator in `0 .. 2^width` is zero.
 /// Eliminates `Option<Fp2>` tag/padding overhead (16 B/entry vs 24 B/entry) and
 /// computes directly in parallel 2048-entry Montgomery batch-inversion chunks.
+#[cold]
+#[inline(never)]
 pub(crate) fn denominator_inverses_flat(width: u32, alpha: Fp2, g: Fp2) -> Option<Vec<Fp2>> {
     let n = 1usize << width;
     let base = alpha.sub(g);
