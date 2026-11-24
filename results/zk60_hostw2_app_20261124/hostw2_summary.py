@@ -6,6 +6,7 @@ After it, two shapes are known:
   A B C C B A      (the verdict set at six lanes by five threads, and the reading at six by eight)
                    C over A: (C1 over A1) and (C2 over A2); B over A: (B1 over A1) and (B2 over A2); the means beside them
   A B B A B A A B  (the default-path set) r = mean of the four B rates over mean of the four A rates, minus one
+  A C C A C A A C  (the gain confirmation on the commit to be merged) r = mean of the four C rates over mean of the four A rates, minus one
 Nothing here decides; the readings are fixed in the coordination entry that defines each set.
 """
 import json
@@ -37,5 +38,11 @@ elif seq == 'ABBABAAB':
     B = [x for x, r in zip(rate, read) if r['arm'] == 'B']
     print(f'mean A {statistics.mean(A):.3f}  mean B {statistics.mean(B):.3f}  r = {pc(statistics.mean(B), statistics.mean(A)):+.2f}%')
     print(f'spread inside A {pc(max(A), min(A)):.2f}%, inside B {pc(max(B), min(B)):.2f}%')
+elif seq == 'ACCACAAC':
+    # the gain confirmation on the commit to be merged: r = mean of the four C rates over mean of the four A rates, minus one
+    A = [x for x, r in zip(rate, read) if r['arm'] == 'A']
+    C = [x for x, r in zip(rate, read) if r['arm'] == 'C']
+    print(f'mean A {statistics.mean(A):.3f}  mean C {statistics.mean(C):.3f}  r = {pc(statistics.mean(C), statistics.mean(A)):+.2f}%')
+    print(f'spread inside A {pc(max(A), min(A)):.2f}%, inside C {pc(max(C), min(C)):.2f}%')
 else:
     print('unknown shape: no figure computed')
