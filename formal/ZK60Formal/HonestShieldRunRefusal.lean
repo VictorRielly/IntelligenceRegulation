@@ -3008,15 +3008,16 @@ theorem shdP_runPreBlk_of_proveSegs_take {Hdr Coins : Type} [Fintype Coins] [Non
     rw [← ht0Eq] at hfinB; exact hfinB
 
 open Classical in
-/-- **WHOLE-RUN REFUSAL COVER (`shdP_refuse_hcover`)**: discharges `hcover` of
-`RunShieldOpenShell.sshC_productionReadyL_epP_openShell` verbatim across all 28 segments! -/
-theorem shdP_refuse_hcover {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins]
+/-- **Per-oracle whole-run refusal cover (`shdP_refuse_hcover_at`)**: same cover as `shdP_refuse_hcover`
+at a fixed oracle `G`, allowing `bndCheck` (e.g. prover-side `checkOpeningExec (liftH G)`) to depend on `G`. -/
+theorem shdP_refuse_hcover_at {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins]
     (tag : MTag) (Lq : ℕ) (hL20 : 2 ^ 20 ≤ Lq) (key : Option Dig)
     (Rp : ClassifyRunPublicP shieldS0) (hR : ShieldRun Rp) (hV : Rp.inp.V = 131072) (hinPub : Rp.inp.Valid)
     (hw : Hdr → ClsHdrW) (preA preB : Hdr → Except String Unit)
     (check0 : ClsStmt Hdr → ℕ → Except String Unit)
     (paths : ClsStmt Hdr → Exec.Block.Segment → Except String Unit)
     (digest : ClsStmt Hdr → ℕ → Dig)
+    (G : QB Lq → Dig)
     (bndCheck : ClsStmt Hdr → ℕ → List Exec.Block.ZClaim → Tr → Except String Unit)
     (ioIn ioOut : ℕ) (checkOpening : (HIn → Dig) → Cm → List Exec.Block.ZClaim → Tr → Except String Unit)
     (embDigest : Dig) (bInRow : ℕ) (wDigest : Dig) (bOutRow : ℕ)
@@ -3029,32 +3030,31 @@ theorem shdP_refuse_hcover {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins]
     (W : (x : shieldS0.Tok → ℕ) → ShdRunWitness (Hdr := Hdr) tag Rp embDigest bInRow wDigest bOutRow ioIn ioOut checkOpening epBase x)
     (hMatch : ∀ x, (classifyModelP Rp).admissible x →
       ShdRunProverMatch tag Rp hR embDigest bInRow wDigest bOutRow ioIn ioOut checkOpening bndCheck blkDig epBase P x (W x))
-    (hchkA : ∀ (G : QB Lq → Dig) cl t e, checkOpening (liftH G) .a cl t = .error e →
+    (hchkA : ∀ cl t e, checkOpening (liftH G) .a cl t = .error e →
       ∃ e', checkOpeningExec (liftH G) shdP_blkOpenGeomA 14 cl t = .error e')
-    (hchkH : ∀ (G : QB Lq → Dig) cl t e, checkOpening (liftH G) .h cl t = .error e →
+    (hchkH : ∀ cl t e, checkOpening (liftH G) .h cl t = .error e →
       ∃ e', checkOpeningExec (liftH G) shdP_blkOpenGeomH 14 cl t = .error e')
-    (hbnd : ∀ (G : QB Lq → Dig) s k cl t e, k < 26 → bndCheck s k cl t = .error e →
+    (hbnd : ∀ s k cl t e, k < 26 → bndCheck s k cl t = .error e →
       ∃ e', checkOpeningExec (liftH G) shdP_bndOpenGeom 14 cl t = .error e')
-    (hIncOutTrue : ∀ x, (classifyModelP Rp).admissible x → ∀ (G : QB Lq → Dig) c t R,
+    (hIncOutTrue : ∀ x, (classifyModelP Rp).admissible x → ∀ c t R,
       incProve (liftH G) (shdVi tag Rp embDigest bInRow)
         (incDataAt (liftH G) tag shdP_U shdP_hbij (shdVi tag Rp embDigest bInRow) 2 3 256 256 ((W x).incTables (liftH G) c) t) t = .ok R →
       ∀ cl ∈ R.acc.claims.out, ClaimTrue shdP_U (2 ^ 14) 14 ((W x).TB 0 c).rows (toZClaim cl))
-    (hBlkOutTrue : ∀ x, (classifyModelP Rp).admissible x → ∀ (G : QB Lq → Dig) c k, k < 26 → ∀ t R,
+    (hBlkOutTrue : ∀ x, (classifyModelP Rp).admissible x → ∀ c k, k < 26 → ∀ t R,
       coreProve (liftH G) (shdP_Pk0 tag ioIn ioOut checkOpening Rp k)
         (coreDataAt (liftH G) tag shdP_U shdP_hbij Exec.R13.r13Prm 16 23 (shdP_Pk0 tag ioIn ioOut checkOpening Rp k)
           ((W x).blkTables k c).coreT t) t = .ok R →
-      ∀ cl ∈ R.acc.claims.out, ClaimTrue shdP_U (2 ^ 14) 14 ((W x).TB (k + 1) c).rows (toZClaim cl)) :
-    ∀ x, (classifyModelP Rp).admissible x → ∀ G c,
-      honestSegs
-        (shdP_runV tag key shdP_runDomain hw preA preB Rp embDigest (embFoldL Rp.inp) bInRow wDigest bOutRow
-          (shdP_Pk0 tag ioIn ioOut checkOpening Rp) check0 paths digest bndCheck)
-        P (liftH G)
-        (honestRoot (shdP_cin Hdr tag) Lq (le64_of_le20 hL20) (shdP_hr tag hL20) G x
-          ((shdP_honestIn (Hdr := Hdr) tag epBase).base c))
-        ((classifySpecP Rp x).getD 0) x c = .error () →
-      ∃ i, (shdP_runSite tag Lq hL20 key Rp hR hV hw P.hdr ioIn ioOut checkOpening embDigest bInRow wDigest bOutRow
-        blkDig epBase W x i).fires shdP_U G c := by
-  intro x hx G c href
+      ∀ cl ∈ R.acc.claims.out, ClaimTrue shdP_U (2 ^ 14) 14 ((W x).TB (k + 1) c).rows (toZClaim cl))
+    (x : shieldS0.Tok → ℕ) (hx : (classifyModelP Rp).admissible x) (c : Coins)
+    (href : honestSegs
+      (shdP_runV tag key shdP_runDomain hw preA preB Rp embDigest (embFoldL Rp.inp) bInRow wDigest bOutRow
+        (shdP_Pk0 tag ioIn ioOut checkOpening Rp) check0 paths digest bndCheck)
+      P (liftH G)
+      (honestRoot (shdP_cin Hdr tag) Lq (le64_of_le20 hL20) (shdP_hr tag hL20) G x
+        ((shdP_honestIn (Hdr := Hdr) tag epBase).base c))
+      ((classifySpecP Rp x).getD 0) x c = .error ()) :
+    ∃ i, (shdP_runSite tag Lq hL20 key Rp hR hV hw P.hdr ioIn ioOut checkOpening embDigest bInRow wDigest bOutRow
+      blkDig epBase W x i).fires shdP_U G c := by
   let _ := hdig
   have hbIn : bInRow = 32 ∨ bInRow = 34 := hB0.imp And.left And.left
   have hioOut : ioOut = 32 ∨ ioOut = 34 := hBk.imp And.left And.left
@@ -3109,7 +3109,7 @@ theorem shdP_refuse_hcover {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins]
       rw [hgetK, Option.some.injEq] at hjGet; subst hjGet
       obtain ⟨hfinK, hrootK, htrueK, hcarK⟩ := shdP_runPreBlk_of_proveSegs_take tag Lq hL20 key Rp hR hw preA preB
         check0 paths digest bndCheck ioIn ioOut checkOpening embDigest bInRow wDigest bOutRow hbIn hioOut blkDig epBase
-        P x Wx hMx G c (hIncOutTrue x hx G c) (hBlkOutTrue x hx G c) k (by omega) bs₁ cr₁ t₁ hpre
+        P x Wx hMx G c (hIncOutTrue x hx c) (hBlkOutTrue x hx c) k (by omega) bs₁ cr₁ t₁ hpre
       have hblkErr := hMx.blk_err k hk (liftH G) inRoot c _ _ cr₁ t₁ hrootK htrueK herr
       have ht1Eq : t₁ = ((shdP_runPreBlk tag hw P.hdr Rp embDigest bInRow wDigest bOutRow ioIn ioOut checkOpening blkDig epBase x Wx k c).final
           (liftH G) t0).1 := by rw [hfinK]
@@ -3130,7 +3130,7 @@ theorem shdP_refuse_hcover {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins]
         (shdP_hdrProgF tag hw P.hdr v x epBase) hHdr
         (shdP_runPreBlk tag hw P.hdr Rp embDigest bInRow wDigest bOutRow ioIn ioOut checkOpening blkDig epBase x Wx) hBlk
         k hk G c (if k = 0 then bInRow else ioOut) cr₁.pending (bndCheck st k) hpendEq hcarK hpairK
-        (hchkA G) (hchkH G) (fun cl t e => hbnd G st k cl t e hk) hblkErr
+        hchkA hchkH (fun cl t e => hbnd st k cl t e hk) hblkErr
       exact ⟨i', by rw [hsiteEq]; exact hi'⟩
     · -- Segment 27: Stage OUT-C
       have hjEq : j = 27 := by omega
@@ -3141,7 +3141,7 @@ theorem shdP_refuse_hcover {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins]
       rw [hget27, Option.some.injEq] at hjGet; subst hjGet
       obtain ⟨hfin26, hroot26, htrue26, hcar26⟩ := shdP_runPreBlk_of_proveSegs_take tag Lq hL20 key Rp hR hw preA preB
         check0 paths digest bndCheck ioIn ioOut checkOpening embDigest bInRow wDigest bOutRow hbIn hioOut blkDig epBase
-        P x Wx hMx G c (hIncOutTrue x hx G c) (hBlkOutTrue x hx G c) 26 le_rfl bs₁ cr₁ t₁ hpre
+        P x Wx hMx G c (hIncOutTrue x hx c) (hBlkOutTrue x hx c) 26 le_rfl bs₁ cr₁ t₁ hpre
       have houtErr := hMx.outC_err (liftH G) inRoot c _ _ cr₁ t₁ herr
       have ht1Eq : t₁ = ((shdP_runPreBlk tag hw P.hdr Rp embDigest bInRow wDigest bOutRow ioIn ioOut checkOpening blkDig epBase x Wx 26 c).final
           (liftH G) t0).1 := by rw [hfin26]
@@ -3159,6 +3159,58 @@ theorem shdP_refuse_hcover {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins]
         (shdP_runPreBlk tag hw P.hdr Rp embDigest bInRow wDigest bOutRow ioIn ioOut checkOpening blkDig epBase x Wx) hBlk
         G c cr₁ hpendEq hown hcar26 hB26 houtErr
       exact ⟨i', by rw [hsiteEq]; exact hi'⟩
+
+open Classical in
+/-- **WHOLE-RUN REFUSAL COVER (`shdP_refuse_hcover`)**: discharges `hcover` of
+`RunShieldOpenShell.sshC_productionReadyL_epP_openShell` verbatim across all 28 segments! -/
+theorem shdP_refuse_hcover {Hdr Coins : Type} [Fintype Coins] [Nonempty Coins]
+    (tag : MTag) (Lq : ℕ) (hL20 : 2 ^ 20 ≤ Lq) (key : Option Dig)
+    (Rp : ClassifyRunPublicP shieldS0) (hR : ShieldRun Rp) (hV : Rp.inp.V = 131072) (hinPub : Rp.inp.Valid)
+    (hw : Hdr → ClsHdrW) (preA preB : Hdr → Except String Unit)
+    (check0 : ClsStmt Hdr → ℕ → Except String Unit)
+    (paths : ClsStmt Hdr → Exec.Block.Segment → Except String Unit)
+    (digest : ClsStmt Hdr → ℕ → Dig)
+    (bndCheck : ClsStmt Hdr → ℕ → List Exec.Block.ZClaim → Tr → Except String Unit)
+    (ioIn ioOut : ℕ) (checkOpening : (HIn → Dig) → Cm → List Exec.Block.ZClaim → Tr → Except String Unit)
+    (embDigest : Dig) (bInRow : ℕ) (wDigest : Dig) (bOutRow : ℕ)
+    (hB0 : (bInRow = 32 ∧ ioIn = 34) ∨ (bInRow = 34 ∧ ioIn = 32))
+    (hBk : (ioOut = 32 ∧ ioIn = 34) ∨ (ioOut = 34 ∧ ioIn = 32))
+    (hB26 : (ioOut = 32 ∧ bOutRow = 34) ∨ (ioOut = 34 ∧ bOutRow = 32))
+    (blkDig : ℕ → Dig) (epBase : Coins → EpxSalt 6)
+    (P : RunP Hdr (shieldS0.Tok → ℕ) Coins)
+    (hdig : ∀ r v k, k < 26 → digest (honestStmt P.hdr r v) k = blkDig k)
+    (W : (x : shieldS0.Tok → ℕ) → ShdRunWitness (Hdr := Hdr) tag Rp embDigest bInRow wDigest bOutRow ioIn ioOut checkOpening epBase x)
+    (hMatch : ∀ x, (classifyModelP Rp).admissible x →
+      ShdRunProverMatch tag Rp hR embDigest bInRow wDigest bOutRow ioIn ioOut checkOpening bndCheck blkDig epBase P x (W x))
+    (hchkA : ∀ (G : QB Lq → Dig) cl t e, checkOpening (liftH G) .a cl t = .error e →
+      ∃ e', checkOpeningExec (liftH G) shdP_blkOpenGeomA 14 cl t = .error e')
+    (hchkH : ∀ (G : QB Lq → Dig) cl t e, checkOpening (liftH G) .h cl t = .error e →
+      ∃ e', checkOpeningExec (liftH G) shdP_blkOpenGeomH 14 cl t = .error e')
+    (hbnd : ∀ (G : QB Lq → Dig) s k cl t e, k < 26 → bndCheck s k cl t = .error e →
+      ∃ e', checkOpeningExec (liftH G) shdP_bndOpenGeom 14 cl t = .error e')
+    (hIncOutTrue : ∀ x, (classifyModelP Rp).admissible x → ∀ (G : QB Lq → Dig) c t R,
+      incProve (liftH G) (shdVi tag Rp embDigest bInRow)
+        (incDataAt (liftH G) tag shdP_U shdP_hbij (shdVi tag Rp embDigest bInRow) 2 3 256 256 ((W x).incTables (liftH G) c) t) t = .ok R →
+      ∀ cl ∈ R.acc.claims.out, ClaimTrue shdP_U (2 ^ 14) 14 ((W x).TB 0 c).rows (toZClaim cl))
+    (hBlkOutTrue : ∀ x, (classifyModelP Rp).admissible x → ∀ (G : QB Lq → Dig) c k, k < 26 → ∀ t R,
+      coreProve (liftH G) (shdP_Pk0 tag ioIn ioOut checkOpening Rp k)
+        (coreDataAt (liftH G) tag shdP_U shdP_hbij Exec.R13.r13Prm 16 23 (shdP_Pk0 tag ioIn ioOut checkOpening Rp k)
+          ((W x).blkTables k c).coreT t) t = .ok R →
+      ∀ cl ∈ R.acc.claims.out, ClaimTrue shdP_U (2 ^ 14) 14 ((W x).TB (k + 1) c).rows (toZClaim cl)) :
+    ∀ x, (classifyModelP Rp).admissible x → ∀ G c,
+      honestSegs
+        (shdP_runV tag key shdP_runDomain hw preA preB Rp embDigest (embFoldL Rp.inp) bInRow wDigest bOutRow
+          (shdP_Pk0 tag ioIn ioOut checkOpening Rp) check0 paths digest bndCheck)
+        P (liftH G)
+        (honestRoot (shdP_cin Hdr tag) Lq (le64_of_le20 hL20) (shdP_hr tag hL20) G x
+          ((shdP_honestIn (Hdr := Hdr) tag epBase).base c))
+        ((classifySpecP Rp x).getD 0) x c = .error () →
+      ∃ i, (shdP_runSite tag Lq hL20 key Rp hR hV hw P.hdr ioIn ioOut checkOpening embDigest bInRow wDigest bOutRow
+        blkDig epBase W x i).fires shdP_U G c :=
+  fun x hx G c href =>
+    shdP_refuse_hcover_at tag Lq hL20 key Rp hR hV hinPub hw preA preB check0 paths digest G bndCheck ioIn ioOut
+      checkOpening embDigest bInRow wDigest bOutRow hB0 hBk hB26 blkDig epBase P hdig W hMatch
+      (hchkA G) (hchkH G) (hbnd G) (fun x' hx' => hIncOutTrue x' hx' G) (fun x' hx' => hBlkOutTrue x' hx' G) x hx c href
 
 /-- Direct specialization of `shdP_refuse_hcover` to the standard honest Shieldstral provers
 (`shdP_incP`, `shdP_blkSegP`, `shdP_outcP`). -/
