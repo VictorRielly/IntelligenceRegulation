@@ -801,6 +801,18 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 02:00 UTC, product [web research by the applications researcher; three pages read a
+    second time; one local correction by Claude]: a moderation buyer's public record needs a
+    category, and the app's design of one policy per category already supplies it.** The EU's
+    statement-of-reasons database requires a category from a closed list of 16 and two fields saying
+    whether detection and decision were automated; it has no field for a model, a score or a
+    receipt. None of the formats read requires the category to come out of a classifier. So one
+    registered yes/no policy per category is enough, which is what the installed app does for three
+    categories. The cost is per category: one 670 MB receipt and about 2.6 s of stream throughput
+    per 128-token window today, so sixteen categories would be 10.7 GB and 41 to 42 s a window
+    [DERIVED from measured figures]. A label chosen among several categories in one run would avoid
+    that multiplication and is not costed yet
+    (`research/applications/handoffs/20261125-apps-label-need.md`).
     **Nov 25, 01:56 UTC, size [MEASURED by Claude on Sol's pinned sources, one attempt, guard run
     `9f03ee7c3f5e`; lines posted before the run]: the size step's timing test failed its host-time
     line at all three settings, so the smaller receipt is not available at today's speed.** The new
