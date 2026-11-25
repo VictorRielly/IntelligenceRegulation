@@ -1,0 +1,45 @@
+== 1. Vectors and encodes per block (COUNTED: pcs.rs:1290-1303)
+vectors: A 37 + H 10 = 47; each Fp2 vector is encoded twice (re, im): 94 encodes
+vector length n + q = 16664; 47 x 16664 x 16 B = 12.53 MB (the 12.5 MB)
+
+== 2. NTT work per block (COUNTED)
+one encode: inverse 2^14: 114,688 butterflies; forward 2^15: 245,760; sum 360,448 (11.0 per output point)
+per block: 94 encodes -> 33,882,112 butterflies (33.88 M); extra Fp multiplications (ninv scale + coset powers): 3,106,512 (3.11 M); bit-reversal swaps <= 2.31 M
+encoded output held: 94 x 32768 x 8 B = 24.6 MB
+tick 58 took 3.08 M points x 8 butterflies = 24.6 M; counted here: 33.9 M (11.0 per point: the inverse half and 7.5 for the forward half were not both counted)
+
+NTT term per block, ms (butterflies x rate + extra multiplications x 1.12 ns):
+   2.11 ns    75.0 ms   W2 commit, size 2^15, NTT row loop serial, all-in (tick 56, MEASURED)
+   2.18 ns    77.3 ms   same at 1/2 (tick 56)
+   2.67 ns    94.0 ms   five-thread bridge NTT 5.88 ms x 5 threads / 11.0 M (tick 57), upper bound
+  range 75.0 to 94.0 ms, factor 1.25 (pass line: within 1.3)
+
+== 3. Column work per block (COUNTED: pcs.rs:1306-1330, a26_combine at :1197)
+opened columns 280 per commitment; dense products (every vector over every row): 33,195,960 (33.20 M mul_base = 2 Fp muls each)
+A26 sparse loop is default on (pcs.rs:1175-1178); the two proximity weights stay dense: 1,428,840 (1.43 M)
+hashed column bytes: 280 x (2501 + 2602) x 8 = 11.43 MB; BLAKE3 64 B blocks 178,605 plus parents; salted leaf 1 compression x 560; Merkle path 15 hops x 560 = 8,400 compressions
+6.4 ms for 12.0 MB (tick 58) -> 6.1 ms for the counted 11.43 MB
+group inner products <v, c> (pcs.rs:1268-1277): 45 x 16384 = 737,280 Fp2 multiplications = 3.7 ms at 5 ns
+
+== 4. Joint constraint from the one-thread record (MEASURED 141.9 ms a block, pre-A26)
+  NTT  75.0 ms -> dense columns plus all non-PCS work <=  51.0 ms; as a rate on 33.2 M products <= 1.54 ns each
+  NTT  94.0 ms -> dense columns plus all non-PCS work <=  32.0 ms; as a rate on 33.2 M products <= 0.96 ns each
+removed work, low end: NTT 75.0 + columns at a 1.0 ns floor 33.2 + absorb 6.1 + inner products 3.7 = 118.0 ms
+removed work, high end: the cap, 141.9 - hashing that stays 6.1 = 135.8 ms; width 17.8 ms
+stays under B6a (hashing + all non-PCS work): 6.1 to 23.9 ms
+
+B6a block, one thread (stays + spike BAT+tower), ms:
+  rate 1/8: as built  45.5 to  63.3 (width 17.8); rational switch row  34.4 to  52.2 (width 17.8)
+  rate 1/4: as built  49.5 to  67.3 (width 17.8); rational switch row  34.6 to  52.4 (width 17.8)
+  rate 1/2: as built  63.3 to  81.1 (width 17.8); rational switch row  35.4 to  53.2 (width 17.8)
+
+== 5. Today's block with the A26 sparse loop (default on since 2026-11-07; the 141.9 ms predates it)
+dense column term 33 to 51 ms; sparse leaves 4.3% of the products at most; A26 saving 32 to 49 ms, so today's block 93 to 110 ms (upper end if the supports cover half of each row; 0 saving if the supports are dense)
+per request, 32 blocks, one thread, today (pre-A26 record .. with the saving):
+  today 2.98 to 4.54 s
+  B6a as built, rate 1/8: 1.46 to 2.03 s; ratio today/B6a 1.47 to 3.12
+  B6a as built, rate 1/4: 1.58 to 2.16 s; ratio today/B6a 1.38 to 2.87
+  B6a as built, rate 1/2: 2.03 to 2.60 s; ratio today/B6a 1.15 to 2.24
+
+== 6. Could the verifier skip the full forward NTT (only 280 outputs are read)?  (DERIVED)
+best split: s = 10 stages first, 245 classes hit, 183,447 butterflies against 245,760 (0.75 of the forward half, 0.83 of the encode); direct evaluation at 280 points: 4,665,920 multiplications a component (12.9 x the NTT)

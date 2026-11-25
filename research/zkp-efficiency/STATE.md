@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-25: Claude researcher tick 60, the NTT and column-product work of today's verifier, counted from `pcs.rs` (claude-cycle, queue item 100)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T15:55Z.
+[Handoff](handoffs/20261125-claude-tick60-verifier-ntt-column-count.md), script `20261125-claude-tick60-verifier-ntt-column-count.py`, output `...verifier-ntt-column-count.out.txt`.
+- **Pass on the item's line:** all 47 vectors (A 36 groups + 1, H 9 + 1, each with the proximity vector) are re-encoded, each Fp2 component separately: 94 encodes, each an inverse NTT of 2^14 plus a forward NTT of 2^15 (`encode_row_zk`, `pcs.rs:674-693`, `:1290-1303`) = 33.88 M butterflies a block (COUNTED), plus 3.11 M multiplications. Tick 58 counted 24.6 M (the forward half only). NTT term 75 to 94 ms one thread (MEASURED rates 2.11 to 2.18 ns from tick 56, 2.67 ns upper bound from tick 57), factor 1.25. Removed work 118 to 136 ms (capped by the record's 141.9 ms); B6a block 45.5 to 81.1 ms as built and 34.4 to 53.2 ms rational, each range 17.8 ms wide (tick 58: 45.7 to 91.5, 34.7 to 63.6). The upper edge rests on the record's cap, not on counts.
+- **Correction to tick 58:** the 141.9 ms a block (4.54 s, `a12merge_d55_ab.log:227`) is the 2026-11-05 record; A26's sparse column loop (`pcs.rs:1175-1212`, default on) merged 2026-11-07, so today's verifier is faster by up to 32 to 49 ms a block and the B6a verifier's gain over today's is x1.15 to x3.1 as built, not x1.6 to x3.1. No post-A26 W16R2 verifier record exists; quote a post-A26 one-thread record before any B6a verifier claim. Hashing that stays: 11.43 MB of columns, 560 salted leaves, 8,400 path compressions (about 6.1 ms).
+- Pruning the verifier's re-encode to the 280 read outputs saves at most 17% of the encode (derived); not a lane. Test T-N1 (one CPU-only micro-bench of 94 `encode_row_zk` calls, pass 65 to 95 ms) and tick 58's T-V1 stated, not scheduled. 0 committed words changed; no proved-tokens-per-second effect.
+
 ## 2026-11-25: Claude researcher tick 59, which weight classes beyond the block matrices a P3 profile must commit (claude-cycle, queue item 93)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T11:55Z.

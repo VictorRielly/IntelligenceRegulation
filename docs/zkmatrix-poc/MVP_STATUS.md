@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 16:00 UTC, size step, checking time [count and reading by the background researcher,
+    tick 60; script re-run and source lines read by Claude; one range narrowed by Claude; no build,
+    no run]: the "1.6 to 3.1 times faster checking" of this morning compared against a verifier
+    record that is older than a speed-up the verifier already has, so the low end is lower.** The
+    one-thread record under it (4.54 s for a 32-block 8B receipt, 141.9 ms a block) is of Nov 5; the
+    verifier's sparse column loop, on by default, entered the code on Nov 7, and no one-thread
+    record of this shape exists after it. Today's block is therefore somewhere between 93 and 141.9
+    ms, and the size step's gain in checking time somewhere between about 1.4 and 3.1 times as built
+    (the researcher's outer bound is 1.15; its own accounting cannot go below 1.24, or 1.36 with its
+    assumed cost floor for a column product). The count itself: the verifier re-encodes all 47
+    opened vectors of a block, both components, 33.9 M butterflies, which at rates measured on other
+    loops of this repository is 75 to 94 ms of the block; the boundary and endpoint openings are not
+    in that count. Everything here is on diagonal test weights and is an estimate: a run of the Nov
+    5 test on today's binary, with the sparse loop on and off, would replace it by a measurement,
+    and its definition will be posted before it runs
+    (`research/zkp-efficiency/handoffs/20261125-claude-tick60-verifier-ntt-column-count.md`).
     **Nov 25, 13:26 UTC, Lean [by Antigravity's commit message, the guard's exit codes and a text
     count by Claude; nothing here was rebuilt or read as a proof by Claude]: the step that would
     close the two gaps left by the Nov 24 merge is 14 modules of 16 along, and stuck on the
