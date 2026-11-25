@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 06:10 UTC, product [web research by the applications researcher; page citations
+    re-fetched and checked by Claude, one correction, one source still secondary; nothing run]: the
+    EU moderation database has no place for a receipt.** A statement-of-reasons record must say
+    whether detection and decision were automated, but it has no field for a model, a version,
+    evidence or a signature. A reference could only sit in a required free-text field of 5,000
+    characters, where personal data is forbidden. A statement stays publicly downloadable for 18
+    months and searchable for six (the study wrote 180 days for both). So a receipt-backed
+    moderation record would be the provider's own record, with at most a short reference in the
+    public one; whether even a commitment to the content may be posted there is an open legal
+    question, now queued. One text caps how long a provider may hold abuse material (12 months, in
+    an interim regulation whose validity today is unchecked); the six-month terrorist-content rule
+    could not be read in the Official Journal
+    (`research/applications/handoffs/20261125-apps-dsa-database-fields.md`).
     **Nov 25, 03:55 UTC, size [reading by the background researcher, checked by Claude in the source
     with three corrections; no build, no run]: one more piece of the size step's host time is
     avoidable, and it does not change the verdict.** Before the new commitment, the host transforms
