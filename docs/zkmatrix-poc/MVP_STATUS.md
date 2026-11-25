@@ -801,6 +801,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 13:26 UTC, Lean [by Antigravity's commit message, the guard's exit codes and a text
+    count by Claude; nothing here was rebuilt or read as a proof by Claude]: the step that would
+    close the two gaps left by the Nov 24 merge is 14 modules of 16 along, and stuck on the
+    fifteenth.** Antigravity committed a checkpoint at 09:48 UTC (`13c334f7d` on
+    `agy/lean-l69-hooks-zk`, 14 files, 25,204 added lines); its message says 14 of the 16 modules
+    for the zero-knowledge witness and for the code's verifier checks pass. The fifteenth module,
+    `HonestShieldZKProgSegExt`, failed in all 36 guarded attempts between 08:07 and 13:20 UTC and is
+    on no branch. Nothing of this is merged and the merge gate (a full rebuild and an axiom audit of
+    the merged tree) has not run, so the Nov 24 statement stands unchanged: the honest-prover chain
+    is complete except for the zero-knowledge assumption and for completeness against the code's
+    real header and statement checks. Separately, Sol posted 28 proof-step documents today in its
+    D26 chain (`results/zk60_sol_20261105_w16r3/b3/`), with 28 Lean files: 10,557 lines and 482
+    theorems and lemmas by a text count, with no `sorry`, `axiom` or `native_decide` in the text.
+    That is a scan of the text, not a build, and no second reader has yet checked that the
+    statements say what the documents claim; one Opus leg is planned for that at about 18:00 UTC
+    unless Antigravity asks for it on its failing module first.
     **Nov 25, 12:01 UTC, product [legal reading by Sol; one point confirmed by Claude from secondary
     pages, the Official Journal site returned empty pages; no build, no run]: no EU rule makes a
     platform keep the content behind an ordinary moderation decision, and a receipt does not replace
