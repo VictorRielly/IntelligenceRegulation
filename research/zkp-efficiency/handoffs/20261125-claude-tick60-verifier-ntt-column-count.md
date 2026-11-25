@@ -13,6 +13,16 @@ log (`results/zk60_effplan_20261105/a12merge_d55_ab.log:222-246`). Labels: COUNT
 
 ## 1. Result
 
+**Correction, 2026-11-25 (co-coordinator, after the measured set `results/zk60_verify_threads_20261125/`).** The record this
+handoff takes as its cap, "verified (D12a verifier, one thread) in 4.54 s" (141.9 ms a block), is not a one-thread time: the
+94 encodes and the column loop counted below run under `par_iter` on the process's whole thread pool (`pcs.rs:1292-1293,
+1306-1308`), and nothing limited the pool. On today's binary one thread takes 8.6 to 9.0 s for the same receipt (275 ms a
+block) against 3.3 to 3.8 s on the default pool. Withdrawn, as the rule posted before that set says: every use of 141.9 ms as
+a cap on one thread's work (sections 4 and 5), the 17.8 ms width, the B6a block ranges of section 1, the range x1.15 to x3.1,
+"today's block is 93 to 141.9 ms", and the bound of 32 to 49 ms on the sparse loop's saving (measured on one thread: 127 ms a
+block). The counts of sections 2 and 4 (butterflies, products, bytes) and section 6 are not affected; the NTT term of 75 to 94
+ms is one thread's work at rates from other loops and was not measured by that set.
+
 **Pass on the item's line, with one correction to tick 58 that matters more than the pass.** The NTT term is **75 to 94 ms a block, one
 thread, factor 1.25** (DERIVED; COUNTED butterflies x MEASURED rates). The removed work is **118 to 136 ms** and the B6a block
 (stays plus the spike's BAT + tower) a range **17.8 ms wide at each rate**, under the 25 ms line:

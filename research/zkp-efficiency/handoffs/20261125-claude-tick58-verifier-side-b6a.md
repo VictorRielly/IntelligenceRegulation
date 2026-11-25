@@ -14,6 +14,15 @@ verifier timers cover), the optimized overlay's notes and diff (`results/zk60_cl
 
 ## 1. Result
 
+**Correction, 2026-11-25 (co-coordinator, after the measured set `results/zk60_verify_threads_20261125/`).** The record this
+handoff builds on, "verified (D12a verifier, one thread) in 4.54 s", is not a one-thread time: the verifier's encodes and its
+column loop run under `par_iter` on the process's whole thread pool, and nothing limited the pool. On today's binary one thread
+takes 8.6 to 9.0 s for the same receipt (275 ms a block) against 3.3 to 3.8 s on the default pool. Withdrawn, as the rule
+posted before that set says: "141.9 ms a block on one thread" and its split, the range x1.6 to x3.1, the 108 to 136 ms of
+removed work, the B6a block ranges, and section 2's statement that the size study's 0.433 CPU-seconds a block is 3.05 times too
+high (one thread measured: 0.28 s a block with the sparse column loop, 0.40 s with the dense loop the Nov 5 code had). The
+counts (products, points, bytes) and the readings of the code are not affected.
+
 **Pass, with a correction to the study.** A retained same-machine record exists for today's verifier, so a per-request range can be
 given. At 32 blocks (the 8B profile), one thread:
 

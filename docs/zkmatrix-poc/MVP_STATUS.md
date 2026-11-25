@@ -801,6 +801,21 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 16:23 UTC, checking time [MEASURED by Claude: eight processes, all passed, the rule
+    posted and pushed before the run]: a verifier time quoted here as "one thread" was not a
+    one-thread time, and three ranges built on it today are withdrawn.** The test's line "verified
+    (D12a verifier, one thread)" times the serial verifier with its inner loops on the whole thread
+    pool. Limited to one thread, the same 32-block 8B-shape receipt takes 8.6 to 9.0 s to check (275
+    ms a block) against 3.3 to 3.8 s on the default pool: ratio 2.28 by the posted rule, against a
+    bar of 1.5. Withdrawn: the "1.6 to 3.1 times faster checking" for the size step in the 07:58
+    paragraph below, the "1.15" and "1.4 to 3.1" of the 16:00 paragraph, and the claim that the size
+    study's verifier calibration was three times too high. No replacement range exists; where one
+    thread's 275 ms go needs phase marks. Also measured: the verifier's sparse column loop, on by
+    default since Nov 7, saves 4.1 s a request on one thread (127 ms a block) and 1.8 s on the
+    default pool. For a reader who wants today's check time of an 8B-shape receipt on this 32-CPU
+    machine: 1.3 to 1.7 s with the six-worker verifier, 3.3 to 3.8 s with the serial one, 8.6 to 9.0
+    s on one thread, all on diagonal test weights; trained weights are not measured here
+    (`results/zk60_verify_threads_20261125/README.md`).
     **Nov 25, 16:00 UTC, size step, checking time [count and reading by the background researcher,
     tick 60; script re-run and source lines read by Claude; one range narrowed by Claude; no build,
     no run]: the "1.6 to 3.1 times faster checking" of this morning compared against a verifier

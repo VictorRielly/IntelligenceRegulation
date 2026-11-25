@@ -1,0 +1,26 @@
+set set1: 32 blocks, binary sha256 3afe2cd15015045bd562c968d914440169583ebcd896e3d4c09c9de87d974a28, order p,d,t1,t1d,t1d,t1,d,p, receipt 818728480 B in every process
+process  arm   serial verifier line, s   six-worker verifier line, s   started (UTC)
+  1      p         3.77                      1.39                     2026-11-25T16:10:09Z
+  2      d         5.40                      1.29                     2026-11-25T16:10:52Z
+  3      t1        9.04                      7.87                     2026-11-25T16:11:37Z
+  4      t1d      12.78                     10.73                     2026-11-25T16:13:11Z
+  5      t1d      13.00                     11.89                     2026-11-25T16:14:49Z
+  6      t1        8.59                      7.42                     2026-11-25T16:16:28Z
+  7      d         5.27                      1.25                     2026-11-25T16:17:59Z
+  8      p         3.34                      1.71                     2026-11-25T16:18:46Z
+
+arm p    serial line: 3.77 and 3.34 s, mean 3.555 s, the two differ by 12.1 percent of the mean  (more than 10 percent: reported as a range); six-worker line: 1.39 and 1.71 s
+arm d    serial line: 5.40 and 5.27 s, mean 5.335 s, the two differ by 2.4 percent of the mean; six-worker line: 1.29 and 1.25 s
+arm t1   serial line: 9.04 and 8.59 s, mean 8.815 s, the two differ by 5.1 percent of the mean; six-worker line: 7.87 and 7.42 s
+arm t1d  serial line: 12.78 and 13.00 s, mean 12.890 s, the two differ by 1.7 percent of the mean; six-worker line: 10.73 and 11.89 s
+
+Reading 1: R = mean(t1) / mean(p) = 2.48; least favourable pair (smallest t1 over largest p) = 2.28; most favourable 2.71
+  the repeat rule applies (an arm differs by more than 10 percent): the figure read is 2.28
+  at or above 1.5: the serial line is NOT a one-thread time; the split of 141.9 ms and the ranges built on it are withdrawn
+  one-thread work a block (sparse loop on): mean(t1) / 32 = 275.5 ms (268.4 to 282.5)
+  one-thread work a block (dense loop):     mean(t1d) / 32 = 402.8 ms (399.4 to 406.2)
+  default pool, serial verifier, a request: 3.34 to 3.77 s (sparse on); 5.27 to 5.40 s (dense)
+
+Reading 2: one-thread saving of the sparse loop = mean(t1d) - mean(t1) = 4.075 s a request = 127.3 ms a block (pairs: 3.74 to 4.41 s)
+  tick 60 bounded it at no more than 32 to 49 ms a block (1.0 to 1.6 s a request): the measured saving is 2.6 to 4.0 times that bound
+  on the default pool: mean(d) - mean(p) = 1.780 s a request (pairs: 1.50 to 2.06 s)

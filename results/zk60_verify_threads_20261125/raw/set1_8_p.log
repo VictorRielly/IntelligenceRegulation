@@ -1,0 +1,25 @@
+
+running 1 test
+D55-AB W16R2_8B_T128_H24 L32 T128: the sealing pass (the forward chain as 32 serial full witness builds) 5.463 s
+D55-AB W16R2_8B_T128_H24 L32 T128: setup 6.0 s (one witness 0.30 GB; 32 alive per call)
+D55-AB W16R2_8B_T128_H24 L32 serial cold (kernel compiles): wall 9.817 s = 13.04 proved tok/s
+D55-AB W16R2_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 3.34 s
+D55-AB W16R2_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 10.553 s = 12.13 proved tok/s; receipt 818728480 B
+D55-AB A7 CPU W16R2_8B_T128_H24 L32 forks N6: 44.7 CPU-seconds (user + system, the whole process) over the 3.794 s call = 11.8 cores busy on average
+D55-AB A11 USAGE W16R2_8B_T128_H24 L32 forks N6 []: wall 3.794 s, forks 3.413 s | process user 37.7 s + sys 6.9 s = 11.8 cores | minor faults 1246055 (328417/s), major 0 | csw voluntary 0, involuntary 148792 | fork workers: prove_core 18.90 s summed, their own thread CPU 18.33 s (97%)
+D55-AB A12 TABLES W16R2_8B_T128_H24 L32 forks N6 []: table builds 14.70 ms per block (summed over the forks) | s00 0.84 ms (0/32 dev), s01 0.50 ms (0/32 dev), s03 0.29 ms (0/32 dev), s04 0.92 ms (0/32 dev), s05 0.43 ms (0/32 dev), s06 0.38 ms (0/32 dev), s07 0.36 ms (0/32 dev), s08 0.53 ms (0/32 dev), s09 0.47 ms (0/32 dev), s10 0.47 ms (0/32 dev), s11 0.39 ms (0/32 dev), s12 0.46 ms (0/32 dev), s13 2.31 ms (0/32 dev), s14 1.05 ms (32/32 dev), s15 0.77 ms (32/32 dev), s16 0.27 ms (32/32 dev), s17 0.63 ms (32/32 dev), s18 3.04 ms (32/32 dev), s19 0.32 ms (32/32 dev), s20 0.08 ms (0/32 dev), s21 0.08 ms (32/32 dev), s22 0.07 ms (32/32 dev) | device builds so far [768, 12864, 3264, 192, 0, 1344, 768, 0]
+D55-AB W16R2_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 1.71 s
+D55-AB W16R2_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 3.794 s = 33.74 proved tok/s; 6 workers; preflight 0.072 s, commit 0.201 s, forks 3.413 s, join 0.108 s; fork prove_core min 0.403 median 0.579 max 0.762 s; receipt 818728672 B
+D55-AB ORDER serial-first | serial (D12a)  | 1 passes | best 10.553 s = 12.13 tok/s | mean 10.553 s = 12.13 tok/s
+D55-AB ORDER serial-first | forks N=6      | 1 passes | best 3.794 s = 33.74 tok/s | mean 3.794 s = 33.74 tok/s
+D55-AB W16R2_8B_T128_H24 L32: the fork run's profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-lh-w16r2-tst/2 (registered: false)
+D55-AB SUMMARY W16R2_8B_T128_H24 L32 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 10.553 s = 12.13 tok/s | mean 10.553 s = 12.13 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 3.794 s = 33.74 tok/s | mean 3.794 s = 33.74 tok/s | 2.78x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.004 s, device sumcheck rounds 12.211 s
+D55-AB A4 witness products on the device: 927, 915 written in place (HL_GPU_WITNESS=None, route None); summed activation buffer 0.004 s, pack 1.699 s, weights 0.036 s, output plane + encode 0.095 s, command buffer 3.201 s, of which on the GPU 1.935 s, scatter 0.006 s
+D55-AB W16R2_8B_T128_H24 L32: total 43.1 s
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1194 filtered out; finished in 43.15s
+

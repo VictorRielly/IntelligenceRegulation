@@ -1,0 +1,32 @@
+[16:10:09Z] set1 run 1 arm p
+[zk60-guard 08:10:09] START claude-vt-set1-1-p class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=7706f8065df0
+[zk60-guard 08:10:52] END claude-vt-set1-1-p exit=0 child_wall=43s peak_rss=17.86G min_avail=166.80G peak_vram=21999MiB
+    guard exit 0; serial verify 3.77 s; forks verify 1.39 s; test ok True
+[16:10:52Z] set1 run 2 arm d
+[zk60-guard 08:10:52] START claude-vt-set1-2-d class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=5cb25775b7fd
+[zk60-guard 08:11:36] END claude-vt-set1-2-d exit=0 child_wall=45s peak_rss=18.04G min_avail=167.98G peak_vram=21179MiB
+    guard exit 0; serial verify 5.4 s; forks verify 1.29 s; test ok True
+[16:11:37Z] set1 run 3 arm t1
+[zk60-guard 08:11:37] START claude-vt-set1-3-t1 class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=ec5b6ff751e1
+[zk60-guard 08:13:11] END claude-vt-set1-3-t1 exit=0 child_wall=94s peak_rss=18.02G min_avail=166.98G peak_vram=22049MiB
+    guard exit 0; serial verify 9.04 s; forks verify 7.87 s; test ok True
+[16:13:11Z] set1 run 4 arm t1d
+[zk60-guard 08:13:11] START claude-vt-set1-4-t1d class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=247cdc0e7f35
+[zk60-guard 08:14:49] END claude-vt-set1-4-t1d exit=0 child_wall=98s peak_rss=18.42G min_avail=169.35G peak_vram=19389MiB
+    guard exit 0; serial verify 12.78 s; forks verify 10.73 s; test ok True
+[16:14:49Z] set1 run 5 arm t1d
+[zk60-guard 08:14:49] START claude-vt-set1-5-t1d class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=dfc34cc7f323
+[zk60-guard 08:16:28] END claude-vt-set1-5-t1d exit=0 child_wall=99s peak_rss=18.31G min_avail=168.74G peak_vram=21013MiB
+    guard exit 0; serial verify 13.0 s; forks verify 11.89 s; test ok True
+[16:16:28Z] set1 run 6 arm t1
+[zk60-guard 08:16:28] START claude-vt-set1-6-t1 class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=76f811dbcb15
+[zk60-guard 08:17:59] END claude-vt-set1-6-t1 exit=0 child_wall=91s peak_rss=18.35G min_avail=167.01G peak_vram=21343MiB
+    guard exit 0; serial verify 8.59 s; forks verify 7.42 s; test ok True
+[16:17:59Z] set1 run 7 arm d
+[zk60-guard 08:17:59] START claude-vt-set1-7-d class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=ccbb3002e4f7
+[zk60-guard 08:18:46] END claude-vt-set1-7-d exit=0 child_wall=47s peak_rss=18.63G min_avail=168.04G peak_vram=21264MiB
+    guard exit 0; serial verify 5.27 s; forks verify 1.25 s; test ok True
+[16:18:46Z] set1 run 8 arm p
+[zk60-guard 08:18:46] START claude-vt-set1-8-p class=gpu need=80G cap=110G enforce=watchdog-only waited=0s run=d0466e4b50f0
+[zk60-guard 08:19:29] END claude-vt-set1-8-p exit=0 child_wall=43s peak_rss=18.56G min_avail=167.71G peak_vram=21992MiB
+    guard exit 0; serial verify 3.34 s; forks verify 1.71 s; test ok True
