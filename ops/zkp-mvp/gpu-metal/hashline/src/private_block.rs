@@ -829,23 +829,89 @@ impl FeedForwardPublic {
 /// Structure is checked by the two constructors; structure is NOT provenance.
 /// The caller must authenticate the words (approved model, registered table
 /// digests) against the approved commitments before trusting a verdict.
-#[derive(Clone)]
 pub struct BlockPublic {
     attention: AttentionPublic,
     feed_forward: FeedForwardPublic,
     accuracy: Option<accuracy_public::AccuracyPublic>,
+    /// [HOST-FAST-W2 L1] Lazily cached domain-separated BLAKE3 digest over the
+    /// block's public lookup tables (`attention.exp`, `feed_forward.act`, and
+    /// `accuracy`). Always starts empty on construction, `Clone`, and
+    /// `with_accuracy` so the `HL_HOST_FAST_W2` unset path never hashes or
+    /// initializes it and test-side clone-then-mutate patterns never see a
+    /// stale digest.
+    lookup_digest: std::sync::OnceLock<Digest>,
+}
+
+impl Clone for BlockPublic {
+    fn clone(&self) -> Self {
+        Self {
+            attention: self.attention.clone(),
+            feed_forward: self.feed_forward.clone(),
+            accuracy: self.accuracy.clone(),
+            lookup_digest: std::sync::OnceLock::new(),
+        }
+    }
 }
 
 impl BlockPublic {
     pub fn new(attention: AttentionPublic, feed_forward: FeedForwardPublic) -> Self {
-        Self { attention, feed_forward, accuracy: None }
+        Self { attention, feed_forward, accuracy: None, lookup_digest: std::sync::OnceLock::new() }
     }
     /// R13 attachment; no legacy caller uses this method.
     pub(crate) fn with_accuracy(mut self, accuracy: accuracy_public::AccuracyPublic) -> Self {
         self.accuracy = Some(accuracy);
+        self.lookup_digest = std::sync::OnceLock::new();
         self
     }
     pub(crate) fn accuracy(&self) -> Option<&accuracy_public::AccuracyPublic> { self.accuracy.as_ref() }
+
+    /// **[HOST-FAST-W2 L1] Cached content digest of every public lookup table in this block**
+    /// (`attention.exp`, `feed_forward.act`, and `accuracy` — both its canonical encoding
+    /// and derived `scaled_tables`).
+    ///
+    /// Computed lazily on first `HL_HOST_FAST_W2=1` `SealedHistograms` seal or match and
+    /// cached in `self.lookup_digest`, so repeated checks on resident blocks are an O(1)
+    /// `[u8; 32]` compare and the `HL_HOST_FAST_W2` unset path never computes or initializes
+    /// the cache. In-process cache key only: never enters any transcript, commitment, or receipt.
+    pub(crate) fn lookup_tables_digest(&self) -> Digest {
+        *self.lookup_digest.get_or_init(|| {
+            let mut h = blake3::Hasher::new();
+            h.update(b"hashline/sealed-hist-lookup-tables/1");
+            h.update(&(self.attention.exp.len() as u64).to_le_bytes());
+            for &v in &self.attention.exp {
+                h.update(&v.to_le_bytes());
+            }
+            h.update(&(self.feed_forward.act.len() as u64).to_le_bytes());
+            for &v in &self.feed_forward.act {
+                h.update(&v.to_le_bytes());
+            }
+            match &self.accuracy {
+                None => {
+                    h.update(&[0u8]);
+                }
+                Some(accuracy) => {
+                    h.update(&[1u8]);
+                    let encoded = accuracy.encode();
+                    h.update(&(encoded.len() as u64).to_le_bytes());
+                    h.update(&encoded);
+                    let scaled = accuracy.scaled_tables();
+                    h.update(&(scaled.len() as u64).to_le_bytes());
+                    for table in scaled {
+                        h.update(&(table.len() as u64).to_le_bytes());
+                        for &v in table {
+                            h.update(&v.to_le_bytes());
+                        }
+                    }
+                }
+            }
+            *h.finalize().as_bytes()
+        })
+    }
+
+    #[cfg(test)]
+    pub(crate) fn lookup_digest_is_initialized(&self) -> bool {
+        self.lookup_digest.get().is_some()
+    }
 
     /// Verifier-derived R13 public context. Calling this validates the
     /// component; the shared proof entry still has its activation refusal.
