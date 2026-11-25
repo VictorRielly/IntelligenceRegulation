@@ -1,0 +1,2 @@
+nine legs (windows utc_start to utc_end of raw/p23_ab8/t2_results.json) against 5724 records of results/zk60_resource_guard/history.jsonl, excluding the set's own run 56afceb7a88f: 0 overlaps
+(the copied overlap_check.py counts no legs in this directory; this check is the inline one of the apply script, same windows as that script defines)

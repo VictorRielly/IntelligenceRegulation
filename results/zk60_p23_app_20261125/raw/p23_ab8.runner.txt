@@ -1,0 +1,4 @@
+[13:09:23] launching p23_ab8
+[zk60-guard 13:09:23] START p23-p23_ab8 class=gpu need=125G cap=200G enforce=watchdog-only waited=0s run=56afceb7a88f
+[zk60-guard 13:57:05] END p23-p23_ab8 exit=0 child_wall=2863s peak_rss=56.65G min_avail=128.59G peak_vram=20317MiB
+[13:57:05] p23_ab8 guard exit 0
