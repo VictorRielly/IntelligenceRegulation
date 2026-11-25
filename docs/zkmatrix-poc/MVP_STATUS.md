@@ -801,6 +801,31 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 00:14 UTC, size [research by the background researcher and an independent read by an
+    Opus agent; Claude re-ran the scripts, recomputed the totals and checked the citations; nothing
+    was built or timed]: what a kilobyte receipt would cost, and an independent read of the new
+    opening's soundness argument.** *Kilobyte receipts (tick 55).* A receipt small enough for a
+    blockchain means a second proof that the checker accepted the first one. Its cost follows the
+    bytes the checker hashes: 13.4 M BLAKE3 compressions a request today on the 8B shape, 6.9 M
+    after the first size step, 1.6 M after the second [DERIVED; two terms ASSUMED, a recount is
+    queued]. Priced from the one published design of this kind (Sable, arXiv 2611.14083), that
+    second proof takes 9 to 40 s a request after the first size step and 2 to 9 s after the second,
+    against about 3.2 s to prove the request itself [DERIVED from the authors' measured rates on
+    their GPU and from their cell counts at this prover's rate; not measured here]. Every published
+    route under 1 kB then ends in a Groth16 step with a trusted setup (15 s claimed on other
+    hardware; 197 s measured for the old zkVM line in September); routes without one stop at 140 to
+    870 KiB [AUTHORS; the 140 KiB figure was re-read]. Today's checker also reads all 7 GB of public
+    weights, which cannot be wrapped, so a weight commitment has to come first. This is a route for
+    batches or a background service after both size steps, and a trusted setup on this line would
+    need a ruling (D4 accepts one for the old zkVM line only). *The size step's soundness note.* An
+    independent reader found no wrong step in Sol's argument for the new opening. The five Lean
+    lemmas compile on the three standard axioms and say what the note uses them for, and the code
+    matches the note on every parameter traced. The note stops at per-round figures: added up, the
+    new opening contributes 2^-103.5 over a 26-block classifier run, which would move the run's
+    figure from 2^-98.08 to about 2^-98.05, as the build plan had estimated [DERIVED, recomputed by
+    Claude; today's 2^-98.08 was not recomputed]. Still open for the proof: the total, Merkle
+    binding, the Fiat-Shamir step and the link to the existing opening lemma. The timing test of
+    this step has not run; Sol's window has been idle since Nov 24, 20:12 UTC.
     **Nov 24, 20:05 UTC, size and image [built and measured by Sol and by Astra; Claude checked the
     guard records only]: first proof with the new opening on a small development rung, and a
     patterned image through the whole image chain.** *Size.* Sol's switched block core proved and

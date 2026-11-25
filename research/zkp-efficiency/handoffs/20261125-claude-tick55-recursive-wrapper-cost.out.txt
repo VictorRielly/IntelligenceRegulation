@@ -1,0 +1,34 @@
+clock 2026-11-25T00:05:35Z
+
+== 1. verifier work per request (32 blocks) ==
+today  compressions/block: leaf    198750 absorb    207031 paths+salts  13440 =    419221; per request  13.42 M;  column products   1062.4 M;  NTT points   98.56 M
+B6a    compressions/block: leaf    202062 absorb         0 paths+salts  13440 =    215502; per request   6.90 M;  column products     53.4 M;  NTT points    0.13 M
+B6b    compressions/block: leaf     36438 absorb         0 paths+salts  13440 =     49878; per request   1.60 M;  column products      2.6 M;  NTT points    0.13 M
+compressions per MiB of receipt: ours today 0.0172 M/MiB; Sable 360 MiB 0.0494; Sable 134.8 MiB 0.0313
+
+weight fold today: 14 G mults x 16 cells = 224 G cells (= 84 x the request's 2.68 G committed words)
+plain weight opening per block at 2^16: 3328 rows x 277 cols x 8 B = 7.37 MB; per request 236 MB = 3.91 M compressions (ASSUMED shape; item 13 prices it properly)
+
+== 2. layer 1 (verifier circuit, same proof system), BLAKE3 only ==
+our device cost per committed word: 1.094 ns  -> 4.48 us per compression at 4096 cells
+today   13.42 M compressions:   37.6 s at 2.8 us ...   60.1 s at our measured word rate;   54.9 G cells =  20.5 x the request's committed words; x10.0 to x16.0 of the 3.7455 s cadence
+       if serial on the proving device: request rate falls to 0.06 .. 0.09 of today's
+B6a      6.90 M compressions:   19.3 s at 2.8 us ...   30.9 s at our measured word rate;   28.2 G cells =  10.6 x the request's committed words; x 5.2 to x 8.3 of the 3.7455 s cadence
+       if serial on the proving device: request rate falls to 0.11 .. 0.16 of today's
+B6b      1.60 M compressions:    4.5 s at 2.8 us ...    7.2 s at our measured word rate;    6.5 G cells =   2.4 x the request's committed words; x 1.2 to x 1.9 of the 3.7455 s cadence
+       if serial on the proving device: request rate falls to 0.34 .. 0.46 of today's
+
+XOR-table lookups: 896 per compression -> B6a 6.2 G against the request's 32.28 M x 32 = 1.03 G lookups
+
+B6a column products 53.4 M x 16 cells = 0.86 G cells (3.0% of the hashing's cells)
+
+== 4. constant tail (independent of the request) ==
+RISC Zero Groth16 wrap, this box, native tools, 2026-09-18 (decisions D6): 197 s MEASURED, receipt 785 bytes
+RISC Zero blog 2024 [AUTHORS, dated], CUDA: about 15 s STARK-to-SNARK against 2.5 s for the STARK
+independent SP1-stack settlement project [search summary, unchecked]: base 48 + layer 1 26 + shrink 59 + witness 12 + Groth16 50 = 195 s
+tail of 15 .. 197 s is 4 .. 53 cadences, per request, whatever the request size
+
+== 5. zkVM guest route (RISC Zero style), cycles ASSUMED ==
+software BLAKE3 at 1500 cycles a compression: B6a 10.3 G cycles = 9.9 k segments of 2^20
+software BLAKE3 at 2500 cycles a compression: B6a 17.2 G cycles = 16.4 k segments of 2^20
+no cycle figure for BLAKE3 in any zkVM was found; test T-W3 (execute only) measures it

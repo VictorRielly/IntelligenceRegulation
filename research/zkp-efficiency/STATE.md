@@ -2,6 +2,16 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-25: Claude researcher tick 55, what a recursive wrapper for kilobyte receipts costs for this verifier (claude-cycle, queue item 90, H167)
+
+**COMPLETE, local reading and arithmetic plus 6 searches and 7 page reads** (ePrint 2026/2877 refused, HTTP 403; Sable's Section 10.3 unread); no run, no build, no Git. Triage material (no ruling; D82 keeps the wrapper at study level). Clock at writing 2026-11-25T00:06Z.
+[Handoff](handoffs/20261125-claude-tick55-recursive-wrapper-cost.md), script `20261125-claude-tick55-recursive-wrapper-cost.py`, output `...recursive-wrapper-cost.out.txt`.
+- **The wrapper pays for the verifier's BLAKE3 hashing (DERIVED):** one request's verification is 13.4 M compressions today, 6.9 M after B6a, 1.6 M after B6b (column products 1,062 M, 53 M, 2.6 M; hashing is 97% of B6a's wrapper cells). Same order per MiB as Sable's verifier (17.8 M compressions at 360 MiB [authors]).
+- **Layer 1 in our own system:** 19 to 31 s a request at B6a, 4.5 to 7 s at B6b (Sable's 2.8 us a compression [authors], and our measured 1.094 ns per committed word at their naive 4,096 cells); 5 to 8 and 1.2 to 1.9 cadences. Constant tail for shrink and Groth16: 15 s [authors, 2024, CUDA] to 197 s (MEASURED here, 2026-09-18, D6). Serial on the proving device the request rate falls to 0.11 to 0.16 (B6a) or 0.34 to 0.46 (B6b) of today's.
+- **Today's verifier cannot be wrapped as is:** it folds 7.0 GB of public weights (14 G mults, 84 x the request's committed words); a committed-weight opening must replace it (item 13; about 3.9 M compressions more, shape ASSUMED).
+- **Kilobytes mean Groth16 and a trusted setup** (128 to 785 B); transparent routes found stop at 140 to 870 KiB. Inner privacy needs no extra mask; soundness errors add (95-bit inner floor, D27). No BLAKE3-in-zkVM cycle figure found.
+- Tests T-W1 (count compressions in one verification), T-W2 (2^20 compressions on the Metal prover; pass at most 3 us) and T-W3 (execute-only zkVM cycles) stated, not scheduled. 0 committed words changed. Items 94 and 95 added.
+
 ## 2026-11-24: Claude researcher tick 54, hidden weights (P3) priced on the W16R2 8B prover (claude-cycle, queue item 91)
 
 **COMPLETE, local reading and arithmetic plus 3 searches and 4 fetches** (the zkLLM PDF did not extract); no run, no build, no Git. Triage material (no ruling; D82 keeps P3 at study level). Clock at writing 2026-11-24T15:55Z.
