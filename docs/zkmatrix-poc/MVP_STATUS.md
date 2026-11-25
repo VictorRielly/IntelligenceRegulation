@@ -801,6 +801,15 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 07:54 UTC, product [count and reading by Astra; arithmetic redone and the two Ethereum
+    rule pages re-read by Claude; nothing run]: posting today's receipt on a public chain would take
+    about 1,600 Ethereum transactions per category.** One 670 MB receipt, carried as transaction
+    data under the gas rules of EIP-7623 and EIP-7825, needs at least 1,594 transactions of the
+    maximum size, and that is transport only, with no verifier on the chain. A 1 KiB proof fits in
+    one transaction. So what fits today is a hash anchor of a receipt kept elsewhere; a
+    kilobyte-size proof needs the recursive wrapper, which is at study level. The study's figures
+    for other proving systems were not re-checked and are leads only
+    (`research/applications/handoffs/20261125-apps-proof-size-limits.md`).
     **Nov 25, 07:52 UTC, size and guest check [MEASURED by Sol and by Astra, read by Claude in their
     records; not re-run]: Sol's own run of the size test agrees with the stop, and a guest check now
     asks for 12 GiB.** Sol's run of its pinned test gave +103 to +139 ms of host time a block
