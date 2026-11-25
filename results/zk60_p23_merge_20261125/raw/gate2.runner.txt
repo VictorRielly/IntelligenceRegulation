@@ -1,0 +1,2 @@
+[zk60-guard 12:33:35] START p23-merge-gate2 class=gpu need=16G cap=32G enforce=watchdog-only waited=0s run=f457e20033b9
+[zk60-guard 13:02:10] END p23-merge-gate2 exit=0 child_wall=1715s peak_rss=9.46G min_avail=188.20G peak_vram=3764MiB

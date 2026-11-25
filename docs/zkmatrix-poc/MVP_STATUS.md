@@ -801,6 +801,13 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 21:08 UTC, merge gate, second run [MEASURED by Claude]: green on the author's fix; the
+    speed check is next.** Antigravity fixed its tests (the injected fallbacks are now counted on a
+    test-only, per-thread counter; 55 added lines, read by me). On a merge of the fixed commit both
+    full-suite runs give 1046 passed and only the two known fixture failures, and the 34 single-test
+    gates and the Metal commit test pass. Still to come before the merge: a default-path speed
+    comparison at the app profile (its rule is posted; it runs now, about 49 minutes) and an
+    independent code read after 00:00 UTC. Record: `results/zk60_p23_merge_20261125/` (`gate2`).
     **Nov 25, 21:02 UTC, hidden weights, study level [reading and a toy computation by the
     background researcher; the cited code lines re-read and the script re-run by Claude]: the
     weights could be committed without their padding.** If a later version hides the weights, the

@@ -1,0 +1,266 @@
+# Trimmed copy of gate2.log (the full log is 5.7 MB, mostly the JSON event lines of command-line tests, and is kept out of
+# the repository). Kept: every step line, every result line, every FAILED line, and for each failure block the last
+# refusal line and the panic message.
+=== STEP suite START 2026-11-25T20:33:35Z env {} argv --features gpu-metal --lib -- --test-threads=8
+running 1204 tests
+test private_block::review_tests::a_toy_receipt_made_before_f12_is_refused ... FAILED
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces ... FAILED
+---- private_block::review_tests::a_toy_receipt_made_before_f12_is_refused stdout (trimmed) ----
+thread 'private_block::review_tests::a_toy_receipt_made_before_f12_is_refused' (31791181) panicked at src/private_block/review_tests.rs:738:5:
+no pre-lane toy receipt was found: this check did not run
+---- private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces stdout (trimmed) ----
+thread 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces' (31811070) panicked at src/private_block/trained_accuracy.rs:515:96:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+test result: FAILED. 1046 passed; 2 failed; 156 ignored; 0 measured; 0 filtered out; finished in 670.02s
+error: test failed, to rerun pass `--lib`
+=== STEP suite EXIT 101 2026-11-25T20:48:13Z
+=== STEP suite-on START 2026-11-25T20:48:13Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib -- --test-threads=8
+running 1204 tests
+test private_block::review_tests::a_toy_receipt_made_before_f12_is_refused ... FAILED
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces ... FAILED
+---- private_block::review_tests::a_toy_receipt_made_before_f12_is_refused stdout (trimmed) ----
+thread 'private_block::review_tests::a_toy_receipt_made_before_f12_is_refused' (31819446) panicked at src/private_block/review_tests.rs:738:5:
+no pre-lane toy receipt was found: this check did not run
+---- private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces stdout (trimmed) ----
+thread 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces' (31838672) panicked at src/private_block/trained_accuracy.rs:515:96:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+test result: FAILED. 1046 passed; 2 failed; 156 ignored; 0 measured; 0 filtered out; finished in 671.21s
+error: test failed, to rerun pass `--lib`
+=== STEP suite-on EXIT 101 2026-11-25T20:59:24Z
+=== STEP unit-isolation-unset START 2026-11-25T20:59:24Z env {} argv --features gpu-metal --lib private_block::token_io::classify_cli_tests::classify_host_fast_unit_isolation_and_switch_off_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli_tests::classify_host_fast_unit_isolation_and_switch_off_gate ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"c62c39342a050306a1005434fee690944327331c7f939c07b9986fb08510caed","verify_seconds":0.086,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.04s
+=== STEP unit-isolation-unset EXIT 0 2026-11-25T20:59:26Z
+=== STEP unit-isolation-all3 START 2026-11-25T20:59:26Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli_tests::classify_host_fast_unit_isolation_and_switch_off_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli_tests::classify_host_fast_unit_isolation_and_switch_off_gate ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"b57759f294bbbbcb016e7d65fca9285df087f8c87184e59ed08c49b8b70a52ac","verify_seconds":0.096,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.19s
+=== STEP unit-isolation-all3 EXIT 0 2026-11-25T20:59:29Z
+=== STEP ch-verifier-isolation START 2026-11-25T20:59:29Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::classify_host_fast_verifier_isolation_and_serve_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_verifier_isolation_and_serve_gate ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"d648a374673d08b25a4f6c41282effee4747dc2995157bc257ae9d587a00f05d","verify_seconds":0.089,"whole_run_floor_bits":94,"published_by":"an earlier verifier (re-checked byte for byte)"}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 3.28s
+=== STEP ch-verifier-isolation EXIT 0 2026-11-25T20:59:32Z
+=== STEP ch-plus-w2-serve START 2026-11-25T20:59:32Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::classify_host_fast_plus_w2_serve_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_plus_w2_serve_gate ... HL_CLASSIFY_HOST_FAST + HL_HOST_FAST_W2 | COMBINED SERVE GATE PASS: both switches hit (including C4 + W2-2 SealedWitness) with 0 fallbacks and strict 3-switch check-serve isolation
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.62s
+=== STEP ch-plus-w2-serve EXIT 0 2026-11-25T20:59:35Z
+=== STEP w2-call-sites START 2026-11-25T20:59:35Z env {'HL_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_w2_all_call_sites_byte_identical -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_w2_all_call_sites_byte_identical ... HOST-FAST-W2 [single rung_g]: hw0 == hw1 (4234984 B, w2_hits=[0, 2, 0, 0, 2, 0, 0, 0, 5, 176], w2_fb=[0, 0, 0, 0, 0])
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 4.32s
+=== STEP w2-call-sites EXIT 0 2026-11-25T20:59:39Z
+=== STEP w2-golden START 2026-11-25T20:59:39Z env {'HL_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_w2_rung_golden -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_w2_rung_golden ... [ZK60-METAL] commit 320 x 2^14 -> 2^15: setup 0.004 s, gpu total 0.017 s (inverse 0.002, init 0.000, forward 0.003, hash 0.000)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 5.31s
+=== STEP w2-golden EXIT 0 2026-11-25T20:59:44Z
+=== STEP all3-verifier-isolation START 2026-11-25T20:59:44Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_all_three_switches_verifier_isolation_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_all_three_switches_verifier_isolation_gate ... FIX-1 VERIFIER ISOLATION GATE PASS: HL_HOST_FAST=1 + HL_CLASSIFY_HOST_FAST=1 + HL_HOST_FAST_W2=1 moved 0 hits and 0 fallbacks across W16R2 verify_core, W16R2 verify_run_with_forks, and R13 accuracy verify_classify_run + owner_check_input
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 3.76s
+=== STEP all3-verifier-isolation EXIT 0 2026-11-25T20:59:48Z
+=== STEP w2-alone-serve START 2026-11-25T20:59:48Z env {'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::host_fast_w2_alone_classify_serve_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::host_fast_w2_alone_classify_serve_gate ... HL_HOST_FAST_W2 ALONE | CLASSIFY SERVE GATE PASS: seal_chain_keeping -> CliSource::witness_sealed -> prove_classify_run_with hit HF_W2_SEAL_HIST=2 with 0 fallbacks
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.74s
+=== STEP w2-alone-serve EXIT 0 2026-11-25T20:59:51Z
+=== STEP w2-trained-d55-sealing START 2026-11-25T20:59:51Z env {} argv --features gpu-metal --lib private_block::run::fork::tests::host_fast_w2_trained_block_d55_sealing_byte_identical -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::run::fork::tests::host_fast_w2_trained_block_d55_sealing_byte_identical ... HOST-FAST-W2 [trained_block::d55_seal_and_prove L=3]: hw0 == hw1 interior forks byte-identical (share1/win0, share1/win1, share0/win0); seal_hist=(3,2,0), fb=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 7.64s
+=== STEP w2-trained-d55-sealing EXIT 0 2026-11-25T20:59:59Z
+=== STEP w2-rope-const-pubgen START 2026-11-25T20:59:59Z env {'HL_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_w2_rope_and_const_pub_gen_gpu -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_w2_rope_and_const_pub_gen_gpu ... HOST-FAST-W2 PubGen: Rope (sh_pad + W16R2_RUNG_H24, Dom::Q/Kv, cos/sin, sync+defer) and ConstOne PASS
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.08s
+=== STEP w2-rope-const-pubgen EXIT 0 2026-11-25T20:59:59Z
+=== STEP m2-trained-seal-refusal START 2026-11-25T20:59:59Z env {} argv --features gpu-metal --lib private_block::trained_block::a3_tests::host_fast_w2_trained_seal_chain_planted_lookup_miss_refusal -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::trained_block::a3_tests::host_fast_w2_trained_seal_chain_planted_lookup_miss_refusal ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.07s
+=== STEP m2-trained-seal-refusal EXIT 0 2026-11-25T20:59:59Z
+=== STEP m2-seal-keeping-refusal START 2026-11-25T20:59:59Z env {} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::host_fast_w2_seal_chain_keeping_and_fast_planted_lookup_miss_refusal -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::host_fast_w2_seal_chain_keeping_and_fast_planted_lookup_miss_refusal ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.32s
+=== STEP m2-seal-keeping-refusal EXIT 0 2026-11-25T20:59:59Z
+=== STEP w2-sealed-hists-parity START 2026-11-25T20:59:59Z env {} argv --features gpu-metal --lib private_block::protocol::tests::host_fast_w2_sealed_hists_twoterm_exp_and_flat_w16_parity -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::protocol::tests::host_fast_w2_sealed_hists_twoterm_exp_and_flat_w16_parity ... [ZK60-HOST-FAST] fallback (H1 exp: zero table denominator)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 3.04s
+=== STEP w2-sealed-hists-parity EXIT 0 2026-11-25T21:00:02Z
+=== STEP m1-r13-receipt-door START 2026-11-25T21:00:02Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate ... {"event":"loaded","export_variant":"r13-h24-dense","run_profile":"hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/2","blocks":1,"trained_statement_identity":"087ae64383ddcdbec18fdb98d6685a141b263f0baac5db336dd174301d484377","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 5.09s
+=== STEP m1-r13-receipt-door EXIT 0 2026-11-25T21:00:07Z
+=== STEP hf-call-sites-author START 2026-11-25T21:00:07Z env {'HL_HOST_FAST': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_all_call_sites_byte_identical -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_all_call_sites_byte_identical ... HOST-FAST [single rung_g]: hf0 == hf1 (4234984 B, hits=[2, 1, 0, 0, 8, 0, 16, 0], fallbacks=[0, 0, 0, 0, 0])
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.09s
+=== STEP hf-call-sites-author EXIT 0 2026-11-25T21:00:10Z
+=== STEP hf-golden-author START 2026-11-25T21:00:10Z env {'HL_HOST_FAST': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_w16r2_rung_golden -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_w16r2_rung_golden ... HOST-FAST-RUNG W16R2_RUNG_H24 arm=hf0 queues=shared: digest 96e4f0b6 (golden); hits=[0, 0, 0, 0, 0, 0, 0, 0] fallbacks=[0, 0, 0, 0, 0] sc_batches=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 3.82s
+=== STEP hf-golden-author EXIT 0 2026-11-25T21:00:13Z
+=== STEP hf-golden START 2026-11-25T21:00:13Z env {'HL_GPU': '1', 'HL_GPU_REQUIRED': '1', 'HL_METAL_TIMING': '1'} argv --features gpu-metal --lib host_fast_w16r2_rung_golden -- --ignored --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_w16r2_rung_golden ... [ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=false -> metal_on=false (W16R2_RUNG_H24)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 3.79s
+=== STEP hf-golden EXIT 0 2026-11-25T21:00:17Z
+=== STEP hf-call-sites START 2026-11-25T21:00:17Z env {'HL_GPU': '1', 'HL_GPU_REQUIRED': '1'} argv --features gpu-metal --lib host_fast_all_call_sites_byte_identical -- --ignored --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_all_call_sites_byte_identical ... HOST-FAST [single rung_g]: hf0 == hf1 (4234984 B, hits=[2, 1, 0, 0, 8, 0, 16, 0], fallbacks=[0, 0, 0, 0, 0])
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 1.87s
+=== STEP hf-call-sites EXIT 0 2026-11-25T21:00:19Z
+=== STEP ch-end-to-end START 2026-11-25T21:00:19Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_METAL_TIMING': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli_tests::classify_host_fast_end_to_end_rung_byte_identical_and_verified -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli_tests::classify_host_fast_end_to_end_rung_byte_identical_and_verified ... [ZK60-METAL] argument: prove=true accuracy_none=true legacy_stack=true gpu_enabled=false -> metal_on=false (development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads))
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 3.04s
+=== STEP ch-end-to-end EXIT 0 2026-11-25T21:00:22Z
+=== STEP ch-writer-faults START 2026-11-25T21:00:22Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli_tests::classify_host_fast_c2_writer_err_panic_and_prover_abort_cleanup -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli_tests::classify_host_fast_c2_writer_err_panic_and_prover_abort_cleanup ... {"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.18s
+=== STEP ch-writer-faults EXIT 0 2026-11-25T21:00:24Z
+=== STEP ch-serve-seal-ahead START 2026-11-25T21:00:24Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::classify_host_fast_serve_and_check_serve_both_seal_ahead_modes -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_serve_and_check_serve_both_seal_ahead_modes ... {"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"1e3d32312c6070380138397e37226d0e50f5ac47bc820111843d0e7678bcdd83","verify_seconds":0.086,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 4.11s
+=== STEP ch-serve-seal-ahead EXIT 0 2026-11-25T21:00:29Z
+=== STEP p2-own-queue-reset START 2026-11-25T21:00:29Z env {} argv --features gpu-metal --lib gpu::metal::err_recovery_tests::own_queue_resets_on_cb_error_and_recovers -- --exact --nocapture --test-threads=1
+running 1 test
+test gpu::metal::err_recovery_tests::own_queue_resets_on_cb_error_and_recovers ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.03s
+=== STEP p2-own-queue-reset EXIT 0 2026-11-25T21:00:29Z
+=== STEP p2-deferred-flush START 2026-11-25T21:00:29Z env {} argv --features gpu-metal --lib gpu::metal::err_recovery_tests::metal_rounds_owned_and_cached_deferred_flush_err_returns_none_tables -- --exact --nocapture --test-threads=1
+running 1 test
+test gpu::metal::err_recovery_tests::metal_rounds_owned_and_cached_deferred_flush_err_returns_none_tables ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.04s
+=== STEP p2-deferred-flush EXIT 0 2026-11-25T21:00:29Z
+=== STEP p2-round-fold-a12 START 2026-11-25T21:00:29Z env {} argv --features gpu-metal --lib gpu::metal::err_recovery_tests::metal_rounds_try_round_fold_into_host_and_a12_err_recover -- --exact --nocapture --test-threads=1
+running 1 test
+test gpu::metal::err_recovery_tests::metal_rounds_try_round_fold_into_host_and_a12_err_recover ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.03s
+=== STEP p2-round-fold-a12 EXIT 0 2026-11-25T21:00:29Z
+=== STEP p2-tailed-rounds START 2026-11-25T21:00:29Z env {} argv --features gpu-metal --lib gpu::metal::err_recovery_tests::tailed_rounds_try_masked_prove_all_error_paths_and_recovery -- --exact --nocapture --test-threads=1
+running 1 test
+test gpu::metal::err_recovery_tests::tailed_rounds_try_masked_prove_all_error_paths_and_recovery ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.03s
+=== STEP p2-tailed-rounds EXIT 0 2026-11-25T21:00:29Z
+=== STEP p2-slot-fallback START 2026-11-25T21:00:29Z env {} argv --features gpu-metal --lib private_block::argument::tests::metal_cb_error_in_run_slot_falls_back_to_cpu_bit_identically -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::argument::tests::metal_cb_error_in_run_slot_falls_back_to_cpu_bit_identically ... [ZK60-GPU] [ZK60-METAL] slot sumcheck declined (metal: injected command buffer Error on tag 'batch'); CPU path
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.18s
+=== STEP p2-slot-fallback EXIT 0 2026-11-25T21:00:29Z
+=== STEP p2-slot-fail-closed START 2026-11-25T21:00:29Z env {} argv --features gpu-metal --lib private_block::argument::tests::metal_cb_error_in_run_slot_fails_closed_when_gpu_required -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::argument::tests::metal_cb_error_in_run_slot_fails_closed_when_gpu_required ... [ZK60-GPU] [ZK60-METAL] slot sumcheck declined (metal: injected command buffer Error on tag 'batch'); CPU path
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.04s
+=== STEP p2-slot-fail-closed EXIT 0 2026-11-25T21:00:29Z
+=== STEP p2-serve-panic START 2026-11-25T21:00:29Z env {} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::serve_lines_with_recovers_from_panic_per_lane_1_and_2_with_k2_privacy -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::serve_lines_with_recovers_from_panic_per_lane_1_and_2_with_k2_privacy ... 
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.00s
+=== STEP p2-serve-panic EXIT 0 2026-11-25T21:00:29Z
+=== STEP p2-serve-tls START 2026-11-25T21:00:29Z env {} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::with_captured_events_clears_tls_on_panic_inside_serve_lines -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::with_captured_events_clears_tls_on_panic_inside_serve_lines ... 
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.03s
+=== STEP p2-serve-tls EXIT 0 2026-11-25T21:00:29Z
+=== STEP p2-metal-module START 2026-11-25T21:00:29Z env {} argv --features gpu-metal --lib gpu::metal:: -- --nocapture --test-threads=1
+running 6 tests
+test gpu::metal::err_recovery_tests::metal_rounds_owned_and_cached_deferred_flush_err_returns_none_tables ... ok
+test gpu::metal::err_recovery_tests::metal_rounds_try_round_fold_into_host_and_a12_err_recover ... ok
+test gpu::metal::err_recovery_tests::own_queue_resets_on_cb_error_and_recovers ... ok
+test gpu::metal::err_recovery_tests::tailed_rounds_try_masked_prove_all_error_paths_and_recovery ... ok
+test gpu::metal::sc_chain_fast_tests::sc_chain_fast_fold_xy_matches_separate_folds ... ok
+test gpu::metal::sc_chain_fast_tests::sc_chain_fast_fs_step_v3_matches_verbatim_all_degrees ... ok
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 1198 filtered out; finished in 0.15s
+=== STEP p2-metal-module EXIT 0 2026-11-25T21:00:30Z
+=== STEP p2-serve-module START 2026-11-25T21:00:30Z env {} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests -- --nocapture --test-threads=1
+running 16 tests
+test private_block::token_io::classify_cli::serve::tests::a24_a_refused_request_creates_nothing_and_the_stream_carries_on ... {"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"6e1c082b7718c0cdbafef3f78ba42469d0136d22338de211a59f227add4f6f8a","verify_seconds":0.096,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test private_block::token_io::classify_cli::serve::tests::a24_check_serve_refuses_every_negative_control ... A24 | check-serve negative controls: tampered segment, other content of the same length, unadmitted policy, prefix only, missing chunk, wrong model (startup and export): all refused, fail-closed
+test private_block::token_io::classify_cli::serve::tests::a24_check_serve_verifies_publishes_owner_checks_and_labels_one_category ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"a11c8711ce8416bc36a71b37140d84df28d788a09f3b1f21a0d903afdb3cf06c","verify_seconds":0.079,"whole_run_floor_bits":94,"published_by":"an earlier verifier (re-checked byte for byte)"}
+test private_block::token_io::classify_cli::serve::tests::a24_serve_proves_a_rung_post_whose_receipts_pass_the_unchanged_cli_checks ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"e87427016fc3eeb41ae8fea6cb8d35de63347757919f56e015034405e61bbaa3","verify_seconds":0.086,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test private_block::token_io::classify_cli::serve::tests::a24_the_piecewise_table_digests_equal_the_word_by_word_ones ... A24 | the table digests in 1 MiB pieces equal the word-by-word digests (3 sizes, one past a piece boundary)
+test private_block::token_io::classify_cli::serve::tests::a26_the_split_limb_embedding_fold_equals_the_field_fold ... A26 | the embedding fold in split 32-bit limbs equals the per-word field fold (4 shapes, 3 point kinds, extreme words)
+test private_block::token_io::classify_cli::serve::tests::a28_serve_with_and_without_seal_ahead_proves_the_post_and_a_refusal_frees_its_lane ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"fc7e4089491a641128a5ca3816fbb2a08a3c6eb068ba13adb269e082b9cbcbf9","verify_seconds":0.095,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test private_block::token_io::classify_cli::serve::tests::a28_the_seal_ahead_dispatch_fills_idle_lanes_first_and_never_sends_a_third_request_to_a_lane ... A28 | the seal-ahead dispatch: idle lanes first, then the earliest-begun lane, never three on a lane; every request served once (2 and 1 request threads a lane)
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_plus_w2_serve_gate ... ignored, HOST-FAST-W2 + CLASSIFY-HOST-FAST: fresh-process gate verifying combined classify-serve W2-2 + C1..C5 hits and check-serve verifier isolation; run alone with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_serve_and_check_serve_both_seal_ahead_modes ... {"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"8de751e846e992ac25ed12d2ea8e8b0693792f377fe2952c3717f7945f0cb143","verify_seconds":0.094,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_verifier_isolation_and_serve_gate ... ignored, CLASSIFY-HOST-FAST: fresh-process gate verifying strict verifier isolation and serve in both seal-ahead modes; run alone by name with HL_CLASSIFY_HOST_FAST=1
+test private_block::token_io::classify_cli::serve::tests::host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate ... ignored, HOST-FAST-W2 M1: fresh-process R13 + W16R2 accuracy-stack receipt-door verifier-isolation gate; run alone with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1 -- --ignored --exact --test-threads=1
+test private_block::token_io::classify_cli::serve::tests::host_fast_w2_alone_classify_serve_gate ... ignored, HOST-FAST-W2: fresh-process gate exercising classifier seal_chain_keeping -> CliSource::witness_sealed -> prove_classify_run_with with HL_HOST_FAST_W2=1 alone (HL_CLASSIFY_HOST_FAST unset)
+test private_block::token_io::classify_cli::serve::tests::host_fast_w2_seal_chain_keeping_and_fast_planted_lookup_miss_refusal ... ok
+test private_block::token_io::classify_cli::serve::tests::serve_lines_with_recovers_from_panic_per_lane_1_and_2_with_k2_privacy ... 
+test private_block::token_io::classify_cli::serve::tests::with_captured_events_clears_tls_on_panic_inside_serve_lines ... 
+test result: ok. 12 passed; 0 failed; 4 ignored; 0 measured; 1188 filtered out; finished in 15.48s
+=== STEP p2-serve-module EXIT 0 2026-11-25T21:00:45Z
+=== STEP p3-l1-binding START 2026-11-25T21:00:45Z env {} argv --features gpu-metal --lib private_block::protocol::tests::sealed_histograms_l1_content_binding_and_switch_off -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::protocol::tests::sealed_histograms_l1_content_binding_and_switch_off ... [ZK60-HOST-FAST-W2] fallback (W2-2 seal_hist: shape/block mismatch)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.67s
+=== STEP p3-l1-binding EXIT 0 2026-11-25T21:00:48Z
+=== STEP p3-a21-digests START 2026-11-25T21:00:48Z env {} argv --features gpu-metal --lib private_block::run::fork::tests::a21_block_digests_are_the_same_by_blake3s_tree_and_by_the_one_pass -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::run::fork::tests::a21_block_digests_are_the_same_by_blake3s_tree_and_by_the_one_pass ... D60 F2 EXPORT | /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-14002-1795640448398516000/d60-close-a21-digests/export | variant r13-h24-wide-x4-d60 | 4 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | public synthetic data, not for publication
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.77s
+=== STEP p3-a21-digests EXIT 0 2026-11-25T21:00:49Z
+=== STEP census-s25 START 2026-11-25T21:00:49Z env {} argv --features gpu-metal --lib private_block::s25_tests -- --nocapture --test-threads=1
+running 20 tests
+test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement_class ... S25 W-4: a run's set carries D4, D7 and its own seed derivation, and not the block prover's
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... S25 W-11: 67 hash call sites in 58 scanned lane sources, every one classified; 14 read-only sites listed with file:line
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... --- S25 W-2 D55 parameter-line length lemma (TS / CENSUS lane), 12 registered D55 profiles ---
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... S25 W-8(7): the path's four generators are all `ZkRng::from_os` (["src/private_seam.rs:196", "src/private_block/endpoint_g.rs:269", "src/private_block/protocol.rs:2883", "src/private_block/run.rs:1284", "src/private_block/run_fork.rs:1501", "src/private_block/run_fork.rs:1666", "src/private_block/token_io/run.rs:901", "src/private_block/token_io/classify_run.rs:485"]); a fifth site, src/private_seam.rs:349 in `private_seam::prove`, is off this path and no file on it names that function; no production file names ZkConfig
+test private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines ... TOKEN-IO R18 | Fix 2: the census reads token_io/classify_batch.rs and token_io/classify_batch_plan.rs (55 production files scanned)
+test private_block::s25_tests::r18_the_path_child_reader_finds_production_children_and_skips_test_ones ... ok
+test private_block::s25_tests::r19_the_module_follower_fails_on_every_module_line_it_cannot_classify ... TOKEN-IO R19 | R18-2: the module follower refuses all 12 unclassifiable module lines, naming the file
+test private_block::s25_tests::r19_the_module_follower_finds_every_module_line_shape ... TOKEN-IO R19 | R18-2: the module follower finds exactly the production modules of all 13 module-line shapes
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... TOKEN-IO R19b | R19-2: all 141 .rs files under src/private_block/ are accounted for: 53 on the path, 88 named test-only files
+test private_block::s25_tests::r19b_the_module_follower_refuses_include_outside_test_code ... TOKEN-IO R19b | R19-2: the module follower refuses all 8 production `include!` forms, naming the file, and accepts the 5 test-code / data / non-macro forms
+test private_block::s25_tests::r19b_the_production_text_reads_every_item_after_the_tests_block_and_leaves_out_only_test_items ... TOKEN-IO R19b | R19-2: the production text reads all 7 production items after the tests module, leaves out all 3 test items, refuses all 5 cuts it cannot place, and the follower follows a module after the tests module
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... S25 W-7: 102 profiles in the registry, 2 legacy, 43 tagged, 172 live keys pairwise distinct — covered by s24_tests::every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct
+test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... S25 W-2: D2's input is 6311 B at the toy, 145287 B at rung-G and 9179783 B at 125M [COMPUTED]
+test private_block::s25_tests::the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor ... S25 W-8: assertions 1-4 and 6 remain BLOCKED — `ZkRng`'s four fields are private and it publishes no consumption accessor (requested of the integrator 2026-09-21 03:25)
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... S25 W-8(5): ZkRng implements neither Clone nor Copy (type-level, with controls); prove_run and prove_inner_at construct exactly one generator each and pass it on by &mut
+test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... S25 W-4: the legacy shape-free dangerous row counts are [5, 8, 11, 12, 13, 15, 17, 19] -> [5, 8, 11, 12, 13, 15, 16, 17, 19]; 16 refused by name at both legacy profiles and at the two bare constructors, clear under a tag
+test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_code ... S25 W-2: the memo's table re-derived; two differences — the `calibration` absorb at 91 B is in no list, and the derive_key contexts are 49/44/49/48 and not 48/43/48/47
+test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ...     toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot_terms [0, 1, 2, 3, 6, 13, 15, 17, 21, 22, 56] -> pb-term absorbs [55, 71, 87, 103, 151, 263, 295, 327, 391, 407, 951]
+test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... S25 W-3: rung-K4 boundary of 10 rows, 2 groups: the replay drew 12 challenges, equal to the live chain's next 12 and leaving its state and next squeeze unmoved; the continued clone reproduces the live state and the opening's 256 sampled columns
+test private_block::s25_tests::the_statement_class_lengths_are_the_ones_the_code_hashes ... S25 W-4: the three spec-digest domains (42 / 43 / 28 B), the 22-byte seed prefix and the calibration literal are pinned to their source
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1184 filtered out; finished in 9.49s
+=== STEP census-s25 EXIT 0 2026-11-25T21:00:58Z
+=== STEP metal-commit START 2026-11-25T21:00:58Z env {'HL_GPU_REQUIRED': '1'} argv --features gpu-metal --test zk60_metal_commit -- --test-threads=1
+running 10 tests
+test device::m0_field_ops_match_the_cpu_on_edges_and_random_values ... ok
+test device::m1_fused_rs_classifier_exact_shapes ... ok
+test device::m1_fused_rs_matches_reference_and_cpu_byte_for_byte ... ok
+test device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu ... ok
+test device::m1_sparse_fold_and_fused_rs_composed_parity ... ok
+test device::m1_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape ... ignored, heavy: run through the resource guard
+test device::m2_keyed_commit_timing_at_block_sizes ... ignored, heavy: multi-GB commitments; run through the resource guard
+test metal_required_gate_refuses_a_build_without_the_feature ... ok
+test result: ok. 8 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 2.91s
+=== STEP metal-commit EXIT 0 2026-11-25T21:02:08Z
+=== STEP metal-commit-on START 2026-11-25T21:02:08Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1', 'HL_GPU_REQUIRED': '1'} argv --features gpu-metal --test zk60_metal_commit -- --test-threads=1
+running 10 tests
+test device::m0_field_ops_match_the_cpu_on_edges_and_random_values ... ok
+test device::m1_fused_rs_classifier_exact_shapes ... ok
+test device::m1_fused_rs_matches_reference_and_cpu_byte_for_byte ... ok
+test device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu ... ok
+test device::m1_sparse_fold_and_fused_rs_composed_parity ... ok
+test device::m1_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape ... ignored, heavy: run through the resource guard
+test device::m2_keyed_commit_timing_at_block_sizes ... ignored, heavy: multi-GB commitments; run through the resource guard
+test metal_required_gate_refuses_a_build_without_the_feature ... ok
+test result: ok. 8 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 2.60s
+=== STEP metal-commit-on EXIT 0 2026-11-25T21:02:10Z

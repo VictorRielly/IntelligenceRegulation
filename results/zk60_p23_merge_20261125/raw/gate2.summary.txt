@@ -1,0 +1,40 @@
+done marker: 0
+suite: exit 101; 1046 passed, 2 failed, 156 ignored; failed tests: ['private_block::review_tests::a_toy_receipt_made_before_f12_is_refused', 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces'] -> only known fixture failures
+suite-on: exit 101; 1046 passed, 2 failed, 156 ignored; failed tests: ['private_block::review_tests::a_toy_receipt_made_before_f12_is_refused', 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces'] -> only known fixture failures
+unit-isolation-unset: exit 0; 1 passed, 0 failed -> ok
+unit-isolation-all3: exit 0; 1 passed, 0 failed -> ok
+ch-verifier-isolation: exit 0; 1 passed, 0 failed -> ok
+ch-plus-w2-serve: exit 0; 1 passed, 0 failed -> ok
+w2-call-sites: exit 0; 1 passed, 0 failed -> ok
+w2-golden: exit 0; 1 passed, 0 failed -> ok
+all3-verifier-isolation: exit 0; 1 passed, 0 failed -> ok
+w2-alone-serve: exit 0; 1 passed, 0 failed -> ok
+w2-trained-d55-sealing: exit 0; 1 passed, 0 failed -> ok
+w2-rope-const-pubgen: exit 0; 1 passed, 0 failed -> ok
+m2-trained-seal-refusal: exit 0; 1 passed, 0 failed -> ok
+m2-seal-keeping-refusal: exit 0; 1 passed, 0 failed -> ok
+w2-sealed-hists-parity: exit 0; 1 passed, 0 failed -> ok
+m1-r13-receipt-door: exit 0; 1 passed, 0 failed -> ok
+hf-call-sites-author: exit 0; 1 passed, 0 failed -> ok
+hf-golden-author: exit 0; 1 passed, 0 failed -> ok
+hf-golden: exit 0; 1 passed, 0 failed -> ok
+hf-call-sites: exit 0; 1 passed, 0 failed -> ok
+ch-end-to-end: exit 0; 1 passed, 0 failed -> ok
+ch-writer-faults: exit 0; 1 passed, 0 failed -> ok
+ch-serve-seal-ahead: exit 0; 1 passed, 0 failed -> ok
+p2-own-queue-reset: exit 0; 1 passed, 0 failed -> ok
+p2-deferred-flush: exit 0; 1 passed, 0 failed -> ok
+p2-round-fold-a12: exit 0; 1 passed, 0 failed -> ok
+p2-tailed-rounds: exit 0; 1 passed, 0 failed -> ok
+p2-slot-fallback: exit 0; 1 passed, 0 failed -> ok
+p2-slot-fail-closed: exit 0; 1 passed, 0 failed -> ok
+p2-serve-panic: exit 0; 1 passed, 0 failed -> ok
+p2-serve-tls: exit 0; 1 passed, 0 failed -> ok
+p2-metal-module: exit 0; 6 passed, 0 failed -> ok
+p2-serve-module: exit 0; 12 passed, 0 failed -> ok
+p3-l1-binding: exit 0; 1 passed, 0 failed -> ok
+p3-a21-digests: exit 0; 1 passed, 0 failed -> ok
+census-s25: exit 0; 20 passed, 0 failed -> ok
+metal-commit: exit 0; 8 passed, 0 failed -> ok
+metal-commit-on: exit 0; 8 passed, 0 failed -> ok
+GATE: GREEN
