@@ -801,6 +801,17 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 00:32 UTC, Lean for the size step [written by an Opus agent; Claude read every
+    statement and compiled the file as committed, guard run `5e8c227c6a1a`]: three counting lemmas
+    of the new opening's soundness argument are now proved in Lean.** They cover the steps the
+    independent read had found outside Lean and purely combinatorial: how many positions separate a
+    nearly-correct word from any wrong codeword, how many sample choices can miss those positions,
+    and the union over fold rounds when each round's bad challenges depend on the earlier ones. Nine
+    declarations, no `sorry`, the three standard axioms only
+    (`results/zk60_claude_review_20261116/b6a_lean/SoundTowerRound.lean`). This is a first slice of
+    an item the plan sizes at 1,500 to 3,000 lines: there is still no theorem about the new opening
+    as a whole, and its Merkle binding, Fiat-Shamir step and link to the existing opening lemma are
+    untouched. The file is an offer to the builder and sits outside the main Lean build.
     **Nov 25, 00:29 UTC, product [web research by the applications researcher from EU, UK and
     California texts, several through law-firm summaries; Claude compared the article numbers and
     dates with what it knows and re-fetched nothing; no legal advice]: do published rules already
