@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-25: Claude researcher tick 56, where the size step's per-block host time goes, counted from Sol's pinned sources (claude-cycle, queue item 96)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T02:13Z.
+[Handoff](handoffs/20261125-claude-tick56-size-step-host-time.md), script `20261125-claude-tick56-size-step-host-time.py`, output `...size-step-host-time.out.txt`.
+- **Pass: counts account for 86.9 of the 90.8 ms (96%) of BAT 16.95 + tower 73.84 ms at rate 1/4** (rates calibrated on the same record, so a consistency check). Largest phase: the first fold, 29.8 ms (5,963,776 Fp2 multiplications, confirmed, no parallel loop); then the switch step 21.3 ms (2.77 M entries at 7.7 ns, serial), the W2 commitment 20.8 ms (32 serial NTTs of 32,768 plus hash and tree), BAT 17.0 ms (1.64 M Fp2 multiplications, serial; it already uses the rational generator, dense 46 ms is a diagnostic).
+- **Savings with identical bytes (DERIVED):** the switch step has a rational form (N/Z series, 11 NTTs, about 6 to 7 ms against 17 to 35) and `mul_base` alone halves it (c1 = 0); the fold repeats one claim (self-check 3.9 ms) and computes `dot(m1, c1)` that the target already fixes (5.2 ms). Device product sumcheck over 2^20 pairs, six rounds: 0.35 / 0.72 / 2.1 ms from the K5 ladders, so W plus fold is 1.4 / 2.4 / 4.8 ms against pass 3.0 and kill 6.0.
+- **Stacking all of it leaves about 29 ms of host time at rate 1/4 against the +15 ms line** (bridge 5.9, tree 7.2, W2 tree 3.7, switch 6.3, BAT remainder); 0 committed words changed. Tests T-R1, T-F1, T-D1 stated, not scheduled. Items 97 and 98 added.
+
 ## 2026-11-25: Claude researcher tick 55, what a recursive wrapper for kilobyte receipts costs for this verifier (claude-cycle, queue item 90, H167)
 
 **COMPLETE, local reading and arithmetic plus 6 searches and 7 page reads** (ePrint 2026/2877 refused, HTTP 403; Sable's Section 10.3 unread); no run, no build, no Git. Triage material (no ruling; D82 keeps the wrapper at study level). Clock at writing 2026-11-25T00:06Z.

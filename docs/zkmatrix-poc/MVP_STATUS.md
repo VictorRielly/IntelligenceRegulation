@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 02:18 UTC, size [source read and counts by Claude and by the background researcher; no
+    build, no run]: the failed timing test is explained, and no listed fix brings the size step back
+    under its line.** The new prover steps run on one thread: about 6.0 million extension-field
+    multiplications in the first fold (30 ms), a dense coefficient row in the switch step (21 ms),
+    32 serial transforms for the second commitment (21 ms) and the batching step (17 ms). Changes
+    that keep every proof byte would cut this: skipping two redundant products (9 ms), a cheaper
+    form of the switch step (15 ms), and threads. By the researcher's arithmetic the added host time
+    falls from +99 ms a block to about +36 ms with host changes only, and to about +29 ms if the
+    fold and the second commitment also move to the GPU [ESTIMATE, ideal scaling, rates calibrated
+    on the one record]. Both are above the +15 ms stop line. So a receipt of about half the size
+    comes with a speed cost in any near version; how much in the six-lane stream is not known.
+    Whether to build it as a separate slower profile is Victor's decision
+    (`research/zkp-efficiency/handoffs/20261125-claude-tick56-size-step-host-time.md`).
     **Nov 25, 02:00 UTC, product [web research by the applications researcher; three pages read a
     second time; one local correction by Claude]: a moderation buyer's public record needs a
     category, and the app's design of one policy per category already supplies it.** The EU's

@@ -1,0 +1,85 @@
+== 0. The record (medians of the 7 non-warm iterations; MEASURED)
+legacy absorb (baseline, 12.5 MB, one thread): 6.115 ms
+rate 1/8: prove_bat_ms=17.075, prove_tower_ms=70.633, verify_bat_ms=16.076, verify_tower_ms=25.138, rational_a_ms=1.850, rational_h_ms=1.850, dense_a_ms=46.224, gpu_ms=1.672, encode_wall_ms=2.754, prep_host_ms=6.244, salt_tree_host_ms=13.943, cpu_w_ms=239.845
+rate 1/4: prove_bat_ms=16.952, prove_tower_ms=73.841, verify_bat_ms=16.070, verify_tower_ms=29.040, rational_a_ms=1.848, rational_h_ms=1.831, dense_a_ms=46.101, gpu_ms=1.182, encode_wall_ms=2.107, prep_host_ms=5.885, salt_tree_host_ms=7.156, cpu_w_ms=113.509
+rate 1/2: prove_bat_ms=16.268, prove_tower_ms=87.817, verify_bat_ms=16.045, verify_tower_ms=43.227, rational_a_ms=1.847, rational_h_ms=2.412, dense_a_ms=46.289, gpu_ms=0.885, encode_wall_ms=1.823, prep_host_ms=5.822, salt_tree_host_ms=3.672, cpu_w_ms=54.992
+
+== 1. Counts (COUNTED unless said)
+W rows 48, padded extent 1048576, message 786432 Fp2 words
+first fold: rounds 6, pairs 1032192, round multiplications 5160960, initial check dot 786432, final dot 16384, TOTAL 5963776 Fp2 muls (head start: 5,963,776)
+last fold: pairs 15360, Fp2 muls 94208
+switch step at 1/8: 138 positions x 16384 entries = 2260992 entries; per entry: 1 Fp mul (power chain, tower.rs:101-106) + 1 generic Fp2 mul (c1 = 0) + 1 Fp2 add (:482-484)
+switch step at 1/4: 169 positions x 16384 entries = 2768896 entries; per entry: 1 Fp mul (power chain, tower.rs:101-106) + 1 generic Fp2 mul (c1 = 0) + 1 Fp2 add (:482-484)
+switch step at 1/2: 280 positions x 16384 entries = 4587520 entries; per entry: 1 Fp mul (power chain, tower.rs:101-106) + 1 generic Fp2 mul (c1 = 0) + 1 Fp2 add (:482-484)
+W2 commitment: 16 rows x 2 components = 32 NTTs of 32768, 7864320 butterflies, 1048576 encoded words (8.39 MB hashed), 32768 salts, 32768 salted leaves, 32767 Merkle nodes
+BAT: Fp2 muls: generator scaling 783208, evaluation columns 737280, combined row weights 118557, total 1639045; mul_base (2 Fp muls) in column dots 1428840
+BAT output materialised twice: 47 vectors x 16664 words x 16 B = 12.5 MB, then copied into W (12.6 MB) by pack (switched.rs:283-303)
+rational generator per source (Fp-mul equivalents): denominator 39340, numerator 235200, pads 156800, 3 NTTs 344064 butterflies, batch inverse ~49152, final map 65536
+bridge prep: pack + clone 12.5 MB, host forward NTT of 96 rows of 16384 = 11010048 butterflies on 5 threads (zk60_b6a_spike.rs:59-67)
+host salted tree at 1/8: 131072 salts, 131072 salted leaves + 131071 nodes = 262143 compressions
+host salted tree at 1/4: 65536 salts, 65536 salted leaves + 65535 nodes = 131071 compressions
+host salted tree at 1/2: 32768 salts, 32768 salted leaves + 32767 nodes = 65535 compressions
+
+== 2. Rates (labelled)
+W commit on the host, 1/8: (239.84 - tree 13.94) ms / 106954752 butterflies = 2.112 ns all-in per butterfly (NTT + setup + scatter + hash)  [MEASURED/COUNTED]
+W commit on the host, 1/4: (113.51 - tree 7.16) ms / 50331648 butterflies = 2.113 ns all-in per butterfly (NTT + setup + scatter + hash)  [MEASURED/COUNTED]
+W commit on the host, 1/2: (54.99 - tree 3.67) ms / 23592960 butterflies = 2.175 ns all-in per butterfly (NTT + setup + scatter + hash)  [MEASURED/COUNTED]
+tree per position: 1/8 106.4 ns, 1/4 109.2 ns, 1/2 112.1 ns  [MEASURED]
+switch-entry slope 1/8->1/4: verifier 7.68 ns/entry, prover 6.32 ns/entry  [MEASURED slopes, COUNTED entries]
+switch-entry slope 1/4->1/2: verifier 7.80 ns/entry, prover 7.68 ns/entry  [MEASURED slopes, COUNTED entries]
+switch-entry slope 1/8->1/2: verifier 7.77 ns/entry, prover 7.39 ns/entry  [MEASURED slopes, COUNTED entries]
+verifier at 1/8: 25.14 ms - switch 17.41 ms = 7.73 ms remainder for 1032192 coefficient fold pairs plus about 2 ms of small items (ASSUMED) -> 5.55 ns per fold pair; upper bound without the 2 ms: 7.49 ns
+Fp2 mul = 5 Fp muls (field.rs:163-169); working figure 5.0 ns per Fp2 mul-and-accumulate (range 4.5 to 5.5)  [DERIVED]
+
+== 3. Model of prove_tower_ms and prove_bat_ms (DERIVED from counts x the rates above)
+first fold 29.8 ms; W2 commitment 20.8 ms (17.1 NTT+hash at 2.18 ns + tree 3.67); misc 2.0 ms (canonical scans, resizes, W opening, last fold 0.47 ms, last openings; ASSUMED)
+  rate 1/8: switch 17.4 + fold 29.8 + W2 20.8 + misc 2.0 = 70.0 ms vs measured 70.6 ms (-0.9%)
+  rate 1/4: switch 21.3 + fold 29.8 + W2 20.8 + misc 2.0 = 73.9 ms vs measured 73.8 ms (+0.1%)
+  rate 1/2: switch 35.3 + fold 29.8 + W2 20.8 + misc 2.0 = 87.9 ms vs measured 87.8 ms (+0.1%)
+  caution: the switch rate and the W2 rate are calibrated on this record; the fold rate is a residual-consistent figure, so the match is a consistency check, not an independent test.
+BAT at 1/4: Fp2 muls 8.2 + column dots (mul_base at 2.2 ns, ASSUMED) 3.1 + two rational generators 3.68 (MEASURED diagnostics, same function) + memory work 2.0 (ASSUMED) = 17.0 ms vs measured 16.95
+  the dense generator is NOT in the BAT time: dense_a 46.1 ms vs rational 1.85 ms per source; opening_claim uses MessageBasis::Evaluations -> rational (switch.rs:240-241)
+
+== 4. Where the +99 ms goes at rate 1/4 (5 prover threads)
+  first fold (tower.rs:382-425)            29.8 ms  29.2%  | serial | yes, a product sumcheck, see section 6 | inherent in size, cheap on parallel hardware
+  switch step (tower.rs:457-487)           21.3 ms  20.9%  | serial | no kernel read; host rational form instead (section 5) | no
+  W2 commitment (tower.rs:191-235)         20.8 ms  20.4%  | NTT row loop serial; hash and Merkle on the pool | yes, the W commit route | geometry fixed by the profile
+  BAT (switched.rs:306-366)                17.0 ms  16.7%  | serial (no parallel loop) | partly; per-vector loops independent | the Fp2 scalings are inherent, the double copy is not
+  bridge prep (spike:59-67)                 5.9 ms   5.8%  | NTT on 5 threads, pack serial | device commit has NTT kernels (unread) | unknown
+  host salts + salted leaves + tree         7.2 ms   7.0%  | leaf map serial, tree parallel | no | inherent per position
+  sum of rows 102.0; minus legacy absorbs 6.11 = 95.9; result.json host_added 99.07; sum of medians of measured timers 97.72 (+ encode wall minus GPU 0.93 = 98.64)
+  counted-work share of the 17 + 74 ms: 86.9 of 90.8 = 96% (pass line: two thirds)
+
+== 5. Switch step: rational form (item 3)
+  row_j = sum_k w_k x_k^j, j < n, x_k = 7 * omega^pos_k distinct and nonzero (tower.rs:94-108): the first n series
+  coefficients of N(T)/Z(T), Z = prod(1 - x_k T) (degree m, Z(0) = 1), N = sum_k w_k prod_{l != k}(1 - x_l T) (degree m-1).
+  Same vector over Fp2 exactly, so same proof bytes. Counts: Z and N by the loops of switch.rs:118-140 (m^2 scale), then
+  1/Z mod T^n by Newton (about 6 NTTs of 2n = 32768) and N * (1/Z) (1 + 2*2 = 5 NTTs of 32768, N is Fp2).
+  one 32768-NTT at the all-in rate 2.18 ns = 0.53 ms (the 16384-NTT is 0.25)
+  1/8: dense 17.4 ms; with mul_base in place of Fp2::mul (c1 = 0) about 8.7 ms (3 of 6 Fp muls); rational form about 6.1 ms (11 NTTs 5.9 + m^2 loops 0.3)
+  1/4: dense 21.3 ms; with mul_base in place of Fp2::mul (c1 = 0) about 10.7 ms (3 of 6 Fp muls); rational form about 6.3 ms (11 NTTs 5.9 + m^2 loops 0.4)
+  1/2: dense 35.3 ms; with mul_base in place of Fp2::mul (c1 = 0) about 17.7 ms (3 of 6 Fp muls); rational form about 7.0 ms (11 NTTs 5.9 + m^2 loops 1.1)
+
+== 6. Device time of a degree-2 product sumcheck, 2^20 Fp2 entries, 6 rounds (item 4)
+  pairs per round [524288, 262144, 131072, 65536, 32768, 16384]; products 5 per pair = 5160960; traffic read+write 99.1 MB -> 0.14 ms at K0's 700 GB/s
+  low  (K4 23.5 ps, floor = fast step 0.057 ms): 0.35 ms
+  mid  (50 ps, floor 0.118 ms = K5 slot 18): 0.72 ms
+  high (77.5 ps, floor 0.35 ms = K5 slot 14 rounds 6+): 2.10 ms
+  W commit device time (MEASURED, spike M1): 1/8 1.67, 1/4 1.18, 1/2 0.88 ms
+  W2 on the same route: 1048576 / 6291456 words of W at 1/4 x 1.18 ms = 0.20 ms
+  low: W 0.89 + fold 0.35 + hand-back/dispatch 0.2 (ASSUMED; encode wall minus GPU in M1 is 0.93) = 1.43 ms vs pass 3.0 / kill 6.0 (pass); with W2 on device +0.20 = 1.63
+  mid: W 1.18 + fold 0.72 + hand-back/dispatch 0.5 (ASSUMED; encode wall minus GPU in M1 is 0.93) = 2.40 ms vs pass 3.0 / kill 6.0 (pass); with W2 on device +0.20 = 2.60
+  high: W 1.67 + fold 2.10 + hand-back/dispatch 1.0 (ASSUMED; encode wall minus GPU in M1 is 0.93) = 4.77 ms vs pass 3.0 / kill 6.0 (between); with W2 on device +0.20 = 4.97
+
+== 7. Savings with identical proof bytes (DERIVED)
+  round[1] = current target - round[0] (verifier already requires round[0] + round[1] = target, tower.rs:445): skip dot(m1, c1): 1032192 muls = 5.2 ms of 29.8
+  initial dot(message, coefficients) == target (tower.rs:390) is a prover self-check: 786432 muls = 3.9 ms
+
+== 8. Stacking every listed change at rate 1/4 (host ms; ASSUMED where marked)
+  switch step to rational form                                                                           -15.0 ->   84.0
+  fold: skip dot(m1,c1) and the self-check (host; superseded by the next line if the fold moves)          -9.1 ->   74.9
+  fold on the device instead (remaining host fold time removed, device time reported in section 6)       -20.7 ->   54.2
+  W2 commit on the device (leaves the host tree and about 1 ms of dispatch)                              -16.1 ->   38.1
+  BAT Fp2 work on 5 threads, ideal 5x (ASSUMED)                                                           -9.1 ->   29.0
+  pass-through ceiling per request at 32 blocks: today 3.17 s, stacked 0.93 s against the 3.18 s stream period (coordination record); per-block kill line +15 ms
+  stacked remainder 29.0 ms is above the +15 ms line: bridge 5.9, tree 7.2, W2 tree 3.7, switch 6.3, BAT and misc remain
