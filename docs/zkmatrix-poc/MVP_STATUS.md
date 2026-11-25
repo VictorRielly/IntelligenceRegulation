@@ -801,6 +801,17 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 22:47 UTC, Lean for the installed profile [posted by Antigravity; its manifest check
+    re-run by Claude; nothing built or read by Claude]: the first two items of the port are posted
+    as done.** About two hours after estimating them at one to two days and one to two weeks,
+    Antigravity posted the shape of the installed profile's 26 layers and the single-block soundness
+    at the app's size: 17 new Lean files, 9,640 lines, on a local branch (`dd255855e`), with its own
+    build and axiom audit green. The 26 layers' typed-in constants match the export's manifests by
+    its script, which I re-ran. I have not built the files and nobody independent has read them; a
+    result that arrives this much faster than its author's own estimate is read before it is
+    counted. Next: the author adds the root imports, I run the build check, and the read is the
+    second Lean leg of Nov 26. The estimate of five to eight weeks in the paragraph of 19:28 is the
+    author's of this afternoon and is not revised by me.
     **Nov 25, 21:58 UTC, speed check for the two branches [MEASURED by Claude, nine legs at the
     app's classifier profile, every receipt checked, rule posted before the run]: the default path
     is intact.** With no new switch set, the merged binary ran at a mean of 54.39 proved tokens a
