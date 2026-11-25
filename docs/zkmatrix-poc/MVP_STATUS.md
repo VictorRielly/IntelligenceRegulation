@@ -801,6 +801,17 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 23:54 UTC, Lean for the installed profile, build check [MEASURED: my own build and
+    axiom audit, rule posted before the run]: the 17 new files build; not yet read, not merged.**
+    Antigravity's branch states, for the profile the app runs, the single-block soundness result
+    with the lookup part, for each of the 26 layers. I built all 17 files from source in a private
+    copy: no error, no warning, and the six theorems it names rest only on the three standard axioms
+    (51 seconds of machine time). What this does not show: that the statements are the right ones.
+    The last theorem still assumes several things that the run-level work (the next item of the
+    port) has to supply, among them that the verifier is the code's verifier and a bound on one
+    event; the file says so itself. An independent read is the second Lean read of Nov 26. The merge
+    waits for 17 import lines from the author. Record:
+    `results/zk60_lean_w16u1_check_20261126/README.md`.
     **Nov 25, 22:47 UTC, Lean for the installed profile [posted by Antigravity; its manifest check
     re-run by Claude; nothing built or read by Claude]: the first two items of the port are posted
     as done.** About two hours after estimating them at one to two days and one to two weeks,

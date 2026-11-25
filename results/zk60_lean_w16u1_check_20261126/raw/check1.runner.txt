@@ -1,0 +1,2 @@
+[zk60-guard 15:52:04] START lean-w16u1-check-check1 class=build need=24G cap=64G enforce=watchdog-only waited=0s run=e0002060be37
+[zk60-guard 15:52:55] END lean-w16u1-check-check1 exit=0 child_wall=51s peak_rss=13.61G min_avail=194.18G
