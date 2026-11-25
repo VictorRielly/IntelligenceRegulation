@@ -1,0 +1,1026 @@
+=== STEP probe START 2026-11-25T19:11:41Z argv -d /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/lean-l69/formal build ZK60Formal.Statements
+Build completed successfully (2997 jobs).
+=== STEP probe EXIT 0 2026-11-25T19:11:48Z
+=== STEP root START 2026-11-25T19:11:48Z argv -d /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/lean-l69/formal build ZK60Formal
+✔ [3521/4028] Built ZK60Formal.LayoutW16Handoff (9.9s)
+✔ [3602/4028] Built ZK60Formal.StatementsD76Leaky (10s)
+✔ [3617/4028] Built ZK60Formal.RunShapeExec (10s)
+✔ [3635/4028] Built ZK60Formal.ZKHonestBound (2.8s)
+✔ [3647/4028] Built ZK60Formal.StageOutWhole (12s)
+✔ [3661/4028] Built ZK60Formal.CoverW16Shapes (3.2s)
+✔ [3662/4028] Built ZK60Formal.RunTrWin (2.5s)
+✔ [3710/4028] Built ZK60Formal.RunOpenGeoBlock (2.8s)
+✔ [3714/4028] Built ZK60Formal.RunDoomTop (3.7s)
+✔ [3719/4028] Built ZK60Formal.RunCoverSome (4.8s)
+✔ [3727/4028] Built ZK60Formal.RunCoverSomeL (5.8s)
+⚠ [3770/4028] Replayed ZK60Formal.RunStgJoinLk
+warning: ZK60Formal/RunStgJoinLk.lean:249:8: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:249:19: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:8: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/RunStgJoinLk.lean:250:19: `if_neg` has been deprecated: Use `ite_eq_right` instead
+✔ [3772/4028] Built ZK60Formal.RunExtractTop (3.3s)
+✔ [3774/4028] Built ZK60Formal.BlockAlgSat (2.3s)
+✔ [3778/4028] Built ZK60Formal.RunAbsTop (3.4s)
+✔ [3783/4028] Built ZK60Formal.BlockTabSlot (3.2s)
+✔ [3789/4028] Built ZK60Formal.RunVerdictTop (3.4s)
+✔ [3791/4028] Built ZK60Formal.BlockLookJoin (2.3s)
+✔ [3792/4028] Built ZK60Formal.BlockLookCov (2.6s)
+✔ [3793/4028] Built ZK60Formal.RunBndChain (6.4s)
+✔ [3805/4028] Built ZK60Formal.RunStgTopD (3.9s)
+⚠ [3808/4028] Replayed ZK60Formal.RunBlkWireDoom
+warning: ZK60Formal/RunBlkWireDoom.lean:99:0: automatically included section variable(s) unused in theorem `ZK60.ProtocolClassify.ioDefSchedB_hIOΦ`:
+  [Algebra GF K]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Algebra GF K] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+✔ [3821/4028] Built ZK60Formal.RunEpXTopT (3.8s)
+✔ [3824/4028] Built ZK60Formal.BlockTabForm (2.6s)
+✔ [3829/4028] Built ZK60Formal.RunCloseBTop (3.0s)
+✔ [3832/4028] Built ZK60Formal.BlockLookCov2 (3.6s)
+✔ [3838/4028] Built ZK60Formal.BlockLookRelW16 (3.3s)
+✔ [3846/4028] Built ZK60Formal.RunEpXTopW (3.9s)
+✔ [3848/4028] Built ZK60Formal.BlockLookFinal (2.5s)
+✔ [3852/4028] Built ZK60Formal.BlockLookRelFinal (2.6s)
+✔ [3856/4028] Built ZK60Formal.RunCloseBTopF (3.9s)
+✔ [3858/4028] Built ZK60Formal.RunEpXTopX (3.5s)
+✔ [3861/4028] Built ZK60Formal.BlockLookDone (2.4s)
+⚠ [3864/4028] Replayed ZK60Formal.RunBlkWireSlots
+warning: ZK60Formal/RunBlkWireSlots.lean:176:25: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:245:43: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/RunBlkWireSlots.lean:253:28: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+✔ [3907/4028] Built ZK60Formal.RunWireTop (3.6s)
+✔ [3913/4028] Built ZK60Formal.RunBndTop (5.0s)
+✔ [3922/4028] Built ZK60Formal.HonestShieldProgBase (2.8s)
+✔ [3923/4028] Built ZK60Formal.RunEpXTopF (3.5s)
+✔ [3924/4028] Built ZK60Formal.RunStgShieldTopDz (3.4s)
+✔ [3928/4028] Built ZK60Formal.RunStgShieldTopIO (3.3s)
+✔ [3939/4028] Built ZK60Formal.RunEpXTopG (3.3s)
+✔ [3940/4028] Built ZK60Formal.RunStgShieldTopTrI (3.3s)
+✔ [3984/4028] Built ZK60Formal.RunStgShieldSlotDeg (2.4s)
+✔ [3985/4028] Built ZK60Formal.HonestShieldCore (3.2s)
+✔ [3986/4028] Built ZK60Formal.RunEpXTopH (3.8s)
+✔ [3987/4028] Built ZK60Formal.RunStgShieldHdrFit (2.4s)
+✔ [3988/4028] Built ZK60Formal.RunShieldOpenShell (3.7s)
+✔ [3989/4028] Built ZK60Formal.HonestShieldAuditDet (10s)
+✔ [3990/4028] Built ZK60Formal.HonestShieldMTable (3.1s)
+✔ [3991/4028] Built ZK60Formal.HonestShieldBlockBase (3.1s)
+✔ [3992/4028] Built ZK60Formal.HonestShieldZKBase (2.8s)
+✔ [3993/4028] Built ZK60Formal.HonestShieldStages (6.5s)
+✔ [3994/4028] Built ZK60Formal.HonestShieldZKView (3.4s)
+✔ [3995/4028] Built ZK60Formal.HonestShieldZKProg (3.8s)
+✔ [3996/4028] Built ZK60Formal.HonestShieldRefusal (4.4s)
+✔ [3997/4028] Built ZK60Formal.HonestShieldStageInTables (5.0s)
+✔ [3998/4028] Built ZK60Formal.HonestShieldZKVis (3.2s)
+✔ [3999/4028] Built ZK60Formal.HonestShieldZKCount (4.2s)
+✔ [4000/4028] Built ZK60Formal.HonestShieldStageOutTables (6.4s)
+✔ [4001/4028] Built ZK60Formal.HonestShieldSegRefusal (8.7s)
+✔ [4002/4028] Built ZK60Formal.HonestShieldStageInArith (8.6s)
+✔ [4003/4028] Built ZK60Formal.HonestShieldZK (3.4s)
+✔ [4004/4028] Built ZK60Formal.HonestShieldRunProg (7.1s)
+✔ [4005/4028] Built ZK60Formal.HonestShieldBlockWitness (9.4s)
+✔ [4006/4028] Built ZK60Formal.HonestShieldStageOutSlots (9.6s)
+✔ [4007/4028] Built ZK60Formal.HonestShieldRunRefusal (10s)
+✔ [4008/4028] Built ZK60Formal.HonestShieldStageOutArith (17s)
+✔ [4009/4028] Built ZK60Formal.HonestShieldBlockTables (46s)
+✔ [4010/4028] Built ZK60Formal.HonestShieldBlockArith (4.6s)
+✔ [4011/4028] Built ZK60Formal.HonestShieldTop (2.9s)
+✔ [4012/4028] Built ZK60Formal.HonestShieldHooks (2.7s)
+✔ [4013/4028] Built ZK60Formal.HonestShieldZKCoins (2.8s)
+✔ [4014/4028] Built ZK60Formal.HonestShieldZKSaltSplit (2.8s)
+✔ [4015/4028] Built ZK60Formal.HonestShieldZKFixedLib (2.6s)
+⚠ [4016/4028] Built ZK60Formal.HonestShieldZKFixedOps (6.1s)
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2057:60: Variable name `htip` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _htip
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2057:86: Variable name `hnoPos` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hnoPos
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2119:89: Unused tactic linter: `omega` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2119:89: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2182:60: Variable name `htip` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _htip
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2182:86: Variable name `hnoPos` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hnoPos
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2244:89: Unused tactic linter: `omega` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2244:89: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2363:87: Unused tactic linter: `cases hs` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2364:94: Unused tactic linter: `cases hs` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2365:91: Unused tactic linter: `cases hs` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2366:98: Unused tactic linter: `cases hs` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2363:87: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2364:94: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2365:91: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2366:98: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2715:84: Unused tactic linter: `cases hs` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2716:91: Unused tactic linter: `cases hs` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2717:88: Unused tactic linter: `cases hs` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2718:95: Unused tactic linter: `cases hs` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2715:84: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2716:91: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2717:88: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2718:95: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2798:32: Variable name `htip` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _htip
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2798:58: Variable name `hnoPos` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hnoPos
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:2990:32: Variable name `htip` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _htip
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:3022:89: Unused tactic linter: `omega` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:3022:89: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:3240:4: Unused tactic linter: `all_goals try cases h` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:3730:43: Variable name `htip` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _htip
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:3730:69: Variable name `hnoPos` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hnoPos
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:3970:84: This simp argument is unused:
+  show 2 * S + 2 ≠ 0 by omega
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [TrChainState.cast, trChainAfterVec, st3]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedOps.lean:4076:63: Variable name `hgr` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hgr
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [4017/4028] Built ZK60Formal.HonestShieldZKFixedSegs (17s)
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:533:43: Variable name `htip` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _htip
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:533:69: Variable name `hnoPos` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hnoPos
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1046:46: This simp argument is unused:
+  pure
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Except.pure, Bind.bind, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1046:52: This simp argument is unused:
+  Except.pure
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Bind.bind, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1080:46: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [his, hsrOpt, auditFail, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1080:57: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [his, hsrOpt, auditFail, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1090:29: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1090:40: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1092:42: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1092:53: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1095:31: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1095:42: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1097:25: This simp argument is unused:
+  pure
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Except.pure, Bind.bind, Except.bind, Except.ok.injEq] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1097:31: This simp argument is unused:
+  Except.pure
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Bind.bind, Except.bind, Except.ok.injEq] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1097:44: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Except.bind, Except.ok.injEq] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1097:55: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Bind.bind, Except.ok.injEq] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1105:55: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1105:66: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1109:53: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1109:64: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1110:67: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1110:78: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1113:55: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1113:66: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1114:50: This simp argument is unused:
+  pure
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Except.pure, Bind.bind, Except.bind, Except.ok.injEq] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1114:56: This simp argument is unused:
+  Except.pure
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Bind.bind, Except.bind, Except.ok.injEq] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1114:69: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Except.bind, Except.ok.injEq] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1114:80: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Bind.bind, Except.ok.injEq] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1250:49: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hc, hs, auditFail, Except.bind] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1250:60: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hc, hs, auditFail, Bind.bind] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1255:67: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, pure, Except.pure, Except.bind] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1255:78: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, pure, Except.pure, Bind.bind] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1256:57: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Except.bind, Except.ok.injEq] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1256:68: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Bind.bind, Except.ok.injEq] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1260:65: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, pure, Except.pure, Except.bind] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1260:76: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [auditFail, pure, Except.pure, Bind.bind] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1261:55: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Except.bind, Except.ok.injEq] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1261:66: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [pure, Except.pure, Bind.bind, Except.ok.injEq] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1311:36: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hp, auditFail, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1311:47: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hp, auditFail, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1313:68: This simp argument is unused:
+  pure
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hp, Bool.not_true, Bool.false_eq_true, ↓reduceIte, Except.pure, Bind.bind, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1313:74: This simp argument is unused:
+  Except.pure
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hp, Bool.not_true, Bool.false_eq_true, ↓reduceIte, pure, Bind.bind, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1313:87: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hp, Bool.not_true, Bool.false_eq_true, ↓reduceIte, pure, Except.pure, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1313:98: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hp, Bool.not_true, Bool.false_eq_true, ↓reduceIte, pure, Except.pure, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1352:36: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hp, auditFail, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1352:47: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hp, auditFail, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1354:68: This simp argument is unused:
+  pure
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hp, Bool.not_true, Bool.false_eq_true, ↓reduceIte, Except.pure, Bind.bind, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1354:74: This simp argument is unused:
+  Except.pure
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hp, Bool.not_true, Bool.false_eq_true, ↓reduceIte, pure, Bind.bind, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1354:87: This simp argument is unused:
+  Bind.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hp, Bool.not_true, Bool.false_eq_true, ↓reduceIte, pure, Except.pure, Except.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:1354:98: This simp argument is unused:
+  Except.bind
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hp, Bool.not_true, Bool.false_eq_true, ↓reduceIte, pure, Except.pure, Bind.bind] at h
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKFixedSegs.lean:2671:35: Variable name `Hdr` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _Hdr
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [4018/4028] Built ZK60Formal.HonestShieldZKFixedProg (12s)
+warning: ZK60Formal/HonestShieldZKFixedProg.lean:1466:27: Unused tactic linter: `done` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedProg.lean:1466:35: Unused tactic linter: `(injection h with h'; have := congrArg Fin.val h'; dsimp at this; omega)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedProg.lean:1468:27: Unused tactic linter: `done` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedProg.lean:1468:35: Unused tactic linter: `(injection h with h'; have := congrArg Fin.val h'; dsimp at this; omega)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedProg.lean:1473:25: Unused tactic linter: `done` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKFixedProg.lean:1466:35: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+warning: ZK60Formal/HonestShieldZKFixedProg.lean:1468:35: this tactic is never executed
+
+Note: This linter can be disabled with `set_option linter.unreachableTactic false`
+⚠ [4019/4028] Built ZK60Formal.HonestShieldZKCountShape (7.8s)
+warning: ZK60Formal/HonestShieldZKCountShape.lean:575:32: Variable name `hTrows` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hTrows
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKCountShape.lean:645:28: This simp argument is unused:
+  uint64_add_ofNat_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp_all
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountShape.lean:684:75: This simp argument is unused:
+  uint64_add_ofNat_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp_all
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountShape.lean:1984:18: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:1984:29: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:1985:18: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:1985:29: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:2134:18: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:2134:29: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:2135:18: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:2135:29: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:2397:18: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:2397:29: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:2398:18: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:2398:29: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:2737:2: `push_neg` has been deprecated. Prefer using `push Not` instead.
+If you'd rather continue using `push_neg` in your project, you can implement it as follows:
+```
+open Lean.Parser.Tactic in
+macro "push_neg" cfg:optConfig loc:(location)? : tactic =>
+  `(tactic| push $cfg:optConfig Not $[$loc]?)
+```
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3047:8: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3047:21: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3203:8: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3203:21: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3218:81: This simp argument is unused:
+  mQ
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [base, s, Nat.add_sub_cancel, blkSegFixedLen, zkBMaskFixedLen]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3238:120: This simp argument is unused:
+  mQ
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [base, s, Nat.add_sub_cancel, blkSegFixedLen, zkBMaskFixedLen, openingAuditFixedLen,
+    Exec.R13.r13Prm]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3260:97: This simp argument is unused:
+  mQ
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [base, blkSegFixedLen, zkBMaskFixedLen, openingAuditFixedLen, Exec.R13.r13Prm]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3399:8: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3399:21: `dif_pos` has been deprecated: Use `dite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3413:59: This simp argument is unused:
+  mQ
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [base, outcSegFixedLen, zkBMaskFixedLen]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3431:94: This simp argument is unused:
+  mQ
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [base, outcSegFixedLen, zkBMaskFixedLen, openingAuditFixedLen, shdP_stgPrm]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3452:94: This simp argument is unused:
+  Exec.R13.r13Prm
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [base, outcSegFixedLen, zkBMaskFixedLen, openingAuditFixedLen, shdP_stgPrm, mQ]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountShape.lean:3452:111: This simp argument is unused:
+  mQ
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [base, outcSegFixedLen, zkBMaskFixedLen, openingAuditFixedLen, shdP_stgPrm, Exec.R13.r13Prm]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+⚠ [4020/4028] Built ZK60Formal.HonestShieldZKCountInst (6.9s)
+warning: ZK60Formal/HonestShieldZKCountInst.lean:150:14: `if_pos` has been deprecated: Use `ite_eq_left` instead
+warning: ZK60Formal/HonestShieldZKCountInst.lean:151:14: `if_neg` has been deprecated: Use `ite_eq_right` instead
+warning: ZK60Formal/HonestShieldZKCountInst.lean:163:43: This simp argument is unused:
+  Option.some.injEq
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Prod.mk.injEq] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountInst.lean:163:62: This simp argument is unused:
+  Prod.mk.injEq
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Option.some.injEq] at h1
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountInst.lean:1311:96: This simp argument is unused:
+  base
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [s, Nat.add_sub_cancel, Fin.val_cast] at hr ⊢
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountInst.lean:1323:96: This simp argument is unused:
+  base
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [s, Nat.add_sub_cancel] at hr ⊢
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountInst.lean:1338:96: This simp argument is unused:
+  base
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [s, Nat.add_sub_cancel, Fin.val_cast] at hr ⊢
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKCountInst.lean:1420:91: Unused tactic linter: `(try split)` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+warning: ZK60Formal/HonestShieldZKCountInst.lean:1755:88: This simp argument is unused:
+  Exec.R13.r13Prm
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [outcSegFixedLen, zkBMaskFixedLen, openingAuditFixedLen, shdP_stgPrm]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+⚠ [4021/4028] Built ZK60Formal.HonestShieldZKViewBridge (8.4s)
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:459:48: Variable name `hacc` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hacc
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:459:75: Variable name `haccCan` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _haccCan
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:460:20: Variable name `hacc0Can` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hacc0Can
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1165:52: Variable name `hk` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hk
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1228:52: Variable name `hk` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hk
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1274:12: This simp argument is unused:
+  show d + 2 * g + 1 ≠ d + 2 * g by omega
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1299:56: Variable name `hk` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hk
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1328:10: This simp argument is unused:
+  show d + 1 ≠ d by omega
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1341:56: Variable name `hk` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hk
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1361:27: This simp argument is unused:
+  Nat.add_zero
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hwProx.1, hwProx.2, zero_mul, add_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1375:10: This simp argument is unused:
+  show d + 1 ≠ d by omega
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1418:56: Variable name `hk` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hk
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1447:10: This simp argument is unused:
+  show d + 1 ≠ d by omega
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKViewBridge.lean:1480:10: This simp argument is unused:
+  show d + 2 + 2 * g + 1 ≠ d + 2 + 2 * g by omega
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+⚠ [4022/4028] Built ZK60Formal.HonestShieldZKSegView (9.7s)
+warning: ZK60Formal/HonestShieldZKSegView.lean:1031:14: This simp argument is unused:
+  show d + 1 ≠ d by omega
+
+Hint: Omit it from the simp argument list.
+  [apply] simp
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKSegView.lean:1160:67: Variable name `hLenH` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hLenH
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKSegView.lean:1166:40: Variable name `lr` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _lr
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+⚠ [4023/4028] Built ZK60Formal.HonestShieldZKTraceExtract (6.5s)
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:204:13: This simp argument is unused:
+  h14
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [↓reduceIte, show i.val = 4282 by omega]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:251:13: This simp argument is unused:
+  h7
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [↓reduceDIte, show i.val = 15 by omega, ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:251:17: This simp argument is unused:
+  ↓reduceDIte
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [h7, show i.val = 15 by omega, ↓reduceIte]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:829:12: Variable name `D` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _D
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1242:23: This simp argument is unused:
+  Function.comp_apply
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hsEq, hbEq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1247:41: This simp argument is unused:
+  List.map_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Exec.Block.slotAcc, List.map_singleton, List.append_assoc, Fin.val_zero, Nat.add_zero,
+    slotsFixedLen, Fin.cases_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1247:58: This simp argument is unused:
+  List.map_singleton
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Exec.Block.slotAcc, List.map_append, List.append_assoc, Fin.val_zero, Nat.add_zero, slotsFixedLen,
+    Fin.cases_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1247:78: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Exec.Block.slotAcc, List.map_append, List.map_singleton, Fin.val_zero, Nat.add_zero, slotsFixedLen,
+    Fin.cases_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1568:23: This simp argument is unused:
+  Function.comp_apply
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [hsEq, hbEq]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1570:36: This simp argument is unused:
+  atLog
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hshAt, hsnAt, rhoFull0, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1570:43: This simp argument is unused:
+  hshAt
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [atLog, hsnAt, rhoFull0, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1570:50: This simp argument is unused:
+  hsnAt
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [atLog, hshAt, rhoFull0, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1570:57: This simp argument is unused:
+  rhoFull0
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [atLog, hshAt, hsnAt, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1573:48: This simp argument is unused:
+  List.map_append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Exec.Block.slotAcc, hshAt, List.map_singleton, List.append_assoc, Fin.val_zero, Nat.add_zero,
+    slotsFixedLen, Fin.cases_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1573:65: This simp argument is unused:
+  List.map_singleton
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Exec.Block.slotAcc, hshAt, List.map_append, List.append_assoc, Fin.val_zero, Nat.add_zero,
+    slotsFixedLen, Fin.cases_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1573:85: This simp argument is unused:
+  List.append_assoc
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [Exec.Block.slotAcc, hshAt, List.map_append, List.map_singleton, Fin.val_zero, Nat.add_zero,
+    slotsFixedLen, Fin.cases_zero]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1609:36: This simp argument is unused:
+  atLog
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [hshAt, rhoFull0, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1609:43: This simp argument is unused:
+  hshAt
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [atLog, rhoFull0, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: ZK60Formal/HonestShieldZKTraceExtract.lean:1609:50: This simp argument is unused:
+  rhoFull0
+
+Hint: Omit it from the simp argument list.
+  [apply] simp [atLog, hshAt, List.append_assoc]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+⚠ [4024/4028] Built ZK60Formal.HonestShieldZKProgHelpers (4.5s)
+warning: ZK60Formal/HonestShieldZKProgHelpers.lean:299:5: Variable name `hdef` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _hdef
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+warning: ZK60Formal/HonestShieldZKProgHelpers.lean:416:7: Unused tactic linter: `(try dsimp only [List.filterMap, List.map])` does nothing
+
+Note: This linter can be disabled with `set_option linter.unusedTactic false`
+✔ [4025/4028] Built ZK60Formal.HonestShieldZKProgSegExt (14s)
+✔ [4026/4028] Built ZK60Formal.HonestShieldZKProgInst (24s)
+✔ [4027/4028] Built ZK60Formal (1.8s)
+Build completed successfully (4028 jobs).
+=== STEP root EXIT 0 2026-11-25T19:16:05Z
+=== STEP oleans START
+fresh oleans 41 of 41; missing or old: []
+=== STEP oleans EXIT 0
+=== STEP axioms START 2026-11-25T19:16:05Z argv -d /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/lean-l69/formal env lean /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/lean-l69/formal/AxiomsL69.lean
+'ZK60.HonestShield.shdP_honest_productionReadyL' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestShield.shdP_honest_productionReadyL_okPre' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestShield.shdP_honest_productionReadyL_concrete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestShield.shdP_honestRun_hcover' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestShield.shdP_honestRun_parts' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestShield.shdP_honest_productionReadyL_complete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'ZK60.HonestShield.shdP_zkProgWitness' depends on axioms: [propext, Classical.choice, Quot.sound]
+=== STEP axioms EXIT 0 2026-11-25T19:16:07Z

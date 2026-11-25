@@ -801,6 +801,34 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 19:18 UTC, Lean [MEASURED: my own rebuild and axiom audit. READ by me: the final
+    theorem's statement and the 262-line module of verifier checks. NOT read by anyone independent:
+    the other 32,000 added lines]: Antigravity's chain for zero knowledge and the real verifier
+    checks builds and is merged.** I rebuilt all 41 modules of the honest-prover family from source
+    in a private copy of the merged tree. The whole Lean project builds with no error, and seven
+    names, among them the new final theorem (`shdP_honest_productionReadyL_complete`) and the
+    zero-knowledge witness it uses, rest only on Lean's three standard axioms, so no unfinished
+    proof sits under them. The build gives 168 warnings in nine of the new files, none about an
+    unfinished proof (89 unused simp arguments, 26 unused variable names, 21 deprecation notices, 19
+    unused tactics, 13 tactics never executed); the author had named three such files. What the
+    final theorem says, by its statement, for the R13 Shieldstral classifier profile with valid
+    public weights: the approved production statement (`ProductionReadyL` in `Statements.lean`, a
+    file the branch does not touch) holds at the four targets, with no assumption left about zero
+    knowledge and with real header and per-block checks where the Nov 24 theorem had checks that
+    accept everything. Against the Nov 24 list further down: points 2, 3 and 4 are closed by
+    statement; point 5 stands (nothing in Lean speaks about the Rust binary). Limits to carry with
+    this: (a) the independent read has not happened. On Nov 24 the reads found two gaps that the
+    author's summary had not stated, so until the read is done (first Lean leg of Nov 26) the right
+    words are "builds and states the right thing", not "reviewed". (b) The model carries two of the
+    code's header checks (tier, table fit) as yes/no fields of the header and does not compute them
+    [confirmed by the author]. (c) The theorem is about a prover model with one check added since
+    Nov 24, at the block boundaries; I checked that the Rust prover makes that check
+    (`boundary.rs:279`, `protocol.rs:327-337`). The Lean verifier model does not make the matching
+    check at boundaries 0 to 25, while the Rust verifier does [the author's disclosure; what that
+    difference means for the statement is a question for the read]. (d) The theorem names the R13
+    profile. The app as installed runs the W16R2 profile; whether this chain carries over to it, and
+    what is left if not, is a question put to the author and not something I have checked. Record:
+    `results/zk60_lean_l69_merge_20261125/`.
     **Nov 25, 16:24 UTC, Lean [by Antigravity's commit messages and the guard's exit codes; nothing
     rebuilt or read as a proof by Claude]: the fifteenth of the 16 modules passed; the last one is
     in progress.** The module that had failed 52 guarded attempts since 08:07 UTC passed on the

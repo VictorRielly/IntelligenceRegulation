@@ -1,0 +1,18 @@
+done marker: 0
+probe: exit 0 
+root build: exit 0; error lines 0; warnings with the word sorry 0; other warnings naming the family's files 168 in 9 files; 'Built' lines for the family 41
+    warning kinds: {'linter.unusedVariables': 26, 'linter.unusedTactic': 19, 'linter.unreachableTactic': 13, 'no linter tag in the next lines': 110} files: ['HonestShieldZKCountInst', 'HonestShieldZKCountShape', 'HonestShieldZKFixedOps', 'HonestShieldZKFixedProg', 'HonestShieldZKFixedSegs', 'HonestShieldZKProgHelpers', 'HonestShieldZKSegView', 'HonestShieldZKTraceExtract', 'HonestShieldZKViewBridge']
+    warning: ZK60Formal/HonestShieldZKFixedOps.lean:2057:60: Variable name `htip` is not explicitly referenced.
+    warning: ZK60Formal/HonestShieldZKFixedOps.lean:2057:86: Variable name `hnoPos` is not explicitly referenced.
+    warning: ZK60Formal/HonestShieldZKFixedOps.lean:2119:89: Unused tactic linter: `omega` does nothing
+    warning: ZK60Formal/HonestShieldZKFixedOps.lean:2119:89: this tactic is never executed
+oleans: exit 0 fresh oleans 41 of 41; missing or old: []
+axioms: exit 0; reports 7 of 7; axioms outside the three standard ones: none
+    shdP_honest_productionReadyL: propext, Classical.choice, Quot.sound
+    shdP_honest_productionReadyL_okPre: propext, Classical.choice, Quot.sound
+    shdP_honest_productionReadyL_concrete: propext, Classical.choice, Quot.sound
+    shdP_honestRun_hcover: propext, Classical.choice, Quot.sound
+    shdP_honestRun_parts: propext, Classical.choice, Quot.sound
+    shdP_honest_productionReadyL_complete: propext, Classical.choice, Quot.sound
+    shdP_zkProgWitness: propext, Classical.choice, Quot.sound
+CHECK: GREEN
