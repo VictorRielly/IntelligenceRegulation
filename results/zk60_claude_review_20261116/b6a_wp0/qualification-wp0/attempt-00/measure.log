@@ -1,0 +1,73 @@
+
+running 1 test
+test zk60_b6a_spike::b6a_w_commit_and_baseline_absorbs ... B6A-SPIKE warm=2 measured=7 prover_threads=5 verifier_threads=1
+B6A-M2 iteration=0 warm=true absorb_host_ms=6.1335
+B6A-M2 iteration=1 warm=true absorb_host_ms=6.1071
+B6A-M2 iteration=2 warm=false absorb_host_ms=6.1096
+B6A-M2 iteration=3 warm=false absorb_host_ms=6.1147
+B6A-M2 iteration=4 warm=false absorb_host_ms=6.0911
+B6A-M2 iteration=5 warm=false absorb_host_ms=6.1191
+B6A-M2 iteration=6 warm=false absorb_host_ms=6.0908
+B6A-M2 iteration=7 warm=false absorb_host_ms=6.1487
+B6A-M2 iteration=8 warm=false absorb_host_ms=6.3008
+B6A-M1-CPU rate=1/8 elapsed_ms=239.8445
+B6A-M1-METAL rate=1/8 iteration=0 warm=true gpu_ms=2.6990 encode_wall_ms=13.0189 prep_host_ms=7.0930 salt_tree_host_ms=14.0838
+B6A-M1-METAL rate=1/8 iteration=1 warm=true gpu_ms=1.5817 encode_wall_ms=2.9372 prep_host_ms=6.0705 salt_tree_host_ms=13.8995
+B6A-M1-METAL rate=1/8 iteration=2 warm=false gpu_ms=1.5817 encode_wall_ms=2.6774 prep_host_ms=6.5753 salt_tree_host_ms=14.1234
+B6A-M1-METAL rate=1/8 iteration=3 warm=false gpu_ms=1.6716 encode_wall_ms=2.7601 prep_host_ms=6.4744 salt_tree_host_ms=14.0074
+B6A-M1-METAL rate=1/8 iteration=4 warm=false gpu_ms=1.6626 encode_wall_ms=2.7479 prep_host_ms=6.2444 salt_tree_host_ms=13.8826
+B6A-M1-METAL rate=1/8 iteration=5 warm=false gpu_ms=1.7611 encode_wall_ms=2.8800 prep_host_ms=6.2698 salt_tree_host_ms=13.9757
+B6A-M1-METAL rate=1/8 iteration=6 warm=false gpu_ms=1.6638 encode_wall_ms=2.7288 prep_host_ms=6.0208 salt_tree_host_ms=13.9161
+B6A-M1-METAL rate=1/8 iteration=7 warm=false gpu_ms=1.6753 encode_wall_ms=2.7540 prep_host_ms=6.0623 salt_tree_host_ms=13.9426
+B6A-M1-METAL rate=1/8 iteration=8 warm=false gpu_ms=1.8256 encode_wall_ms=2.9085 prep_host_ms=6.2121 salt_tree_host_ms=13.9064
+B6A-M1-CPU rate=1/4 elapsed_ms=113.5086
+B6A-M1-METAL rate=1/4 iteration=0 warm=true gpu_ms=0.9400 encode_wall_ms=4.6552 prep_host_ms=6.2311 salt_tree_host_ms=7.2355
+B6A-M1-METAL rate=1/4 iteration=1 warm=true gpu_ms=1.0398 encode_wall_ms=1.9935 prep_host_ms=5.8283 salt_tree_host_ms=7.1341
+B6A-M1-METAL rate=1/4 iteration=2 warm=false gpu_ms=1.0478 encode_wall_ms=1.9865 prep_host_ms=5.8924 salt_tree_host_ms=7.1477
+B6A-M1-METAL rate=1/4 iteration=3 warm=false gpu_ms=1.0483 encode_wall_ms=2.0391 prep_host_ms=5.8848 salt_tree_host_ms=7.3607
+B6A-M1-METAL rate=1/4 iteration=4 warm=false gpu_ms=1.0513 encode_wall_ms=2.0833 prep_host_ms=5.8728 salt_tree_host_ms=7.1557
+B6A-M1-METAL rate=1/4 iteration=5 warm=false gpu_ms=1.1824 encode_wall_ms=2.1330 prep_host_ms=5.7851 salt_tree_host_ms=7.2265
+B6A-M1-METAL rate=1/4 iteration=6 warm=false gpu_ms=1.1857 encode_wall_ms=2.1075 prep_host_ms=5.9527 salt_tree_host_ms=7.1688
+B6A-M1-METAL rate=1/4 iteration=7 warm=false gpu_ms=1.3806 encode_wall_ms=2.3383 prep_host_ms=6.5610 salt_tree_host_ms=7.1436
+B6A-M1-METAL rate=1/4 iteration=8 warm=false gpu_ms=1.3836 encode_wall_ms=2.3435 prep_host_ms=5.7160 salt_tree_host_ms=7.1356
+B6A-M1-CPU rate=1/2 elapsed_ms=54.9915
+B6A-M1-METAL rate=1/2 iteration=0 warm=true gpu_ms=0.8945 encode_wall_ms=2.6395 prep_host_ms=5.9903 salt_tree_host_ms=3.6725
+B6A-M1-METAL rate=1/2 iteration=1 warm=true gpu_ms=0.8849 encode_wall_ms=1.8014 prep_host_ms=5.6554 salt_tree_host_ms=3.6931
+B6A-M1-METAL rate=1/2 iteration=2 warm=false gpu_ms=0.8807 encode_wall_ms=1.9270 prep_host_ms=5.5638 salt_tree_host_ms=3.6703
+B6A-M1-METAL rate=1/2 iteration=3 warm=false gpu_ms=0.8873 encode_wall_ms=1.7258 prep_host_ms=5.9470 salt_tree_host_ms=3.6894
+B6A-M1-METAL rate=1/2 iteration=4 warm=false gpu_ms=0.8843 encode_wall_ms=1.8731 prep_host_ms=6.9091 salt_tree_host_ms=3.7252
+B6A-M1-METAL rate=1/2 iteration=5 warm=false gpu_ms=0.8930 encode_wall_ms=1.8541 prep_host_ms=5.8225 salt_tree_host_ms=3.6583
+B6A-M1-METAL rate=1/2 iteration=6 warm=false gpu_ms=0.8840 encode_wall_ms=1.7084 prep_host_ms=5.7927 salt_tree_host_ms=3.6695
+B6A-M1-METAL rate=1/2 iteration=7 warm=false gpu_ms=0.8903 encode_wall_ms=1.8229 prep_host_ms=5.9085 salt_tree_host_ms=3.6918
+B6A-M1-METAL rate=1/2 iteration=8 warm=false gpu_ms=0.8849 encode_wall_ms=1.8060 prep_host_ms=5.7695 salt_tree_host_ms=3.6717
+B6A-M34 rate=1/8 iteration=0 warm=true dense_a_ms=46.1883 dense_h_ms=46.1780 rational_a_ms=1.8439 rational_h_ms=1.8586 prove_bat_ms=16.3610 prove_tower_ms=71.6404 verify_bat_ms=16.1144 verify_tower_ms=25.1782
+B6A-M34 rate=1/8 iteration=1 warm=true dense_a_ms=46.3591 dense_h_ms=46.1938 rational_a_ms=1.8385 rational_h_ms=1.8221 prove_bat_ms=17.0051 prove_tower_ms=70.1106 verify_bat_ms=16.5664 verify_tower_ms=25.8332
+B6A-M34 rate=1/8 iteration=2 warm=false dense_a_ms=46.2042 dense_h_ms=46.8062 rational_a_ms=1.8402 rational_h_ms=1.8536 prove_bat_ms=17.6243 prove_tower_ms=70.7649 verify_bat_ms=16.5499 verify_tower_ms=25.1380
+B6A-M34 rate=1/8 iteration=3 warm=false dense_a_ms=46.2373 dense_h_ms=46.1376 rational_a_ms=1.8539 rational_h_ms=1.8498 prove_bat_ms=17.0751 prove_tower_ms=70.8233 verify_bat_ms=16.0758 verify_tower_ms=25.2392
+B6A-M34 rate=1/8 iteration=4 warm=false dense_a_ms=46.2245 dense_h_ms=46.2736 rational_a_ms=1.8408 rational_h_ms=1.8697 prove_bat_ms=17.0602 prove_tower_ms=70.6327 verify_bat_ms=16.2235 verify_tower_ms=25.1298
+B6A-M34 rate=1/8 iteration=5 warm=false dense_a_ms=46.1808 dense_h_ms=46.1770 rational_a_ms=1.8374 rational_h_ms=1.8312 prove_bat_ms=17.0306 prove_tower_ms=70.1005 verify_bat_ms=16.0449 verify_tower_ms=24.9809
+B6A-M34 rate=1/8 iteration=6 warm=false dense_a_ms=46.5088 dense_h_ms=46.2313 rational_a_ms=1.8638 rational_h_ms=1.8368 prove_bat_ms=16.9620 prove_tower_ms=70.0949 verify_bat_ms=16.0891 verify_tower_ms=25.1980
+B6A-M34 rate=1/8 iteration=7 warm=false dense_a_ms=46.1055 dense_h_ms=46.1296 rational_a_ms=1.8695 rational_h_ms=1.8230 prove_bat_ms=17.1300 prove_tower_ms=69.6148 verify_bat_ms=15.9668 verify_tower_ms=25.1523
+B6A-M34 rate=1/8 iteration=8 warm=false dense_a_ms=46.4068 dense_h_ms=46.3643 rational_a_ms=1.8500 rational_h_ms=1.8824 prove_bat_ms=17.1019 prove_tower_ms=70.8860 verify_bat_ms=16.0506 verify_tower_ms=24.9837
+B6A-M34 rate=1/4 iteration=0 warm=true dense_a_ms=46.1192 dense_h_ms=46.0596 rational_a_ms=1.8127 rational_h_ms=1.8182 prove_bat_ms=17.0872 prove_tower_ms=73.5954 verify_bat_ms=16.0274 verify_tower_ms=28.9361
+B6A-M34 rate=1/4 iteration=1 warm=true dense_a_ms=46.0566 dense_h_ms=46.0190 rational_a_ms=1.8557 rational_h_ms=1.8266 prove_bat_ms=17.1108 prove_tower_ms=73.9903 verify_bat_ms=16.0686 verify_tower_ms=29.0057
+B6A-M34 rate=1/4 iteration=2 warm=false dense_a_ms=46.2127 dense_h_ms=46.2665 rational_a_ms=1.8585 rational_h_ms=1.8725 prove_bat_ms=17.0865 prove_tower_ms=74.1719 verify_bat_ms=16.5841 verify_tower_ms=29.1559
+B6A-M34 rate=1/4 iteration=3 warm=false dense_a_ms=45.9778 dense_h_ms=46.0070 rational_a_ms=1.8271 rational_h_ms=1.8223 prove_bat_ms=17.1075 prove_tower_ms=73.8376 verify_bat_ms=16.0697 verify_tower_ms=28.9582
+B6A-M34 rate=1/4 iteration=4 warm=false dense_a_ms=45.9784 dense_h_ms=46.0277 rational_a_ms=1.8200 rational_h_ms=1.8308 prove_bat_ms=17.0891 prove_tower_ms=74.0930 verify_bat_ms=16.0026 verify_tower_ms=29.0400
+B6A-M34 rate=1/4 iteration=5 warm=false dense_a_ms=46.1007 dense_h_ms=46.1605 rational_a_ms=1.8326 rational_h_ms=1.8398 prove_bat_ms=16.9374 prove_tower_ms=73.5553 verify_bat_ms=16.1966 verify_tower_ms=29.7310
+B6A-M34 rate=1/4 iteration=6 warm=false dense_a_ms=46.1602 dense_h_ms=46.0193 rational_a_ms=1.8747 rational_h_ms=1.8308 prove_bat_ms=16.9464 prove_tower_ms=73.8415 verify_bat_ms=16.0489 verify_tower_ms=28.9329
+B6A-M34 rate=1/4 iteration=7 warm=false dense_a_ms=46.0817 dense_h_ms=46.1075 rational_a_ms=1.8476 rational_h_ms=1.8230 prove_bat_ms=16.9517 prove_tower_ms=73.8059 verify_bat_ms=16.0655 verify_tower_ms=28.8407
+B6A-M34 rate=1/4 iteration=8 warm=false dense_a_ms=46.5102 dense_h_ms=45.9803 rational_a_ms=1.8707 rational_h_ms=1.8215 prove_bat_ms=16.9000 prove_tower_ms=73.9930 verify_bat_ms=16.1040 verify_tower_ms=29.9851
+B6A-M34 rate=1/2 iteration=0 warm=true dense_a_ms=46.1969 dense_h_ms=46.0713 rational_a_ms=1.8447 rational_h_ms=1.8237 prove_bat_ms=15.8987 prove_tower_ms=87.7492 verify_bat_ms=16.0043 verify_tower_ms=43.0824
+B6A-M34 rate=1/2 iteration=1 warm=true dense_a_ms=45.9253 dense_h_ms=46.0415 rational_a_ms=1.8304 rational_h_ms=1.8297 prove_bat_ms=15.9220 prove_tower_ms=88.2796 verify_bat_ms=16.0267 verify_tower_ms=43.0230
+B6A-M34 rate=1/2 iteration=2 warm=false dense_a_ms=46.2894 dense_h_ms=46.2436 rational_a_ms=1.8288 rational_h_ms=1.9483 prove_bat_ms=16.0132 prove_tower_ms=87.6919 verify_bat_ms=16.0450 verify_tower_ms=42.9769
+B6A-M34 rate=1/2 iteration=3 warm=false dense_a_ms=46.1343 dense_h_ms=46.0037 rational_a_ms=1.8470 rational_h_ms=1.8400 prove_bat_ms=16.2683 prove_tower_ms=87.8166 verify_bat_ms=16.0433 verify_tower_ms=42.9932
+B6A-M34 rate=1/2 iteration=4 warm=false dense_a_ms=46.2845 dense_h_ms=45.9956 rational_a_ms=1.8397 rational_h_ms=1.8185 prove_bat_ms=15.8855 prove_tower_ms=87.5545 verify_bat_ms=15.9710 verify_tower_ms=43.2266
+B6A-M34 rate=1/2 iteration=5 warm=false dense_a_ms=46.1128 dense_h_ms=55.9611 rational_a_ms=1.8327 rational_h_ms=2.4117 prove_bat_ms=15.9929 prove_tower_ms=87.6575 verify_bat_ms=16.0438 verify_tower_ms=42.8401
+B6A-M34 rate=1/2 iteration=6 warm=false dense_a_ms=60.8795 dense_h_ms=61.3110 rational_a_ms=2.4560 rational_h_ms=2.4281 prove_bat_ms=21.0958 prove_tower_ms=112.8803 verify_bat_ms=21.2340 verify_tower_ms=56.6913
+B6A-M34 rate=1/2 iteration=7 warm=false dense_a_ms=61.2160 dense_h_ms=60.5907 rational_a_ms=2.4782 rational_h_ms=2.5184 prove_bat_ms=21.4162 prove_tower_ms=115.4295 verify_bat_ms=21.4880 verify_tower_ms=55.8213
+B6A-M34 rate=1/2 iteration=8 warm=false dense_a_ms=61.1618 dense_h_ms=59.9899 rational_a_ms=2.3827 rational_h_ms=2.5312 prove_bat_ms=21.3160 prove_tower_ms=115.8254 verify_bat_ms=21.3436 verify_tower_ms=54.9255
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1201 filtered out; finished in 11.87s
+

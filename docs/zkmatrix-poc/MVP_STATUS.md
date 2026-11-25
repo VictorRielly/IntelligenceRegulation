@@ -801,6 +801,21 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 01:56 UTC, size [MEASURED by Claude on Sol's pinned sources, one attempt, guard run
+    `9f03ee7c3f5e`; lines posted before the run]: the size step's timing test failed its host-time
+    line at all three settings, so the smaller receipt is not available at today's speed.** The new
+    opening adds 0.9 to 1.7 ms of GPU time a block (limit 3.0, passed) but about 100 ms of host time
+    a block on five threads: +102.8, +99.1 and +109.0 ms at the three candidate rates, against a
+    pass line of +5 ms and a stop line of +15 ms. The plan had estimated between -7.5 and +6.5 ms.
+    Of the added time, 71 to 88 ms is the prover's new folding step and 16 to 17 ms a second new
+    step; even without the first, every setting is above the stop line. By the rules fixed
+    beforehand all three settings are out and the full-speed comparison is not run on this build.
+    What stands: Sol's code is correct by its own tests, and the counted receipt is still about 0.53
+    of today's (669.6 MB to about 354 MB for the classifier). What is not known: where inside the
+    new steps the time goes (no profile exists), and what the six-lane stream would lose. Ways
+    forward, none chosen: cut or move that host work and test again under a new posted definition,
+    or offer a separate slower profile with small receipts, which is Victor's choice
+    (`results/zk60_claude_review_20261116/b6a_wp0/qualification-wp0/attempt-00/`).
     **Nov 25, 00:32 UTC, Lean for the size step [written by an Opus agent; Claude read every
     statement and compiled the file as committed, guard run `5e8c227c6a1a`]: three counting lemmas
     of the new opening's soundness argument are now proved in Lean.** They cover the steps the

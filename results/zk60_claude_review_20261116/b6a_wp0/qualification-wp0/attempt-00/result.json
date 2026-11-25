@@ -1,0 +1,69 @@
+{
+  "complete": true,
+  "guard": "9f03ee7c3f5e",
+  "baseline_absorb_ms": 6.1147,
+  "rates": {
+    "1/8": {
+      "cpu_w_ms": 239.8445,
+      "device_route": "qualified",
+      "gpu_ms": 1.6716,
+      "host_added_ms": 102.8141,
+      "total_added_ms": 104.4857,
+      "verdict": "kill",
+      "median_phases_ms": {
+        "dense_a_ms": 46.2245,
+        "dense_h_ms": 46.2313,
+        "rational_a_ms": 1.85,
+        "rational_h_ms": 1.8498,
+        "prove_bat_ms": 17.0751,
+        "prove_tower_ms": 70.6327,
+        "verify_bat_ms": 16.0758,
+        "verify_tower_ms": 25.138
+      }
+    },
+    "1/4": {
+      "cpu_w_ms": 113.5086,
+      "device_route": "qualified",
+      "gpu_ms": 1.1824,
+      "host_added_ms": 99.06669999999998,
+      "total_added_ms": 100.24909999999998,
+      "verdict": "kill",
+      "median_phases_ms": {
+        "dense_a_ms": 46.1007,
+        "dense_h_ms": 46.0277,
+        "rational_a_ms": 1.8476,
+        "rational_h_ms": 1.8308,
+        "prove_bat_ms": 16.9517,
+        "prove_tower_ms": 73.8415,
+        "verify_bat_ms": 16.0697,
+        "verify_tower_ms": 29.04
+      }
+    },
+    "1/2": {
+      "cpu_w_ms": 54.9915,
+      "device_route": "qualified",
+      "gpu_ms": 0.8849,
+      "host_added_ms": 108.972,
+      "total_added_ms": 109.8569,
+      "verdict": "kill",
+      "median_phases_ms": {
+        "dense_a_ms": 46.2894,
+        "dense_h_ms": 55.9611,
+        "rational_a_ms": 1.847,
+        "rational_h_ms": 2.4117,
+        "prove_bat_ms": 16.2683,
+        "prove_tower_ms": 87.8166,
+        "verify_bat_ms": 16.045,
+        "verify_tower_ms": 43.2266
+      }
+    }
+  },
+  "candidate": null,
+  "raw_counts": {
+    "M1-CPU": 3,
+    "M1-METAL": 27,
+    "M1-NOT-TIMED": 0,
+    "M2": 9,
+    "M34": 27
+  }
+}
