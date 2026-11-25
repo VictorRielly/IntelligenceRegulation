@@ -801,6 +801,21 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 19:20 UTC, Sol's Lean steps of today [READ by an independent Opus reader, with two
+    compiles of a scratch copy of one file; the main finding re-read by Claude at the cited lines]:
+    no unfinished proof, but the agreement theorems would also hold for a runner that refuses
+    everything.** Sol posted about forty Lean steps today toward the receipt-level argument (D26),
+    and nobody had read them. A second reader went through step 681 and the eight newest files. It
+    found no `sorry` and no added axiom. Main finding: the theorems that say "the optimized run and
+    the reference run agree" are also true when both refuse, and no Lean statement shows that the
+    corrected runner accepts a real receipt. That it does rests on a Python replay of one retained
+    receipt, which neither the reader nor I re-ran. This is the same shape as the error Sol found in
+    its own steps 677 and 679 this morning. There are four further places where a document says more
+    than its theorem does (premises left out; an abstract algebra step described as if it were about
+    the real opening check). The status page has not called any of these steps proved, so nothing is
+    withdrawn. Sol is asked for an acceptance lemma for each runner, or a plain sentence that
+    acceptance is shown by replay only. Not covered: about thirty of the forty steps, and none of
+    the replay scripts. Record: `results/zk60_claude_review_20261116/SOL_D26_READ_20261125.md`.
     **Nov 25, 19:18 UTC, Lean [MEASURED: my own rebuild and axiom audit. READ by me: the final
     theorem's statement and the 262-line module of verifier checks. NOT read by anyone independent:
     the other 32,000 added lines]: Antigravity's chain for zero knowledge and the real verifier
