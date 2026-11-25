@@ -14,7 +14,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SCR = '/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad'
 B0 = f'{SCR}/p23-base/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify'  # the pushed head's hashline code (9fbc85292 = 6a9ac01fb under ops/zkp-mvp/gpu-metal)
-B1 = f'{SCR}/p23-merged/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify'  # merge object f04bc012b: agy/metal-err-recovery + agy/l1-block-binding
+B1 = f'{SCR}/p23-m2/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_classify'  # merge object f44edf443: agy/metal-err-recovery with its fix 932915a9e + agy/l1-block-binding (the first object, f04bc012b, failed its gate)
 label, spec, need, cap, maxs, traced, *extra_env = sys.argv[1:]
 py = '/Users/victorrielly/zk60-artifacts/a28-tools/venv/bin/python'
 (HERE / 'raw' / 'traces').mkdir(parents=True, exist_ok=True)

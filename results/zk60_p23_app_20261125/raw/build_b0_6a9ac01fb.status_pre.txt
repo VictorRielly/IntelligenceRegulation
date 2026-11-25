@@ -1,0 +1,15 @@
+2026-11-25T19:22:17Z
+--- guard status ---
+RAM   194.52 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 16.0 of 252.5 GiB committed by guarded jobs
+  job  p23-merge-gate1              gpu   need 16G since 2026-11-25T19:18:46Z
+LOCKS heavy HELD, build free
+GPU   962 of 196608 MiB used
+DISK  /System/Volumes/VM 97.5 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  20664 MiB  pid 48978   agy
+  rss   5404 MiB  pid 1578    claude
+  rss   4284 MiB  pid 66413   grep -rn shdP_honest_productionReadyL_complete\|W16R2_SHIELD_T128_H24 /Users/victorrielly/IntelligenceRegulati
+  rss   2030 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1538 MiB  pid 17265   claude
+  rss   1482 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
