@@ -206,14 +206,64 @@ pub fn required() -> bool {
 
 static DECLINES: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 
+#[cfg(test)]
+thread_local! {
+    /// When `Some(n)` on the current test thread, `declined()` increments this
+    /// thread-local counter instead of the process-wide `DECLINES` atomic and
+    /// `declines()` returns `n`. Keeps fault-injection tests isolated from
+    /// concurrent `--test-threads=8` CLI tests that enforce Q-2 (`gpu_declines == 0`
+    /// on CPU-path backends). Compiles away completely in production (`#[cfg(test)]`).
+    static DECLINES_TEST_LOCAL: std::cell::Cell<Option<usize>> = const { std::cell::Cell::new(None) };
+}
+
+/// Thread-local RAII guard isolating `gpu::declined()` / `gpu::declines()` on
+/// the current test thread so fault-injection tests never pollute the
+/// process-wide `DECLINES` counter read by concurrent CLI/Q-2 tests.
+#[cfg(test)]
+pub struct LocalDeclinesGuard {
+    prev: Option<usize>,
+}
+
+#[cfg(test)]
+impl LocalDeclinesGuard {
+    pub fn enter() -> Self {
+        let prev = DECLINES_TEST_LOCAL.with(|c| c.replace(Some(0)));
+        Self { prev }
+    }
+}
+
+#[cfg(test)]
+impl Drop for LocalDeclinesGuard {
+    fn drop(&mut self) {
+        DECLINES_TEST_LOCAL.with(|c| c.set(self.prev));
+    }
+}
+
 /// the number of device declines in this process so far
 pub fn declines() -> usize {
+    #[cfg(test)]
+    if let Some(n) = DECLINES_TEST_LOCAL.with(|c| c.get()) {
+        return n;
+    }
     DECLINES.load(std::sync::atomic::Ordering::Relaxed)
 }
 
 /// report one decline at `site` (never returns when the GPU is required)
 pub fn declined(site: &str, err: &str) {
-    DECLINES.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    #[cfg(test)]
+    let local = DECLINES_TEST_LOCAL.with(|c| {
+        if let Some(n) = c.get() {
+            c.set(Some(n + 1));
+            true
+        } else {
+            false
+        }
+    });
+    #[cfg(not(test))]
+    let local = false;
+    if !local {
+        DECLINES.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    }
     eprintln!("[ZK60-GPU] {site} declined ({err}); CPU path");
     if required() {
         panic!("[ZK60-GPU] HL_GPU_REQUIRED=1 and {site} declined ({err}): refusing to fall back to the CPU (fail closed)");

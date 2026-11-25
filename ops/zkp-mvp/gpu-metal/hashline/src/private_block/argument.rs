@@ -4587,6 +4587,7 @@ mod tests {
         if crate::gpu::MetalTables::new(1, 2).is_err() {
             return;
         }
+        let _dec = crate::gpu::LocalDeclinesGuard::enter();
         let _req = crate::gpu::RequiredGuard::set(Some(false));
         let _batch = crate::gpu::MetalBatchModeGuard::set(Some(true));
         let _dt = DeviceTablesGuard::set(Some(DT_DEVICE));
@@ -4685,6 +4686,7 @@ mod tests {
             assert!(crate::gpu::declines() > d0, "Branch 2 M6 mismatch must record a GPU decline");
             assert_matches_cpu("Branch 2 M6 mismatch", &sp, st, cnt, gv);
         }
+        assert_eq!(crate::gpu::declines(), 4, "fallback test must record exactly 4 isolated declines");
 
         // 5. Verifier accepts the recovered SlotProof identically
         let mut tr_v = Transcript::new(b"metal-err-recovery-slot-sc-rs");
@@ -4707,6 +4709,7 @@ mod tests {
         if crate::gpu::MetalTables::new(1, 2).is_err() {
             return;
         }
+        let _dec = crate::gpu::LocalDeclinesGuard::enter();
         let _req = crate::gpu::RequiredGuard::set(Some(true));
         let _batch = crate::gpu::MetalBatchModeGuard::set(Some(true));
         let _dt = DeviceTablesGuard::set(Some(DT_DEVICE));
@@ -4757,5 +4760,6 @@ mod tests {
                 "expected fail-closed HL_GPU_REQUIRED=1 panic (pub_gen_prove={pub_gen_prove}), got: {msg}"
             );
         }
+        assert_eq!(crate::gpu::declines(), 2, "fail-closed test must record exactly 2 isolated declines");
     }
 }
