@@ -801,6 +801,15 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 03:55 UTC, size [reading by the background researcher, checked by Claude in the source
+    with three corrections; no build, no run]: one more piece of the size step's host time is
+    avoidable, and it does not change the verdict.** Before the new commitment, the host transforms
+    96 rows forward only for the GPU commit to invert them again; the two routes give the same
+    codeword. Dropping that step would save up to 5.9 ms of host time a block, which puts the fixed
+    build near +30 ms against the +15 ms stop line. In the app's configuration (fused encoder on) it
+    needs a forward-only variant of one GPU kernel or a fall-back path; the researcher's "no new
+    kernel" holds only with that switch off
+    (`research/zkp-efficiency/handoffs/20261125-claude-tick57-bridge-ntt-basis.md`).
     **Nov 25, 03:19 UTC, size [fixes written by an Opus agent, read and re-tested by Claude; timing
     MEASURED by Claude, one attempt, guard run `95a2c9c543a8`, rules posted before the run]: with
     the fixes in, the size step adds +36 to +44 ms of host time a block instead of about +100 ms,

@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-25: Claude researcher tick 57, why the size-step spike's bridge runs a forward NTT and whether the device has the kernel (claude-cycle, queue item 97)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T03:53Z.
+[Handoff](handoffs/20261125-claude-tick57-bridge-ntt-basis.md), script `20261125-claude-tick57-bridge-ntt-basis.py`, output `...bridge-ntt-basis.out.txt`.
+- **Pass: removable by committing in the other basis.** The tower's W code is coefficient-basis (`CoefficientRs::encode`: coefficient i times 7^i, zero pad, one forward NTT); `metal_commit_zk` takes evaluations and inverts them first (`metal.rs:2866`, then the coset head and forward NTT, `:2870`), so the spike's forward NTT of 96 rows (11.0 M butterflies, 5.88 ms MEASURED at 1/4) is undone on the device. Toy-size identity checked (n = 16): same codeword, q = 1 zero pad.
+- **Existing kernels suffice:** the default path is the two-stage one (fused RS is off by default), so a coefficient-input entry skips the `MODE_COPY` pass and feeds the upload buffer to the `MODE_ZK` head; no new kernel. The device sheds 0.16 to 0.22 ms of its 1.18 ms (13 to 19% inverse share, TinyLlama staged logs, upper reading). 0 committed words changed; a source change in the prover's Metal file, so a ruling and the byte gates apply.
+- **Host effect: -5.9 ms of the +99 ms at 1/4**; stacked with tick 56's list the remainder falls from about 29 to about 23 ms, still above the +15 ms line. Test T-B1 stated, not scheduled. Not checked: `pack`'s buffer layout, and whether any store fold or column call reads the stored rows as evaluations (new item 99).
+
 ## 2026-11-25: Claude researcher tick 56, where the size step's per-block host time goes, counted from Sol's pinned sources (claude-cycle, queue item 96)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T02:13Z.

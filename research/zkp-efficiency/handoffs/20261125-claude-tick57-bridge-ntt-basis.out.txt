@@ -1,0 +1,15 @@
+A. toy identity, n=16, positions=64, q=1 zero pad: CPU tower encode == device route on forward(coeff): True
+A. with a nonzero pad the codeword differs (so the pad is what the hiding commit adds): True
+
+B. bridge: 96 rows x (2^14/2 x 14) = 11010048 butterflies; the copy of the rows is 12.6 MB (96 x 2^14 x 8 B)
+   rate 1/8 (7 measured iterations): prep_host 6.24 ms (NTT on 5 threads + copy), commit gpu 1.67 ms, encode wall 2.75 ms; prep / gpu = 3.7
+   rate 1/4 (7 measured iterations): prep_host 5.88 ms (NTT on 5 threads + copy), commit gpu 1.18 ms, encode wall 2.11 ms; prep / gpu = 5.0
+   rate 1/2 (7 measured iterations): prep_host 5.82 ms (NTT on 5 threads + copy), commit gpu 0.88 ms, encode wall 1.82 ms; prep / gpu = 6.6
+   prep host per butterfly: 0.534 ns all-in (copy included)
+
+C. staged logs, rate 1/4 at 2^14 -> 2^16 (8 lines, TinyLlama golden logs, a different row count from the spike's 96): inverse share of the commit's device total 13 to 19%; inverse 4.0 to 4.4 us a row, forward 15.5 to 16.1 us a row
+   at 96 rows: inverse 0.39 to 0.43 ms in those staged timings (they split one buffer into parts, so an upper reading)
+   share applied to the spike's own median commit gpu at 1/4 (1.18 ms): 0.16 to 0.22 ms the inverse pass costs on the device
+
+D. removing the bridge returns the whole prep timer (5.9 ms at 1/4: the 12.6 MB `to_vec` copy that lets the rows be transformed in place, plus the 5-thread forward NTTs); the upload the device does stays inside the commit's encode wall, so nothing is added back. The device sheds 0.16 to 0.22 ms (C).
+   against the +99 ms spike gap at 1/4 (tick 56): 5.9 ms of host time, 0 committed words changed
