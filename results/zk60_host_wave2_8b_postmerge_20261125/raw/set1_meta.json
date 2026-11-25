@@ -1,0 +1,79 @@
+[
+  {
+    "idx": 0,
+    "leg": "A0_leadin",
+    "bin": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/w2-8b-base/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-99331253074f9a28",
+    "arm": "serve8+lanes2+ba1+frs1+sf1+sc1+hf1",
+    "exit": 0,
+    "wall_s": 57.691,
+    "ts_start": "2026-11-25T18:49:17Z",
+    "ts_end": "2026-11-25T18:50:14Z",
+    "log": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/results/zk60_host_wave2_8b_postmerge_20261125/raw/set1_0_A0_leadin.log"
+  },
+  {
+    "idx": 1,
+    "leg": "A1",
+    "bin": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/w2-8b-base/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-99331253074f9a28",
+    "arm": "serve8+lanes2+ba1+frs1+sf1+sc1+hf1",
+    "exit": 0,
+    "wall_s": 56.7,
+    "ts_start": "2026-11-25T18:50:16Z",
+    "ts_end": "2026-11-25T18:51:13Z",
+    "log": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/results/zk60_host_wave2_8b_postmerge_20261125/raw/set1_1_A1.log"
+  },
+  {
+    "idx": 2,
+    "leg": "B1",
+    "bin": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-47108cbd7bf5814a",
+    "arm": "serve8+lanes2+ba1+frs1+sf1+sc1+hf1",
+    "exit": 0,
+    "wall_s": 61.032,
+    "ts_start": "2026-11-25T18:51:15Z",
+    "ts_end": "2026-11-25T18:52:16Z",
+    "log": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/results/zk60_host_wave2_8b_postmerge_20261125/raw/set1_2_B1.log"
+  },
+  {
+    "idx": 3,
+    "leg": "C1",
+    "bin": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-47108cbd7bf5814a",
+    "arm": "serve8+lanes2+ba1+frs1+sf1+sc1+hf1+hw1+ad0",
+    "exit": 0,
+    "wall_s": 56.4,
+    "ts_start": "2026-11-25T18:52:18Z",
+    "ts_end": "2026-11-25T18:53:14Z",
+    "log": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/results/zk60_host_wave2_8b_postmerge_20261125/raw/set1_3_C1.log"
+  },
+  {
+    "idx": 4,
+    "leg": "C2",
+    "bin": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-47108cbd7bf5814a",
+    "arm": "serve8+lanes2+ba1+frs1+sf1+sc1+hf1+hw1+ad0",
+    "exit": 0,
+    "wall_s": 56.43,
+    "ts_start": "2026-11-25T18:53:16Z",
+    "ts_end": "2026-11-25T18:54:13Z",
+    "log": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/results/zk60_host_wave2_8b_postmerge_20261125/raw/set1_4_C2.log"
+  },
+  {
+    "idx": 5,
+    "leg": "B2",
+    "bin": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-47108cbd7bf5814a",
+    "arm": "serve8+lanes2+ba1+frs1+sf1+sc1+hf1",
+    "exit": 0,
+    "wall_s": 59.652,
+    "ts_start": "2026-11-25T18:54:15Z",
+    "ts_end": "2026-11-25T18:55:14Z",
+    "log": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/results/zk60_host_wave2_8b_postmerge_20261125/raw/set1_5_B2.log"
+  },
+  {
+    "idx": 6,
+    "leg": "A2",
+    "bin": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/w2-8b-base/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-99331253074f9a28",
+    "arm": "serve8+lanes2+ba1+frs1+sf1+sc1+hf1",
+    "exit": 0,
+    "wall_s": 57.258,
+    "ts_start": "2026-11-25T18:55:16Z",
+    "ts_end": "2026-11-25T18:56:14Z",
+    "log": "/Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/results/zk60_host_wave2_8b_postmerge_20261125/raw/set1_6_A2.log"
+  }
+]
