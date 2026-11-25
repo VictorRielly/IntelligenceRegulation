@@ -1,0 +1,37 @@
+{
+ "label": "smoke",
+ "blocks": 2,
+ "binary_sha256": "3afe2cd15015045bd562c968d914440169583ebcd896e3d4c09c9de87d974a28",
+ "order": [
+  "p",
+  "t1"
+ ],
+ "runs": [
+  {
+   "k": 1,
+   "arm": "p",
+   "guard_exit": 0,
+   "wall_s": 5.7,
+   "started_utc": "2026-11-25T16:08:51Z",
+   "loadavg_after": "{ 4.93 4.60 4.80 }",
+   "serial_verify_s": 0.26,
+   "forks6_verify_s": 0.14,
+   "serial_cold_wall_s": 1.667,
+   "receipt_bytes": 51632560,
+   "test_ok": true
+  },
+  {
+   "k": 2,
+   "arm": "t1",
+   "guard_exit": 0,
+   "wall_s": 7.7,
+   "started_utc": "2026-11-25T16:08:57Z",
+   "loadavg_after": "{ 4.77 4.57 4.79 }",
+   "serial_verify_s": 0.58,
+   "forks6_verify_s": 0.52,
+   "serial_cold_wall_s": 1.798,
+   "receipt_bytes": 51632560,
+   "test_ok": true
+  }
+ ]
+}
