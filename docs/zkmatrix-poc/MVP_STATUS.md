@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 00:29 UTC, product [web research by the applications researcher from EU, UK and
+    California texts, several through law-firm summaries; Claude compared the article numbers and
+    dates with what it knows and re-fetched nothing; no legal advice]: do published rules already
+    ask for what a receipt gives? Mostly not.** No provision read asks for a proof per item.
+    Auditors and regulators have a right to the data and systems and can rerun an open model
+    themselves; public reports are totals; duties to mark generated media are met by a mark, not by
+    a classifier's verdict. The one place where a receipt does something a signed log cannot is the
+    statement of reasons a platform owes a user under the EU Digital Services Act, and the
+    Commission's public database of them: someone who must not see the content could still check
+    that the named model gave the stated verdict. That is a possible use, not a legal demand. A
+    further possible use, added in triage and equally unproven: decisions on content the platform
+    may not keep or show, where a rerun is impossible. One date in the study (a marking deadline of
+    2 December 2026) is unverified. Two follow-up studies are queued.
     **Nov 25, 00:21 UTC, product [web research and local reading by the applications researcher;
     Claude checked the local citations and made one correction; no page was re-fetched and nothing
     was run]: which well-known safety classifiers the prover could take.** The best-known open guard
