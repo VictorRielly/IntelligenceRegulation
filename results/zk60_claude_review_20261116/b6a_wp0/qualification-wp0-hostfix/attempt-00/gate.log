@@ -1,0 +1,2 @@
+RUN isolated release build
+RUN fixed M1-M4 test

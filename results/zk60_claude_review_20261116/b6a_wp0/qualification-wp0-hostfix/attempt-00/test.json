@@ -1,0 +1,14 @@
+{
+  "executable_sha256": "a7e6097d1272754bf69b05c1d2798862df36881b7fe8efc53ad7e15c56113dda",
+  "env": {
+    "HL_GPU": "1",
+    "HL_GPU_REQUIRED": "1",
+    "HL_METAL_FUSED_RS": "1",
+    "HL_METAL_SPARSE_FOLD": "1",
+    "HL_METAL_SC_CHAIN_FAST": "1",
+    "HL_HOST_FAST": "1",
+    "HL_CLASSIFY_HOST_FAST": "1",
+    "HL_TRANSCRIPT_PAR": "0",
+    "RAYON_NUM_THREADS": "5"
+  }
+}

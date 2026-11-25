@@ -801,6 +801,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 03:19 UTC, size [fixes written by an Opus agent, read and re-tested by Claude; timing
+    MEASURED by Claude, one attempt, guard run `95a2c9c543a8`, rules posted before the run]: with
+    the fixes in, the size step adds +36 to +44 ms of host time a block instead of about +100 ms,
+    and still fails its line.** The fixes change no proof byte: 15 tests compare the old and the new
+    prover output for output, including a whole proof at full shape, and the unchanged verifier
+    accepts every timed proof. Added host time a block at the three settings: +44.4, +37.7 and +35.8
+    ms (stop line +15 ms); added GPU time 0.9 to 1.7 ms (limit 3.0, passed). The estimate made
+    before the run was about +36 ms, so the estimate held; the same arithmetic puts every remaining
+    listed change near +29 ms. So the smaller receipt (about 0.53 of today's 670 MB) cannot be had
+    at today's speed with this design. What the six-lane stream would actually lose is not known and
+    needs a full comparison on an integrated build. Whether to build that as a separate, slower
+    profile is Victor's decision
+    (`results/zk60_claude_review_20261116/b6a_wp0/hostfix/HOSTFIX_NOTES.md`; record
+    `results/zk60_claude_review_20261116/b6a_wp0/qualification-wp0-hostfix/attempt-00/`).
     **Nov 25, 02:18 UTC, size [source read and counts by Claude and by the background researcher; no
     build, no run]: the failed timing test is explained, and no listed fix brings the size step back
     under its line.** The new prover steps run on one thread: about 6.0 million extension-field
