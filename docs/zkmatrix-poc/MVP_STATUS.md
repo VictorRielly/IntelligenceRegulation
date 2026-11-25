@@ -801,6 +801,18 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 12:01 UTC, product [legal reading by Sol; one point confirmed by Claude from secondary
+    pages, the Official Journal site returned empty pages; no build, no run]: no EU rule makes a
+    platform keep the content behind an ordinary moderation decision, and a receipt does not replace
+    the rules that do.** Two different rules say six months: terrorist content taken down under
+    Regulation 2021/784 must be preserved for six months, and the DSA keeps the complaint channel
+    open for at least six months without setting a storage period for the content. The
+    abuse-material derogation for private messaging lapsed on 3 April 2026 and a new act, Regulation
+    2026/1881, applies from 31 July 2026 to 3 April 2028; its 12 months is a ceiling, not a duty. So
+    a receipt made at decision time can be the one check of the computation that remains after the
+    content is lawfully deleted, provided keeping the receipt is lawful too. It does not recover the
+    post, does not show the decision was right, and where a preservation duty applies the original
+    is kept anyway (`research/applications/handoffs/20261125-apps-dsa-content-retention.md`).
     **Nov 25, 11:57 UTC, hidden weights [count and reading by the background researcher from the
     sources; its script re-run and the cited lines read by Claude; no build, no run; study level
     only, D82]: hiding the embedding and the head as well as the block matrices would add about 247
