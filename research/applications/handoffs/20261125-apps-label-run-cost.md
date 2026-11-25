@@ -42,6 +42,7 @@ Today: a public margin vector (difference of two tied embedding rows) dotted wit
 
 - Raw multiply-adds: 3,072 per difference vector, 46,080 for n = 16, 1.2e-7 of the window's 3.9e11 for the block projections and feed-forward (DERIVED from the dimensions, statement v3 line 201). **Not** a proof-time figure.
 - Closest record: at R13, stage OUT-C is 7,161,056 B against 118,593,824 B for one block (0.060) and 848,412,096 B for the receipt (0.0084) [statement v3 lines 476, 202; bytes, older profile]. No per-stage size or time at the installed profile was found.
+- **Correction, 2026-11-25 (co-coordinator, after Sol's study A21):** the 7,161,056 B in the line above is not a size. Statement v3 line 476 gives it as the bytes a seeded generator draws for the stage (mask randomness), beside 118,593,824 B drawn for a block. The two ratios 0.060 and 0.0084 are withdrawn as size shares. The retained R13 records give the output stage's frame as 3,292,120 B of the 848,412,096 B receipt (0.39 percent); see `20261125-apps-restricted-head.md`. The script beside this handoff still prints the old reading.
 - ESTIMATE (reasoning, unmeasured): for n up to 16 the added planes are small beside the stage's fixed geometry, so the label side would be a small part of a run and cheaper than n runs. This is the kind of guess that needs the count below before anyone plans on it.
 
 Public information: n separate yes/no policies publish n bits per chunk; one n-way choice at most log2 n (4 for n = 16) [DERIVED; statement v3 line 103]. A privacy-statement change, not a free saving.

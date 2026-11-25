@@ -801,6 +801,23 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 11:43 UTC, product [counts and legal reading by Sol; the counting script re-run, the
+    retained records read and two web sources re-fetched by Claude; no build, no run]: a single-pass
+    choice among 16 labels would add about 1 MB to a receipt, and the receipt should stay off the
+    public EU record.** Two studies from the applications queue. First, on the older R13 classifier
+    profile the output stage is 3.3 MB of the 848 MB receipt (0.39 percent, the same in all three
+    retained records). A head that picks one of 16 registered labels would add about 1.1 MB by the
+    design's counter and needs no wider rows, against 15 more receipts of 0.67 GB each if the
+    categories are run separately. That is a size count only: no time is counted, the installed
+    profile has no such record, and the head is not designed in detail, not built and has no Lean
+    statement. An earlier figure of 7.2 MB for this stage, quoted in the study behind the 09:54
+    paragraph and passed by Claude, was the stage's mask randomness and not its size; that study now
+    carries a correction. Second, a hash or commitment to one moderated item should not be put into
+    the EU statement-of-reasons row: a public salt does not stop someone who knows the post from
+    testing it, and the database has no field for it. The receipt belongs in a separate record under
+    access control that the platform shows on request
+    (`research/applications/handoffs/20261125-apps-restricted-head.md`,
+    `20261125-apps-dsa-content-commitments.md`).
     **Nov 25, 09:54 UTC, product [count and reading by the background researcher from retained
     records; its script re-run and its cited lines read by Claude; no build, no run]: each further
     category costs one more full proof run, and nothing built makes it cheaper.** On the installed
