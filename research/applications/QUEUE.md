@@ -6,17 +6,13 @@ repository (see the brief).
 
 ## Open
 
-10. **Which public safety classifiers a buyer would name, and what each needs from the prover (A10).** Web research
-    and reading, added 2026-11-24. The installed app proves one 3B moderation classifier. List the open-weight
-    content-safety and moderation classifiers in common use of up to 8B parameters (by their own model cards: size,
-    architecture, context length, label set, licence), and for each the operations our prover does not have today
-    (a different attention form, normalization, activation, tokenizer, head). The result is a table that says which
-    could run on the current block prover after an import, and which need new proof relations.
 11. **Rules that already ask for evidence a receipt could supply (A11).** Web research, added 2026-11-24. For content
     moderation, synthetic-media marking and model audits: which published rules or standards (by article or section,
     with their dates of application) ask a provider for a record that a named check ran, and who is entitled to see
     it. Say for each whether a receipt adds anything over a signed log, and what it cannot supply. No legal advice;
     quote the texts.
+13. **What a moderation buyer needs from a label (A13).** Web research, added 2026-11-25 from A10. The installed relation proves one verdict bit; Llama Guard 3, Qwen3Guard, Granite and WildGuard emit categories or several fields. From published platform rules, transparency-report formats and moderation-API documentation, say which uses need the category (or severity tier) and which are served by a verdict bit alone, so the cost of a multi-token label relation can be weighed against need.
+14. **Policy-prompt lengths of the named guards (A14).** Local counting, added 2026-11-25 from A10. With the tokenizers' published files (no model weights), count the tokens of the default prompt templates of Llama Guard 3, Qwen3Guard and Granite Guardian for one 40-token input, and compare each with the T = 128 profile and the 72- and 78-token registered Shieldstral policy texts, to say which need a chunk plan or a larger rung. Added by the co-coordinator 2026-11-25T00:21:56Z: also record, for each guard, whether its verdict words (for Llama Guard, `safe` and `unsafe`) are single tokens at the first generated position, because the installed relation compares two token ids.
 12. **Where a small proof has to fit (A12).** Web research and counting, added 2026-11-24; a companion to item 90 of
     the efficiency queue. For the places a kilobyte-size proof would be posted or checked (a public blockchain's
     transaction and data limits, a browser, a phone): the size and checking-cost limits by their own documentation,
@@ -33,3 +29,4 @@ repository (see the brief).
 7. **A6, writing provenance.** A receipt can authenticate a recorded edit history and the submitted text. A person retyping model output can satisfy the same typing policy as an unaided writer. [Existing recorders, proposed statement and deciding test](handoffs/20261124-apps-writing-provenance.md)
 8. **A8, receipt size by workflow.** The guest post downloaded 2.009 GB and its three native checks consumed 128.19 seconds. B6a models about 1.00–1.06 GB for those proofs. Central audit, per-reader replay and aggregate score publication have different requirements. [Five applications and sizing assumptions](handoffs/20261124-apps-receipt-size.md)
 9. **A9, video edits.** RGB8 at 30 frames/s gives 186.6 million input values/s at 1080p and 746.5 million at UHD 4K. Two reference calculations matched a two-second crop, redaction and frame-rate conversion. [Counts, published proof measurements and first test](handoffs/20261124-apps-video-edits.md)
+10. **A10, safety classifiers.** Llama Guard 3 (1B, 8B) and Nemotron Safety Guard 8B v3 after an adapter merge match the existing block operations; Granite Guardian, Qwen3Guard and ShieldGemma each need new relations, and every generative guard needs a multi-token label relation. [Table of nine models, gaps and test](handoffs/20261125-apps-safety-classifiers.md)

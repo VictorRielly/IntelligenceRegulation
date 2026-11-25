@@ -801,6 +801,17 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 00:21 UTC, product [web research and local reading by the applications researcher;
+    Claude checked the local citations and made one correction; no page was re-fetched and nothing
+    was run]: which well-known safety classifiers the prover could take.** The best-known open guard
+    is the one that fits: Llama Guard 3 (1B and 8B) and one NVIDIA guard built on the same base use
+    only operations the block prover already has. What they still need is an import path, a
+    calibration to the quality bar, a prompt template that fits the request length, and a decision
+    on the label (the app proves one yes/no margin; these guards also print categories). Granite
+    Guardian, Qwen3Guard and ShieldGemma each need new proof relations with their own review and
+    Lean statement. A fit on paper is not a quality result: no guard was exported or proved.
+    Follow-up studies are queued on what a buyer needs from the label and on the length of each
+    guard's prompt.
     **Nov 25, 00:14 UTC, size [research by the background researcher and an independent read by an
     Opus agent; Claude re-ran the scripts, recomputed the totals and checked the citations; nothing
     was built or timed]: what a kilobyte receipt would cost, and an independent read of the new
