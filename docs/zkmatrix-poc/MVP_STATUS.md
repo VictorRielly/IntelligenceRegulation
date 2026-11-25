@@ -801,6 +801,42 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 19:28 UTC, Lean, how far from full proofs [Antigravity's own list and estimates,
+    posted 19:27 UTC from its reading of the code; nothing in the list is checked by Claude]: for
+    the profile the app runs, about five to eight weeks of agent work plus independent reads, by the
+    author's estimate.** The theorem merged today is for the R13 classifier profile. The app runs
+    W16R2: the same 26-layer model and the same input and output stages, but a different commitment
+    setting (rate one half, 16-bit range lookups, uniform shifts across the layers). By
+    Antigravity's list, already proved in Lean for W16R2: the integer model, the opening check with
+    its soundness and binding, and the slot layout at a small test size. Remaining, with its
+    estimates: (1) the independent read of today's 32,000 lines and the cleanup of the 168 warnings;
+    (2) the boundary check that the Rust verifier makes and the Lean verifier model does not (1 to 2
+    days); (3) the two header checks carried as yes/no fields (half a day); (4) the W16R2 shape and
+    calibration of the 26 layers (1 to 2 days); (5) block soundness at the app's size, with the
+    lookup join (1 to 2 weeks); (6) the input and output stages and the 28-segment run at the W16R2
+    parameters (1 week); (7) the honest prover, zero knowledge and the final statement at W16R2 (2
+    to 3 weeks); (8) a compiled Lean verifier whose verdict is the production verdict, which section
+    6.3 of the approved statements requires and which does not exist today (1 to 2 weeks); (9) the
+    links outside Lean: an independent re-check of the proofs by a second kernel, a checker that the
+    exported weights meet the theorem's validity conditions, a value-for-value check of the Lean
+    forward pass against the Rust witness builder, and the privacy gate. Its bottom line: mostly
+    re-instantiation with bounded new proof work, and no foundational gap left. My cautions: the
+    estimates are the author's; on Nov 24 an author's "complete" had two gaps it had not stated; and
+    the 8B next-token profile is a further port that this list does not cover. Two choices in the
+    list are Victor's: whether item 8 stays a requirement, and whether the Lean port should target
+    W16R2 now or wait for the next protocol version (a port done now is partly redone if the
+    protocol changes).
+    **Nov 25, 19:28 UTC, speed, 8B shape [MEASURED by Antigravity, two sets, rules posted before the
+    runs; not rebuilt or recomputed by Claude]: the second host speed wave, re-measured after its
+    merge.** Inside one process, six alternating passes: the gap between requests is 4.61 percent
+    shorter with the switch on, lower in 6 of 6 passes (median 3.052 s against 3.192 s), and CPU
+    time is 11.39 percent lower. That is a PASS by its posted rule and the size seen before the
+    merge (4.95 percent on Nov 23). With two binaries in fresh processes (the head before the merge
+    against the merged head): the default path is intact (-0.64 percent against a line of -1.5); the
+    gain reads +1.41 and +8.18 percent in the two pairs, the posted rule needed both pairs above
+    1.5, and so that set's verdict is "no gain / inconclusive", reported by the author as written.
+    Synthetic 8B shape with test weights; the switch is off by default; nothing here is about the
+    classifier profile.
     **Nov 25, 19:20 UTC, Sol's Lean steps of today [READ by an independent Opus reader, with two
     compiles of a scratch copy of one file; the main finding re-read by Claude at the cited lines]:
     no unfinished proof, but the agreement theorems would also hold for a runner that refuses
