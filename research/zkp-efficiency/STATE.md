@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-25: Claude researcher tick 58, the verifier's side of the size step, per request (claude-cycle, queue item 98)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T07:55Z.
+[Handoff](handoffs/20261125-claude-tick58-verifier-side-b6a.md), script `20261125-claude-tick58-verifier-side-b6a.py`, output `...verifier-side-b6a.out.txt`.
+- **Pass, and the study's verifier figure is too low a cost:** the spike's one-thread verifier is BAT 14.4 to 16.1 ms plus tower 24.9 / 28.9 / 43.2 ms a block (MEASURED, rates 1/8, 1/4, 1/2); the tower decomposes into switch step 17.4 / 21.3 / 35.3, fold replay 5.2 and 2.6 left (DERIVED). At six threads, BAT + tower alone is 0.21 to 0.31 s at an ideal six-fold, above W16R3 study 3.3's 0.15 s for the whole PCS part (x5 to x15, ESTIMATE). That study's calibration (2.31 s x 6 / 32 = 433 ms CPU a block) is x3.05 above the one-thread record (4.54 s / 32 = 142 ms, `a12merge_d55_ab.log:227`; D12a vs D55 verifiers).
+- **Per request, 32 blocks, one thread:** 1.46 to 2.93 s as built against today's 4.54 s (x1.6 to x3.1); 1.11 to 2.04 s with tick 56's rational switch row, which reaches the verifier unchanged (BAT + tower flat at about 28 to 29 ms a block over the rate); six threads 0.27 s (perfect scaling) to 1.50 s (today's observed x1.96). Classifier (26 blocks): BAT + tower alone 1.02 to 1.49 s one thread; no classifier verify time is retained. Tick 56's fold items, device routes and tick 57's NTT removal are prover-only.
+- **Outside the spike's timers:** the 12 MB column hashing (about 6.4 ms), the boundary openings (31 + 2, serial in the tail, `run_fork.rs:2929-2973`, unchanged under B6a), and the public-weight fold (14 G multiplications, 11 to 20 s one thread; the diagonal-weight records exclude it). Tests T-V1 (D55 verifier at 1, 2, 3, 6 workers with phase marks), T-V2 (spike timer on column authentication, rational row in the verifier), T-V3 (dense weights) stated, not scheduled. 0 committed words changed; verification is after the stream's clock, so no proved-tokens-per-second effect.
+
 ## 2026-11-25: Claude researcher tick 57, why the size-step spike's bridge runs a forward NTT and whether the device has the kernel (claude-cycle, queue item 97)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T03:53Z.

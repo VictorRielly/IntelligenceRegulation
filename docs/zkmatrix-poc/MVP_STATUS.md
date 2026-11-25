@@ -801,6 +801,17 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 07:58 UTC, size [count and reading by the background researcher from retained records;
+    its script re-run and its citations checked by Claude; no build, no run]: the size step would
+    make checking a receipt about 1.6 to 3 times faster, not the 5 to 15 times the design study
+    modelled.** The study calibrated today's verifier at 433 ms of CPU a block from a six-thread
+    run; the retained one-thread record says 142 ms (4.54 s for 32 blocks, synthetic 8B, diagonal
+    test weights). Against that record the size step's verifier comes to 1.5 to 2.9 s a request as
+    built, or 1.1 to 2.0 s with one further change that keeps the bytes. All of this is on diagonal
+    test weights. With real weights the public-weight fold alone is 11 to 20 s on one thread by
+    count, the size step leaves it as it is, and no record splits today's 42 to 44 s guest check
+    into parts. So the size step buys a smaller receipt, and a faster check should not be promised
+    from it (`research/zkp-efficiency/handoffs/20261125-claude-tick58-verifier-side-b6a.md`).
     **Nov 25, 07:54 UTC, product [count and reading by Astra; arithmetic redone and the two Ethereum
     rule pages re-read by Claude; nothing run]: posting today's receipt on a public chain would take
     about 1,600 Ethereum transactions per category.** One 670 MB receipt, carried as transaction

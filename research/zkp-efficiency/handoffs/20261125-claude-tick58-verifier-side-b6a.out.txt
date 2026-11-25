@@ -1,0 +1,65 @@
+== 1. Spike verifier medians, one thread, per block (MEASURED; warm=false iterations)
+build        rate   bat_ms  tower_ms  sum_ms   n
+as_pinned    1/8    16.08     25.14    41.21  7
+as_pinned    1/4    16.07     29.04    45.11  7
+as_pinned    1/2    16.05     43.23    59.27  7
+hostfix      1/8    14.45     24.91    39.36  7
+hostfix      1/4    14.51     28.86    43.37  7
+hostfix      1/2    14.37     42.77    57.15  7
+
+== 2. Tower verifier = fold replay + switch step + remainder (DERIVED; tick 56 rates)
+1/8: switch  17.4 + fold replay  5.2 + remainder  2.6 =  25.1 measured
+1/4: switch  21.3 + fold replay  5.2 + remainder  2.6 =  29.0 measured
+1/2: switch  35.3 + fold replay  5.2 + remainder  2.7 =  43.2 measured
+The remainder (BASE, openings, canonical checks, eq tables) is 2.2 to 2.6 ms at every rate: the model hangs together.
+
+== 3. Tick 56's changes against the verifier (DERIVED)
+Verifier's tower after the rational switch row / after mul_base alone; BAT as measured on the hostfix build
+1/8: tower  25.1 ->  13.8 (rational) /  16.4 (mul_base); BAT+tower  39.6 ->  28.3 /  30.9
+1/4: tower  29.0 ->  14.0 (rational) /  18.4 (mul_base); BAT+tower  43.5 ->  28.5 /  32.9
+1/2: tower  43.2 ->  14.9 (rational) /  25.6 (mul_base); BAT+tower  57.6 ->  29.3 /  40.0
+
+== 4. Today's verifier (MEASURED, a12merge_d55_ab.log lines 227, 232, 237, 245)
+one thread: 4.54 s / 32 = 141.9 ms a block; six threads: 2.32 s = 72.5 ms a block of wall
+six-thread speed-up on today's record: x1.96 (two different verifiers, D12a and D55: a caution)
+W16R3 study 3.3 calibration: 2.31 s x 6 / 32 = 433 ms CPU a block; one-thread record says 142: x3.05 too high
+Amdahl serial fraction if both runs were the same program: 0.41 (1.88 s of the one-thread 4.54 s). DERIVED, not established
+
+== 5. What B6a removes from today's block, from counts x measured rates (DERIVED)
+BAT body 12.4 ms over 11.1 M Fp-multiplication equivalents = 1.12 ns each (includes adds and memory)
+column products 33.2 M x 2 Fp mul: 74 ms (range 53 to 93)
+NTT re-encode 3.08 M points x 8 butterflies per point: 27 to 103 ms
+transcript absorb of the 47 vectors, 12.5 MB: 6.1 ms (MEASURED; the spike's 'legacy absorbs' saved 6.16 ms)
+column hashing that stays, 12.0 MB: 6.4 ms (rate of the absorb record; paths ASSUMED 0.5)
+removed work: 108 to 184 ms by counts; capped by T0 - hashing at 136: range 108 to 136 ms of 142
+
+== 6. B6a verifier per block and per request, one thread (DERIVED)
+per block = T0 - removed + (BAT + tower). Rows: as pinned verifier / with the rational switch row (hostfix BAT)
+1/8: as built  45.7 to  73.7 ms a block; rational  34.7 to  62.6
+1/4: as built  49.7 to  77.7 ms a block; rational  34.9 to  62.9
+1/2: as built  63.5 to  91.5 ms a block; rational  35.6 to  63.6
+-- 8B profile, 32 blocks
+   1/8: one thread, as built 1.46 to 2.36 s; rational 1.11 to 2.00 s; spike part alone (BAT + tower, hostfix) 1.26 s
+   1/4: one thread, as built 1.59 to 2.49 s; rational 1.12 to 2.01 s; spike part alone (BAT + tower, hostfix) 1.39 s
+   1/2: one thread, as built 2.03 to 2.93 s; rational 1.14 to 2.04 s; spike part alone (BAT + tower, hostfix) 1.83 s
+-- classifier, 26 blocks
+   1/8: one thread, as built 1.19 to 1.92 s; rational 0.90 to 1.63 s; spike part alone (BAT + tower, hostfix) 1.02 s
+   1/4: one thread, as built 1.29 to 2.02 s; rational 0.91 to 1.63 s; spike part alone (BAT + tower, hostfix) 1.13 s
+   1/2: one thread, as built 1.65 to 2.38 s; rational 0.93 to 1.65 s; spike part alone (BAT + tower, hostfix) 1.49 s
+8B all rates: as built 1.46 to 2.93 s (today 4.54); ratio x1.6 to x3.1
+8B all rates: rational  1.11 to 2.04 s; ratio x2.2 to x4.1
+
+== 7. Six threads (the study's frame: 2.31 s today), two bounds (DERIVED)
+1/8: perfect block parallelism 6 waves: as built 0.27 to 0.44 s
+1/4: perfect block parallelism 6 waves: as built 0.30 to 0.47 s
+1/2: perfect block parallelism 6 waves: as built 0.38 to 0.55 s
+spike part alone at ideal 6x (32 x S / 6): {'1/8': 0.21, '1/4': 0.231, '1/2': 0.305} s; study's whole-PCS figure 0.15 s
+today's observed scaling carried over (0.511): 0.75 to 1.50 s
+six-thread range all rates, as built: 0.27 (perfect) to 1.50 s (today's scaling); against 2.31 s: x1.6 to x8.5
+study 3.3: 0.15 s and x5 to x15 (ESTIMATE); its B6a PCS CPU-s a block 28 ms; spike BAT+tower alone is 39 to 57 ms one thread
+
+== 8. Public-weight fold, outside all of this (tick 55, COUNTED there: 14 G mults a request)
+   at 0.8 ns per multiplication: 11.2 s one thread; 1.9 s at 6 threads if parallel
+   at 1.1 ns per multiplication: 15.4 s one thread; 2.6 s at 6 threads if parallel
+   at 1.4 ns per multiplication: 19.6 s one thread; 3.3 s at 6 threads if parallel
+   The A/B verifier times above are on diagonal synthetic weights, so they exclude it; B6a does not change it.
