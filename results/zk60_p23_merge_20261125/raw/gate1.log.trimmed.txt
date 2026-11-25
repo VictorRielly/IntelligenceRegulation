@@ -1,0 +1,570 @@
+# Trimmed copy of gate1.log (the full log is 5.8 MB, mostly the JSON event lines of the failing command-line tests, and is kept
+# out of the repository). Kept: every step line, every result line, every FAILED line, and for each failure block the
+# last refusal line and the panic message.
+=== STEP suite START 2026-11-25T19:18:46Z env {} argv --features gpu-metal --lib -- --test-threads=8
+running 1204 tests
+test private_block::review_tests::a_toy_receipt_made_before_f12_is_refused ... FAILED
+test private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung ... FAILED
+test private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung ... FAILED
+test private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal ... FAILED
+test private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung ... FAILED
+test private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes ... FAILED
+test private_block::token_io::cli_tests::cli_a_tampered_segment_or_an_unlisted_backend_is_refused_and_nothing_is_published ... FAILED
+test private_block::token_io::cli_tests::cli_the_token_run_proves_the_verifier_publishes_rechecks_and_the_owner_reads_the_token ... FAILED
+test private_block::token_io::cli_tests::pr4_17_the_owner_writes_the_token_to_a_0600_file ... FAILED
+test private_block::token_io::cli_tests::pr4_17_the_prompt_never_goes_on_the_command_line ... FAILED
+test private_block::token_io::cli_tests::tr4_1_the_owner_verifies_before_it_prints_and_refuses_a_tampered_or_unverified_run ... FAILED
+test private_block::token_io::cli_tests::tr4_2_a_run_with_another_head_or_cn_is_refused_under_the_token_profile_pin ... FAILED
+test private_block::token_io::cli_tests::tr5_1_a_prove_never_removes_an_owner_or_statement_directory_it_did_not_create ... FAILED
+test private_block::token_io::cli_tests::tr4_3_the_owner_files_go_to_a_private_directory_outside_the_runs_parent ... FAILED
+test private_block::token_io::cli_tests::tr7_6_owner_refuses_an_existing_token_file_before_re_verifying ... FAILED
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces ... FAILED
+test private_block::trained_block_tests::the_cli_proves_and_verifies_the_tiny_export_with_every_control ... FAILED
+test private_block::trained_stack_tests::a_per_layer_score_shift_proves_verifies_and_is_bound ... FAILED
+test private_block::trained_stack_tests::privacy_q2_the_published_backend_is_one_of_the_builds_names ... FAILED
+test private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name ... FAILED
+test private_block::trained_stack_tests::review_r5_3_the_published_statement_is_bound_to_what_was_verified ... FAILED
+test private_block::trained_stack_tests::the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_refuses ... FAILED
+test private_block::trained_stack_tests::r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound ... FAILED
+test private_block::run::fork::tests::a23::a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does ... FAILED
+---- private_block::review_tests::a_toy_receipt_made_before_f12_is_refused stdout (trimmed) ----
+thread 'private_block::review_tests::a_toy_receipt_made_before_f12_is_refused' (31593699) panicked at src/private_block/review_tests.rs:738:5:
+no pre-lane toy receipt was found: this check did not run
+---- private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung' (31593987) panicked at src/private_block/run_fork_tests.rs:4343:9:
+assertion `left == right` failed: window 0 N2 shared true: stack-prove --d55-workers failed
+  left: 1
+ right: 0
+---- private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung' (31594050) panicked at src/private_block/run_fork_tests.rs:4343:9:
+assertion `left == right` failed: window 0 N2 shared true: stack-prove --d55-workers failed
+  left: 1
+ right: 0
+---- private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal' (31596278) panicked at src/private_block/run_fork_tests.rs:6374:9:
+assertion `left == right` failed: stack-prove --d55-workers failed
+  left: 1
+ right: 0
+---- private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung' (31595856) panicked at src/private_block/run_fork_tests.rs:4343:9:
+assertion `left == right` failed: window 0 N2 shared true: stack-prove --d55-workers failed
+  left: 1
+ right: 0
+---- private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes' (31602125) panicked at src/private_block/run_fork_tests.rs:1570:5:
+assertion `left == right` failed: stack-prove --d55-workers with the acknowledgement failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::cli_a_tampered_segment_or_an_unlisted_backend_is_refused_and_nothing_is_published stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::cli_a_tampered_segment_or_an_unlisted_backend_is_refused_and_nothing_is_published' (31607714) panicked at src/private_block/token_io/cli_tests.rs:269:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::cli_the_token_run_proves_the_verifier_publishes_rechecks_and_the_owner_reads_the_token stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::cli_the_token_run_proves_the_verifier_publishes_rechecks_and_the_owner_reads_the_token' (31607715) panicked at src/private_block/token_io/cli_tests.rs:230:5:
+assertion `left == right` failed: prove
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::pr4_17_the_owner_writes_the_token_to_a_0600_file stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::pr4_17_the_owner_writes_the_token_to_a_0600_file' (31607719) panicked at src/private_block/token_io/cli_tests.rs:715:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::pr4_17_the_prompt_never_goes_on_the_command_line stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::pr4_17_the_prompt_never_goes_on_the_command_line' (31607721) panicked at src/private_block/token_io/cli_tests.rs:703:5:
+assertion `left == right` failed: a 0600 prompt file
+  left: (1, 0)
+ right: (0, 1)
+---- private_block::token_io::cli_tests::tr4_1_the_owner_verifies_before_it_prints_and_refuses_a_tampered_or_unverified_run stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::tr4_1_the_owner_verifies_before_it_prints_and_refuses_a_tampered_or_unverified_run' (31607733) panicked at src/private_block/token_io/cli_tests.rs:301:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::tr4_2_a_run_with_another_head_or_cn_is_refused_under_the_token_profile_pin stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::tr4_2_a_run_with_another_head_or_cn_is_refused_under_the_token_profile_pin' (31607734) panicked at src/private_block/token_io/cli_tests.rs:342:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::tr5_1_a_prove_never_removes_an_owner_or_statement_directory_it_did_not_create stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::tr5_1_a_prove_never_removes_an_owner_or_statement_directory_it_did_not_create' (31607742) panicked at src/private_block/token_io/cli_tests.rs:412:9:
+REVIEW TR5-1 (owner): the directory a rival prove created is GONE after this prove's error path
+---- private_block::token_io::cli_tests::tr4_3_the_owner_files_go_to_a_private_directory_outside_the_runs_parent stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::tr4_3_the_owner_files_go_to_a_private_directory_outside_the_runs_parent' (31607741) panicked at src/private_block/token_io/cli_tests.rs:363:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::tr7_6_owner_refuses_an_existing_token_file_before_re_verifying stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::tr7_6_owner_refuses_an_existing_token_file_before_re_verifying' (31607748) panicked at src/private_block/token_io/cli_tests.rs:744:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces stdout (trimmed) ----
+thread 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces' (31608755) panicked at src/private_block/trained_accuracy.rs:515:96:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+---- private_block::trained_block_tests::the_cli_proves_and_verifies_the_tiny_export_with_every_control stdout (trimmed) ----
+{"event":"refused","command":"trained-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_block_tests::the_cli_proves_and_verifies_the_tiny_export_with_every_control' (31608851) panicked at src/private_block/trained_block_tests.rs:414:5:
+assertion `left == right` failed: prove failed
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::a_per_layer_score_shift_proves_verifies_and_is_bound stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::a_per_layer_score_shift_proves_verifies_and_is_bound' (31609005) panicked at src/private_block/trained_stack_tests.rs:346:5:
+assertion `left == right` failed: stack-prove of the per-layer export failed
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::privacy_q2_the_published_backend_is_one_of_the_builds_names stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::privacy_q2_the_published_backend_is_one_of_the_builds_names' (31609208) panicked at src/private_block/trained_stack_tests.rs:690:9:
+assertion `left == right` failed: stack-prove
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name' (31609325) panicked at src/private_block/trained_stack_tests.rs:535:5:
+assertion `left == right` failed: stack-prove
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::review_r5_3_the_published_statement_is_bound_to_what_was_verified stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::review_r5_3_the_published_statement_is_bound_to_what_was_verified' (31609326) panicked at src/private_block/trained_stack_tests.rs:393:9:
+assertion `left == right` failed: stack-prove run-b
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_refuses stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_refuses' (31609335) panicked at src/private_block/trained_stack_tests.rs:218:5:
+assertion `left == right` failed: stack-prove failed
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound' (31609252) panicked at src/private_block/trained_stack_tests.rs:757:5:
+assertion `left == right` failed: stack-prove of the fully per-layer export failed
+  left: 1
+ right: 0
+---- private_block::run::fork::tests::a23::a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::a23::a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does' (31600893) panicked at src/private_block/run_fork_tests.rs:6374:9:
+assertion `left == right` failed: stack-prove --d55-workers failed
+  left: 1
+ right: 0
+test result: FAILED. 1024 passed; 24 failed; 156 ignored; 0 measured; 0 filtered out; finished in 518.30s
+error: test failed, to rerun pass `--lib`
+=== STEP suite EXIT 101 2026-11-25T19:30:53Z
+=== STEP suite-on START 2026-11-25T19:30:53Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib -- --test-threads=8
+running 1204 tests
+test private_block::review_tests::a_toy_receipt_made_before_f12_is_refused ... FAILED
+test private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung ... FAILED
+test private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung ... FAILED
+test private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal ... FAILED
+test private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung ... FAILED
+test private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes ... FAILED
+test private_block::token_io::cli_tests::cli_a_tampered_segment_or_an_unlisted_backend_is_refused_and_nothing_is_published ... FAILED
+test private_block::token_io::cli_tests::cli_the_token_run_proves_the_verifier_publishes_rechecks_and_the_owner_reads_the_token ... FAILED
+test private_block::token_io::cli_tests::pr4_17_the_owner_writes_the_token_to_a_0600_file ... FAILED
+test private_block::token_io::cli_tests::pr4_17_the_prompt_never_goes_on_the_command_line ... FAILED
+test private_block::token_io::cli_tests::tr4_1_the_owner_verifies_before_it_prints_and_refuses_a_tampered_or_unverified_run ... FAILED
+test private_block::token_io::cli_tests::tr4_2_a_run_with_another_head_or_cn_is_refused_under_the_token_profile_pin ... FAILED
+test private_block::token_io::cli_tests::tr4_3_the_owner_files_go_to_a_private_directory_outside_the_runs_parent ... FAILED
+test private_block::token_io::cli_tests::tr5_1_a_prove_never_removes_an_owner_or_statement_directory_it_did_not_create ... FAILED
+test private_block::token_io::cli_tests::tr7_6_owner_refuses_an_existing_token_file_before_re_verifying ... FAILED
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces ... FAILED
+test private_block::trained_block_tests::the_cli_proves_and_verifies_the_tiny_export_with_every_control ... FAILED
+test private_block::trained_stack_tests::a_per_layer_score_shift_proves_verifies_and_is_bound ... FAILED
+test private_block::trained_stack_tests::privacy_q2_the_published_backend_is_one_of_the_builds_names ... FAILED
+test private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name ... FAILED
+test private_block::trained_stack_tests::review_r5_3_the_published_statement_is_bound_to_what_was_verified ... FAILED
+test private_block::trained_stack_tests::r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound ... FAILED
+test private_block::trained_stack_tests::the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_refuses ... FAILED
+test private_block::run::fork::tests::a23::a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does ... FAILED
+---- private_block::review_tests::a_toy_receipt_made_before_f12_is_refused stdout (trimmed) ----
+thread 'private_block::review_tests::a_toy_receipt_made_before_f12_is_refused' (31617063) panicked at src/private_block/review_tests.rs:738:5:
+no pre-lane toy receipt was found: this check did not run
+---- private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung' (31617286) panicked at src/private_block/run_fork_tests.rs:4343:9:
+assertion `left == right` failed: window 0 N2 shared true: stack-prove --d55-workers failed
+  left: 1
+ right: 0
+---- private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung' (31617472) panicked at src/private_block/run_fork_tests.rs:4343:9:
+assertion `left == right` failed: window 0 N2 shared true: stack-prove --d55-workers failed
+  left: 1
+ right: 0
+---- private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal' (31619797) panicked at src/private_block/run_fork_tests.rs:6374:9:
+assertion `left == right` failed: stack-prove --d55-workers failed
+  left: 1
+ right: 0
+---- private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung' (31619286) panicked at src/private_block/run_fork_tests.rs:4343:9:
+assertion `left == right` failed: window 0 N2 shared true: stack-prove --d55-workers failed
+  left: 1
+ right: 0
+---- private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes' (31626398) panicked at src/private_block/run_fork_tests.rs:1570:5:
+assertion `left == right` failed: stack-prove --d55-workers with the acknowledgement failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::cli_a_tampered_segment_or_an_unlisted_backend_is_refused_and_nothing_is_published stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::cli_a_tampered_segment_or_an_unlisted_backend_is_refused_and_nothing_is_published' (31631376) panicked at src/private_block/token_io/cli_tests.rs:269:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::cli_the_token_run_proves_the_verifier_publishes_rechecks_and_the_owner_reads_the_token stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::cli_the_token_run_proves_the_verifier_publishes_rechecks_and_the_owner_reads_the_token' (31631377) panicked at src/private_block/token_io/cli_tests.rs:230:5:
+assertion `left == right` failed: prove
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::pr4_17_the_owner_writes_the_token_to_a_0600_file stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::pr4_17_the_owner_writes_the_token_to_a_0600_file' (31631388) panicked at src/private_block/token_io/cli_tests.rs:715:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::pr4_17_the_prompt_never_goes_on_the_command_line stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::pr4_17_the_prompt_never_goes_on_the_command_line' (31631389) panicked at src/private_block/token_io/cli_tests.rs:703:5:
+assertion `left == right` failed: a 0600 prompt file
+  left: (1, 0)
+ right: (0, 1)
+---- private_block::token_io::cli_tests::tr4_1_the_owner_verifies_before_it_prints_and_refuses_a_tampered_or_unverified_run stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::tr4_1_the_owner_verifies_before_it_prints_and_refuses_a_tampered_or_unverified_run' (31631400) panicked at src/private_block/token_io/cli_tests.rs:301:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::tr4_2_a_run_with_another_head_or_cn_is_refused_under_the_token_profile_pin stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::tr4_2_a_run_with_another_head_or_cn_is_refused_under_the_token_profile_pin' (31631403) panicked at src/private_block/token_io/cli_tests.rs:342:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::tr4_3_the_owner_files_go_to_a_private_directory_outside_the_runs_parent stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::tr4_3_the_owner_files_go_to_a_private_directory_outside_the_runs_parent' (31631406) panicked at src/private_block/token_io/cli_tests.rs:363:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::token_io::cli_tests::tr5_1_a_prove_never_removes_an_owner_or_statement_directory_it_did_not_create stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::tr5_1_a_prove_never_removes_an_owner_or_statement_directory_it_did_not_create' (31631407) panicked at src/private_block/token_io/cli_tests.rs:412:9:
+REVIEW TR5-1 (owner): the directory a rival prove created is GONE after this prove's error path
+---- private_block::token_io::cli_tests::tr7_6_owner_refuses_an_existing_token_file_before_re_verifying stdout (trimmed) ----
+{"event":"refused","command":"prove","error":"refused","detail":"owner-private"}
+thread 'private_block::token_io::cli_tests::tr7_6_owner_refuses_an_existing_token_file_before_re_verifying' (31631430) panicked at src/private_block/token_io/cli_tests.rs:744:5:
+assertion `left == right` failed
+  left: 1
+ right: 0
+---- private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces stdout (trimmed) ----
+thread 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces' (31632544) panicked at src/private_block/trained_accuracy.rs:515:96:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+---- private_block::trained_block_tests::the_cli_proves_and_verifies_the_tiny_export_with_every_control stdout (trimmed) ----
+{"event":"refused","command":"trained-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_block_tests::the_cli_proves_and_verifies_the_tiny_export_with_every_control' (31632625) panicked at src/private_block/trained_block_tests.rs:414:5:
+assertion `left == right` failed: prove failed
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::a_per_layer_score_shift_proves_verifies_and_is_bound stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::a_per_layer_score_shift_proves_verifies_and_is_bound' (31632719) panicked at src/private_block/trained_stack_tests.rs:346:5:
+assertion `left == right` failed: stack-prove of the per-layer export failed
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::privacy_q2_the_published_backend_is_one_of_the_builds_names stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::privacy_q2_the_published_backend_is_one_of_the_builds_names' (31632926) panicked at src/private_block/trained_stack_tests.rs:690:9:
+assertion `left == right` failed: stack-prove
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name' (31633050) panicked at src/private_block/trained_stack_tests.rs:535:5:
+assertion `left == right` failed: stack-prove
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::review_r5_3_the_published_statement_is_bound_to_what_was_verified stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::review_r5_3_the_published_statement_is_bound_to_what_was_verified' (31633062) panicked at src/private_block/trained_stack_tests.rs:393:9:
+assertion `left == right` failed: stack-prove run-b
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound' (31633018) panicked at src/private_block/trained_stack_tests.rs:757:5:
+assertion `left == right` failed: stack-prove of the fully per-layer export failed
+  left: 1
+ right: 0
+---- private_block::trained_stack_tests::the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_refuses stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::trained_stack_tests::the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_refuses' (31633068) panicked at src/private_block/trained_stack_tests.rs:218:5:
+assertion `left == right` failed: stack-prove failed
+  left: 1
+ right: 0
+---- private_block::run::fork::tests::a23::a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does stdout (trimmed) ----
+{"event":"refused","command":"stack-prove","error":"refused","detail":"owner-private"}
+thread 'private_block::run::fork::tests::a23::a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does' (31625152) panicked at src/private_block/run_fork_tests.rs:6374:9:
+assertion `left == right` failed: stack-prove --d55-workers failed
+  left: 1
+ right: 0
+test result: FAILED. 1024 passed; 24 failed; 156 ignored; 0 measured; 0 filtered out; finished in 517.08s
+error: test failed, to rerun pass `--lib`
+=== STEP suite-on EXIT 101 2026-11-25T19:39:31Z
+=== STEP unit-isolation-unset START 2026-11-25T19:39:31Z env {} argv --features gpu-metal --lib private_block::token_io::classify_cli_tests::classify_host_fast_unit_isolation_and_switch_off_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli_tests::classify_host_fast_unit_isolation_and_switch_off_gate ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"85b76d4b87850f57b25af197e78d32572fb72230d6c0e14ca798361d0ccde1aa","verify_seconds":0.096,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.06s
+=== STEP unit-isolation-unset EXIT 0 2026-11-25T19:39:33Z
+=== STEP unit-isolation-all3 START 2026-11-25T19:39:33Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli_tests::classify_host_fast_unit_isolation_and_switch_off_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli_tests::classify_host_fast_unit_isolation_and_switch_off_gate ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"80abf44782a6acf6ac6f92ba8e3c71ffb1deb1dfcd2179a44e01b35173c51dc1","verify_seconds":0.086,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.03s
+=== STEP unit-isolation-all3 EXIT 0 2026-11-25T19:39:35Z
+=== STEP ch-verifier-isolation START 2026-11-25T19:39:35Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::classify_host_fast_verifier_isolation_and_serve_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_verifier_isolation_and_serve_gate ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"775ffa9badefcbfa4f9f97e55582499c0dd634ceed276b1bc832ccaa7c3e9695","verify_seconds":0.097,"whole_run_floor_bits":94,"published_by":"an earlier verifier (re-checked byte for byte)"}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 3.23s
+=== STEP ch-verifier-isolation EXIT 0 2026-11-25T19:39:38Z
+=== STEP ch-plus-w2-serve START 2026-11-25T19:39:38Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::classify_host_fast_plus_w2_serve_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_plus_w2_serve_gate ... HL_CLASSIFY_HOST_FAST + HL_HOST_FAST_W2 | COMBINED SERVE GATE PASS: both switches hit (including C4 + W2-2 SealedWitness) with 0 fallbacks and strict 3-switch check-serve isolation
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.24s
+=== STEP ch-plus-w2-serve EXIT 0 2026-11-25T19:39:40Z
+=== STEP w2-call-sites START 2026-11-25T19:39:40Z env {'HL_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_w2_all_call_sites_byte_identical -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_w2_all_call_sites_byte_identical ... HOST-FAST-W2 [single rung_g]: hw0 == hw1 (4234984 B, w2_hits=[0, 2, 0, 0, 2, 0, 0, 0, 5, 176], w2_fb=[0, 0, 0, 0, 0])
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 4.04s
+=== STEP w2-call-sites EXIT 0 2026-11-25T19:39:45Z
+=== STEP w2-golden START 2026-11-25T19:39:45Z env {'HL_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_w2_rung_golden -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_w2_rung_golden ... [ZK60-METAL] commit 320 x 2^14 -> 2^15: setup 0.005 s, gpu total 0.018 s (inverse 0.002, init 0.000, forward 0.003, hash 0.000)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 6.00s
+=== STEP w2-golden EXIT 0 2026-11-25T19:39:51Z
+=== STEP all3-verifier-isolation START 2026-11-25T19:39:51Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_all_three_switches_verifier_isolation_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_all_three_switches_verifier_isolation_gate ... FIX-1 VERIFIER ISOLATION GATE PASS: HL_HOST_FAST=1 + HL_CLASSIFY_HOST_FAST=1 + HL_HOST_FAST_W2=1 moved 0 hits and 0 fallbacks across W16R2 verify_core, W16R2 verify_run_with_forks, and R13 accuracy verify_classify_run + owner_check_input
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 3.71s
+=== STEP all3-verifier-isolation EXIT 0 2026-11-25T19:39:54Z
+=== STEP w2-alone-serve START 2026-11-25T19:39:54Z env {'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::host_fast_w2_alone_classify_serve_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::host_fast_w2_alone_classify_serve_gate ... HL_HOST_FAST_W2 ALONE | CLASSIFY SERVE GATE PASS: seal_chain_keeping -> CliSource::witness_sealed -> prove_classify_run_with hit HF_W2_SEAL_HIST=2 with 0 fallbacks
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.29s
+=== STEP w2-alone-serve EXIT 0 2026-11-25T19:39:57Z
+=== STEP w2-trained-d55-sealing START 2026-11-25T19:39:57Z env {} argv --features gpu-metal --lib private_block::run::fork::tests::host_fast_w2_trained_block_d55_sealing_byte_identical -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::run::fork::tests::host_fast_w2_trained_block_d55_sealing_byte_identical ... HOST-FAST-W2 [trained_block::d55_seal_and_prove L=3]: hw0 == hw1 interior forks byte-identical (share1/win0, share1/win1, share0/win0); seal_hist=(3,2,0), fb=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 6.87s
+=== STEP w2-trained-d55-sealing EXIT 0 2026-11-25T19:40:04Z
+=== STEP w2-rope-const-pubgen START 2026-11-25T19:40:04Z env {'HL_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_w2_rope_and_const_pub_gen_gpu -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_w2_rope_and_const_pub_gen_gpu ... HOST-FAST-W2 PubGen: Rope (sh_pad + W16R2_RUNG_H24, Dom::Q/Kv, cos/sin, sync+defer) and ConstOne PASS
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.07s
+=== STEP w2-rope-const-pubgen EXIT 0 2026-11-25T19:40:04Z
+=== STEP m2-trained-seal-refusal START 2026-11-25T19:40:04Z env {} argv --features gpu-metal --lib private_block::trained_block::a3_tests::host_fast_w2_trained_seal_chain_planted_lookup_miss_refusal -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::trained_block::a3_tests::host_fast_w2_trained_seal_chain_planted_lookup_miss_refusal ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.07s
+=== STEP m2-trained-seal-refusal EXIT 0 2026-11-25T19:40:04Z
+=== STEP m2-seal-keeping-refusal START 2026-11-25T19:40:04Z env {} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::host_fast_w2_seal_chain_keeping_and_fast_planted_lookup_miss_refusal -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::host_fast_w2_seal_chain_keeping_and_fast_planted_lookup_miss_refusal ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.32s
+=== STEP m2-seal-keeping-refusal EXIT 0 2026-11-25T19:40:04Z
+=== STEP w2-sealed-hists-parity START 2026-11-25T19:40:04Z env {} argv --features gpu-metal --lib private_block::protocol::tests::host_fast_w2_sealed_hists_twoterm_exp_and_flat_w16_parity -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::protocol::tests::host_fast_w2_sealed_hists_twoterm_exp_and_flat_w16_parity ... [ZK60-HOST-FAST] fallback (H1 exp: zero table denominator)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.92s
+=== STEP w2-sealed-hists-parity EXIT 0 2026-11-25T19:40:07Z
+=== STEP m1-r13-receipt-door START 2026-11-25T19:40:07Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate ... {"event":"loaded","export_variant":"r13-h24-dense","run_profile":"hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/2","blocks":1,"trained_statement_identity":"087ae64383ddcdbec18fdb98d6685a141b263f0baac5db336dd174301d484377","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 4.62s
+=== STEP m1-r13-receipt-door EXIT 0 2026-11-25T19:40:12Z
+=== STEP hf-call-sites-author START 2026-11-25T19:40:12Z env {'HL_HOST_FAST': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_all_call_sites_byte_identical -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_all_call_sites_byte_identical ... HOST-FAST [single rung_g]: hf0 == hf1 (4234984 B, hits=[2, 1, 0, 0, 8, 0, 16, 0], fallbacks=[0, 0, 0, 0, 0])
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 1.92s
+=== STEP hf-call-sites-author EXIT 0 2026-11-25T19:40:14Z
+=== STEP hf-golden-author START 2026-11-25T19:40:14Z env {'HL_HOST_FAST': '1'} argv --features gpu-metal --lib private_block::w16r2_tests::host_fast_w16r2_rung_golden -- --ignored --exact --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_w16r2_rung_golden ... HOST-FAST-RUNG W16R2_RUNG_H24 arm=hf0 queues=shared: digest 96e4f0b6 (golden); hits=[0, 0, 0, 0, 0, 0, 0, 0] fallbacks=[0, 0, 0, 0, 0] sc_batches=0
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 3.83s
+=== STEP hf-golden-author EXIT 0 2026-11-25T19:40:18Z
+=== STEP hf-golden START 2026-11-25T19:40:18Z env {'HL_GPU': '1', 'HL_GPU_REQUIRED': '1', 'HL_METAL_TIMING': '1'} argv --features gpu-metal --lib host_fast_w16r2_rung_golden -- --ignored --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_w16r2_rung_golden ... [ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=false -> metal_on=false (W16R2_RUNG_H24)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 4.23s
+=== STEP hf-golden EXIT 0 2026-11-25T19:40:22Z
+=== STEP hf-call-sites START 2026-11-25T19:40:22Z env {'HL_GPU': '1', 'HL_GPU_REQUIRED': '1'} argv --features gpu-metal --lib host_fast_all_call_sites_byte_identical -- --ignored --nocapture --test-threads=1
+running 1 test
+test private_block::w16r2_tests::host_fast_all_call_sites_byte_identical ... HOST-FAST [single rung_g]: hf0 == hf1 (4234984 B, hits=[2, 1, 0, 0, 8, 0, 16, 0], fallbacks=[0, 0, 0, 0, 0])
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 1.99s
+=== STEP hf-call-sites EXIT 0 2026-11-25T19:40:24Z
+=== STEP ch-end-to-end START 2026-11-25T19:40:24Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_METAL_TIMING': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli_tests::classify_host_fast_end_to_end_rung_byte_identical_and_verified -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli_tests::classify_host_fast_end_to_end_rung_byte_identical_and_verified ... [ZK60-METAL] argument: prove=true accuracy_none=true legacy_stack=true gpu_enabled=false -> metal_on=false (development rung, trained norm calibration (T32 / d384 / f512, 12 heads of 32 over 4 KV heads))
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.92s
+=== STEP ch-end-to-end EXIT 0 2026-11-25T19:40:27Z
+=== STEP ch-writer-faults START 2026-11-25T19:40:27Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli_tests::classify_host_fast_c2_writer_err_panic_and_prover_abort_cleanup -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli_tests::classify_host_fast_c2_writer_err_panic_and_prover_abort_cleanup ... {"event":"refused","command":"classify-prove","error":"refused","detail":"owner-private"}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.33s
+=== STEP ch-writer-faults EXIT 0 2026-11-25T19:40:29Z
+=== STEP ch-serve-seal-ahead START 2026-11-25T19:40:29Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1'} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::classify_host_fast_serve_and_check_serve_both_seal_ahead_modes -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_serve_and_check_serve_both_seal_ahead_modes ... {"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"5cdf800e933f57577a71da3bb1ff71cd4bd4786c2d81389d6b7bd047a6c48de6","verify_seconds":0.088,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 3.62s
+=== STEP ch-serve-seal-ahead EXIT 0 2026-11-25T19:40:33Z
+=== STEP p2-own-queue-reset START 2026-11-25T19:40:33Z env {} argv --features gpu-metal --lib gpu::metal::err_recovery_tests::own_queue_resets_on_cb_error_and_recovers -- --exact --nocapture --test-threads=1
+running 1 test
+test gpu::metal::err_recovery_tests::own_queue_resets_on_cb_error_and_recovers ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.03s
+=== STEP p2-own-queue-reset EXIT 0 2026-11-25T19:40:33Z
+=== STEP p2-deferred-flush START 2026-11-25T19:40:33Z env {} argv --features gpu-metal --lib gpu::metal::err_recovery_tests::metal_rounds_owned_and_cached_deferred_flush_err_returns_none_tables -- --exact --nocapture --test-threads=1
+running 1 test
+test gpu::metal::err_recovery_tests::metal_rounds_owned_and_cached_deferred_flush_err_returns_none_tables ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.03s
+=== STEP p2-deferred-flush EXIT 0 2026-11-25T19:40:33Z
+=== STEP p2-round-fold-a12 START 2026-11-25T19:40:33Z env {} argv --features gpu-metal --lib gpu::metal::err_recovery_tests::metal_rounds_try_round_fold_into_host_and_a12_err_recover -- --exact --nocapture --test-threads=1
+running 1 test
+test gpu::metal::err_recovery_tests::metal_rounds_try_round_fold_into_host_and_a12_err_recover ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.03s
+=== STEP p2-round-fold-a12 EXIT 0 2026-11-25T19:40:33Z
+=== STEP p2-tailed-rounds START 2026-11-25T19:40:33Z env {} argv --features gpu-metal --lib gpu::metal::err_recovery_tests::tailed_rounds_try_masked_prove_all_error_paths_and_recovery -- --exact --nocapture --test-threads=1
+running 1 test
+test gpu::metal::err_recovery_tests::tailed_rounds_try_masked_prove_all_error_paths_and_recovery ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.04s
+=== STEP p2-tailed-rounds EXIT 0 2026-11-25T19:40:33Z
+=== STEP p2-slot-fallback START 2026-11-25T19:40:33Z env {} argv --features gpu-metal --lib private_block::argument::tests::metal_cb_error_in_run_slot_falls_back_to_cpu_bit_identically -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::argument::tests::metal_cb_error_in_run_slot_falls_back_to_cpu_bit_identically ... [ZK60-GPU] [ZK60-METAL] slot sumcheck declined (metal: injected command buffer Error on tag 'batch'); CPU path
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.19s
+=== STEP p2-slot-fallback EXIT 0 2026-11-25T19:40:34Z
+=== STEP p2-slot-fail-closed START 2026-11-25T19:40:34Z env {} argv --features gpu-metal --lib private_block::argument::tests::metal_cb_error_in_run_slot_fails_closed_when_gpu_required -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::argument::tests::metal_cb_error_in_run_slot_fails_closed_when_gpu_required ... [ZK60-GPU] [ZK60-METAL] slot sumcheck declined (metal: injected command buffer Error on tag 'batch'); CPU path
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.04s
+=== STEP p2-slot-fail-closed EXIT 0 2026-11-25T19:40:34Z
+=== STEP p2-serve-panic START 2026-11-25T19:40:34Z env {} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::serve_lines_with_recovers_from_panic_per_lane_1_and_2_with_k2_privacy -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::serve_lines_with_recovers_from_panic_per_lane_1_and_2_with_k2_privacy ... 
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.00s
+=== STEP p2-serve-panic EXIT 0 2026-11-25T19:40:34Z
+=== STEP p2-serve-tls START 2026-11-25T19:40:34Z env {} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests::with_captured_events_clears_tls_on_panic_inside_serve_lines -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::token_io::classify_cli::serve::tests::with_captured_events_clears_tls_on_panic_inside_serve_lines ... 
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.02s
+=== STEP p2-serve-tls EXIT 0 2026-11-25T19:40:34Z
+=== STEP p2-metal-module START 2026-11-25T19:40:34Z env {} argv --features gpu-metal --lib gpu::metal:: -- --nocapture --test-threads=1
+running 6 tests
+test gpu::metal::err_recovery_tests::metal_rounds_owned_and_cached_deferred_flush_err_returns_none_tables ... ok
+test gpu::metal::err_recovery_tests::metal_rounds_try_round_fold_into_host_and_a12_err_recover ... ok
+test gpu::metal::err_recovery_tests::own_queue_resets_on_cb_error_and_recovers ... ok
+test gpu::metal::err_recovery_tests::tailed_rounds_try_masked_prove_all_error_paths_and_recovery ... ok
+test gpu::metal::sc_chain_fast_tests::sc_chain_fast_fold_xy_matches_separate_folds ... ok
+test gpu::metal::sc_chain_fast_tests::sc_chain_fast_fs_step_v3_matches_verbatim_all_degrees ... ok
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 1198 filtered out; finished in 0.17s
+=== STEP p2-metal-module EXIT 0 2026-11-25T19:40:34Z
+=== STEP p2-serve-module START 2026-11-25T19:40:34Z env {} argv --features gpu-metal --lib private_block::token_io::classify_cli::serve::tests -- --nocapture --test-threads=1
+running 16 tests
+test private_block::token_io::classify_cli::serve::tests::a24_a_refused_request_creates_nothing_and_the_stream_carries_on ... {"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"3569974a0ed5cee4353af2fb6e0be01cea58ad2241d8a9c1908ffb83341fbb79","verify_seconds":0.085,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test private_block::token_io::classify_cli::serve::tests::a24_check_serve_refuses_every_negative_control ... A24 | check-serve negative controls: tampered segment, other content of the same length, unadmitted policy, prefix only, missing chunk, wrong model (startup and export): all refused, fail-closed
+test private_block::token_io::classify_cli::serve::tests::a24_check_serve_verifies_publishes_owner_checks_and_labels_one_category ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"17218559ae783dc694d9abe37926dc1323a3c4523d66761c6f45560a2c95f2c1","verify_seconds":0.097,"whole_run_floor_bits":94,"published_by":"an earlier verifier (re-checked byte for byte)"}
+test private_block::token_io::classify_cli::serve::tests::a24_serve_proves_a_rung_post_whose_receipts_pass_the_unchanged_cli_checks ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"5c12bfc3196f1e77926b774f295692189f02914eb8f9495414780e5f4b16199f","verify_seconds":0.088,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test private_block::token_io::classify_cli::serve::tests::a24_the_piecewise_table_digests_equal_the_word_by_word_ones ... A24 | the table digests in 1 MiB pieces equal the word-by-word digests (3 sizes, one past a piece boundary)
+test private_block::token_io::classify_cli::serve::tests::a26_the_split_limb_embedding_fold_equals_the_field_fold ... A26 | the embedding fold in split 32-bit limbs equals the per-word field fold (4 shapes, 3 point kinds, extreme words)
+test private_block::token_io::classify_cli::serve::tests::a28_serve_with_and_without_seal_ahead_proves_the_post_and_a_refusal_frees_its_lane ... {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"815503e66ba0dad8e71437a7572e54c05431b642936ae4e6a8e46cf59ebbce0e","verify_seconds":0.095,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test private_block::token_io::classify_cli::serve::tests::a28_the_seal_ahead_dispatch_fills_idle_lanes_first_and_never_sends_a_third_request_to_a_lane ... A28 | the seal-ahead dispatch: idle lanes first, then the earliest-begun lane, never three on a lane; every request served once (2 and 1 request threads a lane)
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_plus_w2_serve_gate ... ignored, HOST-FAST-W2 + CLASSIFY-HOST-FAST: fresh-process gate verifying combined classify-serve W2-2 + C1..C5 hits and check-serve verifier isolation; run alone with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_serve_and_check_serve_both_seal_ahead_modes ... {"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"fd3ea2eef8005ab12b147f50d04caafec822a895e53489618374992b94aba8b7","input_token_endpoint_root":"82192d25125db06ee30d63c1d47b57eb2dda733bd0f19ceae84600bcfa5d76f9","verify_seconds":0.095,"whole_run_floor_bits":94,"published_by":"this verifier"}
+test private_block::token_io::classify_cli::serve::tests::classify_host_fast_verifier_isolation_and_serve_gate ... ignored, CLASSIFY-HOST-FAST: fresh-process gate verifying strict verifier isolation and serve in both seal-ahead modes; run alone by name with HL_CLASSIFY_HOST_FAST=1
+test private_block::token_io::classify_cli::serve::tests::host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate ... ignored, HOST-FAST-W2 M1: fresh-process R13 + W16R2 accuracy-stack receipt-door verifier-isolation gate; run alone with HL_HOST_FAST=1 HL_CLASSIFY_HOST_FAST=1 HL_HOST_FAST_W2=1 -- --ignored --exact --test-threads=1
+test private_block::token_io::classify_cli::serve::tests::host_fast_w2_alone_classify_serve_gate ... ignored, HOST-FAST-W2: fresh-process gate exercising classifier seal_chain_keeping -> CliSource::witness_sealed -> prove_classify_run_with with HL_HOST_FAST_W2=1 alone (HL_CLASSIFY_HOST_FAST unset)
+test private_block::token_io::classify_cli::serve::tests::host_fast_w2_seal_chain_keeping_and_fast_planted_lookup_miss_refusal ... ok
+test private_block::token_io::classify_cli::serve::tests::serve_lines_with_recovers_from_panic_per_lane_1_and_2_with_k2_privacy ... 
+test private_block::token_io::classify_cli::serve::tests::with_captured_events_clears_tls_on_panic_inside_serve_lines ... 
+test result: ok. 12 passed; 0 failed; 4 ignored; 0 measured; 1188 filtered out; finished in 15.48s
+=== STEP p2-serve-module EXIT 0 2026-11-25T19:40:49Z
+=== STEP p3-l1-binding START 2026-11-25T19:40:49Z env {} argv --features gpu-metal --lib private_block::protocol::tests::sealed_histograms_l1_content_binding_and_switch_off -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::protocol::tests::sealed_histograms_l1_content_binding_and_switch_off ... [ZK60-HOST-FAST-W2] fallback (W2-2 seal_hist: shape/block mismatch)
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 2.61s
+=== STEP p3-l1-binding EXIT 0 2026-11-25T19:40:52Z
+=== STEP p3-a21-digests START 2026-11-25T19:40:52Z env {} argv --features gpu-metal --lib private_block::run::fork::tests::a21_block_digests_are_the_same_by_blake3s_tree_and_by_the_one_pass -- --exact --nocapture --test-threads=1
+running 1 test
+test private_block::run::fork::tests::a21_block_digests_are_the_same_by_blake3s_tree_and_by_the_one_pass ... D60 F2 EXPORT | /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-75613-1795635652729436000/d60-close-a21-digests/export | variant r13-h24-wide-x4-d60 | 4 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 10a8fd14f6e75d8c70866fd315f9e8a0834de167a023b5deec4a8010e51c0960 | public synthetic data, not for publication
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1203 filtered out; finished in 0.79s
+=== STEP p3-a21-digests EXIT 0 2026-11-25T19:40:53Z
+=== STEP census-s25 START 2026-11-25T19:40:53Z env {} argv --features gpu-metal --lib private_block::s25_tests -- --nocapture --test-threads=1
+running 20 tests
+test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement_class ... S25 W-4: a run's set carries D4, D7 and its own seed derivation, and not the block prover's
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... S25 W-11: 67 hash call sites in 58 scanned lane sources, every one classified; 14 read-only sites listed with file:line
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... --- S25 W-2 D55 parameter-line length lemma (TS / CENSUS lane), 12 registered D55 profiles ---
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... S25 W-8(7): the path's four generators are all `ZkRng::from_os` (["src/private_seam.rs:196", "src/private_block/endpoint_g.rs:269", "src/private_block/protocol.rs:2883", "src/private_block/run.rs:1284", "src/private_block/run_fork.rs:1501", "src/private_block/run_fork.rs:1666", "src/private_block/token_io/run.rs:901", "src/private_block/token_io/classify_run.rs:485"]); a fifth site, src/private_seam.rs:349 in `private_seam::prove`, is off this path and no file on it names that function; no production file names ZkConfig
+test private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines ... TOKEN-IO R18 | Fix 2: the census reads token_io/classify_batch.rs and token_io/classify_batch_plan.rs (55 production files scanned)
+test private_block::s25_tests::r18_the_path_child_reader_finds_production_children_and_skips_test_ones ... ok
+test private_block::s25_tests::r19_the_module_follower_fails_on_every_module_line_it_cannot_classify ... TOKEN-IO R19 | R18-2: the module follower refuses all 12 unclassifiable module lines, naming the file
+test private_block::s25_tests::r19_the_module_follower_finds_every_module_line_shape ... TOKEN-IO R19 | R18-2: the module follower finds exactly the production modules of all 13 module-line shapes
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... TOKEN-IO R19b | R19-2: all 141 .rs files under src/private_block/ are accounted for: 53 on the path, 88 named test-only files
+test private_block::s25_tests::r19b_the_module_follower_refuses_include_outside_test_code ... TOKEN-IO R19b | R19-2: the module follower refuses all 8 production `include!` forms, naming the file, and accepts the 5 test-code / data / non-macro forms
+test private_block::s25_tests::r19b_the_production_text_reads_every_item_after_the_tests_block_and_leaves_out_only_test_items ... TOKEN-IO R19b | R19-2: the production text reads all 7 production items after the tests module, leaves out all 3 test items, refuses all 5 cuts it cannot place, and the follower follows a module after the tests module
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... S25 W-7: 102 profiles in the registry, 2 legacy, 43 tagged, 172 live keys pairwise distinct — covered by s24_tests::every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct
+test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... S25 W-2: D2's input is 6311 B at the toy, 145287 B at rung-G and 9179783 B at 125M [COMPUTED]
+test private_block::s25_tests::the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor ... S25 W-8: assertions 1-4 and 6 remain BLOCKED — `ZkRng`'s four fields are private and it publishes no consumption accessor (requested of the integrator 2026-09-21 03:25)
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... S25 W-8(5): ZkRng implements neither Clone nor Copy (type-level, with controls); prove_run and prove_inner_at construct exactly one generator each and pass it on by &mut
+test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... S25 W-4: the legacy shape-free dangerous row counts are [5, 8, 11, 12, 13, 15, 17, 19] -> [5, 8, 11, 12, 13, 15, 16, 17, 19]; 16 refused by name at both legacy profiles and at the two bare constructors, clear under a tag
+test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_code ... S25 W-2: the memo's table re-derived; two differences — the `calibration` absorb at 91 B is in no list, and the derive_key contexts are 49/44/49/48 and not 48/43/48/47
+test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ...     toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot_terms [0, 1, 2, 3, 6, 13, 15, 17, 21, 22, 56] -> pb-term absorbs [55, 71, 87, 103, 151, 263, 295, 327, 391, 407, 951]
+test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... S25 W-3: rung-K4 boundary of 10 rows, 2 groups: the replay drew 12 challenges, equal to the live chain's next 12 and leaving its state and next squeeze unmoved; the continued clone reproduces the live state and the opening's 256 sampled columns
+test private_block::s25_tests::the_statement_class_lengths_are_the_ones_the_code_hashes ... S25 W-4: the three spec-digest domains (42 / 43 / 28 B), the 22-byte seed prefix and the calibration literal are pinned to their source
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 1184 filtered out; finished in 10.58s
+=== STEP census-s25 EXIT 0 2026-11-25T19:41:04Z
+=== STEP metal-commit START 2026-11-25T19:41:04Z env {'HL_GPU_REQUIRED': '1'} argv --features gpu-metal --test zk60_metal_commit -- --test-threads=1
+running 10 tests
+test device::m0_field_ops_match_the_cpu_on_edges_and_random_values ... ok
+test device::m1_fused_rs_classifier_exact_shapes ... ok
+test device::m1_fused_rs_matches_reference_and_cpu_byte_for_byte ... ok
+test device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu ... ok
+test device::m1_sparse_fold_and_fused_rs_composed_parity ... ok
+test device::m1_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape ... ignored, heavy: run through the resource guard
+test device::m2_keyed_commit_timing_at_block_sizes ... ignored, heavy: multi-GB commitments; run through the resource guard
+test metal_required_gate_refuses_a_build_without_the_feature ... ok
+test result: ok. 8 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 2.61s
+=== STEP metal-commit EXIT 0 2026-11-25T19:42:14Z
+=== STEP metal-commit-on START 2026-11-25T19:42:14Z env {'HL_HOST_FAST': '1', 'HL_CLASSIFY_HOST_FAST': '1', 'HL_HOST_FAST_W2': '1', 'HL_GPU_REQUIRED': '1'} argv --features gpu-metal --test zk60_metal_commit -- --test-threads=1
+running 10 tests
+test device::m0_field_ops_match_the_cpu_on_edges_and_random_values ... ok
+test device::m1_fused_rs_classifier_exact_shapes ... ok
+test device::m1_fused_rs_matches_reference_and_cpu_byte_for_byte ... ok
+test device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu ... ok
+test device::m1_sparse_fold_and_fused_rs_composed_parity ... ok
+test device::m1_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape ... ignored, heavy: run through the resource guard
+test device::m2_keyed_commit_timing_at_block_sizes ... ignored, heavy: multi-GB commitments; run through the resource guard
+test metal_required_gate_refuses_a_build_without_the_feature ... ok
+test result: ok. 8 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 2.56s
+=== STEP metal-commit-on EXIT 0 2026-11-25T19:42:17Z

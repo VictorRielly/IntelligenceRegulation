@@ -801,6 +801,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 19:43 UTC, merge gate for two of Antigravity's branches (GPU error recovery; a
+    cache-binding fix) [MEASURED by Claude: one guarded gate job and one confirming run; cause READ
+    in the source]: NOT green, nothing merged.** The full test suite on the merged tree gave 1024
+    passed and 24 failed, twice (without and with the speed switches, the same 24 both times): the
+    two known fixture failures and 22 new ones, all of them command-line prove tests. The 34 single
+    tests that run in fresh processes all passed, and so did the Metal commit test. Cause: the
+    branch's new error-injection tests raise a process-wide count of GPU fallbacks, and a check that
+    a CPU-only run reports zero fallbacks then refuses every prove that runs later in the same test
+    process. One of the 22 passes when run alone in a fresh process, which confirms the mechanism.
+    So this is a fault of the new tests and is not shown to be a fault of the prover; but the suite
+    is the gate, and it is red. It is reported to the author with file and line. Order from here:
+    the author's fix commit and its own full-suite run, a new gate, the speed comparison at the app
+    profile on the fixed commit, an independent code read; then the merge. Record:
+    `results/zk60_p23_merge_20261125/`.
     **Nov 25, 19:28 UTC, Lean, how far from full proofs [Antigravity's own list and estimates,
     posted 19:27 UTC from its reading of the code; nothing in the list is checked by Claude]: for
     the profile the app runs, about five to eight weeks of agent work plus independent reads, by the

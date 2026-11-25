@@ -1,0 +1,40 @@
+done marker: 0
+suite: exit 101; 1024 passed, 24 failed, 156 ignored; failed tests: ['private_block::review_tests::a_toy_receipt_made_before_f12_is_refused', 'private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung', 'private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung', 'private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung', 'private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal', 'private_block::run::fork::tests::a23::a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does', 'private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes', 'private_block::token_io::cli_tests::cli_a_tampered_segment_or_an_unlisted_backend_is_refused_and_nothing_is_published', 'private_block::token_io::cli_tests::cli_the_token_run_proves_the_verifier_publishes_rechecks_and_the_owner_reads_the_token', 'private_block::token_io::cli_tests::pr4_17_the_owner_writes_the_token_to_a_0600_file', 'private_block::token_io::cli_tests::pr4_17_the_prompt_never_goes_on_the_command_line', 'private_block::token_io::cli_tests::tr4_1_the_owner_verifies_before_it_prints_and_refuses_a_tampered_or_unverified_run', 'private_block::token_io::cli_tests::tr4_2_a_run_with_another_head_or_cn_is_refused_under_the_token_profile_pin', 'private_block::token_io::cli_tests::tr4_3_the_owner_files_go_to_a_private_directory_outside_the_runs_parent', 'private_block::token_io::cli_tests::tr5_1_a_prove_never_removes_an_owner_or_statement_directory_it_did_not_create', 'private_block::token_io::cli_tests::tr7_6_owner_refuses_an_existing_token_file_before_re_verifying', 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces', 'private_block::trained_block_tests::the_cli_proves_and_verifies_the_tiny_export_with_every_control', 'private_block::trained_stack_tests::a_per_layer_score_shift_proves_verifies_and_is_bound', 'private_block::trained_stack_tests::privacy_q2_the_published_backend_is_one_of_the_builds_names', 'private_block::trained_stack_tests::r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound', 'private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name', 'private_block::trained_stack_tests::review_r5_3_the_published_statement_is_bound_to_what_was_verified', 'private_block::trained_stack_tests::the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_refuses'] -> NEW FAILURE or no result
+suite-on: exit 101; 1024 passed, 24 failed, 156 ignored; failed tests: ['private_block::review_tests::a_toy_receipt_made_before_f12_is_refused', 'private_block::run::fork::tests::a19_production_d55_path_window_on_and_off_and_a_refused_chain_at_the_r13_rung', 'private_block::run::fork::tests::a20_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung', 'private_block::run::fork::tests::a21_production_d55_path_under_the_forms_off_and_on_at_the_r13_rung', 'private_block::run::fork::tests::a22::a22_the_server_proves_the_r13_export_as_stack_prove_does_and_carries_on_after_every_refusal', 'private_block::run::fork::tests::a23::a23_the_server_with_shared_blocks_proves_the_r13_export_as_stack_prove_does', 'private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes', 'private_block::token_io::cli_tests::cli_a_tampered_segment_or_an_unlisted_backend_is_refused_and_nothing_is_published', 'private_block::token_io::cli_tests::cli_the_token_run_proves_the_verifier_publishes_rechecks_and_the_owner_reads_the_token', 'private_block::token_io::cli_tests::pr4_17_the_owner_writes_the_token_to_a_0600_file', 'private_block::token_io::cli_tests::pr4_17_the_prompt_never_goes_on_the_command_line', 'private_block::token_io::cli_tests::tr4_1_the_owner_verifies_before_it_prints_and_refuses_a_tampered_or_unverified_run', 'private_block::token_io::cli_tests::tr4_2_a_run_with_another_head_or_cn_is_refused_under_the_token_profile_pin', 'private_block::token_io::cli_tests::tr4_3_the_owner_files_go_to_a_private_directory_outside_the_runs_parent', 'private_block::token_io::cli_tests::tr5_1_a_prove_never_removes_an_owner_or_statement_directory_it_did_not_create', 'private_block::token_io::cli_tests::tr7_6_owner_refuses_an_existing_token_file_before_re_verifying', 'private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces', 'private_block::trained_block_tests::the_cli_proves_and_verifies_the_tiny_export_with_every_control', 'private_block::trained_stack_tests::a_per_layer_score_shift_proves_verifies_and_is_bound', 'private_block::trained_stack_tests::privacy_q2_the_published_backend_is_one_of_the_builds_names', 'private_block::trained_stack_tests::r8_a_fully_per_layer_calibration_proves_verifies_and_every_constant_is_bound', 'private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name', 'private_block::trained_stack_tests::review_r5_3_the_published_statement_is_bound_to_what_was_verified', 'private_block::trained_stack_tests::the_stack_cli_proves_three_chained_layers_as_one_bound_run_and_every_control_refuses'] -> NEW FAILURE or no result
+unit-isolation-unset: exit 0; 1 passed, 0 failed -> ok
+unit-isolation-all3: exit 0; 1 passed, 0 failed -> ok
+ch-verifier-isolation: exit 0; 1 passed, 0 failed -> ok
+ch-plus-w2-serve: exit 0; 1 passed, 0 failed -> ok
+w2-call-sites: exit 0; 1 passed, 0 failed -> ok
+w2-golden: exit 0; 1 passed, 0 failed -> ok
+all3-verifier-isolation: exit 0; 1 passed, 0 failed -> ok
+w2-alone-serve: exit 0; 1 passed, 0 failed -> ok
+w2-trained-d55-sealing: exit 0; 1 passed, 0 failed -> ok
+w2-rope-const-pubgen: exit 0; 1 passed, 0 failed -> ok
+m2-trained-seal-refusal: exit 0; 1 passed, 0 failed -> ok
+m2-seal-keeping-refusal: exit 0; 1 passed, 0 failed -> ok
+w2-sealed-hists-parity: exit 0; 1 passed, 0 failed -> ok
+m1-r13-receipt-door: exit 0; 1 passed, 0 failed -> ok
+hf-call-sites-author: exit 0; 1 passed, 0 failed -> ok
+hf-golden-author: exit 0; 1 passed, 0 failed -> ok
+hf-golden: exit 0; 1 passed, 0 failed -> ok
+hf-call-sites: exit 0; 1 passed, 0 failed -> ok
+ch-end-to-end: exit 0; 1 passed, 0 failed -> ok
+ch-writer-faults: exit 0; 1 passed, 0 failed -> ok
+ch-serve-seal-ahead: exit 0; 1 passed, 0 failed -> ok
+p2-own-queue-reset: exit 0; 1 passed, 0 failed -> ok
+p2-deferred-flush: exit 0; 1 passed, 0 failed -> ok
+p2-round-fold-a12: exit 0; 1 passed, 0 failed -> ok
+p2-tailed-rounds: exit 0; 1 passed, 0 failed -> ok
+p2-slot-fallback: exit 0; 1 passed, 0 failed -> ok
+p2-slot-fail-closed: exit 0; 1 passed, 0 failed -> ok
+p2-serve-panic: exit 0; 1 passed, 0 failed -> ok
+p2-serve-tls: exit 0; 1 passed, 0 failed -> ok
+p2-metal-module: exit 0; 6 passed, 0 failed -> ok
+p2-serve-module: exit 0; 12 passed, 0 failed -> ok
+p3-l1-binding: exit 0; 1 passed, 0 failed -> ok
+p3-a21-digests: exit 0; 1 passed, 0 failed -> ok
+census-s25: exit 0; 20 passed, 0 failed -> ok
+metal-commit: exit 0; 8 passed, 0 failed -> ok
+metal-commit-on: exit 0; 8 passed, 0 failed -> ok
+GATE: NOT GREEN (or unfinished)
