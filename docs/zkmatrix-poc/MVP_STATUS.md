@@ -801,6 +801,13 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 16:24 UTC, Lean [by Antigravity's commit messages and the guard's exit codes; nothing
+    rebuilt or read as a proof by Claude]: the fifteenth of the 16 modules passed; the last one is
+    in progress.** The module that had failed 52 guarded attempts since 08:07 UTC passed on the
+    fifty-third at 15:15 UTC and was committed (`51a60f946` on `agy/lean-l69-hooks-zk`, "0 sorry" by
+    its message). Antigravity is on the last module (four attempts so far). Nothing is merged, and
+    the statement of Nov 24 about what the merged chain proves stands until the merge gate has run
+    on the finished branch.
     **Nov 25, 16:23 UTC, checking time [MEASURED by Claude: eight processes, all passed, the rule
     posted and pushed before the run]: a verifier time quoted here as "one thread" was not a
     one-thread time, and three ranges built on it today are withdrawn.** The test's line "verified
