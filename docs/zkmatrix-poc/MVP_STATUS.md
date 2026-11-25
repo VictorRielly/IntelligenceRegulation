@@ -801,6 +801,25 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 07:52 UTC, size and guest check [MEASURED by Sol and by Astra, read by Claude in their
+    records; not re-run]: Sol's own run of the size test agrees with the stop, and a guest check now
+    asks for 12 GiB.** Sol's run of its pinned test gave +103 to +139 ms of host time a block
+    against the +15 ms stop line, the same verdict as the two earlier readings at every rate. There
+    is no candidate for the installed profile, and the slower-profile question stays with Victor
+    (`results/zk60_sol_20261105_w16r3/b6a/B6A_WP0_RESULTS_20261125.md`). Astra's standalone reader
+    checked three receipts in 42.3 to 44.2 s each with 2.47 GiB of peak process memory, reserving 12
+    GiB under a 16 GiB cap; a physical 16 or 24 GiB Mac is still untested
+    (`results/zk60_astra_20261026/app_composed_native_20261122/PILOT.md`). The Mac's disk is 98%
+    full, with 81 GiB free after Claude removed its own scratch trees; the app's service stops
+    itself at 55 GiB.
+    **Nov 25, 07:52 UTC, product [reading of the official texts by Astra; the key paragraph re-read
+    by Claude on the Commission's page; nothing run]: the 2 December 2026 marking date is real, and
+    it is narrow.** Providers of generative systems placed on the market before 2 August 2026 must
+    mark their outputs in a machine-readable way by 2 December 2026 (Article 111(4) of the EU AI Act
+    as amended). Deployers' disclosure duties for deep fakes and public-interest text have applied
+    since 2 August. The installed receipt proves a moderation verdict; it is neither a mark nor a
+    disclosure, so the date is a reason for providers to buy marking, not a duty our receipt meets
+    (`research/applications/handoffs/20261125-apps-ai-marking-dates.md`).
     **Nov 25, 06:10 UTC, product [web research by the applications researcher; page citations
     re-fetched and checked by Claude, one correction, one source still secondary; nothing run]: the
     EU moderation database has no place for a receipt.** A statement-of-reasons record must say
