@@ -1,0 +1,21 @@
+== A. toy check of the odd-factor-on-rows layout (zpart rule), n = 2^3 columns
+  true 12 x 36 (low bits 2, 2): parts 27, rows 54, padded value reproduced: True
+  true 6 x 28 (low bits 1, 2): parts 21, rows 21, padded value reproduced: True
+  true 4 x 20 (low bits 2, 2): parts 5, rows 10, padded value reproduced: True
+  true 24 x 18 (low bits 3, 1): parts 27, rows 54, padded value reproduced: True
+
+== B. W16R2 8B: d=4096 (pad 4096), f=14336 (pad 16384), q=4096, kv=1024, 32 blocks
+  true words a block    218,103,808   padded  243,269,632   ratio 1.115
+  rows at n=2^16       true (dense, odd factors on rows) 3328   padded 3712   (x1.115)
+  claim parts a block  25   (per matrix: Wq=1, Wk=1, Wv=1, Wo=1, Wg=7, Wu=7, Wd=7)
+  smallest part       4,194,304 words = 64 rows (>= 1 needed)
+  dense map     3328 rows a block: wire   6.870 MB a block, x32 =   219.9 MB   (0.269 of today's 818.7 MB)
+  padded only   3712 rows a block: wire   7.399 MB a block, x32 =   236.8 MB   (0.289 of today's 818.7 MB)
+
+== B. W16R2 Shieldstral: d=3072 (pad 4096), f=9216 (pad 16384), q=4096, kv=1024, 26 blocks
+  true words a block    116,391,936   padded  243,269,632   ratio 2.090
+  rows at n=2^16       true (dense, odd factors on rows) 1776   padded 3712   (x2.090)
+  claim parts a block  93   (per matrix: Wq=3, Wk=3, Wv=3, Wo=3, Wg=27, Wu=27, Wd=27)
+  smallest part       1,048,576 words = 16 rows (>= 1 needed)
+  dense map     1776 rows a block: wire   4.735 MB a block, x26 =   123.1 MB   (0.184 of today's 669.6 MB)
+  padded only   3712 rows a block: wire   7.399 MB a block, x26 =   192.4 MB   (0.287 of today's 669.6 MB)

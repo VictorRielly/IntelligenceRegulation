@@ -801,6 +801,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 21:02 UTC, hidden weights, study level [reading and a toy computation by the
+    background researcher; the cited code lines re-read and the script re-run by Claude]: the
+    weights could be committed without their padding.** If a later version hides the weights, the
+    weight matrices have to be committed. The study so far assumed they are committed padded up to
+    powers of two. Research tick 61 shows a layout that commits only the true words and still
+    answers the proof's claims inside today's opening rules: 3,328 rows a block instead of 3,712 at
+    the 8B shape, and 1,776 instead of 3,712 at the classifier, less than half. This is algebra
+    checked on small examples; the Rust opening was not run. The megabyte figures quoted with it
+    (about 123 MB added to a classifier receipt instead of 192 MB) hold only if a block's seven
+    weight claims can be merged into one opening group, which nobody has checked; a research item is
+    queued for exactly that, and until it is answered only the row counts are carried forward.
+    Nothing here is built and nothing changes speed. Record:
+    `research/zkp-efficiency/handoffs/20261125-claude-tick61-dense-weight-map.md`.
     **Nov 25, 19:43 UTC, merge gate for two of Antigravity's branches (GPU error recovery; a
     cache-binding fix) [MEASURED by Claude: one guarded gate job and one confirming run; cause READ
     in the source]: NOT green, nothing merged.** The full test suite on the merged tree gave 1024

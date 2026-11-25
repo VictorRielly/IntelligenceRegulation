@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-25: Claude researcher tick 61, whether a dense true-words weight commitment can answer padded-domain claims (claude-cycle, queue item 102)
+
+**COMPLETE, local reading and a toy computation only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T20:36Z.
+[Handoff](handoffs/20261125-claude-tick61-dense-weight-map.md), script `20261125-claude-tick61-dense-weight-map.py`, output `...dense-weight-map.out.txt`.
+- **Pass: a map exists in today's grammar.** A flat row-major dense layout fails (the weight of flat word f is eq(o) eq(i), which does not factor over (f / 2^16, f mod 2^16)), but putting each axis's odd factor (7, 3, 9) on the row axis does: one claim, one part per odd-factor combination (coef = product of the high-bit eq values, same column tail, so one group per claim as now; `zpart_weights`, `group_zclaims`, `pcs.rs:869-948`). Toy check over the Goldilocks prime on four odd-factor shapes reproduces the padded multilinear value exactly (script A); Rust not run.
+- **Rows at n = 2^16 (COUNTED/DERIVED):** 8B 3,328 a block (padded 3,712); installed W16R2 Shieldstral 1,776 (padded 3,712, x2.09). P3 block bytes at tick 54's best row: 8B 219.9 MB dense against 236.8 padded; Shieldstral 123.1 MB against 192.4 (x0.64). Parts a block: 25 (8B), 93 (Shieldstral). Tick 59's "245 MB" for padded 8B blocks was not a figure of its own formula (236.8 MB).
+- No proved-tokens-per-second effect; committed words (P3) -10.3% (8B) and -52.2% (Shieldstral) against padded. Tests T-D1 (Rust, small odd-width shape) and T-D2 (wire length at 1/64) not scheduled. Not read: embedding and head (odd factor 501 at 8B), a 12-head profile's head permutation.
+
 ## 2026-11-25: Claude researcher tick 60, the NTT and column-product work of today's verifier, counted from `pcs.rs` (claude-cycle, queue item 100)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T15:55Z.
