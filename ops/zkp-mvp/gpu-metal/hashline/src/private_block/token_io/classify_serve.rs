@@ -344,6 +344,24 @@ where
                 q += 1;
             }
         });
+        struct DispatchGuard<'a> {
+            load: &'a std::sync::Mutex<Vec<Vec<Instant>>>,
+            freed: &'a std::sync::Condvar,
+            lane: usize,
+            at: Option<Instant>,
+        }
+        impl Drop for DispatchGuard<'_> {
+            fn drop(&mut self) {
+                if let Some(at) = self.at.take() {
+                    // [A28] this request no longer counts against its lane
+                    let mut g = self.load.lock().unwrap_or_else(|e| e.into_inner());
+                    if let Some(k) = g[self.lane].iter().position(|t| *t == at) {
+                        g[self.lane].remove(k);
+                    }
+                    self.freed.notify_all();
+                }
+            }
+        }
         for (i, pool) in pools.iter().map(|(i, p)| (*i, p)) {
             let (out_tx, req_rx, serve, next_start, lane_rx, load_r, freed_r) = (out_tx.clone(), &req_rx, &serve, &next_start, &lane_rx, &load, &freed);
             s.spawn(move || loop {
@@ -352,6 +370,7 @@ where
                     None => req_rx.lock().unwrap_or_else(|e| e.into_inner()).recv(),
                 };
                 let Ok((q, line, t_read, dispatched)) = next else { break };
+                let dispatch_guard = DispatchGuard { load: load_r, freed: freed_r, lane: i, at: dispatched };
                 if !stagger.is_zero() {
                     // [A28] this request's start: no earlier than the last start plus the stagger
                     let wait = {
@@ -366,15 +385,22 @@ where
                     }
                 }
                 let queued = t0.elapsed().as_secs_f64() - t_read;
-                let (good, l) = pool.install(|| serve(q, &line, queued, i));
-                if let Some(at) = dispatched {
-                    // [A28] this request no longer counts against its lane
-                    let mut g = load_r.lock().unwrap_or_else(|e| e.into_inner());
-                    if let Some(k) = g[i].iter().position(|t| *t == at) {
-                        g[i].remove(k);
+                let req_t0 = Instant::now();
+                let (good, l) = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| pool.install(|| serve(q, &line, queued, i)))) {
+                    Ok(res) => res,
+                    Err(_panic) => {
+                        // K-2 / D65(2): never downcast, format, or echo the panic payload or input
+                        // line; emit only public framing fields with a fixed constant error reason.
+                        let secs = req_t0.elapsed().as_secs_f64();
+                        (
+                            false,
+                            format!(
+                                "{{\"event\":\"served\",\"request\":{q},\"status\":\"internal-error\",\"error\":\"internal-error\",\"lane\":{i},\"queued_seconds\":{queued:.3},\"seconds\":{secs:.3}}}"
+                            ),
+                        )
                     }
-                    freed_r.notify_all();
-                }
+                };
+                drop(dispatch_guard);
                 if out_tx.send((good, l)).is_err() {
                     break;
                 }

@@ -1318,9 +1318,18 @@ const DEVICE_TABLES_DEFAULT: u8 = DT_DEVICE;
 #[cfg(feature = "gpu-metal")]
 static DEVICE_TABLES: std::sync::atomic::AtomicU8 = std::sync::atomic::AtomicU8::new(0);
 
+#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
+thread_local! {
+    static DEVICE_TABLES_TL: std::cell::Cell<Option<u8>> = const { std::cell::Cell::new(None) };
+}
+
 /// [A12] where a device slot's tables are built ([`DT_HOST`], [`DT_DEVICE`], [`DT_SYNC`])
 #[cfg(feature = "gpu-metal")]
 fn device_tables_mode() -> u8 {
+    #[cfg(all(test, not(feature = "gpu-cuda")))]
+    if let Some(m) = DEVICE_TABLES_TL.with(|c| c.get()) {
+        return m;
+    }
     use std::sync::atomic::Ordering::Relaxed;
     match DEVICE_TABLES.load(Relaxed) {
         0 => {
@@ -2076,17 +2085,33 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
                             let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
                             // [M4k] the last, tiny rounds on the host (the same values)
                             let mut ev = ev.with_host_tail(&*def.poly);
-                            // [M6] its device rounds in one submission, replayed on the host
-                            let r = ev.masked_prove(mask, c, tr);
-                            tables = ev.final_tables();
-                            Some(r)
+                            // [M6] its device rounds in one submission, replayed on the host;
+                            // run on a cloned transcript state so a GPU CB/A12/M6 error leaves
+                            // `tr` untouched for the CPU fallback.
+                            let mut tr_dev = Transcript::clone_state(tr);
+                            match ev.try_masked_prove(mask, c, &mut tr_dev) {
+                                Ok(r) => {
+                                    *tr = tr_dev;
+                                    tables = ev.final_tables();
+                                    Some(r)
+                                }
+                                Err(e) => {
+                                    drop(ev);
+                                    crate::gpu::declined("[ZK60-METAL] slot sumcheck", &e);
+                                    tables = build_tables_at_with(&mut def.tabs, &def.pub_gens, n, pd, TABLES_PAR_MIN, s, fold_cache.as_deref_mut());
+                                    None
+                                }
+                            }
                         }
-                        Err((mt, why)) => {
+                        Err((mt_opt, why)) => {
                             match why {
                                 None => super::metal_slot::note_cpu_slot(s, std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false)),
                                 Some(e) => crate::gpu::declined("[ZK60-METAL] slot sumcheck", &e),
                             }
-                            tables = mt.to_vecs();
+                            tables = match mt_opt {
+                                Some(mt) => mt.to_vecs(),
+                                None => build_tables_at_with(&mut def.tabs, &def.pub_gens, n, pd, TABLES_PAR_MIN, s, fold_cache.as_deref_mut()),
+                            };
                             None
                         }
                     }
@@ -2117,10 +2142,22 @@ fn run_slot_with(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Tran
                                 let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
                                 // [M4k] the last, tiny rounds on the host (the same values)
                                 let mut ev = ev.with_host_tail(&*def.poly);
-                                // [M6] its device rounds in one submission, replayed on the host
-                                let r = ev.masked_prove(mask, c, tr);
-                                tables = ev.final_tables();
-                                Some(r)
+                                // [M6] its device rounds in one submission, replayed on the host;
+                                // run on a cloned transcript state so a GPU CB/A12/M6 error leaves
+                                // `tr` and host `tables` untouched for the CPU fallback.
+                                let mut tr_dev = Transcript::clone_state(tr);
+                                match ev.try_masked_prove(mask, c, &mut tr_dev) {
+                                    Ok(r) => {
+                                        *tr = tr_dev;
+                                        tables = ev.final_tables();
+                                        Some(r)
+                                    }
+                                    Err(e) => {
+                                        drop(ev);
+                                        crate::gpu::declined("[ZK60-METAL] slot sumcheck", &e);
+                                        None
+                                    }
+                                }
                             }
                             Err(e) => {
                                 crate::gpu::declined("[ZK60-METAL] slot sumcheck", &e);
@@ -4497,6 +4534,228 @@ mod tests {
             let ha1 = crate::zk::host_fast_w2_hits_for_test();
             assert_eq!(v1, v0, "W2-8 fused mask_eval_eq mismatch len={len}");
             assert!(ha1[crate::zk::HF_W2_MASK_EVAL] > hb1[crate::zk::HF_W2_MASK_EVAL], "hw1 must bump HF_W2_MASK_EVAL");
+        }
+    }
+
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    fn make_metal_recovery_fixture() -> (Shape, Layout, AttentionPublic, FeedForwardPublic, Vec<Fp>, Vec<CfsMask>) {
+        let sh = Shape::new(
+            "metal-err-recovery-sc-rs",
+            "metal-err-recovery-sc-rs",
+            50, 48, 48, 12, 8, 4, 10, 4, 9, 9, None, None, None, None,
+        )
+        .expect("metal recovery shape");
+        let lay = Layout::for_shape(&sh).expect("metal recovery layout");
+        let (public, ff, _) = super::super::grow_tests::tame_case(&sh);
+        let mut st = 0x2026_1124_A55A_0001u64;
+        let mut next_nz_fp = || -> Fp {
+            st ^= st << 13;
+            st ^= st >> 7;
+            st ^= st << 17;
+            Fp::new((st % (crate::field::P - 1)) + 1)
+        };
+        let a_data: Vec<Fp> = (0..lay.a_rows * lay.n()).map(|_| next_nz_fp()).collect();
+        let mut mrng = crate::zk::ZkRng::new(0x2026_1124_A55A_0002, b"metal-err-recovery-masks");
+        let masks: Vec<CfsMask> = sh
+            .slots()
+            .iter()
+            .map(|&(main, ext, deg)| CfsMask::random(&mut mrng, main + ext, deg))
+            .collect();
+        (sh, lay, public, ff, a_data, masks)
+    }
+
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    struct DeviceTablesGuard(Option<u8>);
+
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    impl DeviceTablesGuard {
+        fn set(mode: Option<u8>) -> Self {
+            Self(DEVICE_TABLES_TL.with(|c| c.replace(mode)))
+        }
+    }
+
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    impl Drop for DeviceTablesGuard {
+        fn drop(&mut self) {
+            DEVICE_TABLES_TL.with(|c| c.set(self.0));
+        }
+    }
+
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[test]
+    fn metal_cb_error_in_run_slot_falls_back_to_cpu_bit_identically() {
+        if crate::gpu::MetalTables::new(1, 2).is_err() {
+            return;
+        }
+        let _req = crate::gpu::RequiredGuard::set(Some(false));
+        let _batch = crate::gpu::MetalBatchModeGuard::set(Some(true));
+        let _dt = DeviceTablesGuard::set(Some(DT_DEVICE));
+        let (sh, lay, public, ff, a_data, masks) = make_metal_recovery_fixture();
+        let ctx = Ctx {
+            accuracy: None,
+            lay: &lay,
+            public: &public,
+            ff: &ff,
+            alpha: Fp2::new(Fp::new(11), Fp::new(13)),
+            beta: Fp2::new(Fp::new(17), Fp::new(19)),
+            g_u8: Fp2::new(Fp::new(23), Fp::new(29)),
+            g_exp: Fp2::new(Fp::new(31), Fp::new(37)),
+            g_act: Fp2::new(Fp::new(41), Fp::new(43)),
+            g_dd: Fp2::new(Fp::new(47), Fp::new(53)),
+        };
+
+        let run_case = |attach_metal: bool, pub_gen_prove: bool, bad_msl: bool| -> (SlotProof, [u8; 32], u64, Fp2) {
+            let mut tr = Transcript::new(b"metal-err-recovery-slot-sc-rs");
+            let mut twin = Transcript::clone_state(&tr);
+            let mut ipts = super::super::slot_ir::IrPoints::default();
+            let ir = super::super::slot_ir::build_slot_ir(SC_RS, &ctx, &mut ipts, &mut twin).expect("SC_RS slot_ir");
+            let mut pts = Points::default();
+            pts.pub_gen_prove = pub_gen_prove;
+            let mut def = define(SC_RS, &ctx, &mut pts, &mut tr).expect("define SC_RS");
+            let n = sh.slots()[SC_RS].0;
+            assert!((def.tabs.len() << n) > METAL_DIRECT_MIN, "SC_RS must exceed METAL_DIRECT_MIN");
+            if attach_metal {
+                let (k0, k1, cf, base) = super::super::metal_slot::msl_round_kernels(&ir);
+                let src = if bad_msl {
+                    "/* intentionally invalid MSL */ @@@".to_string()
+                } else {
+                    format!("{k0}\n{k1}")
+                };
+                def.metal = Some((src, cf, base));
+            }
+            let mut acc = Acc::default();
+            acc.cs = vec![Fp2::ONE; SC_RS];
+            acc.scalars = vec![Fp2::ZERO; SC_RS];
+            let mut side = Side::Prove {
+                pd: ProverData { data: [&a_data, &[], &[], &[]], masks: &masks },
+                out: Vec::new(),
+            };
+            run_slot(&mut side, &mut acc, def, &mut tr).expect("run_slot SC_RS");
+            let sp = match side {
+                Side::Prove { mut out, .. } => out.pop().expect("SlotProof"),
+                Side::Verify { .. } => unreachable!(),
+            };
+            (sp, tr.state(), tr.counter(), acc.fs[0].value)
+        };
+
+        // Pure CPU oracle
+        let (sp_cpu, st_cpu, cnt_cpu, gv_cpu) = run_case(false, false, false);
+
+        let assert_matches_cpu = |label: &str, sp: &SlotProof, st: [u8; 32], cnt: u64, gv: Fp2| {
+            assert_eq!(sp.scalar, sp_cpu.scalar, "{label}: scalar mismatch");
+            assert_eq!(sp.terms, sp_cpu.terms, "{label}: terms mismatch");
+            assert_eq!(sp.sc.rounds, sp_cpu.sc.rounds, "{label}: rounds mismatch");
+            assert_eq!((st, cnt), (st_cpu, cnt_cpu), "{label}: transcript mismatch");
+            assert_eq!(gv, gv_cpu, "{label}: mask functional mismatch");
+        };
+
+        // 1. Branch 1 (`direct == true`, `dev_tables`, `metal_rounds_owned` -> `try_masked_prove` CB err on "batch")
+        {
+            let d0 = crate::gpu::declines();
+            let _err = crate::gpu::MetalCbErrGuard::arm(Some("batch"), 0);
+            let (sp, st, cnt, gv) = run_case(true, true, false);
+            assert!(crate::gpu::declines() > d0, "Branch 1 CB error must record a GPU decline");
+            assert_matches_cpu("Branch 1 try_masked_prove CB err", &sp, st, cnt, gv);
+        }
+
+        // 2. Branch 1 deferred `flush()` CB err inside `metal_rounds_owned` (bad MSL triggers fail -> t.flush() -> Err((None, Some(_))))
+        {
+            let d0 = crate::gpu::declines();
+            let _err = crate::gpu::MetalCbErrGuard::arm(Some("tables"), 0);
+            let (sp, st, cnt, gv) = run_case(true, true, true);
+            assert!(crate::gpu::declines() > d0, "Branch 1 flush CB error must record a GPU decline");
+            assert_matches_cpu("Branch 1 deferred flush CB err", &sp, st, cnt, gv);
+        }
+
+        // 3. Branch 2 (`direct == false`, host `tables`, `metal_rounds` -> `try_masked_prove` CB err on "batch")
+        let sp_recovered = {
+            let d0 = crate::gpu::declines();
+            let _err = crate::gpu::MetalCbErrGuard::arm(Some("batch"), 0);
+            let (sp, st, cnt, gv) = run_case(true, false, false);
+            assert!(crate::gpu::declines() > d0, "Branch 2 CB error must record a GPU decline");
+            assert_matches_cpu("Branch 2 try_masked_prove CB err", &sp, st, cnt, gv);
+            sp
+        };
+
+        // 4. Branch 2 M6 mismatch (`MetalM6CorruptGuard::arm(2)`) falls back to CPU cleanly
+        {
+            let d0 = crate::gpu::declines();
+            let _m6 = crate::gpu::MetalM6CorruptGuard::arm(2);
+            let (sp, st, cnt, gv) = run_case(true, false, false);
+            assert!(crate::gpu::declines() > d0, "Branch 2 M6 mismatch must record a GPU decline");
+            assert_matches_cpu("Branch 2 M6 mismatch", &sp, st, cnt, gv);
+        }
+
+        // 5. Verifier accepts the recovered SlotProof identically
+        let mut tr_v = Transcript::new(b"metal-err-recovery-slot-sc-rs");
+        let mut pts_v = Points::default();
+        let def_v = define(SC_RS, &ctx, &mut pts_v, &mut tr_v).expect("verify define SC_RS");
+        let mut slots_v = vec![SlotProof::default(); SC_RS];
+        slots_v.push(sp_recovered);
+        let mut acc_v = Acc::default();
+        acc_v.cs = vec![Fp2::ONE; SC_RS];
+        acc_v.scalars = vec![Fp2::ZERO; SC_RS];
+        let mut side_v = Side::Verify { slots: &slots_v };
+        run_slot(&mut side_v, &mut acc_v, def_v, &mut tr_v).expect("Side::Verify recovered SlotProof");
+        assert_eq!((tr_v.state(), tr_v.counter()), (st_cpu, cnt_cpu));
+        assert_eq!(acc_v.fs[0].value, gv_cpu);
+    }
+
+    #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+    #[test]
+    fn metal_cb_error_in_run_slot_fails_closed_when_gpu_required() {
+        if crate::gpu::MetalTables::new(1, 2).is_err() {
+            return;
+        }
+        let _req = crate::gpu::RequiredGuard::set(Some(true));
+        let _batch = crate::gpu::MetalBatchModeGuard::set(Some(true));
+        let _dt = DeviceTablesGuard::set(Some(DT_DEVICE));
+        let (_sh, lay, public, ff, a_data, masks) = make_metal_recovery_fixture();
+        let ctx = Ctx {
+            accuracy: None,
+            lay: &lay,
+            public: &public,
+            ff: &ff,
+            alpha: Fp2::new(Fp::new(11), Fp::new(13)),
+            beta: Fp2::new(Fp::new(17), Fp::new(19)),
+            g_u8: Fp2::new(Fp::new(23), Fp::new(29)),
+            g_exp: Fp2::new(Fp::new(31), Fp::new(37)),
+            g_act: Fp2::new(Fp::new(41), Fp::new(43)),
+            g_dd: Fp2::new(Fp::new(47), Fp::new(53)),
+        };
+
+        for pub_gen_prove in [true, false] {
+            let mut tr = Transcript::new(b"metal-err-recovery-required");
+            let mut twin = Transcript::clone_state(&tr);
+            let mut ipts = super::super::slot_ir::IrPoints::default();
+            let ir = super::super::slot_ir::build_slot_ir(SC_RS, &ctx, &mut ipts, &mut twin).expect("SC_RS slot_ir");
+            let mut pts = Points::default();
+            pts.pub_gen_prove = pub_gen_prove;
+            let mut def = define(SC_RS, &ctx, &mut pts, &mut tr).expect("define SC_RS");
+            let (k0, k1, cf, base) = super::super::metal_slot::msl_round_kernels(&ir);
+            def.metal = Some((format!("{k0}\n{k1}"), cf, base));
+
+            let mut acc = Acc::default();
+            acc.cs = vec![Fp2::ONE; SC_RS];
+            acc.scalars = vec![Fp2::ZERO; SC_RS];
+            let mut side = Side::Prove {
+                pd: ProverData { data: [&a_data, &[], &[], &[]], masks: &masks },
+                out: Vec::new(),
+            };
+            let _err = crate::gpu::MetalCbErrGuard::arm(Some("batch"), 0);
+            let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                let _ = run_slot(&mut side, &mut acc, def, &mut tr);
+            }));
+            let payload = panicked.expect_err("HL_GPU_REQUIRED=1 must panic fail-closed on Metal CB error");
+            let msg = payload
+                .downcast_ref::<String>()
+                .map(String::as_str)
+                .or_else(|| payload.downcast_ref::<&str>().copied())
+                .unwrap_or("");
+            assert!(
+                msg.contains("HL_GPU_REQUIRED=1") && msg.contains("refusing to fall back to the CPU"),
+                "expected fail-closed HL_GPU_REQUIRED=1 panic (pub_gen_prove={pub_gen_prove}), got: {msg}"
+            );
         }
     }
 }

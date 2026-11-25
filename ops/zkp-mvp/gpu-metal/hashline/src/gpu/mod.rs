@@ -98,6 +98,9 @@ pub use metal::{
     head_pow2_for_test as metal_head_pow2_for_test,
     set_a27_fold_for_test as metal_set_a27_fold_for_test,
     set_batch_for_test as metal_set_batch_for_test,
+    BatchModeGuard as MetalBatchModeGuard,
+    CbErrGuard as MetalCbErrGuard,
+    M6CorruptGuard as MetalM6CorruptGuard,
 };
 // [A27] the GPU trace's buffered lines, written out (a server may call it after a request)
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
@@ -157,6 +160,34 @@ pub fn fused_rs_calls_for_test() -> u64 {
     0
 }
 
+#[cfg(test)]
+thread_local! {
+    static REQUIRED_TEST: std::cell::Cell<Option<bool>> = const { std::cell::Cell::new(None) };
+}
+
+/// Thread-local RAII override for [`required()`] in unit tests so tests can
+/// verify both CPU fallback and `HL_GPU_REQUIRED=1` fail-closed behavior
+/// without mutating process-wide environment variables.
+#[cfg(test)]
+pub struct RequiredGuard {
+    prev: Option<bool>,
+}
+
+#[cfg(test)]
+impl RequiredGuard {
+    pub fn set(on: Option<bool>) -> Self {
+        let prev = REQUIRED_TEST.with(|c| c.replace(on));
+        Self { prev }
+    }
+}
+
+#[cfg(test)]
+impl Drop for RequiredGuard {
+    fn drop(&mut self) {
+        REQUIRED_TEST.with(|c| c.set(self.prev));
+    }
+}
+
 /// **ROUND 2 (R2-5): GPU MODE FAILS CLOSED.** Every place a device entry
 /// point declines and the prover would silently take the CPU body reports
 /// here. The decline is counted and logged; and when the caller CLAIMED the
@@ -166,6 +197,10 @@ pub fn fused_rs_calls_for_test() -> u64 {
 /// either way (the differential discipline above); what fails closed is the
 /// CLAIM about how they were made.
 pub fn required() -> bool {
+    #[cfg(test)]
+    if let Some(v) = REQUIRED_TEST.with(|c| c.get()) {
+        return v;
+    }
     std::env::var("HL_GPU_REQUIRED").map(|v| v == "1").unwrap_or(false)
 }
 
