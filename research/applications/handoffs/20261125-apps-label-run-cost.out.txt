@@ -1,0 +1,71 @@
+== inputs checked against their lines ==
+ok   README.md:83  6 x 5 | 47.11
+ok   README.md:85  6 x 8 | 48.64
+ok   README.md:110  X 48.96 | Y 50.00
+ok   PILOT.md:15  669,561,472 | 28 segments
+ok   config.py:72  TAU = 0.5
+ok   shieldstral_text.py:86  context_tokens - len(self.prefix) - len(self.suffix)
+ok   ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v3.md:204  P0 72, chunk 55 | P0 78, chunk 49 | S = 1
+ok   ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v3.md:476  118,593,824 | 7,161,056
+ok   ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v3.md:202  848,412,096
+ok   ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v3.md:201  T 128, width 3072 | hidden 9216 | 32 query heads, 8 key-value heads, head_dim 128
+ok   DESIGN.md:520  2.769 M
+ok   DESIGN.md:532  285.7 M
+ok   DESIGN.md:721  2.769 M | 28.3 M
+
+== 1. n separate runs, one registered policy each (DERIVED; one 128-position window per run) ==
+per run: window 128 padded positions; receipt 669,561,472 B (0.670 GB)
+set A: 6 lanes x 5 threads, level of 6 legs     47.11 tok/s -> 2.717 s of stream capacity per run  [results/zk60_lane_threads_20261122/README.md:83]
+set B: 6 lanes x 8 threads, level of 6 legs     48.64 tok/s -> 2.632 s of stream capacity per run  [results/zk60_lane_threads_20261122/README.md:85]
+set C: 6x8, default arm X, level of 4 legs      48.96 tok/s -> 2.614 s of stream capacity per run  [results/zk60_lane_threads_20261122/README.md:110]
+set D: 6x8, tail-250 arm Y, level of 4 legs     50.00 tok/s -> 2.560 s of stream capacity per run  [results/zk60_lane_threads_20261122/README.md:110]
+
+n    receipt GB  set A    set B    set C    set D      (seconds of stream capacity, one chunk window per policy)
+1    0.670       2.72     2.63     2.61     2.56     
+3    2.009       8.15     7.89     7.84     7.68     
+4    2.678       10.87    10.53    10.46    10.24    
+8    5.356       21.74    21.05    20.92    20.48    
+16   10.713      43.47    42.11    41.83    40.96    
+chunks multiply: a post of J chunks per category costs n x J windows (J = 3 to 22 at T128 per ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELD:63,205).
+
+== 2. shared-prefix saving the records support ==
+template order is prefix (policy text, starts with BOS id 1) + content chunk + suffix [4] + pad ids to 128
+(shieldstral_text.py:76, 114-115). Two policies therefore share only the BOS token; the content follows the policy.
+Registered policy lengths P0 = 72 (sexual, violence), 78 (hate); S = 1 [ZK60_PRIVACY_STATEMENT_CLASSIF:204].
+Prefix reuse across runs: no measurement and no accepted construction (kv-proof-state.md:126; deepprove-gap.md:105).
+Saving carried into the table above: 0 s (not measured, no mechanism), not an estimate of zero.
+
+== 3. room in the 128-position window for a k-token label read in one pass (COUNTED geometry, DERIVED room) ==
+item_length = P0 + n_content + S; spare positions = 128 - item_length; a k-token label needs k-1 spare positions
+(teacher-forced label tokens; the design of mode (ii), DESIGN.md:465-470).
+P0 72, content n 17: item_length  90, spare  38 -> largest k = 39
+P0 72, content n 38: item_length 111, spare  17 -> largest k = 18
+P0 72, content n 40: item_length 113, spare  15 -> largest k = 16
+P0 72, content n 55: item_length 128, spare   0 -> largest k =  1  (full chunk: k = 1 only)
+P0 78, content n 17: item_length  96, spare  32 -> largest k = 33
+P0 78, content n 38: item_length 117, spare  11 -> largest k = 12
+P0 78, content n 40: item_length 119, spare   9 -> largest k = 10
+P0 78, content n 49: item_length 128, spare   0 -> largest k =  1  (full chunk: k = 1 only)
+a k-token label at a full chunk would cut the chunk by k-1 (55 -> 55-(k-1) at P0 72).
+
+== 4. one-position choice among n label tokens (DERIVED from shape; no time exists at the installed profile) ==
+block MACs per position, projections and gated MLP only (width 3072, q width 4096, kv width 1024, hidden 9216): 116,391,936
+window, 26 blocks x 128 positions, same terms: 387,352,363,008 MACs
+n= 2: head comparison =  1 public difference vectors of width 3072 at one position = 3,072 MACs = 7.93e-09 of the window, 2.64e-05 of one block position
+n= 4: head comparison =  3 public difference vectors of width 3072 at one position = 9,216 MACs = 2.38e-08 of the window, 7.92e-05 of one block position
+n= 8: head comparison =  7 public difference vectors of width 3072 at one position = 21,504 MACs = 5.55e-08 of the window, 1.85e-04 of one block position
+n=16: head comparison = 15 public difference vectors of width 3072 at one position = 46,080 MACs = 1.19e-07 of the window, 3.96e-04 of one block position
+NOT a proof-time figure: committed planes, lookups and the stage geometry set proof cost, and OUT-C has a fixed geometry.
+Record sizes at R13 (older profile; bytes, not time): OUT-C 7,161,056 B, one block 118,593,824 B, receipt 848,412,096 B [ZK60_PRIVACY_STATEMENT_CLASSIF:476,202]
+OUT-C / one block = 0.0604 ; OUT-C / receipt = 0.0084. No W16R2 per-stage size or time was found in the records read.
+
+Full-vocabulary argmax, the design counts (Llama-3-8B, V = 128,256, d = 4096; NOT the Shieldstral classifier) [DESIGN.md:520-532, 721]:
+  mode (i), one output position: 2.769 M committed elements = 0.098 of a T32 block (28.3 M)
+  mode (ii) at T128, 128 output positions: 285.7 M elements = 2.232 M per position (design table, n = 2^15)
+  restricting the choice to n registered ids replaces the V-wide planes by n-wide ones; no count of that exists.
+
+== 5. public information per chunk and category (DERIVED) ==
+today: 1 verdict bit per policy per chunk, public (ZK60_PRIVACY_STATEMENT_CLASSIF:103). n separate yes/no policies: n bits.
+n= 4: n separate policies publish  4 bits; one n-way choice publishes at most 2 bits (log2 n)
+n= 8: n separate policies publish  8 bits; one n-way choice publishes at most 3 bits (log2 n)
+n=16: n separate policies publish 16 bits; one n-way choice publishes at most 4 bits (log2 n)

@@ -801,6 +801,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 09:54 UTC, product [count and reading by the background researcher from retained
+    records; its script re-run and its cited lines read by Claude; no build, no run]: each further
+    category costs one more full proof run, and nothing built makes it cheaper.** On the installed
+    classifier profile one run of one policy over one chunk takes 2.6 to 2.7 s of the machine's
+    six-lane capacity (128 padded positions at the 47.1 to 50.0 tok/s of the 22 November sets, which
+    are not ranked) and one 0.67 GB receipt. So 4 categories cost about 10 to 11 s and 2.7 GB a
+    chunk, 16 categories 41 to 43 s and 10.7 GB, and a long post multiplies that by its 3 to 22
+    chunks. These are seconds of throughput, not the time one post waits: with all lanes busy a
+    single window takes about 15 to 16 s and six run side by side. The records support no saving
+    from a shared prefix, because the policy text comes before the content. A label read in a single
+    pass is designed (the token-output profile that D78 places in W16R3) but not built, has no time
+    or size at the installed profile, needs its own Lean statement and a fresh calibration, and
+    names one label where n separate runs can flag several. Today's offer therefore stays at three
+    categories (`research/applications/handoffs/20261125-apps-label-run-cost.md`).
     **Nov 25, 07:58 UTC, size [count and reading by the background researcher from retained records;
     its script re-run and its citations checked by Claude; no build, no run]: the size step would
     make checking a receipt about 1.6 to 3 times faster, not the 5 to 15 times the design study
