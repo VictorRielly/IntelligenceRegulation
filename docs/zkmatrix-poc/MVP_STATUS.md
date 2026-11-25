@@ -801,6 +801,21 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 25, 11:57 UTC, hidden weights [count and reading by the background researcher from the
+    sources; its script re-run and the cited lines read by Claude; no build, no run; study level
+    only, D82]: hiding the embedding and the head as well as the block matrices would add about 247
+    MB to an 8B receipt and about 134 MB to the classifier's, if padding can be skipped.** The list
+    of learned tensors (block matrices, norm gains, embedding, head, final-norm gains) adds up
+    exactly to the 8B checkpoint's own count of 8,030,261,248 parameters, so nothing learned is
+    missing from it. At the best layout of the earlier price study, the embedding and the head cost
+    13.3 MB each to open once a request on top of 220 MB for the 32 blocks, which takes the 818.7 MB
+    receipt to 1.30 times its size. The classifier has no separate head; its 26 blocks and its
+    embedding come to 134 MB, 1.20 times its 670 MB receipt. One point is open and matters for the
+    classifier: the proof works over widths padded to powers of two, and its block is 2.09 times
+    larger padded than true. If the committed matrices must be the padded ones, its blocks cost 192
+    MB instead of 123 MB. That reading is queued. None of these classes has a committed form in the
+    prover today, and about 11 percent of the classifier checkpoint is an image tower that no proof
+    touches (`research/zkp-efficiency/handoffs/20261125-claude-tick59-weight-classes-p3.md`).
     **Nov 25, 11:43 UTC, product [counts and legal reading by Sol; the counting script re-run, the
     retained records read and two web sources re-fetched by Claude; no build, no run]: a single-pass
     choice among 16 labels would add about 1 MB to a receipt, and the receipt should stay off the

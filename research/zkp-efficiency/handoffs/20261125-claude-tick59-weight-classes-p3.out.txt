@@ -1,0 +1,60 @@
+== 0. check of the 8B counts against the checkpoint's own parameter count (trained_statement.rs:143)
+  block matrices (true)          218,103,808  x32 =   6,979,321,856
+  norm gains (2 x 4096)                8,192  x32 =         262,144
+  embedding int16 V x d          525,336,576
+  head int8 V x d                525,336,576
+  + final norm gains 4,096 (checkpoint has them; the proof uses one uniform g0) -> total 8,030,261,248
+  checkpoint_parameters      8,030,261,248   difference 0
+
+== 0b. same for Shieldstral (text tower only; the image tower is in the checkpoint's count)
+  block matrices (true) 116,391,936 x26 = 3,026,190,336; gains 159,744; embedding 402,653,184; final norm 3,072
+  text tower 3,429,006,336; checkpoint 3,849,090,048; remainder (not text) 420,083,712
+
+== 1. words and rows at n = 2^16, per class (8B)
+  block matrices, 1 block (true)                         218,103,808 words    3328.00 rows (ceil  3,328)  x32
+  block matrices, 1 block (padded to d_pad x f_pad)      243,269,632 words    3712.00 rows (ceil  3,712)  x32
+  norm gains gamma_a + gamma_m, 1 block                        8,192 words       0.12 rows (ceil      1)  x32
+  embedding int16 (V = 128,256)                          525,336,576 words    8016.00 rows (ceil  8,016)  x1
+  embedding at V_pad = 2^17                              536,870,912 words    8192.00 rows (ceil  8,192)  x1
+  head int8 W'                                           525,336,576 words    8016.00 rows (ceil  8,016)  x1
+  head multipliers m_j (one word each)                       128,256 words       1.96 rows (ceil      2)  x1
+
+== 2. added receipt bytes at tick 54's best row (n=2^16, rate 1/4, k=16, Q'=172, one group), 8B
+  blocks, one opening each, 32 blocks:   219.9 MB  (rows 3328, vectors 2185216, columns 4579328, path/rest 105952 B a block)
+  + gains as 1 extra row a block: +44.0 KB for 32 blocks (rows 3,329 a block)
+  embedding, one opening a request:  13.32 MB (rows 8016, vectors 2.19, columns 11.03, rest 106 KB)
+  head W', one opening a request:    13.32 MB (rows 8016)
+  head multipliers, own opening:      2.29 MB (rows 2; vectors dominate; or fold m into W' rows instead)
+  blocks + gains + embedding + head:   246.5 MB = x1.30 of today's 818.7 MB (blocks alone x1.27)
+  embedding + head alone add 26.6 MB = 12.1% of the block part, 3.3% of today's receipt
+  with the multipliers as their own opening: 248.8 MB
+  after B6a (columns + rest only): blocks columns 146.5 MB (+ rest 3.4 MB; tick 54: 146), embedding + head 22.27 MB (columns 22.06)
+
+== 3. the same for Shieldstral (26 blocks, classifier receipt 669.6 MB)
+  block true: 116,391,936 words, rows 1,776, one opening 4.73 MB, x26 = 123.1 MB (x1.18)
+  block padded: 243,269,632 words, rows 3,712, one opening 7.40 MB, x26 = 192.4 MB (x1.29)
+  embedding 402,653,184 words: rows 6,144, one opening 10.75 MB
+  margin vector w_delta 3,072 words: rows 1, own opening 2.29 MB (vectors dominate; put it as 1 extra row of the embedding's commitment: +1.38 KB)
+  blocks (true) + embedding: 133.9 MB = x1.20; embedding is 8.0% of it
+
+== 4. per-model stored encoded size at rate 1/4 (8 B a word, 4 x words)
+  8B blocks (32)                223.3 GB
+  8B embedding                   16.8 GB
+  8B head                        16.8 GB
+  Shieldstral blocks (26)        96.8 GB
+  Shieldstral embedding          12.9 GB
+
+== 5. prover row combination for embedding + head, one request (G=1: 2 x 2 x N base mults a opening)
+  1.05 G words at 45 G/s:     93 ms =  2.5% of the 3.7455 s cadence
+  1.05 G words at 150 G/s:     28 ms =  0.7% of the 3.7455 s cadence
+  1.05 G words at 300 G/s:     14 ms =  0.4% of the 3.7455 s cadence
+
+== 6. range proofs once per model, scaling tick 53's tree bound by words (ASSUMED linear)
+  15.7 ms per 2^25 leaves: blocks 3.3 s, + embedding/head 0.5 s, total 3.8 s
+  21.9 ms per 2^25 leaves: blocks 4.6 s, + embedding/head 0.7 s, total 5.2 s
+
+== 7. small classes, counts
+  IntegerCalibration numeric scalars: 27 (+ residual unit and RoPE base as f64 bits = 29); own overrides at most 11 a layer: 352 (8B), 286 (Shieldstral)
+  final norm: 4 scalars (g0, cn, tn, ceps), one uniform gain, not per channel
+  RoPE cos+sin: 2 x T x head_dim/2 = 16,384 words a profile (T=128), one set for every layer
+  exp table 256 words, SiLU table 4,096 words a layer (per-layer member): 139,264 words in 8B (all generator output)

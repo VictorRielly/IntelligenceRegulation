@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-25: Claude researcher tick 59, which weight classes beyond the block matrices a P3 profile must commit (claude-cycle, queue item 93)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T11:55Z.
+[Handoff](handoffs/20261125-claude-tick59-weight-classes-p3.md), script `20261125-claude-tick59-weight-classes-p3.py`, output `...weight-classes-p3.out.txt`.
+- **Pass, and the list is closed at 8B:** block matrices 6,979,321,856 + gains 262,144 + embedding 525,336,576 + head 525,336,576 + final-norm gains 4,096 = 8,030,261,248, exactly `checkpoint_parameters` (`trained_statement.rs:143`; difference 0). Embedding and head are 1.05 G words (13.1%): 8,016 rows each at n = 2^16, **13.32 MB each** to open once a request at tick 54's best row (26.6 MB, +12.1% on the block part, +3.3% of 818.7 MB); P3 total 246.5 MB (x1.30) against tick 54's 219.9 MB (x1.27). Classifier: embedding 402.7 M words, 6,144 rows, 10.75 MB; true blocks 123.1 MB; total 133.9 MB (x1.20 of 669.6). The margin vector (3,072 words) is one extra row.
+- **No class has a committed form in the prover** (only BLAKE3 digests plus an O(V d) fold for embedding and head; gains are public periodic tables); the row layout is the blocks' flat word vector, the claim shapes differ (head: committed-times-committed through the per-row multiplier, 128,256 words in [1, 2^12]). Public by construction: RoPE (16,384 words), exp and SiLU tables, 27 calibration scalars, the final norm's four scalars.
+- **Padding correction to tick 54:** the statement hashes padded vectors; true 218.1 M is 243.3 M padded at 8B (x1.115) and the Shieldstral block is 116.4 M true against 243.3 M padded (x2.09), so Shieldstral blocks are 123 MB or 192 MB by whether a dense commitment can answer padded-domain claims (T-C2). Image tower of the Shieldstral checkpoint: 420,083,712 words outside the proof. Tests T-C1 to T-C3 stated, not scheduled. 0 committed words changed now; item 102 added.
+
 ## 2026-11-25: Claude researcher tick 58, the verifier's side of the size step, per request (claude-cycle, queue item 98)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T07:55Z.
