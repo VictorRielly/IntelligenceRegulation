@@ -1276,3 +1276,54 @@ fn with_captured_events_clears_tls_on_panic_inside_serve_lines() {
         }
     }
 }
+
+/// The check server's entry (`serve_lines`, what `check_serve_inner` calls) has no panic guard: a
+/// panic in its `serve` is not turned into the prover server's fixed `internal-error` line (which
+/// has no `command`, no `id` and no fail-closed line). It unwinds its lane's thread and comes out
+/// of `serve_lines` as a panic, as before the guard existed; the other lane's request is still
+/// answered by its own line.
+#[test]
+fn serve_lines_the_check_servers_entry_does_not_catch_a_panic() {
+    let mut out: Vec<String> = Vec::new();
+    // two lanes, two requests: the lane that takes request 0 panics and takes no other; the
+    // other lane takes request 1 (the reader then ends, so nothing waits on the lost lane)
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        serve_lines(
+            2,
+            1,
+            (0..2usize).map(|q| format!("line-{q}")),
+            |q, _line, _queued, lane| {
+                if q == 0 {
+                    panic!("CHECK_SIDE_PANIC_{q}");
+                }
+                (true, format!("{{\"event\":\"served\",\"command\":\"classify-check-serve\",\"request\":{q},\"status\":\"checked\",\"lane\":{lane}}}"))
+            },
+            &mut |l: &str| out.push(l.to_string()),
+        )
+    }));
+    assert!(r.is_err(), "a panic in the check server's serve must come out of serve_lines, not be answered: {out:?}");
+    assert_eq!(out.len(), 1, "only the healthy request has a line: {out:?}");
+    assert!(out[0].contains("\"request\":1") && out[0].contains("\"status\":\"checked\""), "{out:?}");
+    assert!(out.iter().all(|l| !l.contains("internal-error") && !l.contains("CHECK_SIDE_PANIC")), "{out:?}");
+
+    // the same closure through the prover server's entry is answered by the fixed line
+    let mut out2: Vec<String> = Vec::new();
+    let (n, ok) = serve_lines_with(
+        2,
+        1,
+        0,
+        1,
+        (0..2usize).map(|q| format!("line-{q}")),
+        |q, _line, _queued, lane| {
+            if q == 0 {
+                panic!("PROVER_SIDE_PANIC_{q}");
+            }
+            (true, format!("{{\"event\":\"served\",\"command\":\"classify-serve\",\"request\":{q},\"status\":\"proved\",\"lane\":{lane}}}"))
+        },
+        &mut |l: &str| out2.push(l.to_string()),
+    )
+    .expect("the prover server's entry answers a panic");
+    assert_eq!((n, ok), (2, 1));
+    assert_eq!(out2.iter().filter(|l| l.contains("\"status\":\"internal-error\"")).count(), 1, "{out2:?}");
+    assert!(out2.iter().all(|l| !l.contains("PROVER_SIDE_PANIC")), "{out2:?}");
+}

@@ -227,12 +227,15 @@ fn write_log(path: &Path, lines: &[String]) -> Result<(), String> {
 
 /// **The stream** (both servers): a reader takes the lines (blank lines skipped) in order;
 /// `lanes` lane threads each take the next line and run `serve` on their own rayon pool; the
-/// calling thread prints each result line as it arrives.
+/// calling thread prints each result line as it arrives. This entry is the check server's: a panic
+/// in `serve` is NOT caught here. It unwinds its lane's thread and ends the process with the
+/// stream, as it did before the prover server's guard existed ([`serve_lines_with`]); no line is
+/// made up for a request whose check did not finish.
 fn serve_lines<F>(lanes: usize, threads: usize, lines: impl Iterator<Item = String> + Send, serve: F, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String>
 where
     F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
 {
-    serve_lines_with(lanes, threads, 0, 1, lines, serve, emit)
+    serve_lines_core(lanes, threads, 0, 1, false, lines, serve, emit)
 }
 
 /// **[A28] `HL_A28_STAGGER_MS`** (the prover server only; default 0, as before): no two requests start
@@ -272,7 +275,22 @@ pub(super) fn a28_seal_ahead_on() -> bool {
 
 /// [`serve_lines`] with a minimum interval between request starts (`stagger_ms`, 0: none) and
 /// `per_lane` request threads per lane (1, or 2 with [`a28_seal_ahead_on`]); `serve` gets the lane
+/// (the prover server's entry: a panic in `serve` is caught and answered with one fixed
+/// `internal-error` line, and the lane goes on to its next request)
 fn serve_lines_with<F>(lanes: usize, threads: usize, stagger_ms: u64, per_lane: usize, lines: impl Iterator<Item = String> + Send, serve: F, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String>
+where
+    F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
+{
+    serve_lines_core(lanes, threads, stagger_ms, per_lane, true, lines, serve, emit)
+}
+
+/// The loop behind both entries. `catch_panics` is set by the prover server only
+/// ([`serve_lines_with`]): a panic in `serve` becomes the fixed `internal-error` line. Unset (the
+/// check server, [`serve_lines`]), `serve` is called with no guard, exactly as before: the check
+/// server's own lines carry `command`, `id` and, on a refusal, the fail-closed line of D45(4); the
+/// fixed line carries none of them, so the check server never emits it.
+#[allow(clippy::too_many_arguments)]
+fn serve_lines_core<F>(lanes: usize, threads: usize, stagger_ms: u64, per_lane: usize, catch_panics: bool, lines: impl Iterator<Item = String> + Send, serve: F, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String>
 where
     F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
 {
@@ -386,18 +404,23 @@ where
                 }
                 let queued = t0.elapsed().as_secs_f64() - t_read;
                 let req_t0 = Instant::now();
-                let (good, l) = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| pool.install(|| serve(q, &line, queued, i)))) {
-                    Ok(res) => res,
-                    Err(_panic) => {
-                        // K-2 / D65(2): never downcast, format, or echo the panic payload or input
-                        // line; emit only public framing fields with a fixed constant error reason.
-                        let secs = req_t0.elapsed().as_secs_f64();
-                        (
-                            false,
-                            format!(
-                                "{{\"event\":\"served\",\"request\":{q},\"status\":\"internal-error\",\"error\":\"internal-error\",\"lane\":{i},\"queued_seconds\":{queued:.3},\"seconds\":{secs:.3}}}"
-                            ),
-                        )
+                let (good, l) = if !catch_panics {
+                    // the check server: no guard, the call as it was before the guard existed
+                    pool.install(|| serve(q, &line, queued, i))
+                } else {
+                    match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| pool.install(|| serve(q, &line, queued, i)))) {
+                        Ok(res) => res,
+                        Err(_panic) => {
+                            // K-2 / D65(2): never downcast, format, or echo the panic payload or input
+                            // line; emit only public framing fields with a fixed constant error reason.
+                            let secs = req_t0.elapsed().as_secs_f64();
+                            (
+                                false,
+                                format!(
+                                    "{{\"event\":\"served\",\"request\":{q},\"status\":\"internal-error\",\"error\":\"internal-error\",\"lane\":{i},\"queued_seconds\":{queued:.3},\"seconds\":{secs:.3}}}"
+                                ),
+                            )
+                        }
                     }
                 };
                 drop(dispatch_guard);
