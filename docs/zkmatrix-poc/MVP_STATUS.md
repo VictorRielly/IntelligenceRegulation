@@ -879,6 +879,25 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 08:07 UTC, product [read by the applications researcher from the full text of the
+    specification; its quote-check script re-run by me on my own downloads with identical output;
+    the key passages re-read by me; no manifest built, no validator run]: the Content Credentials
+    standard permits attaching a receipt by reference.** Content Credentials (C2PA) is the
+    provenance record that cameras and editing tools attach to media. Its current specification,
+    version 2.5, lets a third party define its own assertion under its Internet domain name. For
+    such an assertion a validator checks that it is declared in the signed claim and unchanged, and
+    the specification requires no further step (section 14.10.4.2). An assertion may point by hash
+    to data kept outside the file, and fetching it is optional: failing to fetch it "shall not cause
+    a claim to be rejected" (section 14.10.5.1). So a verdict and the hash of a receipt could sit in
+    the manifest while the receipt itself (669,561,472 bytes for the classifier) stays on a server.
+    A validator need not fetch the receipt, and the open one that was read (c2pa-rs) does not; a
+    reader who wants the proof must fetch and verify it. The specification states no size limit that
+    the search found. c2pa-rs has default limits of 10 MiB on a manifest fetched from a server and
+    32 MB on a decompressed manifest; the receipt is about 64 and 20 times those, so reference is
+    the fitting route. No standard assertion records a classifier's verdict; the nearest one
+    (`c2pa.ai-disclosure`) records a model that generated or edited the asset. Not read: how viewer
+    apps show a third-party assertion (queued as A26). Handoff:
+    `research/applications/handoffs/20261126-apps-c2pa-attachment.md`.
     **Nov 26, 07:55 UTC, receipt size, study level (D82) [read by the background researcher,
     research tick 64; the paper's figures checked by me against its own text]: what another system's
     measured hashing rate covers.** The estimate for the first layer of a wrapper proof (a proof

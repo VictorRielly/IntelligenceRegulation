@@ -1,0 +1,78 @@
+input spec html: sha256 9a6f89cedcaffc8e3724339f56a52c08d6d4b2acf9e5bb9ae528ae114ccbc7d6
+input claim_verify.rs: sha256 16273685960e4cf309e12b29e4398ce458f614a66952d2bd093551bbb77df904
+input store_core.rs: sha256 971165e2d2f75256b394c13e59e125199a6531522a5b776b89daea4b01797c0d
+input settings/mod.rs: sha256 8e9e8edba8ecde4b243839e87b76806029a4737d2373d0553e64c4adf41a6f46
+spec text lines: 13520
+
+== spec quotes (id | found | line in extracted text | section heading | supports)
+S1 | found | 681 | 8.2.1. Namespacing | third-party labels allowed (namespace)
+S2 | found | 692 | 8.2.2. Label Naming | third-party labels allowed (label)
+S3 | found | 2748 | 16.1. Introduction | third-party content types
+S4 | found | 1975 | 14.10.4.2. Specific Assertion Validation | unknown label: no extra validation
+S5 | found | 716 | 8.5. Schema Validation | schemas not enforced
+S6 | found | 1968 | 14.10.4.1. General | must be declared in the claim
+S7 | found | 1961 | 14.10.4.1. General | well-formedness check names standard assertions
+S8 | found | 563 | 5.1. Compatibility | unknown constructs may be ignored
+S9 | found | 567 | 5.2. Forward Compatibility | forward compatibility
+S10 | found | 1006 | 10.2.2. Fields | gathered_assertions not attributed to signer
+S11 | found | 1350 | 12.1. Hashing | hash rules do not govern custom assertions
+S12 | found | 1357 | 12.1. Hashing | allowed hashes
+S13 | found | 1360 | 12.1. Hashing | allowed hashes: SHA-3 excluded
+S14 | found | 722 | 8.7. Embedded vs Externally-Stored Data | external data allowed
+S15 | found | 722 | 8.7. Embedded vs Externally-Stored Data | external data not fetched at validation
+S16 | found | 2127 | 14.10.5.1. General | retrieval optional, failure does not reject
+S17 | found | 2127 | 14.10.5.1. General | no fetch from a rejected claim
+S18 | found | 5292 | 16.4.2.1. Description | external reference: any data
+S19 | found | 5317 | 16.4.2.1. Description | external reference: optional retrieval
+S20 | found | 5296 | 16.4.2.1. Description | signer takes responsibility if in created_assertions
+S21 | found | 5320 | 16.4.2.2. Process Evidence | process evidence
+S22 | found | 5331 | 16.4.2.2. Process Evidence | process evidence kinds are open
+S23 | found | 5325 | 16.4.2.2. Process Evidence | log content implementation dependent
+S24 | found | 2132 | 14.10.5.2. Validation of External References | when retrieved: size check
+S25 | found | 2137 | 14.10.5.2. Validation of External References | when retrieved: hash check
+S26 | found | 2177 | 14.10.5.3.6. Resource limits | validator may bound retrieval
+S27 | found | 2184 | 14.10.5.3.6. Resource limits | size field is an a priori bound
+S28 | found | 6896 | 16.6.7.2. Schema and Example | size field type
+S29 | found | 848 | 9.4.2.2. External | hashed ext uri: alg mandatory
+S30 | found | 5454 | 16.4.3.1. Description | linked resources: retrieval optional
+S31 | found | 2035 | 14.10.4.2. Specific Assertion Validation | linked resources: codes never reject
+S32 | found | 1332 | 11.8. External Manifests | manifest larger than asset is expected
+S33 | found | 8131 | A.3.1. Embedding manifests into JPEG 1 | JPEG 1 segment limit
+S34 | found | 7146 | 16.8.2.1. Summary | AI disclosure purpose
+S35 | found | 7149 | 16.8.2.2. Details | AI disclosure: modelType required
+S36 | found | 7185 | 16.8.2.4. Schema and Example | AI disclosure: model name field
+S37 | found | 7186 | 16.8.2.4. Schema and Example | AI disclosure: model identifier field
+S38 | found | 7224 | 16.8.2.4. Schema and Example | AI disclosure: harm evaluation pending
+S39 | found | 7214 | 16.8.2.4. Schema and Example | AI disclosure: pending fields note
+S40 | found | 7179 | 16.8.2.3. Relationship Between digitalSourceType and humanOversightLev | AI disclosure: not attached without a model
+S41 | found | 5712 | 16.5.1. Description | ingredient may record inference input
+S42 | found | 4477 | 16.4.1.1. Description | action names open
+S43 | found | 4756 | 16.4.1.4.8. Parameters | action parameters open
+S44 | found | 4704 | 16.4.1.3. All actions included | actions can link to process data
+S45 | found | 4597 | 16.4.1.1. Description | reviewed action
+S46 | found | 6325 | 16.6.3.1. Description | classifier asset type
+
+== c2pa-rs quotes (id | found | file:line | supports-text)
+R1 | found | claim_verify.rs:2247 | No fetching of the external reference is performed, only the structure of the assertion is checked.
+R2 | found | claim_verify.rs:1994 | // we should have accounted for all assertions in the store
+R3 | found | claim_verify.rs:1973 | .validation_status(validation_status::ASSERTION_HASHEDURI_MATCH)
+R4 | found | claim_verify.rs:1948 | // make sure assertion data has not changed
+R5 | found | store_core.rs:711 | CAI_CBOR_ASSERTION_UUID => {
+R6 | found | store_core.rs:717 | // make sure it is CBOR
+R7 | found | store_core.rs:658 | CAI_JSON_ASSERTION_UUID => {
+R8 | found | store_core.rs:743 | CAI_UUID_ASSERTION_UUID => {
+R9 | found | store_core.rs:691 | CAI_EMBEDDED_FILE_UUID => {
+R10 | found | settings.rs:49 | pub(crate) const MAX_ASSERTIONS: usize = 100_000;
+R11 | found | settings.rs:52 | pub(crate) const DEFAULT_MAX_MANIFEST_RESPONSE_SIZE: u64 = 10 * 1024 * 1024;
+R12 | found | settings.rs:560 | /// The default is 32 MB.
+R13 | found | settings.rs:602 | max_decompressed_manifest_size_in_mb: 32,
+R14 | found | settings.rs:557 | /// Maximum size in megabytes of a Brotli-decompressed JUMBF manifest.
+
+== spec searches (pattern, number of matching lines, first 5 lines trimmed to 160 chars)
+[maximum size or size limit of a manifest/assertion] pattern 'maximum (size|length) of (a|the|an) (C2PA )?(manifest|assertion)|size limit|manifest size limit|assertion size limit': 1 lines
+   line 6756: There are no concerns with splitting up the GDepth data when it grows beyond 64KB, as that limit existed in XMP to accommodate APP1 segment size limitations.
+[any 'shall not exceed' sentence] pattern 'shall not exceed': 0 lines
+[any 'at most' bytes sentence] pattern 'at most \\d+ ?(bytes|KB|MB|GB|KiB|MiB)': 0 lines
+['unknown assertion' phrase] pattern 'unknown assertion|unrecognized assertion|unrecognised assertion': 0 lines
+
+quotes not found: 0
