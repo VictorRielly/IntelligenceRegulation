@@ -801,6 +801,18 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 03:21 UTC, Lean, the chain merged on Nov 25: the three unopened modules are now read,
+    no serious gap found [independent read; the one Medium point checked by me against the approved
+    statement].** These modules carry the part of the zero-knowledge proof that rebuilds what the
+    verifier sees. The reader found that nothing private reaches that rebuilding, that it is about
+    the real prover program, and that the random-salt bounds are used in the error target. One limit
+    to keep in mind when describing the result: the proof shows that a receipt looks the same for
+    any two allowed inputs with the same verdict, which is what the approved statement asks, but it
+    does not hand over a simulator that could actually be run. Every module of the chain has now
+    been opened by a reader who did not write it; parts of several remain unread. The two limits of
+    the first read stand (three header checks are self-reported and the policy floor is not
+    modelled; one check differs from the Rust verifier's). Report:
+    `results/zk60_claude_review_20261116/L69_READ3_20261126.md`.
     **Nov 26, 03:08 UTC, the two Rust branches are merged [MEASURED: two full gates by me;
     independent reads of the branches and of my fix].** What the app's prover gains: when the GPU
     reports a command error, the request is finished on the CPU instead of the whole server stopping
