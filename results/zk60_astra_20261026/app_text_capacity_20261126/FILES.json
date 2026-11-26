@@ -1,0 +1,53 @@
+{
+  "base_commit": "31b2c9ceead3ec37c8811b1537a91ee28b705d9b",
+  "app_patch_sha256": "7db282bc425395d1fc655ae4c719584f4cf6f55be200bb7a0abc1a23b2ee7134",
+  "app": [
+    {
+      "path": "apps/proven-media/proven_media/app.py",
+      "bytes": 39495,
+      "sha256": "31eecd1856491d85c73a419139c81d3ad7b85dedbee6c801c467e9b9f71d95e9"
+    },
+    {
+      "path": "apps/proven-media/static/app.js",
+      "bytes": 73347,
+      "sha256": "941a92936d77974c81a5fd6870f5fdbbaf0659c0ce556174fce1a48bf2bbbbb7"
+    },
+    {
+      "path": "apps/proven-media/tests/test_app.py",
+      "bytes": 32592,
+      "sha256": "b917932e02333a05dee2cb4661d9c012a79cc0b813efa3b76b439fecc185b59f"
+    },
+    {
+      "path": "apps/proven-media/tests/test_frontend_w16r2.js",
+      "bytes": 6231,
+      "sha256": "73b2b050ea05e6c0e155828287a3251c0e3c8c7256fb6c8000fd96f8bd9f1d15"
+    }
+  ],
+  "records": [
+    {
+      "path": "results/zk60_astra_20261026/app_text_capacity_20261126/README.md",
+      "bytes": 3041,
+      "sha256": "55bdf744c55e3984957c39983e563c358a20f3abb1360a7963b605ca06bb7a94"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_text_capacity_20261126/RESULT.json",
+      "bytes": 1931,
+      "sha256": "f112934a52ea374cdbae6249fa56212cb1fd57f8bbccfc7fc3dea9565d857d22"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_text_capacity_20261126/PREVIEW.json",
+      "bytes": 835,
+      "sha256": "0d0b1c28ad970a8a050f7b2a43c1959c86cf53f4aa5100a801c3c45c7237ef68"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_text_capacity_20261126/check_capacity.py",
+      "bytes": 5557,
+      "sha256": "5fdcfc4c836b83a0fbc1dccdd2692b5800a2e01bc2474939cb55bc4284c78955"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_text_capacity_20261126/check_preview.py",
+      "bytes": 2899,
+      "sha256": "56b098b2774b78c7326982d09a96eba018ac1d42fc172127dadcb41a3d2f767f"
+    }
+  ]
+}

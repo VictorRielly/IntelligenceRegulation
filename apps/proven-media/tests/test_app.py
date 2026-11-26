@@ -494,6 +494,35 @@ class TestWebFlowFake(unittest.TestCase):
         self.assertEqual(r.status_code, 400)
         self.assertIn("chunks", r.json()["detail"])
 
+    def test_preview_and_submission_apply_the_same_text_boundary(self):
+        from unittest.mock import patch
+        self.login_as("length")
+        draft = "short public text"
+        plan = self.appmod.S.prover.plan_text(draft)
+        with patch.object(self.appmod.S.prover, "content_length", return_value=3) as count, \
+             patch.object(self.appmod.S.prover, "plan_text", return_value=plan) as planner, \
+             patch.object(self.appmod.S.store, "add_screened_post") as reserve:
+            for size in (1000, 1001):
+                # Include astral characters and padding to distinguish code points
+                # from UTF-16 units and the submitted text from the raw field.
+                clean = "🌻" * size
+                raw = "   " + clean + "\n"
+                preview = self.client.post("/api/tokenize", json={"text": raw}).json()
+                submitted = self.client.post("/api/posts", data={"author": "length", "kind": "text", "text": raw})
+                self.assertEqual(preview["fits"], size == 1000)
+                self.assertEqual(submitted.status_code, 200 if size == 1000 else 400)
+                if size == 1000:
+                    self.assertEqual(preview["proofs"], submitted.json()["proofs"])
+                    count.assert_called_once_with(clean)
+                    self.assertEqual([c.args for c in planner.call_args_list], [(clean,), (clean,)])
+                    self.assertEqual(reserve.call_args.kwargs["text"], clean)
+                else:
+                    self.assertEqual(preview["text_error"], submitted.json()["detail"])
+                    self.assertEqual(preview["max_text_characters"], 1000)
+            self.assertEqual(count.call_count, 1)
+            self.assertEqual(planner.call_count, 2)
+            reserve.assert_called_once()
+
     def test_long_post_chunked_labels_aggregate(self):
         c = self.client
         safe = ("We walked along the quiet harbour at dawn and watched the fishing boats come home with the morning catch. "

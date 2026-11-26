@@ -879,6 +879,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 18:22 UTC, product [files and hashes checked by me; contents scanned by me; the
+    measurements and the test run are Astra's report]: the installed app's text limits are measured,
+    and the author's preview now agrees with what submission accepts.** The app takes trimmed text
+    of up to 1,000 characters and 336 content tokens. One proof per policy covers a post of up to 49
+    content tokens for all three policies (the sexual-content and violence policies each allow 55,
+    hate or harassment 49); a longer post is split into chunks with 8 tokens of overlap, and the
+    336-token test post needed 7, 7 and 8 proofs. Before today's fix the preview could show a
+    passing count for a draft that submission then refused; both now share one check. Astra
+    confirmed the three capacities against the archived native statements of the Nov 25 pilot,
+    without a new native replay, and reports 322 app tests and four frontend suites passing on the
+    reconstructed tree. I committed the four changed app files and the five records unchanged after
+    the same hash and content checks as the earlier two scopes
+    (`results/zk60_astra_20261026/app_text_capacity_20261126/`).
     **Nov 26, 18:13 UTC, applications [counted by Astra; recounted by me twice from the same
     archive; four of the five cited documents read in my own copies]: the EU database cannot tell us
     what kind of text is moderated or how long it is, so the workload for a text product has to be

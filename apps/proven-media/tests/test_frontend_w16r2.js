@@ -64,4 +64,38 @@ assert.equal(run('privacyLabel()'), 'Public content only; privacy not claimed');
 set({kind:'shieldstral-fast'});
 assert.match(run('stepsHTML(null)'), /hidden input/);
 assert.equal(run('isPublicContent()'), false);
-console.log('PASS: W16R2 public scope, progress, limits, history and privacy-status isolation');
+async function checkDraftEdits() {
+  document.querySelectorAll = () => [];
+  const field = document.querySelector('#ctext'), button = document.querySelector('#postbtn');
+  const counter = document.querySelector('#counter');
+  counter.textContent = 'Up to 1000 characters and 336 tokens';
+  counter.classList = {toggle() {}};
+  let timer;
+  context.setTimeout = callback => { timer = callback; return 1; };
+  context.clearTimeout = () => { timer = null; };
+  const replies = [];
+  context.nextPreview = () => new Promise(resolve => replies.push(resolve));
+  run('api = nextPreview; S.composeKind = "text"; bindCompose()');
+  field.value = 'short'; field.oninput();
+  const earlier = timer();
+  field.value = 'a'.repeat(1001); field.oninput();
+  assert.equal(button.disabled, true);
+  const later = timer();
+  replies[1]({fits:false, text_error:'the post is too long', max_text_characters:1000});
+  await later;
+  replies[0]({fits:true, count:3, chunks:1, proofs:3});
+  await earlier;
+  assert.match(counter.textContent, /1000 characters/);
+  assert.equal(button.disabled, true);
+  field.value = 'short again'; field.oninput();
+  const accepted = timer();
+  replies[2]({fits:true, count:2, profile:'per-category', proofs:3, category_chunks:{hate:1,sexual:1,violence:1}});
+  await accepted;
+  assert.equal(button.disabled, false);
+  field.value = ''; field.oninput();
+  assert.equal(button.disabled, true);
+  assert.equal(counter.textContent, 'Up to 1000 characters and 336 tokens');
+}
+
+checkDraftEdits().then(() => console.log('PASS: W16R2 public scope, progress, draft limits, history and privacy-status isolation'))
+  .catch(error => { console.error(error); process.exitCode = 1; });

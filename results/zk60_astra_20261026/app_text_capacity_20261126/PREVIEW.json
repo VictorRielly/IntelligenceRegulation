@@ -1,0 +1,50 @@
+{
+  "49 tokens with outer spaces": {
+    "fits": true,
+    "count": 49,
+    "proofs": 3,
+    "text_error": null
+  },
+  "50 tokens": {
+    "fits": true,
+    "count": 50,
+    "proofs": 4,
+    "text_error": null
+  },
+  "55 tokens": {
+    "fits": true,
+    "count": 55,
+    "proofs": 4,
+    "text_error": null
+  },
+  "56 tokens": {
+    "fits": true,
+    "count": 56,
+    "proofs": 6,
+    "text_error": null
+  },
+  "336 tokens": {
+    "fits": true,
+    "count": 336,
+    "proofs": 22,
+    "text_error": null
+  },
+  "337 tokens": {
+    "fits": false,
+    "count": 337,
+    "proofs": 0,
+    "text_error": null
+  },
+  "1000 characters": {
+    "fits": true,
+    "count": 223,
+    "proofs": 16,
+    "text_error": null
+  },
+  "1001 characters": {
+    "fits": false,
+    "count": 0,
+    "proofs": 0,
+    "text_error": "the post is too long"
+  }
+}

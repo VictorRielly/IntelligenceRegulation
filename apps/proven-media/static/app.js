@@ -210,13 +210,13 @@ function postCard(p) {
 
 function composeHTML() {
   if (!S.handle) return '<section class="card pad" id="compose">Sign in to write a post and view your submissions.</section>';
-  const k = S.composeKind, max = S.cfg.limits.max_content_tokens;
+  const k = S.composeKind, limits = S.cfg.limits;
   const tab = (id, label, dev) => `<button class="tab ${k === id ? "on" : ""}" data-kind="${id}">${label}${dev ? ` <span class="pill">in dev</span>` : ""}</button>`;
   let inner;
   if (k === "text") {
     inner = `<label for="ctext" class="sr">Post text</label>
-      <textarea id="ctext" maxlength="2000" placeholder="What's happening? Long posts are split into chunks; each chunk is proved in 3 categories (${S.cfg.categories.map(c => esc(c.short)).join(", ")})."></textarea>
-      <div class="compose-foot"><span id="counter" class="counter">up to ${max} tokens on the ${esc(S.cfg.deploy.profile)} profile</span>
+      <textarea id="ctext" placeholder="What's happening? Each category is checked across the whole post (${S.cfg.categories.map(c => esc(c.short)).join(", ")})."></textarea>
+      <div class="compose-foot"><span id="counter" class="counter">Up to ${limits.max_text_characters} characters and ${limits.max_content_tokens} tokens</span>
       <button id="postbtn" class="btn ml-auto" disabled>Post</button></div>`;
   } else {
     const px = S.cfg.image_spec.canvas_px;
@@ -239,19 +239,27 @@ function bindCompose() {
   const btn = $("#postbtn");
   if (!btn) return;
   if (S.composeKind === "text") {
-    const ta = $("#ctext"), ctr = $("#counter"); let tmr = null;
+    const ta = $("#ctext"), ctr = $("#counter");
+    const initialCounter = ctr.textContent;
+    let tmr = null, revision = 0;
     ta.oninput = () => {
+      const current = ++revision;
       clearTimeout(tmr);
+      btn.disabled = true;
+      ctr.classList.toggle("over", false);
+      if (!ta.value) { ctr.textContent = initialCounter; return; }
+      ctr.textContent = "Checking length…";
       tmr = setTimeout(async () => {
-        if (!ta.value.trim()) { ctr.textContent = `up to ${S.cfg.limits.max_content_tokens} tokens on the ${S.cfg.deploy.profile} profile`; btn.disabled = true; return; }
         try {
           const r = await api("/api/tokenize", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: ta.value }) });
+          if (current !== revision) return;
           ctr.textContent = r.fits
             ? (r.profile === 'per-category' ? `${r.count} tokens → ${r.proofs} proofs (${Object.entries(r.category_chunks).map(([c, n]) => `${c}: ${n}`).join(', ')})`
               : `${r.count} tokens → ${r.chunks} chunk${r.chunks > 1 ? "s" : ""} × 3 categories = ${r.proofs} proofs (profile ${r.profile}: ${r.chunk_tokens}-token chunks, overlap ${r.overlap_tokens})`)
-            : `${r.count} tokens: too long for this deployment profile (at most ${r.max} tokens; the whole post is proved or nothing)`;
+            : r.text_error ? `Enter text of up to ${r.max_text_characters} characters.`
+              : `Cannot plan this draft (${r.count} tokens, profile limit ${r.max}).`;
           ctr.classList.toggle("over", !r.fits); btn.disabled = !r.fits;
-        } catch (e) { ctr.textContent = "could not count tokens"; }
+        } catch (e) { if (current === revision) ctr.textContent = "Could not check this draft."; }
       }, 220);
     };
     btn.onclick = async () => {
@@ -263,7 +271,7 @@ function bindCompose() {
         ta.value = ""; ta.oninput();
         toast(`Pending verification: ${r.proofs} proofs. Your post appears once its labels are proved.`);
         location.hash = `#/post/${r.post_id}`;
-      } catch (e) { toast(e.message, 6000); btn.disabled = false; }
+      } catch (e) { toast(e.message, 6000); ta.oninput(); }
     };
   } else {
     const fi = $("#cfile"), plan = $("#mediaplan");

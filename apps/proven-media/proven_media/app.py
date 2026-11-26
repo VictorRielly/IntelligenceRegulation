@@ -30,6 +30,16 @@ from .tar_download import tar_download
 
 log = logging.getLogger("proven_media")
 HANDLE_RE = re.compile(r"^@?[A-Za-z0-9_]{1,24}$")
+MAX_POST_CHARACTERS = 1000
+
+
+def post_text(raw: str) -> tuple[str, str | None]:
+    text = raw.strip()
+    if not text:
+        return text, "the post is empty"
+    if len(text) > MAX_POST_CHARACTERS:
+        return text, "the post is too long"
+    return text, None
 
 
 class State:
@@ -345,7 +355,8 @@ def api_config():
             "publisher": {"name": S.publisher.name, "description": S.publisher.description,
                           "key_id": manifest.key_id(pub), "public_key": pub},
             "deploy": config.deploy(),
-            "limits": {"max_content_tokens": config.deploy()["max_content_tokens"], "T": 128 if config.is_shieldstral_mode() else config.STUB_T,
+            "limits": {"max_content_tokens": config.deploy()["max_content_tokens"], "max_text_characters": MAX_POST_CHARACTERS,
+                       "T": 128 if config.is_shieldstral_mode() else config.STUB_T,
                        "stub_chunk_max": config.STUB_MAX_CONTENT_TOKENS, "max_image_bytes": config.MAX_IMAGE_BYTES},
             "expected": {"stub_work_s": "about 150 s of work on a quiet laptop (prepare ~15 s, prove ~85 s, "
                                         "verify + open + bind ~45 s), plus any wait for the shared machine",
@@ -364,17 +375,18 @@ async def api_tokenize(req: Request):
     require_session(req)
     from . import proof_plans
     body = await req.json()
-    text = str(body.get("text", ""))[:4000]
+    text, problem = post_text(str(body.get("text", "")))
     d = config.deploy()
     n = 0
     try:
-        n = S.prover.content_length(text)
+        n = S.prover.content_length(text) if problem is None else 0
         plan = S.prover.plan_text(text) if n else []
         fits = bool(plan)
     except (prompting.ContentRefused, provers.ProverError):
         plan, fits = [], False
     per_category = proof_plans.is_category_plan(plan)
     return {"count": n, "max": None if per_category else d["max_content_tokens"], "fits": fits, "chunks": len(plan),
+            "text_error": problem, "max_text_characters": MAX_POST_CHARACTERS,
             "chunk_tokens": None if per_category else d["effective_chunk_tokens"],
             "overlap_tokens": None if per_category else d["effective_overlap_tokens"],
             "proofs": proof_plans.proof_count(plan), "profile": 'per-category' if per_category else d["profile"],
@@ -417,11 +429,9 @@ async def api_create_post(req: Request, author: str = Form(...), kind: str = For
         raise HTTPException(403, "author does not match the signed-in account")
     pid = secrets.token_hex(16)        # 128-bit random post id (report §7: never a user id)
     if kind == "text":
-        text = text.strip()
-        if not text:
-            raise HTTPException(400, "the post is empty")
-        if len(text) > 1000:
-            raise HTTPException(400, "the post is too long")
+        text, problem = post_text(text)
+        if problem:
+            raise HTTPException(400, problem)
         try:
             plan = S.prover.plan_text(text)       # same pinned encoding and category geometry as the proof
             proof_plans.check_plan(plan, plan)

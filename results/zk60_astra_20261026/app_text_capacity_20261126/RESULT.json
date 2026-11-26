@@ -1,0 +1,91 @@
+{
+  "public_fixture": {
+    "characters": 62,
+    "whitespace_words": 13,
+    "content_tokens": 14
+  },
+  "native_statements": {
+    "sexual": {
+      "statement_sha256": "307edc604722bb0831240c56b0976f43c9ba2a9da52eaa3ca1c007172c8e846d",
+      "prefix_tokens": 72,
+      "suffix_ids": [
+        4
+      ],
+      "chunk_tokens": 55,
+      "item_tokens": 87,
+      "pad_positions": 41
+    },
+    "violence": {
+      "statement_sha256": "3d6ae177d904001ed710823d898bc16b4d0c01abea61b3638fcaec0afa6fdbc1",
+      "prefix_tokens": 72,
+      "suffix_ids": [
+        4
+      ],
+      "chunk_tokens": 55,
+      "item_tokens": 87,
+      "pad_positions": 41
+    },
+    "hate": {
+      "statement_sha256": "5fa400729f6e3b3804ad93de814a847478c10eb891272668454d96a467cc4a50",
+      "prefix_tokens": 78,
+      "suffix_ids": [
+        4
+      ],
+      "chunk_tokens": 49,
+      "item_tokens": 93,
+      "pad_positions": 35
+    }
+  },
+  "token_boundaries": {
+    "49": {
+      "sexual": 1,
+      "violence": 1,
+      "hate": 1
+    },
+    "50": {
+      "sexual": 1,
+      "violence": 1,
+      "hate": 2
+    },
+    "55": {
+      "sexual": 1,
+      "violence": 1,
+      "hate": 2
+    },
+    "56": {
+      "sexual": 2,
+      "violence": 2,
+      "hate": 2
+    },
+    "336": {
+      "sexual": 7,
+      "violence": 7,
+      "hate": 8
+    },
+    "337": "over token limit"
+  },
+  "character_boundaries": {
+    "1000": {
+      "content_tokens": 223,
+      "within_character_limit": true
+    },
+    "1001": {
+      "content_tokens": 223,
+      "within_character_limit": false
+    }
+  },
+  "same_length_examples": {
+    "repeated English word": {
+      "characters": 196,
+      "content_tokens": 18,
+      "proofs": 3
+    },
+    "repeated ASCII letter": {
+      "characters": 196,
+      "content_tokens": 98,
+      "proofs": 7
+    }
+  },
+  "export_profile_sha256": "9464388091d8095f8491f2990fde54e3b1f2b06f2a5c6ad1e72eff09cd4ce20a",
+  "new_native_runs": 0
+}
