@@ -61,7 +61,9 @@ Mac. A request counts as 128 tokens, padding included.
 - **Privacy acceptance:** the accepted privacy statement for the classifier (D58, Nov 1) is in force
   for named CPU binaries; GPU proving was not covered then. By the titles of D59 to D82, no later
   ruling extends it to the installed profile or to GPU proving. In Lean, zero knowledge is proved
-  for the R13 profile's model only.
+  for the R13 profile's model only. The privacy evidence gate has no recorded run on the installed
+  profile; its 12 passes are of Nov 4, for R13 captures made on the CPU, and 40 of the 75 source
+  files it pins have changed since [Nov 26, 06:21 UTC].
 
 **Waiting for Victor** (each is explained in the entry named): (1) receipt size: is a separate,
 slower profile with smaller receipts wanted [Nov 25, 01:56 UTC]; (2) crashes: should a server
@@ -871,6 +873,23 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 06:21 UTC, privacy evidence for the profile the app runs [COUNTED by me from the
+    gate's own records and today's source; nothing run]: the privacy gate has no recorded run on
+    that profile, and 40 of the 75 source files it pins have changed since it last passed.** The
+    gate is the 18-part check that reads captures of the prover's output for anything that could
+    leak. Its 12 recorded passes are of Nov 4, all for the earlier profile family (R13) and all for
+    captures made on the CPU. (An earlier, smaller version of the gate passed on the GPU path for a
+    W16 test identity on Nov 1; under the gate's later rule that counts as a development pass, not a
+    privacy pass.) The profile the app runs (W16R2) is not a family the gate knows, a
+    capture made on the GPU is refused until the two GPU source files have been read in full, and
+    both of those files have changed as well. A run for the app's profile on the GPU was listed as a
+    next step on Nov 10; I found no result for it on this page, among the results directories or in
+    the headers of the coordination file. What this means: the design is the same and the Lean
+    zero-knowledge proof exists for the R13 model, but there is today no evidence record of either
+    kind for the receipts the app actually makes. Bringing the gate to that profile means teaching
+    it the new layout, re-reading the 40 changed files and the two GPU files, and making new
+    captures; I have not estimated it and nobody has taken it. It is the last entry of item 9 in the
+    Lean list of Nov 25.
     **Nov 26, 03:54 UTC, hidden weights (the later version, study level) [formula-level estimate;
     the grouping rule read by me in the code; nothing run, nothing built]: hiding the weights would
     add about twice as much to a receipt as the earlier estimates said.** A receipt would have to
