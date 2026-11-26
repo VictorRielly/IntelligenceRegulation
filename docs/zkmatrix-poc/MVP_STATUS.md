@@ -801,6 +801,32 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 00:13 UTC, Lean, the chain merged on Nov 25 [independent read by an Opus agent on a
+    prioritised scope, with three compiles; its highest finding verified by me]: no serious gap
+    found; one limit added.** What was open on Nov 24 is closed by the reader's account: the
+    zero-knowledge assumption is now built and not assumed, the hash-query counts are proved about
+    the prover (through a program proved equal to it), all four parts speak of the same prover and
+    verifier, and the assumptions can be met together (checked by compiling an instance). The added
+    limit: the model takes three of the code's header checks as values the prover writes down, the
+    security-level floor (D27) as well as the two named on Nov 25, where the code computes them; the
+    Lean statement does not cover those three checks. The known difference at the block boundaries
+    stands: soundness carries over to the stricter real verifier, but that step, and completeness
+    against it, are not stated in Lean. Not read: three of the fifteen new files and most proof
+    bodies (the build checks those). All of this is for the R13 profile, not the installed one.
+    Record: `results/zk60_claude_review_20261116/L69_READ_20261126.md`.
+    **Nov 26, 00:13 UTC, the two Rust branches [independent code read by an Opus agent; its main
+    finding verified by me at the cited lines]: one finding holds the merge.** The new crash guard
+    also wraps the check server, the verifier, which the author's description did not say. It does
+    not change what the verifier accepts. But after an internal crash the check server would now
+    keep running and print a line without the request id and without the standard refusal line. I
+    asked the author to limit the guard to the prover for this merge; the gate is then run again.
+    Two behaviours need a decision: (1) on a Mac build, one recovered GPU error makes the
+    multi-block server (not the classifier the app uses) refuse every later request until restart;
+    (2) when the GPU returns a wrong value that the host catches, the prover now redoes the work on
+    the CPU instead of refusing, and nothing in the output records it. The proof is correct either
+    way. No problem was found in the recovery logic itself: transcript, tables, zero knowledge, and
+    the mode that requires the GPU still refuses. Record:
+    `results/zk60_claude_review_20261116/P23_CODE_READ_20261126.md`.
     **Nov 26, 00:07 UTC, receipt size, study level [COUNTED by formula from the code's hashing rules
     and the measured opening sizes; nothing run, nothing built]: one check of an 8B-shape request
     makes about 13.8 to 13.9 million hash calls.** This matters for one route of the size study,
