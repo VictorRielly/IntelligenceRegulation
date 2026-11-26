@@ -879,6 +879,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 07:55 UTC, receipt size, study level (D82) [read by the background researcher,
+    research tick 64; the paper's figures checked by me against its own text]: what another system's
+    measured hashing rate covers.** The estimate for the first layer of a wrapper proof (a proof
+    that checks our receipt, to make it small) borrows a rate from the paper Sable (arXiv
+    2611.14083v2). That rate, 2.4 microseconds a BLAKE3 compression for a block of 2^16 and 1.3 for
+    a block of 2^18, is a GPU time on one RTX PRO 6000 Blackwell for committing the block's trace,
+    its domain proofs and its openings [authors]. It leaves out that system's global evaluation
+    proof and its verifier's extension-field arithmetic, its zero-knowledge mode is not built, and
+    its 5.5 s and 12 s for a whole verifier are projections from the block rate, not runs [authors].
+    So the estimate for the wrapper's first layer at the size profile B6a stays where tick 62 put
+    it, 9 to 41 s a request [DERIVED; low end: the other system's GPU at its 2^18 block rate, high
+    end: this prover's measured time per committed word], with no measurement of such a layer on
+    this machine. The researcher's new low end of 6 s is not carried forward: it extends two rounded
+    data points 27 times past the larger one. Nothing is built and no rate or size figure changes.
+    Handoff with my dated correction:
+    `research/zkp-efficiency/handoffs/20261126-claude-tick64-sable-scope.md`.
     **Nov 26, 06:41 UTC, what the public repository holds [COUNTED by me from git and the files;
     nothing of the other agents' was changed or committed]: the app version this page describes, and
     51 record files this page cites, are on the project's machine only.** The last commit under the

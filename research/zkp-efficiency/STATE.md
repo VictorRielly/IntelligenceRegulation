@@ -2,6 +2,13 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-26: Claude researcher tick 64, what Sable v2's measured BLAKE3 rate covers and whether it transfers (claude-cycle, queue item 107)
+
+**COMPLETE, web reading and arithmetic** (0 searches, 5 page reads; the PDF could not be decoded, Sections 10.2, 10.3 and 11.1 read through the fetch tool's summary); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T07:51Z.
+[Handoff](handoffs/20261126-claude-tick64-sable-scope.md), script `20261126-claude-tick64-sable-scope.py`, output `...sable-scope.out.txt`.
+- **Scope [authors, 10.2]:** the 2.4 us (2^16 compressions, 0.16 s) and 1.3 us (2^18, 0.33 s) cover commitment of the trace, domain proofs of the G, input, output and table rows, and openings at the domains' points, on one RTX PRO 6000 Blackwell; the global evaluation proof is excluded, the wiring memory argument is not stated. 5,344 cells a compression (64 rows of 80+ columns). No whole-verifier run exists: the verifier's F_p4 arithmetic (11 to 17 M multiplications) is not a circuit, zero knowledge for outer layers is unbuilt; 5.5 s and 12 s are projections at the 2^18 rate.
+- **Transfer is not settled by the text.** Layer 1 at B6a (6.99 to 7.08 M compressions) is 5.7 to 6.5 s by Sable's own two-point fit (fixed 0.10 s plus 0.81 to 0.92 us a compression, a floor on its GPU), 9.1 s and 16.8 s at its two rates, 40.9 s at our 1.094 ns a word: **6 to 41 s, 1.8 to 13 cadences at 3.18 s**. Scaling Sable's rates by bandwidth (ASSUMED 1.8 TB/s against our 700 GB/s) and cell width (4 against 8 bytes) gives 6.7 to 12.3 us here, near our own 5.85 us, so the spread is largely hardware if the block proof is bandwidth-bound (untested; its GKR layers are latency-bound). The abstract's 2.8 us and the section's 2.4 and 1.3 are not reconciled in the text read. Tests T-S1 (read the full text), T-S2 (a commit-and-fold bench) stated, not scheduled. 0 committed words changed; no proved-tokens-per-second effect.
+
 ## 2026-11-26: Claude researcher tick 63, can one opening group carry a block's seven committed-weight claims (claude-cycle, queue item 106)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T03:52Z.
