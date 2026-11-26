@@ -1,0 +1,98 @@
+== inputs (sha256, bytes)
+api-documentation.html d5f579388214c2ee92f0f92f85f0dbd02444036677fb338f6b8b7311f49bb4b0 104565
+data_sources.html 7e6d624685ed914ed16b2f3f866095c5cce12ff5395b923c5639de6f09509340 24925
+aggregated-simple-2026-05-01-csv.zip 385aec6232bafa34f4e93c85e138338383ca42e90a209fddad471349f274bcbd 1198577
+
+== quoted sentences re-checked against the files
+FOUND | https://transparency.dsa.ec.europa.eu/page/api-documentation, "Content type (content_type)" | This is a required attribute, and it tells us what type of content is targeted by the statement of reason. The value provided must be an array with at least one of the following: CONTENT_TYPE_APP App CONTENT_TYPE_AUDIO Audio CONTENT_TYPE_IMAGE Image CONTENT_TYPE_PRODUCT Product CONTENT_TYPE_SYNTHETIC_MEDIA Synthetic media CONTENT_TYPE_TEXT Text CONTENT_TYPE_VIDEO Video CONTENT_TYPE_OTHER Other
+FOUND | same page, "Content type other (content_type_other)" | This is required if CONTENT_TYPE_OTHER was the content_type. It is a content type that is not part of provided content type list. Limited to 500 characters.
+FOUND | https://dsa.pages.code.europa.eu/transparency-database/dsa-tdb/data_sources.html, "Aggregated data" | All the array fields like content_type or decision_visibility are pivoted, that is, for each one of their possible values a new column is created and filled with a boolean, indicating whether the SoR has that value or not.
+FOUND | same page, "Versions", note under the limited version | The content_type field is pivoted and we also add the dsa_tdb.types.CONTENT_TYPE_OTHER_NORMALIZATION additional values. These values are meant to map recurring values found in the content_type_other field to standardized values.
+FOUND | same page, "Aggregated data" | The count of SoRs is reported in the count column.
+quotations found: 5 of 5
+
+== the file
+rows 92642; days 31 (2026-05-01 to 2026-05-31); statements 491248553; platform names 192 (none printed)
+flag columns: 13; the eight values of the submission schema present: True; further columns: CONTENT_TYPE_LINK, CONTENT_TYPE_ACCOUNT, CONTENT_TYPE_AD, CONTENT_TYPE_STICKER, CONTENT_TYPE_HASHTAG
+flag cells that are neither true nor false: 0
+
+== statements carrying each flag (COUNTED; one statement can carry several, so the shares add to over 100%)
+  CONTENT_TYPE_PRODUCT              354721683   72.21%  schema
+  CONTENT_TYPE_OTHER                 79127280   16.11%  schema
+  CONTENT_TYPE_ACCOUNT               36215080    7.37%  added by the aggregation
+  CONTENT_TYPE_LINK                  29663861    6.04%  added by the aggregation
+  CONTENT_TYPE_VIDEO                 25287854    5.15%  schema
+  CONTENT_TYPE_TEXT                  21338219    4.34%  schema
+  CONTENT_TYPE_IMAGE                  9068856    1.85%  schema
+  CONTENT_TYPE_AD                     8166385    1.66%  added by the aggregation
+  CONTENT_TYPE_SYNTHETIC_MEDIA        3316325    0.68%  schema
+  CONTENT_TYPE_AUDIO                   456886    0.09%  schema
+  CONTENT_TYPE_STICKER                 340816    0.07%  added by the aggregation
+  CONTENT_TYPE_HASHTAG                 186017    0.04%  added by the aggregation
+  CONTENT_TYPE_APP                     152605    0.03%  schema
+sum of the flag shares: 115.63%
+statements by number of flags set: 1: 414626581 (84.40%), 2: 76473947 (15.57%), 3: 124708 (0.03%), 4: 23317 (0.00%)
+statements with an added flag: 74572159 (15.18%); of those with CONTENT_TYPE_OTHER also set: 74572159
+
+== text (COUNTED)
+text flag set: 21338219 (4.34% of the month)
+text flag alone: 19314628 (3.93% of the month; 90.52% of text-flag statements)
+text flag with at least one other flag: 2023591 (0.41% of the month)
+no text flag: 469910334 (95.66% of the month)
+text-flag statements that also carry: IMAGE 2014941 (9.44%), OTHER 79632 (0.37%), VIDEO 38512 (0.18%), AUDIO 23560 (0.11%), ACCOUNT 3307 (0.02%), PRODUCT 423 (0.00%), SYNTHETIC_MEDIA 281 (0.00%)
+text-flag statements a day: mean over 31 days 688329; lowest day 571937; highest day 845645; days with none: 0
+
+== text-flag statements by the category the platform reported (COUNTED; the file's category column)
+  category                                                             text-flag    share   the category's share of ALL statements
+  STATEMENT_CATEGORY_OTHER_VIOLATION_TC                                  9365680   43.89%    80.91%
+  STATEMENT_CATEGORY_ILLEGAL_OR_HARMFUL_SPEECH                           4403451   20.64%     1.41%
+  STATEMENT_CATEGORY_SCAMS_AND_FRAUD                                     4308671   20.19%     2.98%
+  STATEMENT_CATEGORY_UNSAFE_AND_PROHIBITED_PRODUCTS                       834722    3.91%     9.36%
+  STATEMENT_CATEGORY_VIOLENCE                                             660654    3.10%     1.28%
+  STATEMENT_CATEGORY_CONSUMER_INFORMATION                                 655350    3.07%     0.54%
+  STATEMENT_CATEGORY_DATA_PROTECTION_AND_PRIVACY_VIOLATIONS               327915    1.54%     0.28%
+  STATEMENT_CATEGORY_CYBER_VIOLENCE                                       279601    1.31%     0.39%
+  STATEMENT_CATEGORY_INTELLECTUAL_PROPERTY_INFRINGEMENTS                  223264    1.05%     1.45%
+  STATEMENT_CATEGORY_PROTECTION_OF_MINORS                                 102561    0.48%     0.24%
+  STATEMENT_CATEGORY_NOT_SPECIFIED_NOTICE                                  83490    0.39%     0.02%
+  STATEMENT_CATEGORY_NEGATIVE_EFFECTS_ON_CIVIC_DISCOURSE_OR_ELECTIONS      49391    0.23%     0.28%
+  STATEMENT_CATEGORY_SELF_HARM                                             24411    0.11%     0.62%
+  STATEMENT_CATEGORY_ANIMAL_WELFARE                                        14238    0.07%     0.19%
+  STATEMENT_CATEGORY_RISK_FOR_PUBLIC_SECURITY                               4645    0.02%     0.05%
+  STATEMENT_CATEGORY_CYBER_VIOLENCE_AGAINST_WOMEN                            175    0.00%     0.00%
+categories in the file: 16; with a text-flag statement: 16
+categories listed under "Category (category)" on the API page: 16; every category of the file is among them: True; one with SEX or PORN in its name: False
+the four categories with SPEECH or VIOLENCE in their name together: 5343881 text-flag statements, 25.04% of text-flag statements, 172383 a day, 5.1 to 5.3 machines (DERIVED; a grouping by name only, not a validated mapping to the installed classifier's policies)
+
+== the ten largest flag combinations (COUNTED)
+  PRODUCT                                         354711650   72.21%
+  OTHER + ACCOUNT                                  36211773    7.37%
+  OTHER + LINK                                     29663861    6.04%
+  VIDEO                                            25219906    5.13%
+  TEXT                                             19314628    3.93%
+  OTHER + AD                                        8156867    1.66%
+  IMAGE                                             7024403    1.43%
+  OTHER                                             4478779    0.91%
+  SYNTHETIC_MEDIA                                   3316044    0.68%
+  IMAGE + TEXT                                      1904500    0.39%
+distinct combinations: 31
+
+== by volume class of the platform name (class = all statements / 31 days, as in A28)
+  under 1,000      names 124; with a text-flag statement  76; text-flag statements     147372 =  41.83% of the class,   0.69% of all text-flag statements
+  1,000 to 30,000  names  48; with a text-flag statement  32; text-flag statements    3029146 =  25.82% of the class,  14.20% of all text-flag statements
+  over 30,000      names  20; with a text-flag statement  14; text-flag statements   18161701 =   3.79% of the class,  85.11% of all text-flag statements
+names with at least one text-flag statement: 122 of 192
+
+== names by their TEXT-FLAG volume alone (mean a day over 31 days)
+  under 1,000      names  89; text-flag statements     195648 (0.92% of text-flag statements)
+  1,000 to 30,000  names  30; text-flag statements    5732962 (26.87% of text-flag statements)
+  over 30,000      names   3; text-flag statements   15409609 (72.22% of text-flag statements)
+largest name 44.40% of text-flag statements; top five 78.92%
+
+== against the machine rate of A25 (DERIVED; one request per statement, one chunk, one policy)
+text-flag statements a day 688330: 20.4 to 21.0 machines at 32805 to 33750 requests a day per machine
+text flag alone, a day 623053: 18.5 to 19.0 machines
+  names with a text-flag mean under 1,000      together 6311 a day: 0.19 to 0.19 machines
+  names with a text-flag mean 1,000 to 30,000  together 184934 a day: 5.48 to 5.64 machines
+  names with a text-flag mean over 30,000      together 497084 a day: 14.73 to 15.15 machines
+platform names printed: NONE

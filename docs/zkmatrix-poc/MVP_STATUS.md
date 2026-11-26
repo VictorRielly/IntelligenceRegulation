@@ -879,6 +879,26 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 14:25 UTC, product [COUNTED by me from the same public monthly file of the EU
+    transparency database (May 2026); the allowed values read from the database's API page; the
+    machine's rate MEASURED on Nov 22 and scaled to a day by arithmetic]: 4.3 percent of statements
+    of reasons concern text; at one request per statement that is the work of about 21 machines.**
+    Each statement names the type of content its decision targeted, from eight allowed values, and
+    may name several. In May 2026, 21,338,219 of 491,248,553 statements carried the text type (4.34
+    percent; 3.93 percent text alone), against 72.21 percent product listings, 16.11 percent "other"
+    (mostly accounts, links and ads), 5.15 percent video and 1.85 percent image. The installed
+    classifier reads text only, so it could cover at most that 4.34 percent: about 688,000
+    statements a day, or 20.4 to 21.0 machines at 32,805 to 33,750 requests a day per machine. 122
+    of the 192 platform names filed text-type statements; 119 of them each filed fewer a day than
+    one machine proves, and the other 3 filed 72 percent of the text-type total. The database's 16
+    categories do not line up with the app's three policies (sexual, violence, hate): the four
+    categories with "speech" or "violence" in their name hold 25 percent of the text-type statements
+    (a grouping by name, not a validated mapping), and 44 percent sit under "other violation of
+    terms and conditions". Limits: one month, May, with self-reported types; a statement is a filed
+    decision, not an item screened; three policies per statement would triple the machine count; the
+    length of the text is not in the file, and a longer text needs several chunks; the installed
+    profile is "Public content only; privacy not claimed". No platform is named and no target is
+    recommended. Handoff: `research/applications/handoffs/20261126-apps-text-share.md`.
     **Nov 26, 14:20 UTC, product [COUNTED by the applications researcher from one public monthly
     file of the EU transparency database; recounted by me with a second parser and compared with the
     website's daily table; the machine's rate MEASURED on Nov 22 and scaled to a day by arithmetic]:
