@@ -34,7 +34,7 @@ from .store import Store, loads
 log = logging.getLogger("proven_media.jobs")
 # Includes preparation, proving and the three native checks; shared-machine wait is extra.
 PER_JOB_S = 700.0 if config.prover_mode() == 'shieldstral' else 150.0
-if config.prover_mode() == 'shieldstral-fast':
+if config.prover_mode() in ('shieldstral-fast', 'shieldstral-fast-w16r2'):
     # [A24] measured on the M3 Ultra: about 40 s per category job with three at once, so about
     # 15 s of queue time per job (results/zk60_a24_app_20261107/README.md); shared-machine wait extra
     PER_JOB_S = 15.0
@@ -157,10 +157,17 @@ class Worker(threading.Thread):
 
     # ------------------------------------------------------------ one step of the queue
     def tick(self) -> None:
+        with self.store.lock:
+            self._tick_locked()
+
+    def _tick_locked(self) -> None:
+        from .post_lifecycle import resume_deletions, retry_publications
         try:
             self.publisher.tick()          # close an anchor batch when due (10 min or 1,000 leaves)
         except Exception:
             log.error("batcher failed:\n%s", traceback.format_exc())
+        resume_deletions(self.store, self.publisher)
+        retry_publications(self)
         if getattr(self.prover, "max_running", 1) > 1:
             return self._tick_concurrent(int(self.prover.max_running))
         running = self.store.q("SELECT * FROM jobs WHERE status='running' ORDER BY id")
@@ -202,6 +209,13 @@ class Worker(threading.Thread):
 
     def start_job(self, j: dict) -> None:
         post = self.store.post(j["post_id"])
+        current = self.store.one("SELECT status FROM jobs WHERE id=?", (j['id'],))
+        if not current or current['status'] != 'queued':
+            return
+        if not post or post['status'] in ('deleting', 'deleted'):
+            self.store.update_job(j['id'], status='failed', finished_at=records.now_iso(),
+                                  error='The post is no longer available.')
+            return
         ci = int(j.get("chunk") or 0)
         try:
             plan = chunks_of(post)
@@ -239,12 +253,18 @@ class Worker(threading.Thread):
                           json.dumps({"proof_valid": False, "chunk": ci, "details": {"message": user_message, "detail": detail}})))
 
     def _set_chunk(self, pid: str, ci: int, status: str, rec: dict | None, error: str | None, attempted: bool) -> None:
-        self.store.x("DELETE FROM chunk_proofs WHERE post_id=? AND chunk=?", (pid, ci))
-        self.store.x("INSERT INTO chunk_proofs(post_id,chunk,status,record,error,attempted,finished_at) VALUES(?,?,?,?,?,?,?)",
+        self.store.x("INSERT OR REPLACE INTO chunk_proofs(post_id,chunk,status,record,error,attempted,finished_at) VALUES(?,?,?,?,?,?,?)",
                      (pid, ci, status, json.dumps(rec) if rec else None, error, int(attempted), records.now_iso()))
 
     def finish(self, j: dict) -> None:
         post = self.store.post(j["post_id"])
+        current = self.store.one("SELECT status FROM jobs WHERE id=?", (j['id'],))
+        if not current or current['status'] != 'running':
+            return
+        if not post or post['status'] in ('deleting', 'deleted'):
+            self.store.update_job(j['id'], status='failed', finished_at=records.now_iso(),
+                                  error='The post is no longer available.')
+            return
         d = Path(j["job_dir"])
         ci = int(j.get("chunk") or 0)
         try:
@@ -309,7 +329,16 @@ class Worker(threading.Thread):
         self.finalize(pid)
 
     def finalize(self, pid: str, note: str | None = None) -> None:
+        with self.store.lock:
+            self._finalize_locked(pid, note)
+
+    def _finalize_locked(self, pid: str, note: str | None = None) -> None:
+        from .post_lifecycle import publication_failed, publication_due
         post = self.store.post(pid)
+        if not post or post["status"] in ("deleting", "deleted"):
+            return
+        if not publication_due(self.store, pid):
+            return
         plan = chunks_of(post)
         rows = {r["chunk"]: r for r in self.store.q("SELECT * FROM chunk_proofs WHERE post_id=?", (pid,))}
         chunk_recs, chunk_items, errors = [], [], []
@@ -368,6 +397,11 @@ class Worker(threading.Thread):
                     pubs[key] = PubInfo(man["model_id"], man["profile_id"], man["statement_sha256"])
                 except Exception as e:     # the proofs stand; publication can be retried
                     log.error("publish failed for %s %s: %r", pid, key, e)
+        required = {f"c{ch['index']}.{category}" for ch in plan
+                    for category in proof_plans.categories_for(ch)}
+        if accepted and (set(anchors) != required or set(pubs) != required):
+            publication_failed(self.store, pid)
+            return
         first = next((r for r in chunk_recs if r), None)
         d = config.deploy()
         chunking = {"profile": d["profile"], "chunk_tokens": d["effective_chunk_tokens"],
@@ -399,13 +433,20 @@ class Worker(threading.Thread):
         man = manifest.build_manifest(post, item, anchors, pubs, commitment, failure=note or failure)
         eff = {c: v["value"] for c, v in agg.items()}
         attempted = any(r["attempted"] for r in rows.values()) if rows else False
-        self.store.update_post(pid, status="published" if accepted else "failed", record=json.dumps(item), labels=json.dumps(eff),
-                               manifest=json.dumps(man), prover_kind=item["prover"].get("kind"),
-                               published_at=(post.get("published_at") or records.now_iso()) if accepted else post.get('published_at'),
-                               status_message=(note or failure or "") if accepted else
-                                   'Could not be verified. ' + (note or failure or 'An accepted proof is required.'),
-                               prove_attempted=int(attempted),
-                               anchor_ref=",".join(a.leaf_hash[:12] for a in anchors.values())[:500])
+        self.store.db.execute('BEGIN IMMEDIATE')
+        try:
+            self.store.update_post(pid, status="published" if accepted else "failed", record=json.dumps(item), labels=json.dumps(eff),
+                                   manifest=json.dumps(man), prover_kind=item["prover"].get("kind"),
+                                   published_at=(post.get("published_at") or records.now_iso()) if accepted else post.get('published_at'),
+                                   status_message=(note or failure or "") if accepted else
+                                       'Could not be verified. ' + (note or failure or 'An accepted proof is required.'),
+                                   prove_attempted=int(attempted),
+                                   anchor_ref=",".join(a.leaf_hash[:12] for a in anchors.values())[:500])
+            self.store.x("DELETE FROM post_publications WHERE post_id=?", (pid,))
+            self.store.db.execute('COMMIT')
+        except BaseException:
+            self.store.db.execute('ROLLBACK')
+            raise
 
 
 # ---------------------------------------------------------------- queue status for the UI

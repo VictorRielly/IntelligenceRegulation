@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 
 APP_DIR = Path(__file__).resolve().parents[1]
-REPO = APP_DIR.parents[1]
+REPO = Path(os.environ.get('PM_REPO_ROOT', str(APP_DIR.parents[1]))).resolve()
 STATIC_DIR = APP_DIR / "static"
 TOOLS_DIR = APP_DIR / "tools"
 POLICY_DIR = APP_DIR / "policy"
@@ -79,6 +79,7 @@ TAU = 0.5                             # Mistral's flag threshold on softmax(z_ye
 # (results/zk60_shieldstral_prep_20261021/); a new text is a new registered id, never an edit. The app
 # refuses to start if a file differs from its pinned digest.
 CATEGORY_SET_ID = "pm-cats-v0"
+W16R2_CATEGORY_SET_ID = 'shieldstral-moderate-w16r2-public-dev-v1'
 CATEGORIES = [
     {"id": "sexual", "name": "Sexual / explicit content", "short": "explicit", "policy_id": "pm-cat-sexual-v0",
      "file": POLICY_DIR / "pm-cat-sexual-v0.txt",
@@ -113,7 +114,7 @@ def prover_mode() -> str:
 
 def is_shieldstral_mode(mode: str | None = None) -> bool:
     """the real Shieldstral classifier modes (reviewed r16b, or the A24 candidate)"""
-    return (mode or prover_mode()) in ('shieldstral', 'shieldstral-fast')
+    return (mode or prover_mode()) in ('shieldstral', 'shieldstral-fast', 'shieldstral-fast-w16r2')
 
 
 def registered_categories():
@@ -124,6 +125,8 @@ def registered_categories():
 
 
 def category_set_id():
+    if prover_mode() == 'shieldstral-fast-w16r2':
+        return W16R2_CATEGORY_SET_ID
     if prover_mode() == 'shieldstral-fast':
         # the same registered policies (D61); a separate screening context, so a post screened
         # in one mode is never finalized by the other
@@ -148,9 +151,11 @@ def deploy() -> dict:
         chunk = min(t.chunk_size for t in ts)
         overlap = ts[0].overlap
         maximum = min(t.chunk_size + (t.max_chunks - 1) * (t.chunk_size - t.overlap) for t in ts)
-        fast = prover_mode() == 'shieldstral-fast'
-        return {'profile': 'shieldstral-t128-fast' if fast else 'shieldstral-t128',
-                'label': 'Shieldstral T128, resident GPU servers (A24 development candidate)' if fast
+        w16r2 = prover_mode() == 'shieldstral-fast-w16r2'
+        fast = prover_mode() in ('shieldstral-fast', 'shieldstral-fast-w16r2')
+        return {'profile': 'shieldstral-t128-w16r2-public-dev' if w16r2 else 'shieldstral-t128-fast' if fast else 'shieldstral-t128',
+                'label': 'Shieldstral W16R2, public content only (development candidate)' if w16r2 else
+                         'Shieldstral T128, resident GPU servers (A24 development candidate)' if fast
                          else 'Shieldstral T128 testnet demo',
                 'note': 'Registered moderate templates; each category has its own chunk plan.',
                 'chunk_tokens': chunk, 'overlap_tokens': overlap, 'max_chunks': min(t.max_chunks for t in ts),

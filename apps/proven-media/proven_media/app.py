@@ -13,13 +13,12 @@ import logging
 import os
 import re
 import secrets
-import tarfile
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from . import auth, config, items, manifest, prompting, provers, records
@@ -27,6 +26,7 @@ from .jobs import PER_JOB_S, Worker, chunks_of, item_progress, queue_view
 from .publisher import AnchorRef, LocalChainPublisher, PublishError, content_commitment, make_publisher
 from .store import Store, loads
 from .storage_policy import validate_storage
+from .tar_download import tar_download
 
 log = logging.getLogger("proven_media")
 HANDLE_RE = re.compile(r"^@?[A-Za-z0-9_]{1,24}$")
@@ -38,12 +38,43 @@ class State:
     prover: provers.ClassifierProver
     publisher: LocalChainPublisher
     worker: Worker | None = None
+    instance_lock = None
 
 
 S = State()
 
 
 def init_state(start_worker: bool = True) -> None:
+    from .app_instance import AppInstanceLock
+    if S.instance_lock is not None:
+        raise provers.ProverError("This app instance is already initialized.")
+    validate_storage()
+    provers.ensure_private_roots()
+    S.instance_lock = AppInstanceLock(config.PRIVATE_DIR)
+    try:
+        _init_state_locked(start_worker)
+    except BaseException:
+        close_state()
+        raise
+
+
+def close_state() -> None:
+    if S.worker is not None:
+        S.worker.stop()
+        if S.worker.is_alive():
+            S.worker.join(timeout=30)
+            if S.worker.is_alive():
+                raise RuntimeError("The queue has not stopped; retain its app instance lock.")
+        S.worker = None
+    if hasattr(S, 'store'):
+        S.store.db.close()
+        del S.store
+    if S.instance_lock is not None:
+        S.instance_lock.close()
+        S.instance_lock = None
+
+
+def _init_state_locked(start_worker: bool = True) -> None:
     validate_storage()         # fail before creating a database, key, or worker
     records.categories()      # refuses to start if a registered category policy text changed (design rule 2)
     provers.ensure_private_roots()
@@ -54,6 +85,8 @@ def init_state(start_worker: bool = True) -> None:
     S.prover = provers.make_prover()
     S.publisher = make_publisher()
     w = Worker(S.store, S.prover, S.publisher)
+    from .post_lifecycle import resume_deletions
+    resume_deletions(S.store, S.publisher)
     migrated = w.migrate_legacy()
     if migrated:
         log.info("re-filed %d pre-chunk post(s) as chunk 0: %s", len(migrated), ", ".join(migrated))
@@ -65,9 +98,10 @@ def init_state(start_worker: bool = True) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_state(start_worker=os.environ.get("PM_NO_WORKER") != "1")
-    yield
-    if S.worker:
-        S.worker.stop()
+    try:
+        yield
+    finally:
+        close_state()
 
 
 app = FastAPI(title="Proven Media", lifespan=lifespan)
@@ -270,14 +304,15 @@ def post_view(p: dict, show_text: bool, audience: dict | None = None) -> dict:
     return v
 
 
-def public_record(p: dict) -> dict | None:
+def public_record(p: dict, *, stored=None) -> dict | None:
     """the item record (D41: per-chunk proof records inside) plus how to verify each chunk offline"""
-    rec = loads(p["record"])
+    rec = loads(p["record"]) if stored is None else stored
     if not rec:
         return None
     def without_operational_fields(value):
         if isinstance(value, dict):
-            return {k: without_operational_fields(v) for k, v in value.items() if k not in ("timings", "proved_at")}
+            return {k: without_operational_fields(v) for k, v in value.items()
+                    if k not in ("timings", "proved_at", "run_dir")}
         if isinstance(value, list):
             return [without_operational_fields(v) for v in value]
         return value
@@ -514,6 +549,9 @@ def publication_view(p: dict) -> dict | None:
     pending = any(a.status == "pending" for a in anchors.values())
     out = {"anchors": {c: a.to_dict() for c, a in anchors.items()},
            "next_batch_in_s": S.publisher.next_batch_in() if pending else None, "batch_secs": S.publisher.batch_secs}
+    if S.publisher.name == LocalChainPublisher.name and not pending and p.get("manifest"):
+        signed = loads(p["manifest"])
+        out["verification_store_available"] = signed.get("category_set", {}).get("id") == config.W16R2_CATEGORY_SET_ID
     salt = records.salt_of(p["id"], p["salt_enc"])
     if salt is not None and p["text"] is not None:
         out["salt"] = salt.hex()
@@ -569,45 +607,26 @@ def api_delete(pid: str, req: Request):
     """Erase content, salt, receipts and openings. The private D45 reservation
     remains to refuse another screening; it is not an opening of the commitment."""
     session = require_session(req)
-    p = S.store.post(pid)
-    if not p or session.author != p["author"]:
-        raise HTTPException(404, "no such post")
-    if p["status"] in ("queued", "screening"):
-        raise HTTPException(409, "the post is being screened; delete it when the screening has finished")
-    removed = 0
-    for a in S.publisher.anchors_of(pid).values():
+    from .post_lifecycle import request_deletion, DeleteBlocked
+    with S.store.lock:
+        p = S.store.post(pid)
+        if not p or session.author != p["author"]:
+            raise HTTPException(404, "no such post")
         try:
-            removed += S.publisher.delete_receipt(a)
-        except (PublishError, FileNotFoundError):
-            pass
-    rec = loads(p["record"]) or {}
-    for c in rec.get("chunks", []):
-        crec = c.get("record") or {}
-        run = crec.get("receipt", {}).get("run_dir")
-        if run and Path(run).is_dir():
-            for seg in crec["receipt"].get("files", []):
-                f = Path(run) / seg["file"]
-                if f.exists():
-                    f.unlink()
-                    removed += 1
-    jd = config.JOBS_DIR / pid
-    if jd.is_dir():
-        import shutil
-        shutil.rmtree(jd)
-    if p["media_name"]:
-        (config.MEDIA_DIR / p["media_name"]).unlink(missing_ok=True)
-        (config.MEDIA_DIR / f"{pid}-canvas.png").unlink(missing_ok=True)
-        for t in (config.MEDIA_DIR / "thumbs").glob(f"{pid}-*"):
-            t.unlink()
-    S.store.update_post(pid, status="deleted", text=None, salt_enc=None, content_key=None, media_name=None,
-                        status_message="Deleted by the author: content, salt and receipt erased. The anchored leaf "
-                                       "remains; a private reservation prevents screening the item again.")
+            request_deletion(S.store, S.publisher, pid)
+        except DeleteBlocked as exc:
+            raise HTTPException(409, str(exc)) from exc
     return {"deleted": True}
 
 
 @app.post("/api/posts/{pid}/verify")
 def api_verify(pid: str, req: Request):
-    """re-verify every chunk's stored proof in a fresh process (one guarded job per chunk); never re-proves"""
+    with S.store.lock:
+        return _api_verify_locked(pid, req)
+
+
+def _api_verify_locked(pid: str, req: Request):
+    """Queue a guarded verifier and input check for each stored chunk."""
     session = require_session(req)
     p = S.store.post(pid)
     if not p or (session.author != p["author"] and not session.operator):
@@ -631,34 +650,40 @@ def api_record(pid: str):
                     headers={"Content-Disposition": f'attachment; filename="proven-media-{pid}-record.json"'})
 
 
-def _tar_member(name: str, size: int, mtime: int) -> bytes:
-    ti = tarfile.TarInfo(name)
-    ti.size, ti.mtime, ti.mode = size, mtime, 0o644
-    return ti.tobuf(format=tarfile.USTAR_FORMAT)
-
-
 @app.get("/api/posts/{pid}/bundle.tar")
 def api_bundle(pid: str):
     p = S.store.post(pid)
-    rec = public_record(p) if p and p["status"] == "published" else None
+    stored = loads(p["record"]) if p and p["status"] == "published" else None
+    rec = public_record(p, stored=stored) if stored else None
     chunk_runs = [(c["index"], Path(c["record"]["receipt"]["run_dir"]), c["record"])
-                  for c in (rec or {}).get("chunks", []) if c.get("record") and c["record"]["receipt"].get("run_dir")]
+                  for c in (stored or {}).get("chunks", []) if c.get("record") and c["record"]["receipt"].get("run_dir")]
     if not chunk_runs:
         raise HTTPException(404, "no published proof bundle")
     root = f"proven-media-{pid}"
     vw = rec["verify_with"]
-    if any(crec.get('prover', {}).get('kind') in ('shieldstral', 'shieldstral-fast') for _, _, crec in chunk_runs):
+    kinds = {crec.get('prover', {}).get('kind') for _, _, crec in chunk_runs}
+    if kinds.intersection({'shieldstral', 'shieldstral-fast', 'shieldstral-fast-w16r2'}):
         instructions = []
         for ci, _, crec in chunk_runs:
             check = provers.verify_instructions(crec)
             command = check['command'].replace('<run>', f'{root}/chunk-{ci}/run')
             category = crec['chunk']['category']
             instructions.append(f"Chunk {ci}, category {category}:\n\n    {command}\n")
+        scope = vw.get('privacy_statement', {}).get('status') or 'Privacy statement pending'
+        setup = ''
+        if 'shieldstral-fast-w16r2' in kinds:
+            setup = ("For W16R2 on an Apple Silicon Mac, set PM_W16R2_VERIFIER_KIT to the absolute path of the "
+                     "received kit. From a trusted copy of the app directory, authenticate its files before using them. "
+                     "Check that the reported binary SHA-256 matches the verifier recorded above.\n\n"
+                     '    export PM_W16R2_VERIFIER_KIT="/path/to/received kit"\n'
+                     '    python tools/prepare_w16r2_verifier.py --check "$PM_W16R2_VERIFIER_KIT"\n\n')
+        if kinds.intersection({'shieldstral', 'shieldstral-fast'}):
+            setup += "Replace <public-export> with the public export directory.\n\n"
         readme = (f"# Proven Media proof bundle {pid}\n\n"
                   "Shieldstral-1.0-3B text classifier proofs for the three registered moderate policies.\n"
-                  "The category verdicts are bound by their proofs. Privacy statement pending.\n\n"
-                  f"Use {vw.get('binary')} and {vw.get('public_model_files')}.\n"
-                  "Replace <public-export> with the public export directory. Verify every chunk with its own policy.\n"
+                  f"The category verdicts are bound by their proofs. {scope}.\n\n"
+                  f"Use {vw.get('binary')} and {vw.get('public_model_files')}.\n\n{setup}"
+                  "From the directory containing the unpacked bundle, verify every chunk with its own policy.\n"
                   "Each command must exit 0 with a classified event matching that chunk's recorded verdict.\n\n"
                   + '\n'.join(instructions)
                   + "\nThese commands check individual proofs. The whole-post category label also requires complete "
@@ -694,25 +719,25 @@ def api_bundle(pid: str):
             if rel == "statement/segments.json" and not f.exists():
                 continue  # Classifier receipts keep their inventory in the app record.
             members.append((f"{root}/chunk-{ci}/run/{rel}", f, f.stat().st_size))
-    mtime = int(time.time())
-    total = sum(512 + -(-n // 512) * 512 for _, _, n in members) + 1024
+    return tar_download(root, members)
 
-    def gen():
-        for name, src, n in members:
-            yield _tar_member(name, n, mtime)
-            if isinstance(src, bytes):
-                yield src
-            else:
-                with open(src, "rb") as fh:
-                    for blk in iter(lambda: fh.read(1 << 20), b""):
-                        yield blk
-            if n % 512:
-                yield b"\0" * (512 - n % 512)
-        yield b"\0" * 1024
 
-    return StreamingResponse(gen(), media_type="application/x-tar",
-                             headers={"Content-Disposition": f'attachment; filename="{root}.tar"',
-                                      "Content-Length": str(total)})
+@app.head("/api/posts/{pid}/verification-store.tar", include_in_schema=False)
+@app.get("/api/posts/{pid}/verification-store.tar")
+def api_verification_store(pid: str, req: Request):
+    from .public_store_download import store_members
+    post = S.store.post(pid)
+    if not post or post['status'] != 'published' or not post['manifest'] or S.publisher.name != LocalChainPublisher.name:
+        raise HTTPException(404, 'No local verification store for this post.')
+    signed = loads(post['manifest'])
+    if signed.get('category_set', {}).get('id') != config.W16R2_CATEGORY_SET_ID:
+        raise HTTPException(404, 'No W16R2 verification store for this post.')
+    try:
+        members = store_members(S.publisher, pid, signed)
+    except (PublishError, provers.ProverError, OSError, ValueError, TypeError, KeyError) as exc:
+        log.info('Public verification store unavailable for %s: %s', pid, type(exc).__name__)
+        raise HTTPException(409, 'The complete anchored verification store is unavailable.') from exc
+    return tar_download(f'proven-media-{pid}-verification-store', members, store_request=req)
 
 
 @app.get("/api/queue")

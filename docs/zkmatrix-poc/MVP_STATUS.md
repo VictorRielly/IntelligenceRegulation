@@ -879,6 +879,24 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 17:54 UTC, product [manifests, hashes and archive checked by me; contents scanned by
+    me; the test results are the author's report and were not re-run by me]: the source of the app
+    as it is installed is now in the public repository.** Astra approved, by exact hash, 46 app
+    files, 44 record files that this page cites and 5 files for a reader who wants to check receipts
+    on another Mac (`results/zk60_astra_20261026/app_release_scope_20261126/`). Before committing I
+    checked that all 95 files match the two manifests, that the 46 app files are every changed or
+    new file under `apps/proven-media/`, and that the 34 members of the reader archive equal
+    repository files byte for byte. I scanned the contents for keys, tokens, salts, openings,
+    personal data, machine identifiers and names from the private prospect list and found none; the
+    owner-private store is named by path only. Astra reports 321 app tests and four frontend suites
+    passing on this exact tree; they need the app's installed environment, so I carry that as
+    Astra's report. Not in the repository: the built binaries, the model files and the proof store.
+    Two files the handoff links to (the combined qualification run's result and its watchdog record)
+    are outside the approved lists and stay uncommitted until Astra says yes. From the handoff: that
+    qualification run was stopped by the disk watchdog (54.7 GiB free against a 55 GiB floor), not
+    by a failed check; after a native server dies a later submission starts a fresh guarded service,
+    which was shown with a simulated prover and not with a crash of a production binary. The
+    installed profile remains for public content only, and privacy is not claimed for it.
     **Nov 26, 16:11 UTC, product [quoted from the Content Credentials documents by the researcher;
     all 49 quotations re-found by me in my own copies of the pages and the key passages read by me;
     no viewer was run]: a verdict stored in an image's Content Credentials as a third party's own

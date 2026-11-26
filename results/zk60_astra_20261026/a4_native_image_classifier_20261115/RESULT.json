@@ -1,0 +1,150 @@
+{
+  "schema": "astra-native-image-classifier/1",
+  "at": "2026-11-15T17:52:40.236572+00:00",
+  "passed": true,
+  "original_successful_tool_session": null,
+  "terminal_exit": 0,
+  "source_pins": 62,
+  "full_trained_cases": 3,
+  "norm_variants": 2,
+  "native_head_comparisons": 6,
+  "unit_tests": 12,
+  "alteration_controls": 228,
+  "reference_words_matched": 55338,
+  "selected_row": 148,
+  "prior_decoder_layers": 26,
+  "exact_native_final_row_carry": true,
+  "integer_margin_and_strict_decision_match": true,
+  "retained_historical_head_matches": 4,
+  "prior_decoder_result_sha256": "eec933935d5f69c4c6055eab8818033bfc25bf000619fa4ba8db864de9b2508a",
+  "prior_decoder_package_sha256": "9dcb1a03f5a639a045401c1adf8231287aeeb5e9d63cc67ed67a64d0d2fc2cf1",
+  "combined_peak_upper_bound_bytes": 78987264,
+  "cases": [
+    {
+      "case": "black",
+      "arm": "refusal_free",
+      "argv": [
+        "/private/tmp/astra-a4-native-image-classifier-20261115/check",
+        "black.refusal_free",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/black.refusal_free.txt",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/black.refusal_free.native-norm"
+      ],
+      "exit": 0,
+      "seconds": 0.4314250409952365,
+      "matched_words": 9223,
+      "controls": 38,
+      "margin_int": -5872972,
+      "flagged": false,
+      "output_sha256": "ed314a653abfc58d7a2d7984418941cf66fdca7e370e4c02d3886c722fdc3fc2",
+      "stdout_sha256": "20d3f02aca54108b0137a63fc80dec89f26d9a66c81edf3f7f611b460948911e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "black",
+      "arm": "calibrated",
+      "argv": [
+        "/private/tmp/astra-a4-native-image-classifier-20261115/check",
+        "black.calibrated",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/black.calibrated.txt",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/black.calibrated.native-norm"
+      ],
+      "exit": 0,
+      "seconds": 0.025550124992150813,
+      "matched_words": 9223,
+      "controls": 38,
+      "margin_int": -40686770,
+      "flagged": false,
+      "output_sha256": "c3db45b2252951b795e3b8832cd026194f51cfbad6ef10fa0613bad409c58754",
+      "stdout_sha256": "9b9ed77bfa5d6ec240e0ac622f9ba2ee4a472bb37ae4d3b4e90a243add91c50f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "white",
+      "arm": "refusal_free",
+      "argv": [
+        "/private/tmp/astra-a4-native-image-classifier-20261115/check",
+        "white.refusal_free",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/white.refusal_free.txt",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/white.refusal_free.native-norm"
+      ],
+      "exit": 0,
+      "seconds": 0.024226290988735855,
+      "matched_words": 9223,
+      "controls": 38,
+      "margin_int": -7864891,
+      "flagged": false,
+      "output_sha256": "cf010395904bac412cc533e944c04dce02dc12c1a30b195e002b58f136e86c6b",
+      "stdout_sha256": "4512be93e0cabe8d9a8bf8b86f3d4749f4a7615ea2f85c2807c1681f946362c2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "white",
+      "arm": "calibrated",
+      "argv": [
+        "/private/tmp/astra-a4-native-image-classifier-20261115/check",
+        "white.calibrated",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/white.calibrated.txt",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/white.calibrated.native-norm"
+      ],
+      "exit": 0,
+      "seconds": 0.012271834013517946,
+      "matched_words": 9223,
+      "controls": 38,
+      "margin_int": -53489024,
+      "flagged": false,
+      "output_sha256": "9c7fb8f4f7deccea386bc6194ace2f8833bc08b973889834d545dd12de6dd7e3",
+      "stdout_sha256": "57c6c8cb4a59543b9ec40f3b19b5e7b626adca98e4391c6f2218a9d55cadca6f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "coordinates",
+      "arm": "refusal_free",
+      "argv": [
+        "/private/tmp/astra-a4-native-image-classifier-20261115/check",
+        "coordinates.refusal_free",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/coordinates.refusal_free.txt",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/coordinates.refusal_free.native-norm"
+      ],
+      "exit": 0,
+      "seconds": 0.01207520900061354,
+      "matched_words": 9223,
+      "controls": 38,
+      "margin_int": -6394598,
+      "flagged": false,
+      "output_sha256": "246268ee28433322722c98759f95766e77e66f8ccb811ba07bff163edd89eabc",
+      "stdout_sha256": "3bd371aec3ddbcea989374380df7c47053b094e2a45514cf8bd7f3cd3d14cad6",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "coordinates",
+      "arm": "calibrated",
+      "argv": [
+        "/private/tmp/astra-a4-native-image-classifier-20261115/check",
+        "coordinates.calibrated",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/coordinates.calibrated.txt",
+        "/private/tmp/astra-a4-native-image-classifier-20261115/fixtures/coordinates.calibrated.native-norm"
+      ],
+      "exit": 0,
+      "seconds": 0.011951708002015948,
+      "matched_words": 9223,
+      "controls": 38,
+      "margin_int": -43741760,
+      "flagged": false,
+      "output_sha256": "35f1e35a166de59551d7578b9b4af988782617f2ab742a0315dd3581ab651bbe",
+      "stdout_sha256": "c159780a12c3016e3c193b28c9ae205fd3c3fe158bfd13c1badcdb33681a985f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "test_binary": {
+    "path": "/private/tmp/astra-a4-native-image-classifier-20261115/check",
+    "sha256": "9ad228aaf4e26602e7578c4fd3269f34b89c3933352ad7a7c7354fb5c6133a95"
+  },
+  "full_vocabulary_generated": false,
+  "committed_classifier_proof": false,
+  "complete_image_proof": false,
+  "task_quality_qualified": false,
+  "installed": false,
+  "production_or_privacy_acceptance": false,
+  "arrays_in_repository": false,
+  "additional_host_approval_requests": 0
+}

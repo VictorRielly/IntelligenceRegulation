@@ -98,6 +98,30 @@ class TestIntegerImages(unittest.TestCase):
         with self.assertRaises(items.ImageRefused):
             items.canonical_tensor(Image.new("RGB", (14, 14)))
 
+    def test_master_contains_only_oriented_rgb_pixels(self):
+        from PIL import Image, PngImagePlugin
+        image = Image.frombytes("RGB", (2, 1), bytes([255, 0, 0, 0, 0, 255]))
+        tags = Image.Exif()
+        tags[274] = 6
+        tags[315] = "synthetic author"
+        text = PngImagePlugin.PngInfo()
+        text.add_text("Description", "synthetic note")
+        upload = io.BytesIO()
+        image.save(upload, "PNG", exif=tags, pnginfo=text, transparency=(255, 0, 0),
+                   icc_profile=b"synthetic profile payload")
+
+        master, width, height = items.lossless_master(upload.getvalue())
+        self.assertEqual((width, height), (1, 2))
+        with Image.open(io.BytesIO(master)) as decoded:
+            self.assertEqual(decoded.mode, "RGB")
+            self.assertEqual(decoded.tobytes(), bytes([255, 0, 0, 0, 0, 255]))
+            self.assertEqual(set(decoded.info), set())
+            self.assertFalse(decoded.getexif())
+
+        plain = io.BytesIO()
+        Image.frombytes("RGB", (1, 2), image.tobytes()).save(plain, "PNG")
+        self.assertEqual(master, plain.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

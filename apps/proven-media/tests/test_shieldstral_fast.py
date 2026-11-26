@@ -44,6 +44,8 @@ for line in sys.stdin:
     if not line.strip():
         continue
     req = json.loads(line)
+    if status == 'silent':
+        continue
     if req.get("log"):
         open(req["log"], "w").write(json.dumps({"event": "refused", "command": "simulated"}) + "\\n")
     print(json.dumps({"event": "served", "id": req["id"], "status": status, "seconds": 0.01}), flush=True)
@@ -386,6 +388,44 @@ class ServiceLifecycleTests(unittest.TestCase):
                 self.assertEqual(json.loads((root / 'heartbeat.json').read_text())['state'], 'stopped')
                 self.assertIs(self.prover.poll(job)['done'], True)
                 (root / 'STOP').unlink()
+
+    def test_next_submission_launches_a_fresh_service_after_prover_timeout(self):
+        item = TextItem('a calm afternoon in the garden')
+        chunk = self.prover.plan_text(item.text)[0]
+        job = config.JOBS_DIR / 'silent' / 'prove'
+        services = []
+        statuses = iter(('silent', 'refused'))
+
+        def launch(argv):
+            self.assertEqual(argv, fast_service.guard_command(fast.service_dir(), self.prover.runtime))
+            services.append(self.run_service(next(statuses)))
+
+        self.prover.launcher = launch
+        with patch.dict(fast.STEP_TIMEOUTS, prove=0.25):
+            self.prover.start('silent', item, job, chunk)
+            service, thread, root = services[0]
+            thread.join(30)
+        self.assertFalse(thread.is_alive())
+        self.assertFalse(service.prover.alive())
+        self.assertFalse(fast_service.service_live(root))
+        self.assertEqual((job / 'pipeline.done').read_text().strip(), '1')
+        self.assertIn('did not answer', json.loads((job / 'logs/error.json').read_text())['message'])
+        # The simulated launcher has no guard PID. Supply the guard's completion
+        # marker so ensure_running can observe that the previous launch ended.
+        (root / 'service.guard.done').write_text('1\n')
+        next_job = config.JOBS_DIR / 'next' / 'prove'
+        self.prover.start('next', item, next_job, chunk)
+        self.assertEqual(len(services), 2)
+        replacement, thread, root = services[1]
+        try:
+            deadline = time.monotonic() + 30
+            while not (next_job / 'pipeline.done').exists() and time.monotonic() < deadline:
+                time.sleep(0.1)
+            self.assertIn('refused', json.loads((next_job / 'logs/error.json').read_text())['message'])
+            self.assertNotEqual(service.run_id, replacement.run_id)
+        finally:
+            fast_service.stop(root)
+            thread.join(30)
 
 
 if __name__ == '__main__':

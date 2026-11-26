@@ -45,6 +45,8 @@ class Store:
         self.db.row_factory = sqlite3.Row
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.executescript(SCHEMA)
+        from .post_lifecycle import SCHEMA as LIFECYCLE_SCHEMA
+        self.db.executescript(LIFECYCLE_SCHEMA)
         cols = {r[1] for r in self.db.execute("PRAGMA table_info(posts)")}
         for col, typ in (("content_key", "TEXT"), ("salt_enc", "TEXT"), ("prove_attempted", "INTEGER"),
                          ("labels", "TEXT"), ("manifest", "TEXT"), ("chunks", "TEXT"),

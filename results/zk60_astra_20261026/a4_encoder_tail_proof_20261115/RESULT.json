@@ -1,0 +1,270 @@
+{
+  "schema": "astra-complete-first-encoder-proof/1",
+  "at": "2026-11-15T06:42:01.475233+00:00",
+  "passed": true,
+  "source_manifest_sha256": "fdac3b84be881a2e68f000c57b6144aa6d9c18337470e6897414b4602956fd4f",
+  "source_pins": 399,
+  "attempt": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_encoder_tail_proof_20261115/attempts/20261115T062240.270691Z",
+  "guards": [
+    {
+      "label": "astra-complete-encoder-check",
+      "peak_rss_gib": 1.66,
+      "child_wall_seconds": 16.56169819831848,
+      "enforcement": "watchdog-only"
+    },
+    {
+      "label": "astra-complete-encoder-build",
+      "peak_rss_gib": 5.31,
+      "child_wall_seconds": 91.73862385749817,
+      "enforcement": "watchdog-only"
+    },
+    {
+      "label": "astra-complete-encoder-unit",
+      "peak_rss_gib": 0.36,
+      "child_wall_seconds": 7.512096881866455,
+      "enforcement": "watchdog-only"
+    },
+    {
+      "label": "astra-complete-encoder-receipts",
+      "peak_rss_gib": 6.52,
+      "child_wall_seconds": 690.4766757488251,
+      "enforcement": "watchdog-only"
+    }
+  ],
+  "native_four_stage_proof": true,
+  "complete_first_encoder": true,
+  "all_encoder_layers": false,
+  "unit_tests": 26,
+  "full_trained_cases": 3,
+  "rescale_parameter_variants": 2,
+  "output_words_matched": 786432,
+  "intermediate_words_matched": 52694016,
+  "wire_statement_controls": 60,
+  "forged_receipts_rejected": 44,
+  "global_lookup_rejections": 25,
+  "frame_bytes": [
+    7358040,
+    11349192,
+    29546376,
+    35869064
+  ],
+  "total_receipt_bytes": 84122672,
+  "boundaries": [
+    {
+      "rows": 70,
+      "sites": 2,
+      "joint_openings": 1,
+      "scale": -11
+    },
+    {
+      "rows": 262,
+      "sites": 2,
+      "joint_openings": 1,
+      "scale": 0
+    },
+    {
+      "rows": 134,
+      "sites": 2,
+      "joint_openings": 1,
+      "scale": 0
+    }
+  ],
+  "tail_layout": {
+    "slots": 22,
+    "a_sites": 89,
+    "h_sites": 31,
+    "a_rows": 7801,
+    "h_rows": 7368,
+    "a_groups": 30,
+    "h_groups": 15
+  },
+  "test_binary": {
+    "path": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_encoder_tail_proof_20261115/target/release/deps/hashline-ce4919a9b065884f",
+    "sha256": "ba8408e220d3805bd32c240470aa31c20a42bd3e6ede21134b4d5da28367aa70"
+  },
+  "rejections": [
+    {
+      "case": "encoder-writes-other-X",
+      "reason": "image encoder norm/QKV slot 13 [QKV endpoint/padding or X carry]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "attention-reads-other-X",
+      "reason": "image full attention slot 00 [QKV input/padding or carry]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "attention-writes-other-X",
+      "reason": "image full attention slot 17 [token-major output and carry]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "tail-reads-other-X",
+      "reason": "image complete encoder tail slot 00 [OX input equality]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "tail-reads-other-O",
+      "reason": "image complete encoder tail slot 00 [OX input equality]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "input-X",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "AO-signed",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "AO-remainder",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "AO-complement",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "X1-signed",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "norm-positive",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "norm-negative",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "norm-rho",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "norm-sigma",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "gate-remainder",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "gate-complement",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "up-signed",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "up-remainder",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "up-complement",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "hidden-signed",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "hidden-remainder",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "hidden-complement",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "down-signed",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "down-remainder",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "down-complement",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "output-signed",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "output-remainder",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "output-complement",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "isqrt-limb",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "other-Wo",
+      "reason": "image complete encoder tail slot 03 [AO quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-Wg",
+      "reason": "image complete encoder tail slot 10 [gate I8 quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-Wu",
+      "reason": "image complete encoder tail slot 12 [up quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-Wd",
+      "reason": "image complete encoder tail slot 16 [down quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-gamma",
+      "reason": "image complete encoder tail slot 08 [N16 quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-cn",
+      "reason": "image complete encoder tail slot 08 [N16 quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-eps",
+      "reason": "image complete encoder tail slot 06 [norm isqrt]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-tn",
+      "reason": "image complete encoder tail slot 08 [N16 quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-SiLU-table",
+      "reason": "encoder-tail H: pcs zk: group 14: <v, c> != combined claim"
+    },
+    {
+      "case": "other-AO-shift",
+      "reason": "image complete encoder tail slot 03 [AO quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-gate-shift",
+      "reason": "image complete encoder tail slot 10 [gate I8 quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-up-shift",
+      "reason": "image complete encoder tail slot 12 [up quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-hidden-shift",
+      "reason": "image complete encoder tail slot 14 [hidden product/quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-down-shift",
+      "reason": "image complete encoder tail slot 16 [down quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "other-residual-shift",
+      "reason": "image complete encoder tail slot 17 [second residual/quotient/ranges]: sumcheck round 0: s(0) + s(1) != claim"
+    }
+  ],
+  "timing_scope": "shared-host functional diagnostics, not benchmark",
+  "source_isolated": true,
+  "legacy_entry_points_preserved": true,
+  "installed": false,
+  "complete_vision_pipeline": false,
+  "production_or_privacy_acceptance": false,
+  "raw_receipts_retained": false
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/w16r2-guest-source-12g.tar.gz",
+    "bytes": 103708,
+    "sha256": "df6f1ceead22165be82c2cbff456e6459ff9eb943539e7760d1d8377faac9d57"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/READER_SOURCE_12G.json",
+    "bytes": 609,
+    "sha256": "8ccea29e5e095fb352061433745504b7e23bd2e47509b629009a5dbf33972b1b"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/guest-20261125T073308.630547Z/RESULT.json",
+    "bytes": 2251,
+    "sha256": "d859dd16897b7e0e9fa453bbc1bd89cf5560287aaff2de1f41c4cce111cdf547"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/DOWNLOAD_RESUME.json",
+    "bytes": 584,
+    "sha256": "83e24e6fd5b37da43c65f7ee51d3baa3a5ec9c5c56b6d177bae9edc92660b774"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/REVIEW.md",
+    "bytes": 6948,
+    "sha256": "dbbbac38e10e59257917d3b86bb5bd650e6c49675181b80c564ba5f26865968d"
+  }
+]

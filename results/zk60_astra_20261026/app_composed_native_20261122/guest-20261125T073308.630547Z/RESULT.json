@@ -1,0 +1,82 @@
+{
+  "passed": true,
+  "source_pilot": "qualification-20261125T070919.014403Z",
+  "source_service_exit": 75,
+  "guest_source_sha256": "df6f1ceead22165be82c2cbff456e6459ff9eb943539e7760d1d8377faac9d57",
+  "kit": {
+    "accepted": true,
+    "scope": "w16r2_verifier_kit_files",
+    "files": 611,
+    "bytes": 11950596915,
+    "bytes_by_directory": {
+      "export": 4249132083,
+      "models": 7698241104,
+      "bin": 3223728
+    },
+    "binary_sha256": "58e59880780da69dd9fe963ad34fc46073f0e01bc02c82fdd3f732c6793548e7",
+    "profile_sha256": "9464388091d8095f8491f2990fde54e3b1f2b06f2a5c6ad1e72eff09cd4ce20a",
+    "checkpoint_sha256": "87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7"
+  },
+  "public_verification": {
+    "sexual": {
+      "accepted": true,
+      "report_sha256": "cb4a26281df3de9e03b4eceaaa1e6cd0b89f184f48e21b76f3f78af2f7057430"
+    },
+    "violence": {
+      "accepted": true,
+      "report_sha256": "b0afb12cfe66d9cb01cf7154cde65e22348114970291898e3c17126d68520346"
+    },
+    "hate": {
+      "accepted": true,
+      "report_sha256": "fdc7b13d3996616dd3efcb3a461e5ea0c9e854828df597a3036b3c49db5fdecf"
+    }
+  },
+  "native_post_coverage": {
+    "accepted_chunks": 3,
+    "content_tokens": 14,
+    "labels": {
+      "hate": {
+        "proof": "accepted",
+        "value": "no"
+      },
+      "sexual": {
+        "proof": "accepted",
+        "value": "no"
+      },
+      "violence": {
+        "proof": "accepted",
+        "value": "no"
+      }
+    },
+    "planned_chunks": 3
+  },
+  "standalone_guards": {
+    "sexual": {
+      "need_gib": 12.0,
+      "cap_gib": 16.0,
+      "peak_rss_gib": 2.47,
+      "peak_vram_mib": 3552,
+      "child_wall_seconds": 44.24409794807434,
+      "enforcement": "watchdog-only",
+      "floor_bits": 97
+    },
+    "violence": {
+      "need_gib": 12.0,
+      "cap_gib": 16.0,
+      "peak_rss_gib": 2.41,
+      "peak_vram_mib": 2840,
+      "child_wall_seconds": 42.777103900909424,
+      "enforcement": "watchdog-only",
+      "floor_bits": 97
+    },
+    "hate": {
+      "need_gib": 12.0,
+      "cap_gib": 16.0,
+      "peak_rss_gib": 2.42,
+      "peak_vram_mib": 1699,
+      "child_wall_seconds": 42.269660234451294,
+      "enforcement": "watchdog-only",
+      "floor_bits": 97
+    }
+  }
+}

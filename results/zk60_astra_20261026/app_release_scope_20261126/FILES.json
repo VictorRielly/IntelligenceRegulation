@@ -1,0 +1,458 @@
+{
+  "base_commit": "eaae86922f0fdf4f591e48210b42c7a22103c6c1",
+  "baseline_app_files_with_overlay": 105,
+  "app": [
+    {
+      "path": "apps/proven-media/PROGRESS.md",
+      "bytes": 27666,
+      "sha256": "66e947747c4aa2a1c1b4e55f40259a6cda18c5a3c5d5a4d6358f93e8fb64f253"
+    },
+    {
+      "path": "apps/proven-media/README.md",
+      "bytes": 33919,
+      "sha256": "f0bd58a442fbda63dc3676768108ee786edad5683b5a88f7d16eb33b6e849989"
+    },
+    {
+      "path": "apps/proven-media/deploy.json",
+      "bytes": 9046,
+      "sha256": "97c9c6435edb5cc54dc236bcb4758d208550e5bef72063b1b14fa95e90bf054a"
+    },
+    {
+      "path": "apps/proven-media/proven_media/app.py",
+      "bytes": 39134,
+      "sha256": "160c0ce26104543ffa1f71974fcb9e9e650de6cfa57893c29601c91690977ec2"
+    },
+    {
+      "path": "apps/proven-media/proven_media/app_instance.py",
+      "bytes": 1145,
+      "sha256": "896acb0b4dab1298916215b184b9e2a45cff1e77d2896d425d2f9ea658d2daf5"
+    },
+    {
+      "path": "apps/proven-media/proven_media/classifier_privacy.py",
+      "bytes": 3117,
+      "sha256": "5b819d585acabfe590a4e18fd12a4f7e7877e3cd4b99711cceecc6256e3216d4"
+    },
+    {
+      "path": "apps/proven-media/proven_media/config.py",
+      "bytes": 10065,
+      "sha256": "589440eccaf4bb3895e211349e874a902fc419dac1640d2dfb65c596c0956e8f"
+    },
+    {
+      "path": "apps/proven-media/proven_media/fast_runtime_selection.py",
+      "bytes": 494,
+      "sha256": "09a8fae209112361c2164810804b6ec03d35fcc9546530beff1119b869b5cec1"
+    },
+    {
+      "path": "apps/proven-media/proven_media/fast_service.py",
+      "bytes": 8359,
+      "sha256": "d8e7fa83294a48bed1264c2f4a44f59924ec7cda20c9711de75fd954a4b4e3f1"
+    },
+    {
+      "path": "apps/proven-media/proven_media/hardware_profiles.py",
+      "bytes": 5093,
+      "sha256": "95a0254359d82a592a6dc81fadb82141646ecaee2a14c3a5089fc8e501c45bd7"
+    },
+    {
+      "path": "apps/proven-media/proven_media/items.py",
+      "bytes": 5654,
+      "sha256": "4a260d1c062543228c1e9732aa8a53ed749714089f7a1a8d006494492e8891a9"
+    },
+    {
+      "path": "apps/proven-media/proven_media/jobs.py",
+      "bytes": 27987,
+      "sha256": "58ec028166da3481e1191c7911fe632433d2fe1e3b3368dae0c99fc1c2162d5e"
+    },
+    {
+      "path": "apps/proven-media/proven_media/manifest.py",
+      "bytes": 13221,
+      "sha256": "9d407d5071ea8f590369900650d95976b81248f140bfd3777c1b78ffb4aeae76"
+    },
+    {
+      "path": "apps/proven-media/proven_media/post_lifecycle.py",
+      "bytes": 9847,
+      "sha256": "74d330a6ccaa76acc664c2337359a6fa65ab6d1276dd16ef7337604ff64a8d44"
+    },
+    {
+      "path": "apps/proven-media/proven_media/provers.py",
+      "bytes": 33429,
+      "sha256": "ba14b06505e4a930f26a3f161e2018ad9fbc837e3c77f480bdebe6ac2e4d4c9c"
+    },
+    {
+      "path": "apps/proven-media/proven_media/public_store_download.py",
+      "bytes": 5114,
+      "sha256": "5fa5ab5ad3a77790e10c79bc13ddc547e5d8b7419f9490abf381ca0be9799bbe"
+    },
+    {
+      "path": "apps/proven-media/proven_media/records.py",
+      "bytes": 11547,
+      "sha256": "896f4b0cbeb1508c0b8760b96c6324a0d7dfa5512ddf7d3f16cac8905e0964fd"
+    },
+    {
+      "path": "apps/proven-media/proven_media/resident_writer.py",
+      "bytes": 4621,
+      "sha256": "2a682c2a5ec2f4dca56a8d39bb6f91611d6d26a3f27fd53be4cb30ac105951a4"
+    },
+    {
+      "path": "apps/proven-media/proven_media/shieldstral_fast_prover.py",
+      "bytes": 17496,
+      "sha256": "4e15361bdef8ce0d65b482b7de699ef285ed89c23a0bbe214e6401fcd31f6248"
+    },
+    {
+      "path": "apps/proven-media/proven_media/shieldstral_fast_runtime.py",
+      "bytes": 13242,
+      "sha256": "9d3703022545899b819da45d31703e93ee05a8727fab367377a7e106aab0eae5"
+    },
+    {
+      "path": "apps/proven-media/proven_media/store.py",
+      "bytes": 9130,
+      "sha256": "1f8c1dc8d2324c610e13c0173a068755a5f697bdd9128504c9d3290d9302f5b4"
+    },
+    {
+      "path": "apps/proven-media/proven_media/tar_download.py",
+      "bytes": 4735,
+      "sha256": "2b25d358377199ea938d47c82ba6e6d156f2ab1ac1616722081622dee701738b"
+    },
+    {
+      "path": "apps/proven-media/proven_media/w16r2_export.py",
+      "bytes": 3647,
+      "sha256": "32657e11dd2560e588383766b434ed68bdb16609922da3bf2a1b5c3967603ed2"
+    },
+    {
+      "path": "apps/proven-media/proven_media/w16r2_native_intake.json",
+      "bytes": 810,
+      "sha256": "cc937f3c69806295cc504b7f420cb8a539db2d6ecc72690ebd36377ef48dd829"
+    },
+    {
+      "path": "apps/proven-media/proven_media/w16r2_public_verifier.py",
+      "bytes": 20794,
+      "sha256": "6911498ffe16cb662056b82327815e33051d8713ea493cf97b6ea36f3bcf34f1"
+    },
+    {
+      "path": "apps/proven-media/proven_media/w16r2_runtime.py",
+      "bytes": 14117,
+      "sha256": "bbb3406ec09a5e53e0e6379bffc7fb9e48b695a6e6f3ea348774b70c08e31783"
+    },
+    {
+      "path": "apps/proven-media/serve.py",
+      "bytes": 1884,
+      "sha256": "b7644c208b4247a10935200ffc38e15ea4a2e9a222262cc83400a62f3d6cdaa7"
+    },
+    {
+      "path": "apps/proven-media/static/app.css",
+      "bytes": 20133,
+      "sha256": "ac9c431b68217ee6af69d8684e6780697331f3a4581dda3e4ba710f9300f780d"
+    },
+    {
+      "path": "apps/proven-media/static/app.js",
+      "bytes": 73167,
+      "sha256": "6733811d7612dca7627fc927004fc1118bae7f5535e21b34994ac738e5081c4a"
+    },
+    {
+      "path": "apps/proven-media/static/index.html",
+      "bytes": 2380,
+      "sha256": "066ed7c52aa3636e0128ca2c6119c913d5d513e04a24b9bd1ccb87324335d41f"
+    },
+    {
+      "path": "apps/proven-media/tests/test_app_lifecycle.py",
+      "bytes": 14126,
+      "sha256": "72e47c71cda5b4d17398c9ba33f57b5b91f971e7572478ed3190eff8f0c11aaa"
+    },
+    {
+      "path": "apps/proven-media/tests/test_frontend_privacy.js",
+      "bytes": 5131,
+      "sha256": "be169a63e18e34d0ea06c603ddaf9eed585b89576f40bf0298397dda4e6c39ea"
+    },
+    {
+      "path": "apps/proven-media/tests/test_frontend_proof_identity.js",
+      "bytes": 4556,
+      "sha256": "ab68a3ccaae0c9a9378e6bd65231b784127eee79564afac5f10192143b1a91c3"
+    },
+    {
+      "path": "apps/proven-media/tests/test_frontend_w16r2.js",
+      "bytes": 4644,
+      "sha256": "aa8b414ac8591022bffb0a3544e92d54d12021b5317b9c5117839c9ace603fcc"
+    },
+    {
+      "path": "apps/proven-media/tests/test_image_preprocess.py",
+      "bytes": 5866,
+      "sha256": "7aac1eb93f16965c6bb51e188bed793be33e85d79d9f3c927aafc46a4df08b44"
+    },
+    {
+      "path": "apps/proven-media/tests/test_real_manifest.py",
+      "bytes": 12037,
+      "sha256": "3e4012f4d1339afd08bcc8e0f2152cf427f5f396c6d219b24bf5a21ff933f300"
+    },
+    {
+      "path": "apps/proven-media/tests/test_resident_integration.py",
+      "bytes": 14732,
+      "sha256": "f8fc6ba852f7892fcd043897cf55034ebc79916667f727adb783c291963bda0b"
+    },
+    {
+      "path": "apps/proven-media/tests/test_shieldstral_fast.py",
+      "bytes": 25178,
+      "sha256": "adac769d1476a3eb6dd55cdf0eba48bb48bab40a9aafe338072d70325cf1763d"
+    },
+    {
+      "path": "apps/proven-media/tests/test_w16r2_app.py",
+      "bytes": 30668,
+      "sha256": "1c774693215a4762ed4812bfe4b02821ba583799f2a7435f9127e71e55fc52cd"
+    },
+    {
+      "path": "apps/proven-media/tests/test_w16r2_export.py",
+      "bytes": 4547,
+      "sha256": "44c44fa7ef9ca7565951868b6386a7b34040149696b50b267dede03265966774"
+    },
+    {
+      "path": "apps/proven-media/tests/test_w16r2_post_coverage.py",
+      "bytes": 15551,
+      "sha256": "4e41ccaba1ef5d7ec525951737953b595ba94b7c940d3b52f4f33dc113cfcf3a"
+    },
+    {
+      "path": "apps/proven-media/tests/test_w16r2_publication_verifier.py",
+      "bytes": 22302,
+      "sha256": "8a3fed9ef226ad61ab7ea9ab25bc4e569a009b8b4f1164d8028ed20ee3ed1c95"
+    },
+    {
+      "path": "apps/proven-media/tools/fast_service.py",
+      "bytes": 22423,
+      "sha256": "1dc6b4587bbf0620280df12d2a3b109a8279394cf193e50f992e1acae9a5e600"
+    },
+    {
+      "path": "apps/proven-media/tools/prepare_w16r2_verifier.py",
+      "bytes": 3931,
+      "sha256": "8ae5a88d93adc82f1fd8d2fb10b406eb856b21ff859be549d3265fafbaf2eb55"
+    },
+    {
+      "path": "apps/proven-media/tools/verify_manifest.py",
+      "bytes": 5885,
+      "sha256": "0fb0b8f091a4b15a113982f13cf7ddd64570de685de6d343f0e666a48df373c0"
+    },
+    {
+      "path": "apps/proven-media/tools/verify_publication.py",
+      "bytes": 8321,
+      "sha256": "5d45aef9270a3e19b6486d31078cc8a0b81c0e9ff56ee782560995c226da0788"
+    }
+  ],
+  "astra_status_records": [
+    {
+      "path": "results/zk60_astra_20261026/a2_exact_score_review_20261117/REVIEW.md",
+      "bytes": 1375,
+      "sha256": "0cda7e9ed77f77daa0e3be14b96e211d39d72a0a37b232ddc4120c19d785fa5f"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a2_exact_sequence_review_20261118/REVIEW.md",
+      "bytes": 2350,
+      "sha256": "de9ede40af6e42ab899974236b8130fe14ac9a99641de4587f693bb596aa2d36"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a2_full_length_review_20261116/README.md",
+      "bytes": 4111,
+      "sha256": "baa8d5a148d6170ec99092b392c95ab9fc86bf1f9b746d8464c9357c8111f44c"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a2_padding_diagnosis_20261117/README.md",
+      "bytes": 1730,
+      "sha256": "c070cc0e352062a9576b3d024ec795ea397f74a0810ccb255e50721d1d046e12"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a30a31_benchmark_review_20261113/REVIEW.json",
+      "bytes": 9325,
+      "sha256": "fdd76aac0c2b8c872da896f53688a951deb09a8a9f023c5dd9f8b9c8c5de365c"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_adapter_proof_20261115/RESULT.json",
+      "bytes": 7769,
+      "sha256": "1a8aed268d91155b0abda121767abb74c57d81a6e3823ef00f2533069dd38ac6"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_adapter_proof_20261115/REVIEW.md",
+      "bytes": 2138,
+      "sha256": "b5d5106aaadb1a5361d7aff71e6584c86ccdfac900e92bb7e614732c1fc251f9"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_complete_image_proof_20261116/REVIEW.md",
+      "bytes": 1188,
+      "sha256": "e585bd1af4513ee0ac1574c22123d4ac2941dfa81aefbe3d41db758dc044ef6d"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_complete_image_replay_20261116/REVIEW.md",
+      "bytes": 1367,
+      "sha256": "1c852f7ba6c0187ee6ed8ce65baed5a78bbe8cdbcc00cfc9baad6a51fa895b2b"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_decoder_arithmetic_review_20261117/REVIEW.md",
+      "bytes": 3289,
+      "sha256": "a53d0bc593ede4be7eb1bed6d4ac5b8f6dae59b1fbfd7663cfcec7c140a757d8"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_decoder_chain_proof_20261115/README.md",
+      "bytes": 6987,
+      "sha256": "6d61cb04ccf64b95b6031acc7c0849c84dfd1e832669a8d29118d3b5f21f0d56"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_decoder_chain_proof_20261115/REVIEW.md",
+      "bytes": 1188,
+      "sha256": "a896cb201bb9081e45c6c35e9b628be52ca7e43be586676b02e739ed81c0b817"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_decoder_public_rows_20261118/REVIEW.md",
+      "bytes": 3187,
+      "sha256": "af828d92299b8698d1577e2cb7aed1a38ffe15956c1cdc7035e064567e2fae3e"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_encoder_chain_proof_20261115/RESULT.json",
+      "bytes": 38378,
+      "sha256": "db17dbfa2fd9606ef6e31c280d857ee3efcdf7e8447e748756422446947dd4ef"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_encoder_chain_proof_20261115/REVIEW.md",
+      "bytes": 2547,
+      "sha256": "c0a24df6870df41affe1cacb36d101da501bff25c7b8e0ad3d8731ec4cd3fa6f"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_encoder_projector_proof_20261115/RESULT.json",
+      "bytes": 63358,
+      "sha256": "497107d24c39c04a124d579986329ad835535309a23772dd9017504706b1c7d5"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_encoder_projector_proof_20261115/REVIEW.md",
+      "bytes": 2024,
+      "sha256": "89d4321286bec05da4f9acfa2ac35253ebcc27329948ebf4d780cc7b62026e0e"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_encoder_tail_proof_20261115/README.md",
+      "bytes": 3185,
+      "sha256": "87d2708130012f3a9dfe79294b31ed4921dbff5afd5213722825d3fc5e903d0c"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_encoder_tail_proof_20261115/RESULT.json",
+      "bytes": 8700,
+      "sha256": "e7211a8814b66ef0a45020c0e8345b2bad97af54e3719194a7ae341c4af47c8f"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_image_head_audit_recovery_20261117/README.md",
+      "bytes": 1897,
+      "sha256": "2cf08b2275eb105a9bdd903ff7ccc989654d46ef25befc838b17d3cc11aa898f"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_image_input_proof_20261115/RESULT.json",
+      "bytes": 64718,
+      "sha256": "867b02a7da3f776d0bb07b440b777925cba0a45299fa0c117f078cb9c87494b4"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_image_input_proof_20261115/REVIEW.md",
+      "bytes": 2640,
+      "sha256": "b5856e19fe69707cf2c9456e8a6b477be514363ba146121021253ed6c4e5f9f5"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_image_overlap_review_20261117/REVIEW.md",
+      "bytes": 2208,
+      "sha256": "0d438d4374e51cad403f86474dcd7503a67f2a90bccdd28753f6b56c69102b92"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_decoder_chain_20261115/RESULT.json",
+      "bytes": 33333,
+      "sha256": "eec933935d5f69c4c6055eab8818033bfc25bf000619fa4ba8db864de9b2508a"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_decoder_chain_20261115/REVIEW.md",
+      "bytes": 1926,
+      "sha256": "dbfa6515c711742685ac43ea5d610119b7cc8204a7addb466a4f39606d21bb29"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_encoder_chain_20261115/README.md",
+      "bytes": 2699,
+      "sha256": "77197e3015f877f36e626b47f0f61f05fad18169080886c54a3939b3c5f454bc"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_encoder_chain_20261115/RESULT.json",
+      "bytes": 25980,
+      "sha256": "8a1803b5a53152925cb84498e05bda01fc40acbdaeef3bd496f70e3a42acbbe0"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_image_classifier_20261115/RESULT.json",
+      "bytes": 6279,
+      "sha256": "7e7df46732ffd85803173020be8e7be57d35dcfcd89022c8e3f942b4c254211a"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_image_classifier_20261115/REVIEW.md",
+      "bytes": 1762,
+      "sha256": "9d395ac7c69fdf8bc26b61d58950799e600dc012bb85bdeb02deb3abb3f4845d"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_image_splice_20261115/README.md",
+      "bytes": 2960,
+      "sha256": "ff8173d10fca54f48bbb583b85f22f70b6d6c3d93c9944153891aa902c2b8eda"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_image_splice_20261115/RESULT.json",
+      "bytes": 12130,
+      "sha256": "347a9f0cf0f18510c0784d53854e4c3cacac29612aa5a2e88bca6281ecd9df94"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_projector_20261115/README.md",
+      "bytes": 3012,
+      "sha256": "dabb63cbb74ffe76d8dd0218041e988ed5788a03c755e956d495f4d7e63091e7"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_projector_20261115/RESULT.json",
+      "bytes": 8313,
+      "sha256": "621d913695e980d14c6072e21b61c44b378734d234adbf095d94759c0f23d605"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_text_decoder_20261115/RESULT.json",
+      "bytes": 5434,
+      "sha256": "2e7648d9f84c347a4780df566904b701a614b57ccf9121339ed29a6c1a466ab0"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_native_text_decoder_20261115/REVIEW.md",
+      "bytes": 2069,
+      "sha256": "d10867400b95cb17f5112ee62fd562bdb79a641206e634330cd85a22761f2b81"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_projector_proof_20261115/RESULT.json",
+      "bytes": 6909,
+      "sha256": "3428cf9be3cfabf27f51196039d9a4a80686d159818947dcc53e6415bdc4132c"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_projector_proof_20261115/REVIEW.md",
+      "bytes": 2720,
+      "sha256": "eac1f4ac5a82227c6f6f2f0b7cfe59627ddc62a69161424fa3463422fa622e20"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_text_decoder_proof_20261115/ADAPTER_REVIEW.md",
+      "bytes": 3880,
+      "sha256": "fbb10b8510f4523a0444a106322766096ec1fd3a9dcd5606b957a1b8a78eaf10"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a4_text_decoder_proof_20261115/README.md",
+      "bytes": 3211,
+      "sha256": "47ffddae244f600bd83e6c57fcd9040f947b3ea134193965a66909fc37df5b26"
+    },
+    {
+      "path": "results/zk60_astra_20261026/a6_mobile_labels_integration_20261117/README.md",
+      "bytes": 1146,
+      "sha256": "eb173cfbf5fbb49abb32a257d707d6f012fa19d943e0e72a38e4e0785765a4a2"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_composed_native_20261122/PILOT.md",
+      "bytes": 17769,
+      "sha256": "f8a872b15af6394e70a27ea21bc49bf314782cd7f4aa03966cd2c2dae17701c7"
+    },
+    {
+      "path": "results/zk60_astra_20261026/current_app_20261112/AUDIT.json",
+      "bytes": 18232,
+      "sha256": "20508a0b58b46d3239a967c791b35cf0c0adc5534278035a1b339d9552b48613"
+    },
+    {
+      "path": "results/zk60_astra_20261026/text_decoder_validation_20261117/PLAN.json",
+      "bytes": 1760,
+      "sha256": "a5b4bb7b437c3ef2b457dfda9b782a20c5551a91b09e35358b480d51dcc1fea9"
+    },
+    {
+      "path": "results/zk60_astra_20261026/w16r2_app_native_qualification_20261113/NATIVE_AUDIT.json",
+      "bytes": 7260,
+      "sha256": "36ccba74db91bdbe2f1c39ddc7f0d611dd41c26c0d08fa911900e6d3cbb9c09a"
+    }
+  ]
+}

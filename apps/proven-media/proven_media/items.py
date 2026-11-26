@@ -79,6 +79,8 @@ def lossless_master(raw: bytes) -> tuple[bytes, int, int]:
         raise ImageRefused(f"not a decodable image ({type(e).__name__})")
     if rgb.width < 1 or rgb.height < 1 or rgb.width * rgb.height > MAX_PIXELS:
         raise ImageRefused("image dimensions out of range")
+    # Pillow can carry a source ICC profile and transparency key into an RGB PNG.
+    rgb.info.clear()
     out = io.BytesIO()
     rgb.save(out, "PNG", optimize=False)
     return out.getvalue(), rgb.width, rgb.height

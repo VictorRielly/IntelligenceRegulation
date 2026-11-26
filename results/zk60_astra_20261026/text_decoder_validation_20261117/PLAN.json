@@ -1,0 +1,32 @@
+{
+  "at": "2026-11-17T20:25:15.343196+00:00",
+  "jobs": [
+    {
+      "name": "decoder",
+      "directory": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_decoder_review_20261117",
+      "script": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_decoder_review_20261117/pipeline.py",
+      "script_sha256": "66a64e4b6af58be98da453a4043c4810ac44ae911316179089d0c22a4a2ed453",
+      "source_manifest": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_decoder_review_20261117/SOURCES.json",
+      "source_manifest_sha256": "0fb656db81e8376c0c76e2158e9fbcf501d9fefe73a6c58ac2642b09e08d6bd2",
+      "source_pins": 464,
+      "guarded_leaves": 13
+    },
+    {
+      "name": "text",
+      "directory": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a2_real_length_review_r3_20261117",
+      "script": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a2_real_length_review_r3_20261117/pipeline.py",
+      "script_sha256": "bf769ff6221dd5b704b259770edcfe7cf910685c44744cce80b5c276877a7dc0",
+      "source_manifest": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a2_real_length_review_r3_20261117/SOURCES.json",
+      "source_manifest_sha256": "8245e577d8b3d21fd98baf81cbc6cc1c970c6f9617bca97ba42b1c8dceb8a405",
+      "source_pins": 914,
+      "guarded_leaves": 24
+    }
+  ],
+  "runner_sha256": "17545f46a0307b8a03e4fd44f529ea495a48c0328ae47276cc4117619404ac9b",
+  "serial_execution": true,
+  "continue_after_clean_test_failure": true,
+  "guard_poll_policy": "default",
+  "shared_resource_guard_unchanged": true,
+  "retained_text_receipt_planning_ceiling_bytes": 25769803776,
+  "retained_first_decoder_frames": 48
+}

@@ -1,0 +1,28 @@
+{
+  "files": 34,
+  "bytes": 103708,
+  "sha256": "df6f1ceead22165be82c2cbff456e6459ff9eb943539e7760d1d8377faac9d57",
+  "isolated_source_tree": true,
+  "portable_publisher_signature": true,
+  "historical_signed_post": {
+    "content_tokens": 14,
+    "planned_chunks": 3,
+    "accepted_chunks": 3,
+    "labels": {
+      "sexual": {
+        "value": "no",
+        "proof": "accepted"
+      },
+      "violence": {
+        "value": "no",
+        "proof": "accepted"
+      },
+      "hate": {
+        "value": "no",
+        "proof": "accepted"
+      }
+    }
+  },
+  "public_store_tests": 4,
+  "native_replay": false
+}

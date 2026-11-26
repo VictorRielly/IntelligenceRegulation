@@ -20,6 +20,7 @@ ClassifierCLI collectors the app re-runs. Nothing is retried: a failed step fail
 when a native server dies (its in-flight jobs then fail). Logs stay private.
 """
 import fcntl
+import argparse
 import json
 import os
 from pathlib import Path
@@ -35,6 +36,7 @@ from proven_media import shieldstral_fast_runtime as runtime  # noqa: E402
 from proven_media.classifier_cli import ClassifierCLI, require  # noqa: E402
 from proven_media.classifier_prover import deployment_from_json  # noqa: E402
 from proven_media.provers import ProverError  # noqa: E402
+from proven_media import config, resident_writer  # noqa: E402
 
 BEAT_S = 5.0
 
@@ -79,9 +81,9 @@ class Native:
                 self.out_log.flush()
                 with self.lock:
                     slot = self.waiting.pop(j.get('id'), None)
-                if slot:
-                    slot['line'] = j
-                    slot['event'].set()
+                    if slot:
+                        slot['line'] = j
+                        slot['event'].set()
             elif ev == 'serve-start':
                 self.start = j
                 self.ready.set()
@@ -106,9 +108,16 @@ class Native:
             self.p.stdin.write(json.dumps(req) + '\n')
             self.p.stdin.flush()
         except (OSError, ValueError):
+            with self.lock:
+                self.waiting.pop(req['id'], None)
             raise ProverError(f'the {self.name} server is gone')
         if not slot['event'].wait(timeout):
-            raise ProverError(f'the {self.name} server did not answer within {timeout} s')
+            with self.lock:
+                if not slot['event'].is_set():
+                    # A wedged device can leave the native process alive forever.
+                    # EOF releases its other callers and the service can restart on the next job.
+                    self.p.kill()
+                    raise ProverError(f'the {self.name} server did not answer within {timeout} s')
         if slot['line'] is None:
             raise ProverError(f'the {self.name} server ended')
         return slot['line']
@@ -141,6 +150,8 @@ class Service:
         self.writers = threading.Semaphore(runtime.WRITERS_AT_ONCE)
         self.stop = threading.Event()
         self.counts = {'jobs': 0, 'ok': 0, 'failed': 0}
+        self.writer_pool = None
+        self.binding = runtime.service_binding()
 
     # ---------------------------------------------------------------- liveness
     def beat(self):
@@ -151,7 +162,8 @@ class Service:
             'beat_at': time.time(), 'state': self.state, 'inflight': inflight, 'counts': self.counts,
             'prover_alive': getattr(self, 'prover', None) is not None and self.prover.alive(),
             'checker_alive': getattr(self, 'checker', None) is not None and self.checker.alive(),
-            'binary_sha256': runtime.BINARY_SHA}))
+            'binary_sha256': runtime.BINARY_SHA, 'writer_binding': self.binding,
+            'resident_writers_alive': resident_writer.alive(self.writer_pool) if self.writer_pool else None}))
 
     def beater(self):
         while not self.stop.is_set():
@@ -172,6 +184,20 @@ class Service:
     def writer(self, job, spec, steps):
         self.step(job, 'seqgen')
         t0 = time.time()
+        if self.writer_pool is not None:
+            try:
+                result, queued = self.writer_pool.write(spec['activation_request'], Path(spec['sequence_dir']).parent,
+                                                        timeout=runtime.STEP_TIMEOUTS['seqgen'])
+                atomic(job / 'logs/seqgen.log', json.dumps({'resident': True, 'ok': True}) + '\n')
+                atomic(job / 'logs/seqgen.exit', '0\n')
+                self.record(job, steps, 'seqgen', t0 + queued, queued,
+                            resident=True, engine_seconds=result['seconds'])
+                return
+            except Exception:
+                atomic(self.root / 'STOP', 'Resident writer failed; no automatic replay.\n')
+                atomic(job / 'logs/seqgen.exit', '1\n')
+                raise ProverError('resident activation writer failed; no retry') from None
+        require(runtime.writer_mode() == 'oneshot', 'resident writer pool is unavailable')
         with self.writers:
             queued = time.time() - t0
             t1 = time.time()
@@ -200,11 +226,12 @@ class Service:
         (job / 'logs').mkdir(mode=0o700, exist_ok=True)
         atomic(job / 'service.claim', json.dumps({'run_id': self.run_id, 'pid': os.getpid(), 'at': time.time(), 'op': op}))
         spec = json.loads((job / 'classifier-job.json').read_text())
+        require(spec.get('writer_binding') == self.binding, 'job belongs to another fast service configuration')
         require(spec.get('schema') == 'pm-classifier-job/1' and spec.get('mode') == ('prove' if op == 'prove' else 'recheck'),
                 'unknown job schema or mode')
         deployment = deployment_from_json(spec['deployment'])
         runtime.validate(deployment)
-        cli = ClassifierCLI(deployment)
+        cli = getattr(runtime, 'make_cli', ClassifierCLI)(deployment)
         owner = Path(spec['owner_dir'])
         artifact = spec['artifact']
         if op == 'prove':
@@ -314,16 +341,23 @@ class Service:
         try:
             fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
+            os.close(lock_fd)
             print(json.dumps({'event': 'service-already-running'}), flush=True)
             return 0
         threading.Thread(target=self.beater, daemon=True).start()
-        env = dict(os.environ, **runtime.native_environment(), HL_OWNER_PRIVATE_DIR=str(self.root / 'refusals'))
         logs = self.root / 'logs'
         logs.mkdir(mode=0o700, exist_ok=True)
         try:
+            env = dict(os.environ, **runtime.native_environment(), HL_OWNER_PRIVATE_DIR=str(self.root / 'refusals'))
             runtime.validate(runtime.deployment(runtime.templates()[0]))
+            if runtime.writer_mode() == 'resident':
+                threads = str(runtime.WRITER_THREADS)
+                os.environ.update(OPENBLAS_NUM_THREADS=threads, OMP_NUM_THREADS=threads,
+                                  VECLIB_MAXIMUM_THREADS=threads)
+                self.writer_pool = resident_writer.open_pool(runtime, self.root.parent, logs, self.run_id)
             self.prover = Native('prover', runtime.server_argv('prove'), env, logs)
-            self.checker = Native('checker', runtime.server_argv('check'), env, logs)
+            checker_env = runtime.verifier_environment(env) if getattr(runtime, 'PUBLIC_CONTENT_ONLY', False) else env
+            self.checker = Native('checker', runtime.server_argv('check'), checker_env, logs)
             self.prover.ready.wait(900)
             self.checker.ready.wait(900)
             require(self.prover.start is not None and self.checker.start is not None, 'a native server refused to start')
@@ -332,6 +366,9 @@ class Service:
             idle_since = time.time()
             limit = runtime.JOBS_IN_FLIGHT
             while True:
+                if self.writer_pool is not None and not resident_writer.alive(self.writer_pool):
+                    self.state = 'writer-died'
+                    break
                 if not (self.prover.alive() and self.checker.alive()):
                     self.state = 'server-died'
                     break
@@ -354,9 +391,11 @@ class Service:
                     self.state = 'stopping'
                     break
                 time.sleep(0.5)
+            failed = self.state in ('writer-died', 'server-died')
         except Exception:
             (self.root / 'logs' / 'service-error.log').write_text(traceback.format_exc())
             self.state = 'failed'
+            failed = True
         finally:
             self.beat()
             for s in (getattr(self, 'prover', None), getattr(self, 'checker', None)):
@@ -369,13 +408,28 @@ class Service:
                     if not self.inflight:
                         break
                 time.sleep(0.5)
+            if self.writer_pool is not None:
+                self.writer_pool.close()
+                exits = [client.process.poll() for client in self.writer_pool.clients]
+                atomic(logs / ('resident-exit-' + self.run_id + '.json'), json.dumps({'exits': exits}) + '\n')
+                if exits != [0] * runtime.WRITERS_AT_ONCE:
+                    failed = True
             self.state = 'stopped'
             self.stop.set()
             self.beat()
             fcntl.flock(lock_fd, fcntl.LOCK_UN)
             os.close(lock_fd)
-        return 0
+        return 1 if failed else 0
 
 
 if __name__ == '__main__':
-    raise SystemExit(Service(sys.argv[1]).main())
+    from proven_media.fast_runtime_selection import runtime_for
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--prover-mode', choices=('shieldstral-fast', 'shieldstral-fast-w16r2'), required=True)
+    parser.add_argument('--writer-mode', choices=('oneshot', 'resident'), required=True)
+    parser.add_argument('root')
+    args = parser.parse_args()
+    require(args.prover_mode == config.prover_mode(), 'guarded prover mode differs from runtime')
+    runtime = runtime_for(args.prover_mode)
+    require(args.writer_mode == runtime.writer_mode(), 'guarded writer mode differs from runtime')
+    raise SystemExit(Service(args.root).main())

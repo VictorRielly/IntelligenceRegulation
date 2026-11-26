@@ -1,0 +1,11 @@
+# Image overlap screening
+
+The two retained synthetic adapter studies contain 18 source rows. The original selection contains 14 test rows, of which 10 decoded. Screening these rows against one another, all remaining source rows and the six development canvases yielded 231 distinct pairs. Both canvases were available for 145 pairs. Four selected rows retained their original source or decode refusal. [Control results](CONTROLS.json)
+
+The screen flagged 24 pairs. Twelve cross training and test splits, 14 cross the two dataset namespaces and two link selected test rows to development canvases. These counts overlap. Twenty-three pairs share a canonical canvas digest, 21 share a decoded RGB digest and geometry, and 14 share an encoded-file digest. One pair has matching encoded digests and no decoded canvas. No additional pair of unequal canvases met the pixel-similarity threshold in these particular controls.
+
+For unequal canvases the screen checks both the original orientation and a horizontal flip. A candidate must have a mean absolute RGB difference of at most six on the 0–255 scale across the full 224 × 224 canvas. Absolute differences between block sums give a lower bound that permits early rejection. The threshold is a diagnostic choice. Crops, substantial rescaling and other transformations may escape it, and simple canvases can match by coincidence. Candidate flags require source-family review. Selection, annotations and model predictions play no part in choosing the threshold. [Implementation](screen.py)
+
+An independent exhaustive comparison using full pixels reproduced every control flag. Additional tests cover flipping, brightness differences at and above the cutoff, bounded noise, a block-sum collision and a corrupted canvas. All three tests passed. [Tests](test_screen.py)
+
+The default run uses the two synthetic studies. For authorized prepared studies, pass one `--study STUDY_JSON SHA256` per dataset and an unused `--output FILE` outside the repository. The script authenticates the source index, shard list, shard records, fixed selection and prepared canvas bytes. The real datasets, source-family adjudication and held-out quality measurements remain pending.

@@ -54,6 +54,23 @@ assert.doesNotMatch(run('labelsHero(post, record)'), /CPU privacy statement acce
 assert.match(run('verifySection(post, record)'), /Profile privacy: privacy statement pending/);
 assert.doesNotMatch(run('verifySection(post, record)'), /CPU privacy statement accepted/);
 
+// A24-A28's explicit fast mode is a real classifier, with its own pending scope.
+setProver({kind:'shieldstral-fast', privacy_statement:{accepted:false,
+  status:'privacy statement pending',scope:'Resident Metal candidate; no production acceptance.'}});
+run('renderModebar()');
+assert.match(document.querySelector('#modebar').innerHTML, /Real Shieldstral classifier/);
+assert.match(document.querySelector('#modebar').innerHTML, /privacy statement pending/);
+assert.doesNotMatch(document.querySelector('#modebar').innerHTML, /Demo stub|zero-knowledge proof/);
+assert.doesNotMatch(run('stubTag()'), /demo stub/);
+run("record.prover.kind = 'shieldstral-fast'");
+assert.match(run('labelsHero(post, record)'), /Real classifier proofs/);
+assert.match(run('verifySection(post, record)'), /Profile privacy: privacy statement pending/);
+assert.doesNotMatch(run('verifySection(post, record)'), /CPU privacy statement accepted/);
+setProver(approved);
+assert.match(run('verifySection(post, record)'), /Profile privacy: privacy statement pending/);
+setProver({kind:'shieldstral-unknown'});
+assert.equal(run('isShieldstral()'), false);
+
 setProver({kind:'fake'}); assert.match(run('stubTag()'), /fake: no proof/);
 setProver({kind:'stub-next-token'}); assert.match(run('stubTag()'), /demo stub/);
 console.log('PASS: approved scope, batch scope, missing metadata, escaping, record-vs-current-profile isolation, fake/stub labels');

@@ -92,8 +92,32 @@ SERVICE_NEED_GIB = 110
 SERVICE_CAP_GIB = 180
 SERVICE_MAX_SECONDS = 6 * 3600
 SERVICE_IDLE_SECONDS = int(os.environ.get('PM_FAST_IDLE_SECS', '300'))
+WRITER_MODE = os.environ.get('PM_FAST_WRITER_MODE', 'oneshot')
 # A request's own limits inside the service (seconds); a slower step fails closed.
 STEP_TIMEOUTS = {'seqgen': 600, 'prove': 900, 'check': 900}
+
+
+def writer_mode():
+    require(WRITER_MODE in ('oneshot', 'resident'), 'unknown fast activation writer mode')
+    return WRITER_MODE
+
+
+def service_resources():
+    # The optional two-worker mode adds the qualified resident model storage.
+    need, cap = (196, 220) if writer_mode() == 'resident' else (SERVICE_NEED_GIB, SERVICE_CAP_GIB)
+    return {'need_gib': need, 'cap_gib': cap, 'max_seconds': SERVICE_MAX_SECONDS}
+
+
+def service_binding():
+    from . import resident_writer
+    mode = writer_mode()
+    return {'schema': 'pm-fast-writer-binding/1', 'mode': mode,
+            'writer_sha256': WRITER_SHA,
+            'resident_source_digest': resident_writer.identity() if mode == 'resident' else None,
+            'profile_sha256': PROFILE_SHA, 'binary_sha256': BINARY_SHA, 'model_identity': IDENTITY,
+            'resources': service_resources(), 'native_settings': dict(NATIVE_SETTINGS),
+            'writer_processes': WRITERS_AT_ONCE, 'writer_threads': WRITER_THREADS,
+            'prover_lanes': PROVER_LANES, 'check_lanes': CHECK_LANES}
 
 
 def categories():
@@ -104,12 +128,12 @@ def templates():
     return reviewed.templates()
 
 
-def native_environment():
+def native_environment(models=None):
     """The public model root for the tied-table derivation and the device settings.
 
     Native verification still authenticates the checkpoint and the tied tables.
     """
-    root = NATIVE_MODELS.resolve(strict=True)
+    root = (NATIVE_MODELS if models is None else models).resolve(strict=True)
     require((root / 'shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors').is_file(),
             'configured public model is unavailable')
     return {'ZK60_MODELS': str(root), 'HL_GPU': '1', 'HL_GPU_REQUIRED': '0',
@@ -150,7 +174,8 @@ def descriptor():
             'token_profile_digest': PROFILE_SHA, 'run_profile': RUN_PROFILE, 'cli': CLI_DESCRIPTION,
             'device': 'metal', 'proof_mode': 'resident-server, categories proved concurrently',
             'policy_ids': [c['policy_id'] for c in categories()],
-            'privacy_adapter_supported': False, 'batch_proving': False}
+            'privacy_adapter_supported': False, 'batch_proving': False,
+            'activation_writer': writer_mode(), 'service_resources': service_resources()}
 
 
 def deployment(template):
@@ -159,6 +184,9 @@ def deployment(template):
 
 
 def validate(deploy):
+    if writer_mode() == 'resident':
+        from . import resident_writer
+        resident_writer.authenticate()
     require(not deploy.development and deploy.binary == BINARY and deploy.binary_sha256 == BINARY_SHA
             and deploy.statement_identity == IDENTITY and deploy.statement_schema == R_C3_SCHEMA
             and deploy.min_bits == 95 and deploy.overlap == 8, f'deployment differs from the pinned {LANE} candidate')

@@ -25,7 +25,7 @@ entry there, where its limits are stated.
   the receipts. The proof system is built to hide the input and every intermediate value and to publish only the
   verdict. The profile the app runs on that machine is a development profile for public content, and privacy is
   not claimed for it (see the privacy and Lean lines below for what is missing). The app code for that profile is
-  newer than the copy in this repository, which is the state of 2026-11-10.
+  in this repository since 2026-11-26; the built binaries, the model files and the proof store are not.
 - **The prover (Hashline)**:
   - Ligero-style hiding polynomial commitments over the Goldilocks field and its quadratic extension, BLAKE3
     Merkle trees and Fiat–Shamir, LogUp lookups and a masked sumcheck.

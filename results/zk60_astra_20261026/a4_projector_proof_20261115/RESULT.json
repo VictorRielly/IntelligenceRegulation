@@ -1,0 +1,196 @@
+{
+  "schema": "astra-committed-projector-qualification/1",
+  "at": "2026-11-15T08:13:36.033940+00:00",
+  "passed": true,
+  "source_manifest_sha256": "a75b2d533e98209e57e9878b35ad3af2904ea759b70fd4024b488f098791a8ec",
+  "source_pins": 485,
+  "attempt": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_projector_proof_20261115/attempts/20261115T081053.328408Z",
+  "guards": [
+    {
+      "name": "check",
+      "peak_rss_gib": 0.83,
+      "child_wall_seconds": 2.0970959663391113,
+      "enforcement": "watchdog-only"
+    },
+    {
+      "name": "build",
+      "peak_rss_gib": 5.6,
+      "child_wall_seconds": 78.92417597770691,
+      "enforcement": "watchdog-only"
+    },
+    {
+      "name": "unit",
+      "peak_rss_gib": 0.12,
+      "child_wall_seconds": 1.290757179260254,
+      "enforcement": "watchdog-only"
+    },
+    {
+      "name": "proofs",
+      "peak_rss_gib": 1.05,
+      "child_wall_seconds": 51.790749073028564,
+      "enforcement": "watchdog-only"
+    }
+  ],
+  "unit_tests": 9,
+  "model_controls": 15,
+  "wire_model_root_controls": 24,
+  "coherent_forged_receipts": 27,
+  "global_lookup_failures": 13,
+  "full_trained_canvases": 3,
+  "unique_reference_words_matched": 9243648,
+  "cases": [
+    {
+      "case": "black",
+      "receipt_bytes": 11965064,
+      "receipt_sha256": "d16b7cd7b498339daa26ed111324ce1da12c7413f7d4cb886f41aeee48dcbed1",
+      "prove_seconds": 1.468803,
+      "verify_seconds": 0.116069
+    },
+    {
+      "case": "white",
+      "receipt_bytes": 11965064,
+      "receipt_sha256": "6e0f7b26e6cf02671143bbce92ce36ba766c98c90ccaf725f3a9e9a6aa445414",
+      "prove_seconds": 1.438767,
+      "verify_seconds": 0.11438
+    },
+    {
+      "case": "coordinates",
+      "receipt_bytes": 11965064,
+      "receipt_sha256": "413ded7d2c72dd8dac0ab445f8631c6b3ff62aa98b50f6b48dc990fef428fcaa",
+      "prove_seconds": 1.453237,
+      "verify_seconds": 0.113883
+    }
+  ],
+  "forgeries": [
+    {
+      "case": "input",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "norm",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "rho",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "sigma",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "merge-rem",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "merge-comp",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "linear1-rem",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "linear1-comp",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "output",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "output-rem",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "output-comp",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "isqrt-limb",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    },
+    {
+      "case": "isqrt-padding",
+      "reason": "image N16 projector slot 04 [isqrt byte limbs]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "matched-inactive-output",
+      "reason": "image N16 projector slot 14 [inactive output channels]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "merge-order",
+      "reason": "image N16 projector slot 06 [channel-major 2x2 merge]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "output-endpoint",
+      "reason": "image N16 projector slot 18 [output endpoint]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "input-endpoint",
+      "reason": "image N16 projector slot 00 [input endpoint]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-model-0",
+      "reason": "image N16 projector slot 05 [N16 full-I16 quotient]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-model-1",
+      "reason": "image N16 projector slot 08 [merger I8 quotient]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-model-2",
+      "reason": "image N16 projector slot 10 [linear1 I8 quotient]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-model-3",
+      "reason": "image N16 projector slot 13 [linear2 I16 quotient]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-model-5",
+      "reason": "image N16 projector slot 05 [N16 full-I16 quotient]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-model-7",
+      "reason": "image N16 projector slot 03 [norm isqrt]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-model-8",
+      "reason": "image N16 projector slot 08 [merger I8 quotient]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-model-9",
+      "reason": "image N16 projector slot 10 [linear1 I8 quotient]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-model-10",
+      "reason": "image N16 projector slot 13 [linear2 I16 quotient]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-literal-GELU",
+      "reason": "image-projector H: pcs zk: group 10: <v, c> != combined claim"
+    }
+  ],
+  "test_binary": {
+    "path": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_projector_proof_20261115/target/release/deps/hashline-9202ea3eb8db684f",
+    "sha256": "4249d9d71bd8cb2e7238de4502df1478797243b7ffa357dc6577cd21b76d4329"
+  },
+  "changed_source_files": [
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail.rs"
+  ],
+  "new_source_files": [
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/bridge.rs",
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/engine.rs",
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/numerical.rs",
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/slots.rs",
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/tests.rs",
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector.rs"
+  ],
+  "standalone_committed_projector": true,
+  "composed_with_encoder": false,
+  "complete_vision_pipeline": false,
+  "raw_receipts_retained": false,
+  "installed": false,
+  "production_or_privacy_acceptance": false,
+  "timing_scope": "shared-host functional diagnostics"
+}

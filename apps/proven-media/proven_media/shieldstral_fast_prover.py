@@ -33,29 +33,36 @@ class ShieldstralFastProver(ClassifierProver):
     separate_categories = True
     max_running = runtime.JOBS_IN_FLIGHT
 
-    def __init__(self, *, launcher=None):
-        require(config.prover_mode() == runtime.KIND, 'select the explicit shieldstral-fast development mode')
+    runtime = runtime
+
+    def __init__(self, *, launcher=None, runtime_module=None):
+        self.runtime = runtime if runtime_module is None else runtime_module
+        self.kind = self.runtime.KIND
+        self.max_running = self.runtime.JOBS_IN_FLIGHT
+        require(config.prover_mode() == self.runtime.KIND, 'select the matching explicit classifier development mode')
         require(config.TAU == 0.5, 'registered classifier threshold is fixed at0.5')
-        self.templates = runtime.templates()
-        self.encoder = ShieldstralTextEncoder(runtime.TEKKEN)
+        self.templates = self.runtime.templates()
+        self.encoder = ShieldstralTextEncoder(self.runtime.TEKKEN)
+        if getattr(self.runtime, 'PUBLIC_CONTENT_ONLY', False):
+            self.runtime.ensure_verifier_export()
         self.clis = {}
         for template in self.templates:
-            deployment = runtime.deployment(template)
-            runtime.validate(deployment)
-            self.clis[template.category] = ClassifierCLI(deployment)
-        self.service = runtime.service_dir()
+            deployment = self.runtime.deployment(template)
+            self.runtime.validate(deployment)
+            self.clis[template.category] = getattr(self.runtime, 'make_cli', ClassifierCLI)(deployment)
+        self.service = self.runtime.service_dir()
         self.launcher = launcher
 
     def describe(self):
-        description = {**super().describe(), 'model': config.CLASSIFIER_NAME, **runtime.descriptor(),
+        description = {**super().describe(), 'model': config.CLASSIFIER_NAME, **self.runtime.descriptor(),
                        'policy_selection': 'registered moderate policies (D61)',
                        'what_is_proved': 'The pinned integer model verdict for each category, bound to the post by input-owner verification.',
                        'development_candidate': True, 'production': False,
                        'per_job_s': 60, 'category_geometry': {t.category: {'chunk_tokens': t.chunk_size,
                            'overlap_tokens': t.overlap, 'max_chunks': t.max_chunks} for t in self.templates},
-                       'service': {'prover_lanes': runtime.PROVER_LANES, 'check_lanes': runtime.CHECK_LANES,
+                       'service': {'prover_lanes': self.runtime.PROVER_LANES, 'check_lanes': self.runtime.CHECK_LANES,
                                    'device': 'Apple GPU (Metal) + CPU', 'fresh_verifier': 'separate resident verifier process'}}
-        privacy = runtime.privacy_statement()
+        privacy = self.runtime.privacy_statement()
         return {**description, 'privacy_status': privacy['status'], 'privacy_statement': privacy}
 
     def content_length(self, text):
@@ -72,7 +79,8 @@ class ShieldstralFastProver(ClassifierProver):
         job.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
         job.mkdir(mode=0o700, exist_ok=False)
         write_private(job/'classifier-job.json', records.canonical({
-            'schema': 'pm-classifier-job/1', 'deployment': deployment_json(cli.deployment), **spec}))
+            'schema': 'pm-classifier-job/1', 'deployment': deployment_json(cli.deployment),
+            **spec, 'writer_binding': self.runtime.service_binding()}))
         return job
 
     def prepare(self, post_id, item, job, chunk=None):
@@ -85,7 +93,7 @@ class ShieldstralFastProver(ClassifierProver):
                 and records.canonical(chunk) == records.canonical(plan[chunk['index']]),
                 'category queue slot differs from the whole post')
         category = chunk['category']; cli = self.clis[category]
-        runtime.validate(cli.deployment)
+        self.runtime.validate(cli.deployment)
         require(records.threshold()['tau'] == 0.5 and records.threshold()['c'] == 0,
                 'registered threshold changed')
         policy = next(c['policy'] for c in records.categories() if c['id'] == category)
@@ -109,8 +117,8 @@ class ShieldstralFastProver(ClassifierProver):
         return job
 
     def _submit(self, job, op):
+        fast_service.ensure_running(self.service, self.runtime, launcher=self.launcher)
         fast_service.submit(self.service, job, op)
-        fast_service.ensure_running(self.service, runtime, launcher=self.launcher)
 
     def start(self, post_id, item, job, chunk=None):
         self._submit(self.prepare(post_id, item, job, chunk), 'prove')
@@ -134,7 +142,9 @@ class ShieldstralFastProver(ClassifierProver):
         require(spec.get('category') in self.clis, 'unknown job category')
         cli = self.clis[spec['category']]
         require(spec['deployment'] == deployment_json(cli.deployment), 'job deployment differs')
-        runtime.validate(cli.deployment)
+        self.runtime.validate(cli.deployment)
+        if getattr(self.runtime, 'PUBLIC_CONTENT_ONLY', False):
+            require(spec.get('writer_binding') == self.runtime.service_binding(), 'job writer binding differs')
         steps = self._steps(job)
         require('verify' in steps, 'fresh verification is missing')
         result = cli.collect_verified(spec['artifact'], spec['total'], spec['chunk'],
@@ -171,7 +181,7 @@ class ShieldstralFastProver(ClassifierProver):
         require(chunk in self.plan_text(item.text), 'collected chunk differs from original post')
         category = spec['category']; st = r['statement']
         policy = next(c['policy'] for c in records.categories() if c['id'] == category)
-        checks = {'verify': {'ok': True, 'by': f'pinned {runtime.LANE} resident verifier, its own process'}, 'content_binding': {'ok': True}}
+        checks = {'verify': {'ok': True, 'by': f'pinned {self.runtime.LANE} resident verifier, its own process'}, 'content_binding': {'ok': True}}
         if spec['last_category_chunk']:
             checks['category_aggregate'] = self._aggregate(job, spec, r)
         steps = self._steps(job)
@@ -191,14 +201,23 @@ class ShieldstralFastProver(ClassifierProver):
             content_length={'tokens': chunk['end']-chunk['start'], 'total_tokens': spec['total'],
                             'tokenizer': 'pinned Tekken', 'tokenizer_sha256': TEKKEN_SHA256},
             chunk=chunk, created_at=records.now_iso(), proved_at=records.now_iso(),
-            notes=[f'DEVELOPMENT CANDIDATE (A24 servers, {runtime.LANE} binary): resident GPU servers; registered moderate policies (D61).',
+            notes=[f'DEVELOPMENT CANDIDATE (A24 servers, {self.runtime.LANE} binary): resident GPU servers; registered moderate policies (D61).',
                    describe['privacy_status'] + ': D58 covers the named r16b CPU binary only; not production (D63).'])
         rec.labels[category]['policy_sha256'] = policy['sha256']
+        if getattr(self.runtime, 'PUBLIC_CONTENT_ONLY', False):
+            rec.labels[category]['public_content_only'] = True
         proof_plans.check_category_record(rec.to_dict(), post_id, chunk, require_verdict=True)
         return rec
 
     def check_final_records(self, item, rows):
         require(isinstance(item, TextItem) and all(rows), 'all category proofs are required')
+        if getattr(self.runtime, 'PUBLIC_CONTENT_ONLY', False):
+            require(all(r.get('prover', {}).get('kind') == self.kind
+                        and r['prover'].get('public_content_only') is True
+                        and r['prover'].get('production') is False
+                        and r['statement'].get('run_profile') == self.runtime.RUN_PROFILE
+                        and r['statement'].get('trained_statement_identity') == self.runtime.IDENTITY for r in rows),
+                    'W16R2 aggregate mixes another proving mode')
         grouped = {t.category: sorted([r for r in rows if r['chunk']['category'] == t.category],
                     key=lambda r: r['chunk']['category_chunk_index']) for t in self.templates}
         total = check_category_coverage(item.text, self.encoder, self.templates,
@@ -210,6 +229,10 @@ class ShieldstralFastProver(ClassifierProver):
                     'whole-category native aggregate is missing or belongs to another proof set')
             expected = 'yes' if any(r['statement']['verdict_bit'] for r in rs) else 'no'
             result = aggregate['result']
+            if getattr(self.runtime, 'PUBLIC_CONTENT_ONLY', False):
+                require(result.get('public_content_only') is True and result.get('development_only') is False
+                        and result.get('development_candidate') is True and result.get('production') is False,
+                        'W16R2 category aggregate lacks public development scope')
             require(result['value'] == expected and result['proof'] == 'accepted'
                     and result['bound_by_proof'] is True and result['chunks'] == len(rs)
                     and result['policy_id'] == self.clis[category].deployment.policy,
@@ -221,9 +244,12 @@ class ShieldstralFastProver(ClassifierProver):
         cli = self.clis[spec['category']]
         require(spec['deployment'] == deployment_json(cli.deployment)
                 and record.post_id == spec['post_id'] and record.receipt['run_dir'] == spec['artifact']
-                and record.prover['kind'] == self.kind and record.prover['binary_sha256'] == runtime.BINARY_SHA
+                and record.prover['kind'] == self.kind and record.prover['binary_sha256'] == self.runtime.BINARY_SHA
                 and records.canonical(record.chunk) == records.canonical(spec['queue_chunk']),
                 'original proof context differs from record')
+        if getattr(self.runtime, 'PUBLIC_CONTENT_ONLY', False):
+            require(self.runtime.matches_proof_binding(spec.get('writer_binding'), record.prover),
+                    'original writer binding differs')
         spec = {k: v for k, v in spec.items() if k not in ('schema', 'deployment')}
         spec['mode'] = 'recheck'
         return self._job(job, cli, spec)
@@ -239,6 +265,6 @@ class ShieldstralFastProver(ClassifierProver):
         except (ProverError, OSError, ValueError, KeyError):
             return records.Verdict('re-check', False, False, 'classifier recheck failed', records.now_iso(),
                                    {'rejected': True})
-        return records.Verdict(r['value'], True, True, f'fresh {runtime.LANE} resident verifier and input-owner', records.now_iso(),
+        return records.Verdict(r['value'], True, True, f'fresh {self.runtime.LANE} resident verifier and input-owner', records.now_iso(),
                                {'content_binding': True, 'privacy_status': self.describe()['privacy_status'],
                                 'privacy_statement': self.describe()['privacy_statement']})

@@ -1,0 +1,22 @@
+{
+  "schema": "pm-w16r2-native-intake/1",
+  "status": "candidate_native_cli_ready",
+  "kind": "shieldstral-fast-w16r2",
+  "binary": "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a30a31",
+  "binary_sha256": "58e59880780da69dd9fe963ad34fc46073f0e01bc02c82fdd3f732c6793548e7",
+  "statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+  "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2",
+  "profile_sha256": "9464388091d8095f8491f2990fde54e3b1f2b06f2a5c6ad1e72eff09cd4ce20a",
+  "public_content_only": true,
+  "production": false,
+  "min_bits": 95,
+  "native_flag": "--dev-w16r2-public-content-only",
+  "commands": [
+    "serve",
+    "check-serve",
+    "prove",
+    "verify",
+    "input-owner",
+    "label"
+  ]
+}

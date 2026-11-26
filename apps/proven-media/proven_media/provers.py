@@ -21,6 +21,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
+import shlex
 import shutil
 import subprocess
 import time
@@ -548,6 +550,10 @@ def make_prover(mode: str | None = None) -> ClassifierProver:
         # lane A24 development candidate: never selected by default, privacy pending, not production
         from .shieldstral_fast_prover import ShieldstralFastProver
         return ShieldstralFastProver()
+    if mode == 'shieldstral-fast-w16r2':
+        from .fast_runtime_selection import runtime_for
+        from .shieldstral_fast_prover import ShieldstralFastProver
+        return ShieldstralFastProver(runtime_module=runtime_for(mode))
     return StubProver()
 
 
@@ -564,29 +570,43 @@ def media_status(item) -> dict:
 def verify_instructions(record: dict) -> dict:
     """how anyone re-checks the proof from a downloaded bundle (public pins only)"""
     p = record.get("prover", {})
-    if p.get('kind') == 'shieldstral':
-        from . import shieldstral_runtime as runtime
+    if p.get('kind') in ('shieldstral', 'shieldstral-fast', 'shieldstral-fast-w16r2'):
         from .classifier_privacy import statement_info
         privacy = statement_info(p)
-        policy = record.get('statement', {}).get('policy', '<category-policy-id>')
-        return {'binary': 'zk60_classify r16b, sha256 ' + runtime.BINARY_SHA,
-                'public_model_files': 'R13 T128 public export and its token_io tables',
-                'expect_statement': runtime.IDENTITY,
-                'command': 'zk60_classify verify --export <public-export> --tables <public-export>/token_io '
-                           f'--policy {policy} --label zk60-classify-verdict --artifact <run> '
-                           f'--expect-statement {runtime.IDENTITY} --min-bits 95',
-                'accept_if': 'exit0 with classified event; statement rechecked byte for byte',
-                'privacy_status': privacy['status'], 'privacy_statement': privacy}
-    if p.get('kind') == 'shieldstral-fast':
-        from . import shieldstral_fast_runtime as fast
-        privacy = fast.privacy_statement()
-        policy = record.get('statement', {}).get('policy', '<category-policy-id>')
-        return {'binary': 'zk60_classify (lane A24 build, development candidate), sha256 ' + fast.BINARY_SHA,
-                'public_model_files': 'R13 T128 public export and its token_io tables',
-                'expect_statement': fast.IDENTITY,
-                'command': 'zk60_classify verify --export <public-export> --tables <public-export>/token_io '
-                           f'--policy {policy} --label zk60-classify-verdict --artifact <run> '
-                           f'--expect-statement {fast.IDENTITY} --min-bits 95',
+        statement = record.get('statement') or {}
+        identity, binary, profile = (p.get(k) for k in ('model_digest', 'binary_sha256', 'token_profile_digest'))
+        policy = statement.get('policy')
+        # A runtime upgrade must never rewrite the verifier pins of an older
+        # receipt. Missing or inconsistent recorded pins cannot supply a CLI.
+        valid_pins = all(isinstance(v, str) and re.fullmatch(r'[0-9a-f]{64}', v)
+                         for v in (identity, binary, profile))
+        consistent = statement.get('trained_statement_identity', identity) == identity
+        consistent = consistent and (not statement.get('run_profile') or
+                                      statement['run_profile'] == p.get('run_profile'))
+        public_only = p.get('kind') == 'shieldstral-fast-w16r2'
+        if public_only:
+            consistent = consistent and (p.get('public_content_only') is True and p.get('production') is False
+                and p.get('native_cli_flags') == ['--dev-w16r2-public-content-only']
+                and isinstance(p.get('run_profile'), str) and bool(p['run_profile'])
+                and statement.get('run_profile') == p['run_profile'])
+        if not valid_pins or not consistent or not isinstance(policy, str) or not policy:
+            return {'command': '', 'note': 'Verifier instructions unavailable: recorded pins or policy are missing or inconsistent.',
+                    'privacy_status': privacy['status'], 'privacy_statement': privacy}
+        if public_only:
+            executable = 'ZK60_MODELS="$PM_W16R2_VERIFIER_KIT/models" "$PM_W16R2_VERIFIER_KIT/bin/zk60_classify"'
+            export = '"$PM_W16R2_VERIFIER_KIT/export"'
+            tables = '"$PM_W16R2_VERIFIER_KIT/export/token_io"'
+        else:
+            executable, export, tables = 'zk60_classify', '<public-export>', '<public-export>/token_io'
+        return {'binary': 'zk60_classify (recorded build), sha256 ' + binary,
+                'public_model_files': ('W16R2 T128 public export matching model ' if public_only else 'R13 T128 public export matching model ') + identity +
+                                      ' and token profile ' + profile + ', with its token_io tables',
+                'expect_statement': identity, 'expect_token_profile': profile,
+                'run_profile': p.get('run_profile'),
+                'command': f'{executable} verify --export {export} --tables {tables} '
+                           f'--policy {shlex.quote(policy)} --label zk60-classify-verdict --artifact <run> '
+                           f'--expect-statement {identity} --min-bits 95' +
+                           (' --dev-w16r2-public-content-only' if public_only else ''),
                 'accept_if': 'exit0 with classified event; statement rechecked byte for byte',
                 'privacy_status': privacy['status'], 'privacy_statement': privacy}
     if p.get("kind") != "stub-next-token":

@@ -1,0 +1,373 @@
+{
+  "at": "2026-11-12T07:57:45.891873+00:00",
+  "passed": true,
+  "scope": "Current app A28 binary, exact A2 candidate, three predeclared synthetic public 35-token inputs. Three 26-layer classifier proofs (28 segments each), fresh verification, input-owner and whole-item labels. One wrong-content and one single-segment corruption refusal. Actual HTTP/browser pending flow and historical published receipt screens. The historical screen fixtures were not re-proved or re-verified; resident concurrent candidate proving was not exercised.",
+  "binary_sha256": "80f2b70481fba51df6118b25a19e2d0c4c6e1ddb4e10b00c96e0ca2252935157",
+  "candidate_identity": "79915865248e39323936a46b08a3eeb320c41564a1895fc1b08fc04158d610ff",
+  "app_baseline_identity": "e4f97455f9a301ea8646ae1754bb29de52e51798ae7e8e435a597eedbcf3279d",
+  "receipts": [
+    {
+      "category": 0,
+      "segments": 28,
+      "receipt_bytes": 848412096,
+      "steps": [
+        "prove",
+        "verify",
+        "input-owner",
+        "label",
+        "wrong-content",
+        "tamper"
+      ],
+      "verification": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_0-verify.json",
+        "sha256": "ea7affbd23a78c600536598198bb86a4170b351461ca716c5b1da1319da33fb9"
+      }
+    },
+    {
+      "category": 1,
+      "segments": 28,
+      "receipt_bytes": 848412096,
+      "steps": [
+        "prove",
+        "verify",
+        "input-owner",
+        "label"
+      ],
+      "verification": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_1-verify.json",
+        "sha256": "ce4bf8f55cf484922d6d04914abcf35f394351bfd758a9e57bb5acc3927b74b5"
+      }
+    },
+    {
+      "category": 2,
+      "segments": 28,
+      "receipt_bytes": 848412096,
+      "steps": [
+        "prove",
+        "verify",
+        "input-owner",
+        "label"
+      ],
+      "verification": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_2-verify.json",
+        "sha256": "781f1df3f49772153906e387dab1e02456d1d1e9847bbf9d8b9109238276caf3"
+      }
+    }
+  ],
+  "guarded_steps": [
+    {
+      "name": "identity",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/identity-job-r2/terminal.json",
+        "sha256": "f687b62abcc5c2a66320fe13a0b0cc30cdc3fec3f167d8338df76eb9ea06b69d"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/identity-job-r2/guard.json",
+        "sha256": "ffe38f11088d4c14b6182216d0f18ca1d3cf40e67166b36b60708d177d725394"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 62.23722791671753,
+      "peak_rss_gib": 1.42
+    },
+    {
+      "name": "browser",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/browser-job-r2/terminal.json",
+        "sha256": "9be450ffc1ce380de78d0e80a8473650f00b95285db292353408bc2068b21557"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/browser-job-r2/guard.json",
+        "sha256": "673127101606d868a995e4d18f9a2b2d5c6801d0bb9b8bca9586466fc3261fb4"
+      },
+      "class": "gpu",
+      "child_wall_seconds": 1.9948749542236328,
+      "peak_rss_gib": 0.69
+    },
+    {
+      "name": "c0-prove",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-prove-job/terminal.json",
+        "sha256": "8173b4a6e238b701189b13c4f1a8255fa584f4a324f72aeb254d0fbaed65dc4f"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-prove-job/guard.json",
+        "sha256": "0a146107711486c701a1fa440b322fc2717b225793e41a91d4f409f2115156a1"
+      },
+      "class": "gpu",
+      "child_wall_seconds": 75.75606179237366,
+      "peak_rss_gib": 5.61
+    },
+    {
+      "name": "c0-verify",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-verify-job/terminal.json",
+        "sha256": "598d89dd8c8f0781bea3da03365bda3fea93a1d271ce7c4081a8d8d0094f921f"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-verify-job/guard.json",
+        "sha256": "e4b39c768edada3397c501bdce55440eebc192a4276cec627719e135375d45e0"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 50.899734020233154,
+      "peak_rss_gib": 2.68
+    },
+    {
+      "name": "c0-input-owner",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-input-owner-job/terminal.json",
+        "sha256": "f1fd689fb54f9bd8d6a4a4a9f5781dfd204cbfa2335d7242ee8821eab3e922e2"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-input-owner-job/guard.json",
+        "sha256": "0c6816df993fa679791e46a3d84dfaa4f5101b92720fd0821e07247c2fd8b586"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 50.51753878593445,
+      "peak_rss_gib": 2.58
+    },
+    {
+      "name": "c0-label",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-label-job/terminal.json",
+        "sha256": "7eb719bd04f659de1b67020622dc8407dbb55f9e175e5d6eab4d461df467d399"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-label-job/guard.json",
+        "sha256": "8e41a450c5a3f0393de3f9d1ecd3d7912cd147a6b007292730c5329fbc87eb3b"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 50.2167329788208,
+      "peak_rss_gib": 2.6
+    },
+    {
+      "name": "c0-wrong-content",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-wrong-content-job/terminal.json",
+        "sha256": "1d49ba72d913f846b729a1861d1d4457fc6a970e7ad89274da3d9fdc5335bd8d"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-wrong-content-job/guard.json",
+        "sha256": "deaa5f78c78367f00efea9cfb38b8a00533ae24e613195be1c8f3c3393c40487"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 50.19578719139099,
+      "peak_rss_gib": 2.7
+    },
+    {
+      "name": "c0-tamper",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-tamper-job/terminal.json",
+        "sha256": "3db8aa97735f9e26f9ca5365c42536bfff85764c119348bd5125d5a8f60ae7b6"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c0-tamper-job/guard.json",
+        "sha256": "386f66ea943eaab067fd15803edb750b0262288fbc39b753e13dbe50988c9b05"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 44.46069383621216,
+      "peak_rss_gib": 2.58
+    },
+    {
+      "name": "c1-prove",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c1-prove-job/terminal.json",
+        "sha256": "6bf92d9a18a3958815d161dcff5c98c8d3db2d231d66ed193c231caded963526"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c1-prove-job/guard.json",
+        "sha256": "363985fe3a37a79ef068e41377a8fba5658b964c67d978dccd75a5441349778e"
+      },
+      "class": "gpu",
+      "child_wall_seconds": 75.11562275886536,
+      "peak_rss_gib": 5.56
+    },
+    {
+      "name": "c1-verify",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c1-verify-job/terminal.json",
+        "sha256": "3ce8b7de4fdb151445694454922e41ca7aa16ee062a3ef4f5320c4500b6feecb"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c1-verify-job/guard.json",
+        "sha256": "13045c5816a6c9574b500365911e547e56bb63a95272c5619174cae9adb7d846"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 50.271733045578,
+      "peak_rss_gib": 2.63
+    },
+    {
+      "name": "c1-input-owner",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c1-input-owner-job/terminal.json",
+        "sha256": "6af8ab34a42d6646851b8c9337bb07fdf941ef5267c8dcbfe5d206726d6d74ff"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c1-input-owner-job/guard.json",
+        "sha256": "adba6ed2afa66b305fe51d7791045876c0501e4078678f58b93ca8d7c8d2ca8b"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 49.950631856918335,
+      "peak_rss_gib": 2.57
+    },
+    {
+      "name": "c1-label",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c1-label-job/terminal.json",
+        "sha256": "a8feee86a10551cf6591336cf2de40d4a320c8636834aea3e411dba383be353b"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c1-label-job/guard.json",
+        "sha256": "38c5e11dbeb4ffd0cf492abdec40597f9d73ccdd85d3734ef7557f386c34a652"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 49.955397844314575,
+      "peak_rss_gib": 2.57
+    },
+    {
+      "name": "c2-prove",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c2-prove-job/terminal.json",
+        "sha256": "fef6280849de49dd00a0bb8c998888aa0ed70ce9f635accd591742703261efe6"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c2-prove-job/guard.json",
+        "sha256": "6f826f3c128dc1330774ea4a9db9f472bebe1aa75db889510aac585662e2b9bd"
+      },
+      "class": "gpu",
+      "child_wall_seconds": 74.80448579788208,
+      "peak_rss_gib": 5.61
+    },
+    {
+      "name": "c2-verify",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c2-verify-job/terminal.json",
+        "sha256": "dfe043574cafcb17a2f1b7435465961b4ac60f4f3092c842edcf2150a9eb7142"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c2-verify-job/guard.json",
+        "sha256": "1be34d25e96a71456981bc0eaf64e28968b3a2aeee0ac7794cc72ecf1209d8e2"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 50.082505226135254,
+      "peak_rss_gib": 2.59
+    },
+    {
+      "name": "c2-input-owner",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c2-input-owner-job/terminal.json",
+        "sha256": "78a08557d795de2c8dbfb77ea1a8a700fdb7e365a88f6102fa8850a4fbbdaf1c"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c2-input-owner-job/guard.json",
+        "sha256": "a19919264308a9ff20df71cf9a5456def3de557caa4aeaff1155d329ce71445b"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 49.71838092803955,
+      "peak_rss_gib": 2.62
+    },
+    {
+      "name": "c2-label",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c2-label-job/terminal.json",
+        "sha256": "ab71a250a8a89706b7c49d19d64088f133a4b3ed527e9ff82e61117c87cdf417"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/native-c2-label-job/guard.json",
+        "sha256": "f259a6590d90e33f10f2f4568db5c0ec14efe8a5ede5bac39889950b99dcbc38"
+      },
+      "class": "cpu",
+      "child_wall_seconds": 49.732261180877686,
+      "peak_rss_gib": 2.68
+    },
+    {
+      "name": "browser-r3",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/browser-job-r3/terminal.json",
+        "sha256": "d4bdea94a92c911f6eccddf1d0523702d67ebd325b4c180195f1b65e0dcf6e4d"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/browser-job-r3/guard.json",
+        "sha256": "ebedb696bb8e72405a16b75ecb48fd0ef46c4d8d53b345f01dcb28db82cc78bf"
+      },
+      "class": "gpu",
+      "child_wall_seconds": 9.009056091308594,
+      "peak_rss_gib": 0.76
+    },
+    {
+      "name": "browser-final",
+      "terminal": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/browser-job-r4/terminal.json",
+        "sha256": "c191b0fc990c8c9dfd4db5823011914741291c0168ac08b20f245c70a28ae98c"
+      },
+      "guard": {
+        "path": "results/zk60_astra_20261026/current_app_20261112/browser-job-r4/guard.json",
+        "sha256": "ce2689727f8572e9027cab3c067fe48d8abafad7a1867f754c38fcddca355b2d"
+      },
+      "class": "gpu",
+      "child_wall_seconds": 10.310410976409912,
+      "peak_rss_gib": 0.81
+    }
+  ],
+  "python_app_tests": 222,
+  "frontend_suites": 3,
+  "proof_segments": 84,
+  "native_layer_parity_checks": 78,
+  "timing_scope": "Correctness runs on a shared host, not matched performance benchmarks.",
+  "historical_browser_source_snapshots": [
+    {
+      "path": "results/zk60_astra_20261026/current_app_20261112/browser-source-r2/apps/proven-media/static/app.js",
+      "sha256": "81e0a36e083bc8fad0db203f9c8dab4cfa8dcd1d9f838f716e94b30db1a051eb"
+    },
+    {
+      "path": "results/zk60_astra_20261026/current_app_20261112/browser-source-r2/apps/proven-media/proven_media/provers.py",
+      "sha256": "997af8fdfae0c559affbe24a2b261ff720ce71be7f09af3290c71ff910396331"
+    },
+    {
+      "path": "results/zk60_astra_20261026/current_app_20261112/browser-source-r3/apps/proven-media/static/app.js",
+      "sha256": "ba8772bf41ffd415a78ac316d21d542e4f8a8f891cab9e4633f8761cdcc6ca9b"
+    },
+    {
+      "path": "results/zk60_astra_20261026/current_app_20261112/browser-source-r3/apps/proven-media/proven_media/provers.py",
+      "sha256": "997af8fdfae0c559affbe24a2b261ff720ce71be7f09af3290c71ff910396331"
+    },
+    {
+      "path": "results/zk60_astra_20261026/current_app_20261112/browser-source-r3/apps/proven-media/static/app.css",
+      "sha256": "8aaf15dffe269a98809c79dce713bf2dfbf887d5ff75c29a80eb50678042b459"
+    }
+  ],
+  "native_source_or_model_adoption": false,
+  "privacy_accepted": false,
+  "production_accepted": false,
+  "full_A1_A8_goal_complete": false,
+  "owned_live_jobs": 0,
+  "evidence": {
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_0-prove.json": "231386ac883df29ab89cbbd8596af5830e74af1d854e39049fcb4c77748bf407",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_0-verify.json": "ea7affbd23a78c600536598198bb86a4170b351461ca716c5b1da1319da33fb9",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_0-input-owner.json": "795d37a0fcb60c67bd7415f7ca4328d9c9ea3e40f4a22887110a720abd374472",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_0-label.json": "55d893b39f55c20936b19e7e853078beb3a8a2a1c46d3e4e0610243d9d8acf6d",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_0-wrong-content.json": "228616413156ce5b4370d5734e94d535ca2c61250a37fe096c77456ace9d650e",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_0-tamper.json": "8692296bb8a1fd2abd362b749e300889d0c8854e6c0404d0ca2f2cba065877d1",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_1-prove.json": "b2db40e332bd1e2abe51b2d06ca2ead74af1b0e28a2447328542d524f902b5ed",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_1-verify.json": "ce4bf8f55cf484922d6d04914abcf35f394351bfd758a9e57bb5acc3927b74b5",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_1-input-owner.json": "d2f525c1ef8e5bb606e7cb27a727946a4c59ec571905e8855ad2d68da147f5b9",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_1-label.json": "ba928e78f055d2f96cf18d3e637afb569417d81759d8c09473d9e5be2a621308",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_2-prove.json": "48925a3422bcbf75561089abab5a63bd730b324181bdf4d79d7b196f2ab97c70",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_2-verify.json": "781f1df3f49772153906e387dab1e02456d1d1e9847bbf9d8b9109238276caf3",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_2-input-owner.json": "30bd1389532e9fbb0dfee6bcfcc8c436f6f28ed65bc60bbbb68aa1bec30c0de4",
+    "results/zk60_astra_20261026/current_app_20261112/native-candidate/category_2-label.json": "20307033a9475f9940e08aacdb9c2805ac1c9daf7599ee3ec17b35e8f72d190b",
+    "results/zk60_astra_20261026/current_app_20261112/candidate-identity-r2/complete.json": "d805c5833ed4e85ceed34f411223c0ee38a9851bda190e64c29a3509c9a42fb0",
+    "results/zk60_astra_20261026/current_app_20261112/browser-r2/validation.json": "b3f1cd033e2688f4cb5b2551705b8d8db44dc68f494f3d65443ebb6245fe9991",
+    "results/zk60_astra_20261026/current_app_20261112/visual-review-r2.json": "5e9fc1b2e2b5af2270d4bd1f8877f291bca4fe51e359f2c4d75bf697ba38a224",
+    "results/zk60_astra_20261026/current_app_20261112/browser-r3/validation.json": "ab5bc302af5172f67a9058d898b84f349b3b451149eedbf7e4a9fe3f4403c575",
+    "results/zk60_astra_20261026/current_app_20261112/visual-review-r3.json": "fa110aa100e35c87f933f5cc0acf68ada4799603174a4b2caa33a9e71f00661a",
+    "results/zk60_astra_20261026/current_app_20261112/browser-r4/validation.json": "a635df780d88a977ccfe6e0b26cf786656671b7bc03d1dddbb33c8623929c1fb",
+    "results/zk60_astra_20261026/current_app_20261112/visual-review.json": "46a089eb92b1b17386725fe8bbc580f538b068ef206b7676c290a4a510935d90",
+    "results/zk60_astra_20261026/current_app_20261112/frontend-final-r4-validation.json": "994ea94204f9284bdf3b09852bafac880a8dbb3c78f6378bcacb205bbaabae91",
+    "results/zk60_astra_20261026/current_app_20261112/python-tests-final.json": "6975ddc0fcbf31d34473fa5f821b0539eec2da6422fa1d6724a6918675a776cb",
+    "results/zk60_astra_20261026/current_app_20261112/python-tests-final.log": "a39d3577048db408210dc309f6a8b7c16f3b0e613d65505cee81b4118284df1b",
+    "results/zk60_astra_20261026/current_app_20261112/current-template-preflight.json": "dd08313ef5a86b3391eea193ed93833c70f15093a08d76d438f7975649aef11c",
+    "results/zk60_astra_20261026/current_app_20261112/a5-current-runtime-review.json": "40b5a5bb0354ccc2bfe7a41203a32424288fb4fafd4d846e18ccf366a372b917",
+    "results/zk60_astra_20261026/current_app_20261112/batch-plan.json": "61dbe572ad92ce332d292db4e1c07e2fa273cb0d0413d59acd31f1597fcd8c72",
+    "results/zk60_astra_20261026/current_app_20261112/batch/terminal.json": "68757e26dfd83bf457b9838f10c98f6313bd6e90db853acd34f08240b86bc08a"
+  }
+}

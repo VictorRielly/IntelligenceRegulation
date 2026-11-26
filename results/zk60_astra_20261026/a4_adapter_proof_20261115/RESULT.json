@@ -1,0 +1,188 @@
+{
+  "schema": "astra-committed-adapter-qualification/1",
+  "at": "2026-11-15T09:34:16.153093+00:00",
+  "passed": true,
+  "source_manifest_sha256": "460757df8d64a61f4307b2d66755cbeca0f2e2a2aab944c36181443179e66e70",
+  "source_pins": 877,
+  "attempt": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_adapter_proof_20261115/attempts/20261115T090837.580163Z",
+  "guards": [
+    {
+      "name": "check",
+      "peak_rss_gib": 1.72,
+      "child_wall_seconds": 16.561843872070312,
+      "enforcement": "watchdog-only"
+    },
+    {
+      "name": "build",
+      "peak_rss_gib": 5.65,
+      "child_wall_seconds": 87.79792189598083,
+      "enforcement": "watchdog-only"
+    },
+    {
+      "name": "unit",
+      "peak_rss_gib": 0.04,
+      "child_wall_seconds": 1.0555169582366943,
+      "enforcement": "watchdog-only"
+    },
+    {
+      "name": "proofs",
+      "peak_rss_gib": 0.89,
+      "child_wall_seconds": 18.971256971359253,
+      "enforcement": "watchdog-only"
+    }
+  ],
+  "unit_tests": 11,
+  "model_controls": 17,
+  "wire_model_root_controls": 19,
+  "coherent_forged_receipts": 16,
+  "global_lookup_failures": 6,
+  "full_trained_canvases": 3,
+  "unique_reference_words_matched": 3732480,
+  "real_tokens": 149,
+  "context_capability": 256,
+  "image_tokens": 64,
+  "public_tokens": 85,
+  "cases": [
+    {
+      "case": "black",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "7c0f4f5d026b3e951c7b4d1b7f45b6233781dfa48378dc7e31293498ee16fded",
+      "prove_seconds": 0.895862,
+      "verify_seconds": 0.057031
+    },
+    {
+      "case": "white",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "c5d95918f6833e954bec9650007be79a1ab1d159cfa3baa14e22579f083c3210",
+      "prove_seconds": 0.87696,
+      "verify_seconds": 0.054968
+    },
+    {
+      "case": "coordinates",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "066ad48011c313a47b87c8e3b0b11a0d5a9e495e2adf5e29d8a16e4962afad0a",
+      "prove_seconds": 0.874775,
+      "verify_seconds": 0.055622
+    }
+  ],
+  "forgeries": [
+    {
+      "case": "input-limb",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "892559f3ffeb4c6feb1b3939c12cf73ea746a842d283decfb3420e0d66ef227a",
+      "reason": "joined H: pcs zk: group 5: <v, c> != combined claim"
+    },
+    {
+      "case": "rotation-limb",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "613a6a17955d188ecfa4f521c9ee61dd945c0dd30ba30e5f659f13236e0482ac",
+      "reason": "joined H: pcs zk: group 5: <v, c> != combined claim"
+    },
+    {
+      "case": "quotient-limb",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "d9667d01bb870fd7f3bc2165a2261159b3f9454e4fe5117a4083890ee312b4a4",
+      "reason": "joined H: pcs zk: group 5: <v, c> != combined claim"
+    },
+    {
+      "case": "remainder-limb",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "4655036d88ce449db0decebea15269533176c02f0c7d199169827df840d46693",
+      "reason": "joined H: pcs zk: group 5: <v, c> != combined claim"
+    },
+    {
+      "case": "complement-limb",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "fb1baa0a8c7843e0b464d46d41e7c9977369619c69c23457a4f4df8fda76aff8",
+      "reason": "joined H: pcs zk: group 5: <v, c> != combined claim"
+    },
+    {
+      "case": "compensated-quotient",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "cb89d9a2f674131eba34d6d9a452b1708660f3876ada2448c331ea9b914621c3",
+      "reason": "joined H: pcs zk: group 5: <v, c> != combined claim"
+    },
+    {
+      "case": "matched-input-padding",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "78dd275f45bf0e6a69aca1a9ac4ee5a019d138d5fc6e1472bff46673b20b9122",
+      "reason": "image fullprompt adapter slot 01 [I16 input and channel padding]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-sign-table",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "548ef15ed973237567f014392fcc4d353aba5655933b96a6cfd7c714dd44658c",
+      "reason": "image fullprompt adapter slot 03 [Hadamard output and signed range]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "permuted-Hadamard-blocks",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "cbf6a81dd369ac26bc02df81168c3fbda11566e784aebec167c6085746ac9d56",
+      "reason": "image fullprompt adapter slot 03 [Hadamard output and signed range]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-coefficient",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "af5d64098fac4bdf126f0371343b28fb43c8918192111419792d850874a6d69b",
+      "reason": "image fullprompt adapter slot 04 [Q24 conversion and I16 range]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-image-position-order",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "fdbfb8ae107bb13652d021e60cc98644ddae31110d16021c9cf14b5aa9cfc6fb",
+      "reason": "image fullprompt adapter slot 06 [image rows and inactive channels]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "wrong-public-row",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "21386a40727b3c0bbcceff8434699c86e938010b00b34401ef30d16171ab1736",
+      "reason": "image fullprompt adapter slot 07 [public prompt and context padding]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "context-padding",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "dc49c2db5fe2beec8485bd37292faafd8c46e7ae91eacb5bbfa89774250835a8",
+      "reason": "image fullprompt adapter slot 07 [public prompt and context padding]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "nonimage-channel-padding",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "24e615e1ec83fa028bd8ca154b89dfa98948330be76fb0057a5fdbb7e2569e57",
+      "reason": "image fullprompt adapter slot 07 [public prompt and context padding]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "input-endpoint",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "8263a427df2a90d45f2320fb648886781b9a8f99d85f8b54185fe5a6f219f73f",
+      "reason": "image fullprompt adapter slot 00 [input endpoint]: sumcheck round 0: s(0) + s(1) != claim"
+    },
+    {
+      "case": "output-endpoint",
+      "receipt_bytes": 7659752,
+      "receipt_sha256": "0427384a3430ada27c44883f22b2141fce417ee46480c8c210a1cf8ff346d820",
+      "reason": "image fullprompt adapter slot 10 [output endpoint]: sumcheck round 0: s(0) + s(1) != claim"
+    }
+  ],
+  "test_binary": {
+    "path": "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_adapter_proof_20261115/target/release/deps/hashline-ab900db0a1b1278a",
+    "sha256": "04c6b83176a5664fb85795801cd80f4c752f8dc036c12759c88ee8ea139d45e7"
+  },
+  "changed_source_files": [
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector.rs"
+  ],
+  "new_source_files": [
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/adapter/bridge.rs",
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/adapter/engine.rs",
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/adapter/numerical.rs",
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/adapter/slots.rs",
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/adapter/tests.rs",
+    "hashline/src/private_block/token_io/image_frontend/encoder/attention/tail/projector/adapter.rs"
+  ],
+  "standalone_committed_adapter": true,
+  "composed_with_encoder_projector": false,
+  "complete_vision_pipeline": false,
+  "raw_receipts_retained": false,
+  "installed": false,
+  "production_or_privacy_acceptance": false,
+  "timing_scope": "shared-host functional diagnostics"
+}

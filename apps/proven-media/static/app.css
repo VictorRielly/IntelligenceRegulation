@@ -106,7 +106,8 @@ dialog::backdrop { background: #0008; }
   .topbar-inner { flex-wrap: wrap; gap: 8px 12px; }
   .who { margin-left: 0; }
 }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+  min-width: 0; overflow-wrap: anywhere; }
 .pad { padding: 16px 18px; }
 .stack > * + * { margin-top: 14px; }
 
@@ -202,12 +203,30 @@ textarea:focus, input[type=file]:focus { border-color: var(--brand); box-shadow:
 .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 @media (max-width: 800px) { .cols { grid-template-columns: minmax(0, 1fr); } }
 .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.card > .table { table-layout: fixed; }
 .table th, .table td { text-align: left; padding: 8px 6px; border-top: 1px solid var(--line); vertical-align: top; }
 .table th { color: var(--ink-3); font-weight: 500; }
 .table tr th:only-of-type { width: 36%; }
 .table td { overflow-wrap: break-word; word-break: break-word; }
 .table td .hash, .table td .mono { overflow-wrap: anywhere; }
 .table tr:first-child th, .table tr:first-child td { border-top: 0; }
+.labels-scroll { overflow-x: auto; }
+.labels-table tbody th[scope="row"] { width: auto; color: var(--ink); font-weight: 600; }
+.labels-table .label-field { display: none; }
+@media (max-width: 640px) {
+  .labels-table, .labels-table tbody { display: block; }
+  .labels-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .labels-table tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px; padding: 16px 0; border-top: 1px solid var(--line); }
+  .labels-table tbody tr:first-child { border-top: 0; padding-top: 8px; }
+  .labels-table tbody tr:last-child { padding-bottom: 8px; }
+  .labels-table tbody th, .labels-table tbody td { display: block; min-width: 0; padding: 0; border: 0; }
+  .labels-table tbody th[scope="row"] { align-self: center; }
+  .labels-table tbody .label-detail { grid-column: 1 / -1; display: grid;
+    grid-template-columns: 64px minmax(0, 1fr); gap: 12px; }
+  .labels-table .label-field { display: block; color: var(--ink-3); font-weight: 500; }
+  .labels-table .label-detail > div { min-width: 0; }
+}
 .hash { font-family: var(--mono); font-size: 12px; background: var(--surface-2); border-radius: 6px; padding: 1px 6px; }
 pre.code { background: #0b1220; color: #d1e3ff; border-radius: 10px; padding: 12px 14px; overflow-x: auto; font-size: 12px; line-height: 1.5;
   white-space: pre-wrap; word-break: break-all; margin: 0; }
@@ -274,10 +293,10 @@ details[open] summary { margin-bottom: 8px; }
 /* ---------- chunks and queue */
 .progress { margin: 8px 0; }
 .progress .bar { height: 8px; margin: 0 0 4px; }
-.table.grid td, .table.grid th { text-align: center; white-space: nowrap; }
-.table.grid td:first-child, .table.grid th:first-child, .table.grid td:nth-child(2), .table.grid th:nth-child(2), .table.grid td:last-child, .table.grid th:last-child { text-align: left; }
-.table.grid tr.running { background: color-mix(in srgb, var(--info-bg) 70%, transparent); }
-.table.grid tr.failed { background: color-mix(in srgb, var(--stub-bg) 70%, transparent); }
+.table.proof-grid td, .table.proof-grid th { text-align: center; white-space: nowrap; }
+.table.proof-grid td:first-child, .table.proof-grid th:first-child, .table.proof-grid td:nth-child(2), .table.proof-grid th:nth-child(2), .table.proof-grid td:last-child, .table.proof-grid th:last-child { text-align: left; }
+.table.proof-grid tr.running { background: color-mix(in srgb, var(--info-bg) 70%, transparent); }
+.table.proof-grid tr.failed { background: color-mix(in srgb, var(--stub-bg) 70%, transparent); }
 .cellrun { display: inline-flex; gap: 6px; align-items: center; color: var(--info); font-size: 12px; }
 .qitem { padding: 8px 0; border-top: 1px solid var(--line); }
 .qitem:first-of-type { border-top: 0; }

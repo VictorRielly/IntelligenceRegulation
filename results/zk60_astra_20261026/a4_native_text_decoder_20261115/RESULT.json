@@ -1,0 +1,144 @@
+{
+  "schema": "astra-first-native-text-decoder-layer/1",
+  "at": "2026-11-15T17:30:13.935484+00:00",
+  "passed": true,
+  "original_successful_tool_session": 30254,
+  "terminal_exit": 0,
+  "input_pins": 200,
+  "native_layers": 1,
+  "layer": 0,
+  "real_tokens": 149,
+  "full_trained_cases": 3,
+  "planes_per_case": 72,
+  "reference_words_matched": 122202648,
+  "unit_tests": 16,
+  "alteration_controls": {
+    "points": 216,
+    "geometries": 72,
+    "inputs": 5,
+    "coherent_definitions": 9,
+    "model_classes": 29,
+    "used_parameters": 12
+  },
+  "total_alteration_controls": 343,
+  "independent_relation_checker": true,
+  "committed_decoder_proof": false,
+  "reference_peak_rss_bytes": 1240907776,
+  "native_child_peak_rss_bytes": 454082560,
+  "cases": [
+    {
+      "case": "black",
+      "argv": [
+        "/private/tmp/astra-a4-native-text-decoder-20261115/check-full",
+        "black",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/model.bin",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/black.input",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/black.reference",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/black.checked-output"
+      ],
+      "exit": 0,
+      "seconds": 46.224347250012215,
+      "suite_child_peak_rss_bytes": 454082560,
+      "controls": {
+        "points": 216,
+        "geometries": 72,
+        "inputs": 5,
+        "coherent_definitions": 9,
+        "model_classes": 29,
+        "used_parameters": 12
+      },
+      "matched_words": 40734216,
+      "output_sha256": "d5d8c4035c3abdc049c507222c6f6a1b567a8f5febf0455b9daa52817fadb8e8",
+      "stdout_sha256": "1201f31fc49d77006807ac87953f61d09f62df66a9bc8d81813816745391c650",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "white",
+      "argv": [
+        "/private/tmp/astra-a4-native-text-decoder-20261115/check-full",
+        "white",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/model.bin",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/white.input",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/white.reference",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/white.checked-output"
+      ],
+      "exit": 0,
+      "seconds": 10.137774249946233,
+      "suite_child_peak_rss_bytes": 454082560,
+      "matched_words": 40734216,
+      "output_sha256": "8877001c84390f1fdb26acdd6168b7b971b0edabde089f9df391483b0055a1e9",
+      "stdout_sha256": "2abfba75c062798fcc7e5b744def8c7990f463365beb5350a03467c0195e1d21",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "coordinates",
+      "argv": [
+        "/private/tmp/astra-a4-native-text-decoder-20261115/check-full",
+        "coordinates",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/model.bin",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/coordinates.input",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/coordinates.reference",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/layer_00/coordinates.checked-output"
+      ],
+      "exit": 0,
+      "seconds": 10.018497792014387,
+      "suite_child_peak_rss_bytes": 454082560,
+      "matched_words": 40734216,
+      "output_sha256": "f7e9cee449dba0fe2867b0aebf64fb60cd9d1c9890eedc9f71a918cb8b087856",
+      "stdout_sha256": "4c02e693e5e256fce26f3b93d9815a3a317e5ab5950cf28078ef0aee971bc4f2",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "builds": [
+    {
+      "name": "unit_full",
+      "argv": [
+        "/opt/homebrew/bin/rustc",
+        "--edition=2021",
+        "-O",
+        "-C",
+        "codegen-units=1",
+        "--test",
+        "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_native_text_decoder_20261115/unit_full.rs",
+        "-o",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/unit-full"
+      ],
+      "exit": 0,
+      "seconds": 0.7654139999649487,
+      "peak_rss_bytes": 160808960,
+      "binary": {
+        "path": "/private/tmp/astra-a4-native-text-decoder-20261115/unit-full",
+        "sha256": "08f547fea5e8d52302690bf7f8f1c88ea82f12bedc1c5ba04ac2c9f4248cf79d"
+      }
+    },
+    {
+      "name": "check_full",
+      "argv": [
+        "/opt/homebrew/bin/rustc",
+        "--edition=2021",
+        "-O",
+        "-C",
+        "codegen-units=1",
+        "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/a4_native_text_decoder_20261115/check_full.rs",
+        "-o",
+        "/private/tmp/astra-a4-native-text-decoder-20261115/check-full"
+      ],
+      "exit": 0,
+      "seconds": 0.9157833749777637,
+      "peak_rss_bytes": 186499072,
+      "binary": {
+        "path": "/private/tmp/astra-a4-native-text-decoder-20261115/check-full",
+        "sha256": "2ffea2398f991bc4bf1f4d0f967a6d45ba0cf2db4b737531f4f440b1cc62aade"
+      }
+    }
+  ],
+  "native_numeric_source_unchanged": true,
+  "additional_host_approval_requests": 0,
+  "complete_text_decoder": false,
+  "complete_vision_pipeline": false,
+  "task_quality_qualified": false,
+  "installed": false,
+  "production_or_privacy_acceptance": false,
+  "arrays_in_repository": false,
+  "timing_scope": "single-threaded shared-host functional diagnostics"
+}

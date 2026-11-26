@@ -1,0 +1,162 @@
+{
+  "at": "2026-11-13T09:16:22.472433+00:00",
+  "status": "retained_logs_and_arithmetic_pass",
+  "native_rerun": false,
+  "trials": [
+    {
+      "trial": "s8_0_A",
+      "proved": 24,
+      "checked": 24,
+      "warm_wall_s": 190.67420625686646,
+      "startup_excluded_s": 68.68380784988403,
+      "content_tokens": 137,
+      "proved_tokens": 3072
+    },
+    {
+      "trial": "s8_1_B",
+      "proved": 24,
+      "checked": 24,
+      "warm_wall_s": 104.82674789428711,
+      "startup_excluded_s": 73.107186794281,
+      "content_tokens": 137,
+      "proved_tokens": 3072
+    },
+    {
+      "trial": "s8_2_B",
+      "proved": 24,
+      "checked": 24,
+      "warm_wall_s": 105.45418190956116,
+      "startup_excluded_s": 72.94742393493652,
+      "content_tokens": 137,
+      "proved_tokens": 3072
+    },
+    {
+      "trial": "s8_3_A",
+      "proved": 24,
+      "checked": 24,
+      "warm_wall_s": 190.80942106246948,
+      "startup_excluded_s": 72.68518900871277,
+      "content_tokens": 137,
+      "proved_tokens": 3072
+    },
+    {
+      "trial": "s8_defer_0_B",
+      "proved": 24,
+      "checked": 24,
+      "warm_wall_s": 175.57618308067322,
+      "startup_excluded_s": 41.55046200752258,
+      "content_tokens": 137,
+      "proved_tokens": 3072
+    },
+    {
+      "trial": "s8_defer_1_A",
+      "proved": 24,
+      "checked": 24,
+      "warm_wall_s": 262.5673611164093,
+      "startup_excluded_s": 41.26767301559448,
+      "content_tokens": 137,
+      "proved_tokens": 3072
+    },
+    {
+      "trial": "one_0_A",
+      "proved": 3,
+      "checked": 3,
+      "warm_wall_s": 39.27348828315735,
+      "startup_excluded_s": 67.60153675079346,
+      "content_tokens": 14,
+      "proved_tokens": 384
+    },
+    {
+      "trial": "one_1_B",
+      "proved": 3,
+      "checked": 3,
+      "warm_wall_s": 26.488205671310425,
+      "startup_excluded_s": 67.55271601676941,
+      "content_tokens": 14,
+      "proved_tokens": 384
+    },
+    {
+      "trial": "one_2_B",
+      "proved": 3,
+      "checked": 3,
+      "warm_wall_s": 26.91023588180542,
+      "startup_excluded_s": 67.03628611564636,
+      "content_tokens": 14,
+      "proved_tokens": 384
+    },
+    {
+      "trial": "one_3_A",
+      "proved": 3,
+      "checked": 3,
+      "warm_wall_s": 39.01110482215881,
+      "startup_excluded_s": 65.79324579238892,
+      "content_tokens": 14,
+      "proved_tokens": 384
+    }
+  ],
+  "proved_and_checked_requests": 156,
+  "aggregate": {
+    "stream8_arm_A_mean_wall_s": 190.74181365966797,
+    "stream8_arm_A_mean_tok_per_s": 16.10554249745994,
+    "stream8_arm_B_mean_wall_s": 105.14046490192413,
+    "stream8_arm_B_mean_tok_per_s": 29.218316212726638,
+    "stream8_speedup_x": 1.8141777103959558,
+    "stream8_defer_B_proof_only_tok_per_s": 33.33878769195344,
+    "stream8_defer_B_verify_only_tok_per_s": 59.34373257455434,
+    "stream8_defer_A_proof_only_tok_per_s": 18.439724831815763,
+    "stream8_defer_A_verify_only_tok_per_s": 47.7941618524949,
+    "one_post_arm_A_mean_wall_s": 39.14229655265808,
+    "one_post_arm_B_mean_wall_s": 26.699220776557922,
+    "one_post_latency_reduction_pct": 31.789334995611473,
+    "target_30_tok_per_s_cleared": false
+  },
+  "peak_rss_gib": 162.16,
+  "guard_terminal": "2026-11-13T08:24:22Z",
+  "scratch_absent": [
+    "/Users/victorrielly/zk60-owner-private/coord-batch2-20261112",
+    "/Users/victorrielly/zk60-artifacts/coord-batch2-20261112"
+  ],
+  "raw_receipts_replayable": false,
+  "limitations": [
+    "Two timed samples per arm in each ABBA; one sample per deferred-check arm.",
+    "Warm model/service startup is excluded. Proved tokens count padded T128 separately for each category.",
+    "Arms use different calibrated model profiles as well as different binaries; this does not isolate one optimization.",
+    "The controller performs a pre-benchmark host quiet check but retains no per-trial external-process observations.",
+    "Native logs prove seal-ahead was off; inherited VERIFY_ONCE environment is not recorded, so its exact value is unproven.",
+    "Separate installed-app validation explicitly forces both shortcuts off and is still pending.",
+    "Public development content only; no private 8B throughput or production/privacy acceptance."
+  ],
+  "privacy_accepted": false,
+  "production_accepted": false,
+  "goal_complete": false,
+  "inputs": {
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/BENCH_RESULTS.json": "ab69f99ef3c91f40ae3a885af0cd31c60075a80f9d5f4581666a0d3b8f2476d9",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/a30a31_pin.json": "4809a21ff9fc0d6e0e2fa80c1789c05164ecf47b0858df8c7efabf4df276ce75",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/s3b_a30a31_bench.json": "9c7324769f39efcc50590f2c12fc6840a968c7bb71fae7f8704b938b6a0c56fd",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/s3b_a30a31_bench.done": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/s3b_a30a31_bench.log": "96e411ff050a94794e67c98330a80ed46afc2cac25f00e6a1025dcfe7eadfccf",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/run_batch2.py": "78ae0c155846804904df98f8e0078a74d4d4c0848e5cdbea065ddeacd8ed3956",
+    "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a30a31": "58e59880780da69dd9fe963ad34fc46073f0e01bc02c82fdd3f732c6793548e7",
+    "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a28": "80f2b70481fba51df6118b25a19e2d0c4c6e1ddb4e10b00c96e0ca2252935157",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_0_A/prover.log": "49b229af91d58e381c99b485a95a20175a7418b7ea8bb78ed06405c9b97d4253",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_0_A/checker.log": "398794a7e960191ef719c8eb9f0d82768e98bb4c51a0e4e95762733ec1468349",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_1_B/prover.log": "4b4773f58445c4ad4d6d50a6de2fb6b096ac8b57fa526cc3f44d6f829c1695ed",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_1_B/checker.log": "891242a2dc3d477e45564033eeedad4ba864e0ab195b6a713ecd7eab4506acbd",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_2_B/prover.log": "978b772ef9f4a5f063714e17207085bc521df17d69b5125549d0f7e724c94c8d",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_2_B/checker.log": "150dd68a9d827002b2a72afdaf3afa699b321b431fc778747cba93a3fcbe0815",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_3_A/prover.log": "2ee4846ee944654946743f3b6465fdee1029af990f5005b04f591788399bb53a",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_3_A/checker.log": "1e179e820e4654e0384b53d915b87d3ad731d0ca5483819a7bb63b82ce1482da",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_defer_0_B/prover.log": "a7cf8af1c89078a8eaf9ec7de19c231b63a8d32d344d35fa0b15634d19bdc10b",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_defer_0_B/checker.log": "20a06373de7b744cf8006bda25f2ef5e8c1cd3f329c8c9e7bb79bdb8871e7ee1",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_defer_1_A/prover.log": "3e9ad6744c09e25ffae1cafdbe771807cda38b08c312e7e612af1263e7f3fb3a",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/s8_defer_1_A/checker.log": "2b096a0923ea716c1e9a67b684153ba7025405c589986c0b3236f08e7e0fe1a2",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/one_0_A/prover.log": "4ee1d1ebe604b12d494bb80dddc02407e68c0e19fe1cb8e65479565325dad6bd",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/one_0_A/checker.log": "2b73cdb0521260df6611869756ba0af7fa311d4473bebca0a5dd647b68d8d70e",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/one_1_B/prover.log": "634caa8e11163d065bd06e9bc256d4f023466b4afe584e1307e661122799dfe2",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/one_1_B/checker.log": "dd8b6aa90a1df460db362c694040f9991f3f2a70947d8202d69ed96d0132cfd6",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/one_2_B/prover.log": "41d2516ed9da0a4954ae63306986424fb77085d5a957bfd980239619c1faa44c",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/one_2_B/checker.log": "205efc90a8c2cf7120bc34822fddfa0a13e6739c8152d7d26b7fabc2802c5443",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/one_3_A/prover.log": "ecaeffad04366d54622b30a025ae2453f21ca7bc360b0eee5c7eb89cd518b6a6",
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_coord_batch2_20261112/bench_logs/one_3_A/checker.log": "eb8c9add41547fed2d5ac3f6ce9b13b9736d4e4f360eab93296a463dcefa8a38"
+  }
+}

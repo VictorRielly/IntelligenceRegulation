@@ -129,6 +129,12 @@ def effective_labels(record: dict | None) -> dict:
     return out
 
 
+def aggregate_verdicts(values: list[str]) -> dict:
+    complete = bool(values) and UNPROVED not in values
+    value = "yes" if "yes" in values else ("no" if complete else UNPROVED)
+    return {"value": value, "proof": "accepted" if complete else "none"}
+
+
 def aggregate_labels(chunk_records: list[dict | None], n_chunks: int, plan: list[dict] | None = None) -> dict:
     """D41: an item's label per category from its chunks' proofs: 'yes' if any chunk is proved yes;
     else 'unproved' if any chunk lacks an accepted proof (fail closed); else 'no'. Returns
@@ -143,8 +149,7 @@ def aggregate_labels(chunk_records: list[dict | None], n_chunks: int, plan: list
             per.append({"index": i, "value": effective_labels(rec)[c],
                         "bound_by_proof": bool(((rec or {}).get("labels") or {}).get(c, {}).get("bound_by_proof"))})
         vals = [x["value"] for x in per]
-        v = "yes" if "yes" in vals else (UNPROVED if UNPROVED in vals or not vals else "no")
-        out[c] = {"value": v, "proof": "accepted" if UNPROVED not in vals and vals else "none",
+        out[c] = {**aggregate_verdicts(vals),
                   "bound_by_proof": bool(per) and all(x["bound_by_proof"] for x in per), "chunks": per}
     return out
 

@@ -4,8 +4,8 @@ Proven Media is a media feed in which every item carries **proved content labels
 the item is classified once per category: **sexual / explicit**, **graphic violence** and **hate /
 harassment**. Each category has one fixed policy and one threshold. Every label, yes or no, is
 published with its proof and travels with the item in a **signed proof manifest**. The platform
-uses the proved labels to decide **who receives the item**: minors never receive an item unless it
-is proved "no" in all three categories. Long items are split into **chunks**, and each chunk is
+uses the proved labels in its audience filters. A reader who selects the minor filter
+receives a post only when all three labels are proved "no". Long items are split into **chunks**, and each chunk is
 proved separately per category. The chunk size depends on the hardware profile. (D37, D38, D39,
 D41.)
 
@@ -21,6 +21,125 @@ D41.)
   audio are deferred.
 
 Design: `DESIGN.md`. Ledger: `PROGRESS.md`.
+
+## Try the installed W16R2 text classifier
+
+On the configured Mac, select `PM_PROVER=shieldstral-fast-w16r2` and the resident
+writer. The operator starts the local app and provides an ordinary author key
+using `tools/create_author.py HANDLE`. An invited author can sign in, submit
+short text already intended to be public, and follow it under **Your submissions**.
+A guest can open the feed without an account. After all three category proofs
+pass, the guest can read the text, inspect the labels, check the local ledger
+batch and download the signed manifest and proof bundle. The author can also
+request a new verification of the stored proofs and their binding to the post.
+
+To check a downloaded manifest offline, obtain the publisher's Ed25519 public
+key through a trusted channel. From this app directory, using Python with
+`cryptography` installed, substitute the downloaded filename and that key.
+
+```sh
+python tools/verify_manifest.py POST_ID.manifest.json --signature-only --public-key TRUSTED_KEY_HEX
+```
+
+An accepted result with scope `publisher_signature_only` authenticates the
+publisher's signed labels. To replay a model proof, use the category commands
+in the bundle's `VERIFY.md` with the named native verifier and public model
+export. Once a W16R2 post's local batch closes, **Download offline verification store**
+includes its signed manifest, public statements, receipts and local ledger evidence in
+one archive. Extract it in a new directory and follow its `VERIFY.md` with the trusted
+reader and publisher key. It carries each distinct receipt object once. To check ledger
+inclusion and rehash the stored segments from an existing store, use
+`tools/verify_manifest.py` with `--public-dir` and `--rehash` against a copy of
+the public store. The model screens three kinds of content. Establishing human
+authorship requires separate evidence. [Pilot scope and installed-app evidence](../../results/zk60_astra_20261026/app_composed_native_20261122/PILOT.md)
+
+### Resume an offline verification store download
+
+Copy the **Download offline verification store** link into `STORE_URL`. In a new
+directory, save the server's headers once. They include the exact byte count
+and a quoted ETag identifying this archive.
+
+```sh
+curl --fail --silent --show-error --head "$STORE_URL" --output post.headers
+```
+
+Run this command to start the download. If the transfer stops, run it again
+with the same `post.headers` and partial `post.tar`. The server returns HTTP 412
+if the saved version has changed. In that case start a fresh copy in a new directory.
+
+```sh
+etag=$(awk 'tolower($1) == "etag:" { sub(/\r$/, "", $2); print $2 }' post.headers)
+test -n "$etag" && curl --fail --continue-at - --header "If-Match: $etag" --output post.tar "$STORE_URL"
+```
+
+When the download completes, extract it and follow `VERIFY.md` to authenticate
+the signed manifest and proofs. [Test on the full pilot archive](../../results/zk60_astra_20261026/app_composed_native_20261122/DOWNLOAD_RESUME.json)
+
+### Full W16R2 verification on another Mac
+
+On the installed operator Mac, run `python tools/prepare_w16r2_verifier.py /path/to/new-kit`
+from this app directory. The tool copies the pinned Apple Silicon verifier, its public
+integer model export, and the original public checkpoint used to authenticate the tied
+tables. Allow 12 GB for these files, in addition to the proof data.
+
+The participant can use the [guest reader source archive](../../results/zk60_astra_20261026/app_composed_native_20261122/w16r2-guest-source-12g.tar.gz).
+Obtain the archive SHA-256 from a trusted source and compare it with the output of
+`shasum -a 256 w16r2-guest-source-12g.tar.gz` before extraction. Extract into a new
+directory and run the commands below from its `apps/proven-media` directory in a
+Python environment with its listed dependencies. This archive supplies the checker
+and the policy files used by the installed pilot. [Archive digest and qualification](../../results/zk60_astra_20261026/app_composed_native_20261122/READER_SOURCE_12G.json)
+
+Before downloading the 12 GB kit and the post's proof data, check whether this Mac
+can run arm64 code and whether the released resource guard would admit a reader
+now. From the extracted reader's `apps/proven-media` directory, with the default
+repository root, run
+
+```sh
+/usr/bin/arch -arm64 /usr/bin/true &&
+  test ! -e ../../results/zk60_media_app_20261021/HOLD &&
+  python3 ../../scripts/zk60_resource_guard.py check --class gpu --need-gib 12
+```
+
+Success prints `OK to start now`. An architecture error means this Mac cannot
+execute the supplied binary. An existing `HOLD` pauses the app lane. If the
+guard reports `WOULD WAIT/REFUSE`, its output gives the resource condition to
+recheck before transfer. Full replay checks admission again after download.
+
+On the participant Mac, authenticate the transferred kit and check the signed post
+against the `public-store` directory from **Download offline verification store**, or
+an existing copy of the public store. Use the publisher key obtained through a trusted
+channel. The verification creates temporary receipt copies and saves its logs alongside
+the store, so the working copy needs write access.
+
+```sh
+export PM_W16R2_VERIFIER_KIT=/path/to/received-kit
+python tools/prepare_w16r2_verifier.py --check "$PM_W16R2_VERIFIER_KIT"
+python tools/verify_manifest.py POST_ID.manifest.json --public-key TRUSTED_KEY_HEX \
+  --public-dir /path/to/public-store-root --rehash --run-verifier
+```
+
+The first command’s `w16r2_verifier_kit_files` result covers file integrity.
+The manifest checker rebuilds the chunk ranges from the signed token count and
+registered policies, then recomputes each whole-post label. Its `signed_post_coverage`
+result gives the count and labels. With `--run-verifier`, the
+`complete_post_proof_replay` check also requires every planned receipt to pass
+and each verified statement to name the same total. The publisher keeps the
+private opening linking the displayed text to the proof input.
+
+The standalone reader requests 12 GiB and runs one native checker at a time
+under a 16 GiB watchdog cap. At default settings admission requires at least
+13 GiB currently available, plus additional headroom when swap usage exceeds
+1 GiB. The host's normal disk, GPU and concurrency checks also apply. On the
+256 GiB pilot Mac, all three receipts passed at a 97-bit floor and the highest
+sampled process memory was 2.47 GiB. Replay on a smaller physical Mac remains
+untested. [Native measurements](../../results/zk60_astra_20261026/app_composed_native_20261122/guest-20261125T073308.630547Z/RESULT.json)
+
+Newly downloaded
+W16R2 bundles also include individual category commands in `VERIFY.md`. From the
+directory containing the unpacked bundle, those commands use the authenticated kit
+and set `ZK60_MODELS` to its checkpoint directory. For older bundles, use the kit’s
+`bin/zk60_classify`, replace `<public-export>` with its `export` directory, and set
+`ZK60_MODELS` to its `models` directory.
 
 The optional [Base Sepolia publisher](TESTNET.md) is implemented, tested and
 deployed with free test ETH. The first real app post completed all three
@@ -273,7 +392,7 @@ chunk results, reasons, timings or attempt count. Publication remains all or
 nothing and the existing D45 reservation/retry rules remain in force. Operators
 can view the queue and status; only operators can close a pending batch.
 
-Public records omit `timings` and `proved_at`, including nested chunk records;
+Public records omit `timings`, `proved_at`, and local receipt directory paths, including nested chunk records;
 private operator records retain them. Signed manifests are unchanged and retain
 their documented timestamps. This is not a claim of timing-side-channel privacy
 or acceptance of the classifier privacy statement.
@@ -334,6 +453,8 @@ touch /home/victor/zk60-owner-private/proven-media/STOP-SERVER
     checks the signature, every entry's anchor and Merkle path, and optionally re-runs each
     proof's verifier through the guard;
   - `tools/verify_publication.py --post-id ID --category CAT --chunk N` checks one proof.
+
+On the qualified Mac, `PM_PROVER=shieldstral-fast-w16r2` selects the public-content development classifier and its resident writer. On its first start in a fresh `PM_PUBLIC_DIR`, the producer prepares 609 public model files for the separate verifier. Allow 4.25 GB of free space for that copy. The app checks every copied file against its pinned digest before making the directory available. Startup reuses an existing verifier export. [Native release and local publication checks](../../results/zk60_astra_20261026/app_composed_native_20261122/REVIEW.md)
 
 Default storage locations:
 - `~/zk60-owner-private/proven-media/` is private (0700): the database, the salts, the signing dev

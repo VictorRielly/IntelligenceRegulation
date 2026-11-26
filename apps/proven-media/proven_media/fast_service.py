@@ -98,11 +98,13 @@ def _recent_launch(root: Path, within_s: float = 120.0) -> bool:
 def guard_command(root: Path, runtime) -> list[str]:
     """The service's one guarded leaf: its resident servers and writers are its children."""
     python = os.environ.get('PM_FAST_SERVICE_PYTHON', os.sys.executable)
-    return ['python3', str(config.GUARD), 'run', '--class', 'gpu', '--need-gib', str(runtime.SERVICE_NEED_GIB),
-            '--cap-gib', str(runtime.SERVICE_CAP_GIB), '--max-secs', str(runtime.SERVICE_MAX_SECONDS),
+    resources = runtime.service_resources()
+    return ['python3', str(config.GUARD), 'run', '--class', 'gpu', '--need-gib', str(resources['need_gib']),
+            '--cap-gib', str(resources['cap_gib']), '--max-secs', str(resources['max_seconds']),
             '--wait-secs', str(config.GUARD_WAIT_SECS), '--label', 'pm-fast-service',
             '--log', str(root / 'service.guard.log'), '--done', str(root / 'service.guard.done'), '--',
-            python, str(config.TOOLS_DIR / 'fast_service.py'), str(root)]
+            python, str(config.TOOLS_DIR / 'fast_service.py'), '--prover-mode', runtime.KIND,
+            '--writer-mode', runtime.writer_mode(), str(root)]
 
 
 def ensure_running(root: Path, runtime, *, launcher=None) -> dict:
@@ -110,6 +112,15 @@ def ensure_running(root: Path, runtime, *, launcher=None) -> dict:
     d = ensure_dirs(root)
     h = health(root)
     if h['live'] or h['launching']:
+        if h['live']:
+            binding = (h['heartbeat'] or {}).get('writer_binding')
+        else:
+            try:
+                binding = json.loads(d['launch'].read_text()).get('writer_binding')
+            except (OSError, ValueError):
+                binding = None
+        require(binding == runtime.service_binding(),
+                'the existing fast service uses another configuration; drain and stop it before switching')
         return h
     if d['stop'].exists():
         d['stop'].unlink()
@@ -122,7 +133,8 @@ def ensure_running(root: Path, runtime, *, launcher=None) -> dict:
             pid = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.STDOUT,
                                    close_fds=True, start_new_session=True).pid
     tmp = d['launch'].with_suffix('.tmp')
-    tmp.write_text(json.dumps({'at': time.time(), 'argv': argv, 'pid': pid if isinstance(pid, int) else None}))
+    tmp.write_text(json.dumps({'at': time.time(), 'argv': argv, 'pid': pid if isinstance(pid, int) else None,
+                               'writer_binding': runtime.service_binding()}))
     os.replace(tmp, d['launch'])
     return health(root)
 

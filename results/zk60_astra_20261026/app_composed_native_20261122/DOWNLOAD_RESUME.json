@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "source_pilot": "qualification-20261125T070919.014403Z",
+  "transport": "in-process ASGI HTTP",
+  "bytes": 2008826368,
+  "files": 97,
+  "partial_responses": 121,
+  "first_range_bytes": 511,
+  "archive_sha256": "7eb2e62a5548c4fd7143292f18a95a4aa4574f1fd824c00e456aa6449e0b05eb",
+  "independent_ustar_sha256": "7eb2e62a5548c4fd7143292f18a95a4aa4574f1fd824c00e456aa6449e0b05eb",
+  "etag": "\"dd1fc6a992b1d6e30eb750602df927627948b85146a19f8bb857c499c1a2d777\"",
+  "unsatisfiable_status": 416,
+  "repeat_identical": true,
+  "app_tests": 321,
+  "frontend_suites": 4
+}

@@ -11,8 +11,10 @@ Checks, in order: the manifest is in the store under its hash; it names this pos
 is present with its listed size and SHA-256; the block file's hash chain; the anchor transaction
 carries the AnchorRef's Merkle root; the Merkle path reaches it; the batch file agrees.
 --content-file + --salt: the salted content commitment matches the text (a viewer's check).
---run-verifier: rebuilds the run directory from the store (segments + statement) and runs the pinned
-zk60_token_io verifier with the manifest's model pins, through the project's resource guard.
+--run-verifier: after publication checks pass, reconstructs the receipt and runs the pinned native
+verifier through the resource guard. W16R2 requires its separately reviewed public-content-only
+intake and public export; it needs no activation writer or owner opening. Its temporary receipt
+copies are removed after checking, with verification logs and terminal evidence retained.
 Prints one JSON object {accepted, reasons, checks, ...}; exit 0 if accepted.
 """
 import argparse
@@ -30,6 +32,9 @@ from proven_media.publisher import AnchorRef, LocalChainPublisher, content_commi
 
 
 def run_verifier(pub: LocalChainPublisher, manifest: dict, post_id: str) -> dict:
+    from proven_media import w16r2_runtime, w16r2_public_verifier
+    if manifest.get('profile_id') == w16r2_runtime.PROFILE_SHA:
+        return w16r2_public_verifier.run_verifier(pub, manifest, post_id)
     from proven_media import shieldstral_runtime as runtime
     real = manifest.get('verifier_id') == runtime.BINARY_SHA
     if manifest.get("verifier_id") != config.STUB_BIN_SHA256 and not real:
@@ -116,7 +121,8 @@ def main() -> int:
             r["accepted"] = False
             r["reasons"].append("content_commitment: the text and salt do not open the published commitment")
     if a.run_verifier and manifest:
-        r["proof_verifier"] = run_verifier(pub, manifest, anc.post_id)
+        r["proof_verifier"] = (run_verifier(pub, manifest, anc.post_id) if r['accepted'] else
+            {'ok': False, 'skipped': True, 'why': 'publication checks did not pass'})
         r["checks"]["proof_verifier"] = r["proof_verifier"]["ok"]
         if not r["proof_verifier"]["ok"]:
             r["accepted"] = False

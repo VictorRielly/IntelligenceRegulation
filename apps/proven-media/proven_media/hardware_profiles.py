@@ -33,13 +33,18 @@ def classifier_profile(path=None, name=None):
 
 
 FAST_PROFILE = 'shieldstral-mac-fast'
+RESIDENT_FAST_PROFILE = 'shieldstral-mac-fast-resident-writer'
+W16_FAST_PROFILE = 'shieldstral-mac-fast-w16r2'
 
 
-def fast_classifier_profile(path=None, name=FAST_PROFILE):
+def fast_classifier_profile(path=None, name=None, *, runtime_module=None):
     """[A24] The Mac's resident-server profile (PM_PROVER=shieldstral-fast, development
     candidate), validated against shieldstral_fast_runtime the same way: the JSON records the
     measured settings; it cannot retune geometry, pins, floors or resource declarations."""
-    from . import shieldstral_fast_runtime as fast
+    from .fast_runtime_selection import runtime_for
+    fast = runtime_module if runtime_module is not None else runtime_for('shieldstral-fast-w16r2' if config.prover_mode() == 'shieldstral-fast-w16r2' else 'shieldstral-fast')
+    w16 = fast.KIND == 'shieldstral-fast-w16r2'
+    name = name or (W16_FAST_PROFILE if w16 else RESIDENT_FAST_PROFILE if fast.writer_mode() == 'resident' else FAST_PROFILE)
     path = Path(path or config.DEPLOY_FILE)
     settings = json.loads(path.read_text())
     profiles = settings.get('classifier_profiles', {})
@@ -56,14 +61,17 @@ def fast_classifier_profile(path=None, name=FAST_PROFILE):
                             'witness_cache_gib': fast.WITNESS_CACHE_GIB, 'check_lanes': fast.CHECK_LANES,
                             'check_lane_threads': fast.CHECK_LANE_THREADS, 'writer_threads': fast.WRITER_THREADS,
                             'writers_at_once': fast.WRITERS_AT_ONCE},
-                'guard_resources': {'service': {'need_gib': fast.SERVICE_NEED_GIB, 'cap_gib': fast.SERVICE_CAP_GIB,
-                                                'max_seconds': fast.SERVICE_MAX_SECONDS}},
+                'guard_resources': {'service': fast.service_resources()},
                 'native_settings': fast.NATIVE_SETTINGS,
                 'privacy_status': fast.privacy_statement()['status'], 'production': False}
+    if w16:
+        expected.update(public_content_only=True, prover_binary_sha256=fast.PROVER_BINARY_SHA,
+                        native_cli_flags=['--dev-w16r2-public-content-only'],
+                        native_intake_sha256=fast.intake_sha, activation_writer='resident')
     require(type(profile) is dict and all(records.canonical(profile.get(k)) == records.canonical(v) for k, v in expected.items()),
             f'hardware profile differs from the {fast.LANE} runtime; geometry and safety floors cannot be retuned here')
     return {'name': name, **profile, 'validated_against_runtime': True, 'file': str(path)}
 
 
 if __name__ == '__main__':
-    print(json.dumps(fast_classifier_profile() if config.prover_mode() == 'shieldstral-fast' else classifier_profile(), indent=2))
+    print(json.dumps(fast_classifier_profile() if config.prover_mode() in ('shieldstral-fast', 'shieldstral-fast-w16r2') else classifier_profile(), indent=2))

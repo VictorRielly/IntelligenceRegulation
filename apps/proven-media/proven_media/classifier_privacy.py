@@ -26,6 +26,11 @@ Its exact binary and CLI pair still identify the CPU per-category path. New
 descriptions carry the fields, and any contrary/unknown value stays pending.
     """
     p = descriptor if isinstance(descriptor, dict) else {}
+    if p.get('kind') == 'shieldstral-fast-w16r2' or p.get('public_content_only') is True:
+        return {'accepted': False, 'status': 'Public content only; privacy not claimed',
+                'decision': None, 'scope': 'W16R2 public-content development candidate.',
+                'conditions': 'Use only content already intended to be public.',
+                'permits_non_public_posts': False}
     binary = p.get('binary_sha256')
     policies = p.get('policy_ids')
     policy_ok = policies is None or (isinstance(policies, (list, tuple))

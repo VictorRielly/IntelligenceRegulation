@@ -128,34 +128,71 @@ def build_manifest(post: dict, item: dict, anchors: dict, pubs: dict, content_co
                     "from a placeholder and are not bound by the proof."] if prover.get("kind") == "stub-next-token" else [])
                   + (["Privacy statement pending; moderate policies selected for this testnet demo."]
                      if prover.get("kind") == "shieldstral" else [])
+                  + (["Public content only; privacy not claimed. W16R2 development candidate; not production."]
+                     if prover.get("kind") == "shieldstral-fast-w16r2" else [])
                   + ([f"{failure}"] if failure else [])}
     return sign(m)
 
 
 # ---------------------------------------------------------------- verify
 
+def verify_signature(m: dict, expected_public_key: str | None = None) -> dict:
+    """Check the publisher signature over the canonical manifest without accessing a store."""
+    checks = {"schema": isinstance(m, dict) and m.get("schema") == SCHEMA}
+    issuer = m.get("issuer") if isinstance(m, dict) else None
+    signature = m.get("signature") if isinstance(m, dict) else None
+    public = issuer.get("public_key") if isinstance(issuer, dict) else None
+    if expected_public_key is not None:
+        checks["issuer_key"] = (isinstance(public, str) and isinstance(expected_public_key, str)
+                               and len(expected_public_key) == 64 and public.lower() == expected_public_key.lower())
+    checks["signature"] = False
+    if isinstance(public, str) and isinstance(signature, dict):
+        try:
+            key = Ed25519PublicKey.from_public_bytes(bytes.fromhex(public))
+            key.verify(base64.b64decode(signature["value"], validate=True), _body(m))
+            checks["signature"] = (signature.get("alg") == issuer.get("alg") == "Ed25519"
+                                   and signature.get("key_id") == issuer.get("key_id") == key_id(public))
+        except (InvalidSignature, KeyError, TypeError, ValueError):
+            pass
+    failures = {"schema": "unsupported manifest schema", "issuer_key": "publisher key differs from the supplied key",
+                "signature": "the Ed25519 signature does not verify for this manifest and key"}
+    reasons = [f"{name}: {failures[name]}" for name, ok in checks.items() if not ok]
+    return {"accepted": not reasons, "checks": checks, "reasons": reasons}
+
+
 def verify_manifest(m: dict, publisher, expected_public_key: str | None = None, rehash_segments: bool = False) -> dict:
-    """signature, then each entry against the local ledger (anchor, Merkle path, publication manifest)"""
-    reasons, checks = [], {}
+    """Check the signature, then compare the entries and their anchors with the public ledger."""
+    signed = verify_signature(m, expected_public_key)
+    if not signed["accepted"]:
+        return {**signed, "pending_anchor": []}
+    reasons, checks = signed["reasons"], signed["checks"]
 
     def chk(name, ok, why=""):
         checks[name] = bool(ok)
         if not ok:
             reasons.append(f"{name}: {why}" if why else name)
 
-    chk("schema", m.get("schema") == SCHEMA, "not a zk60.manifest/1")
-    iss, sig = m.get("issuer", {}), m.get("signature", {})
-    pub = iss.get("public_key", "")
-    if expected_public_key:
-        chk("issuer_key", pub == expected_public_key, "signed by another key than the publisher's")
-    try:
-        Ed25519PublicKey.from_public_bytes(bytes.fromhex(pub)).verify(base64.b64decode(sig.get("value", "")), _body(m))
-        chk("signature", True)
-    except (InvalidSignature, ValueError):
-        chk("signature", False, "the Ed25519 signature does not verify over the canonical manifest")
+    from . import w16r2_runtime
+    from .provers import ProverError
+    entries = m.get('entries', [])
+    if not isinstance(entries, list) or not all(isinstance(e, dict) for e in entries):
+        return {**signed, 'accepted':False, 'reasons':['malformed manifest entries'], 'pending_anchor':[]}
+    declared_set = m.get('category_set')
+    w16r2 = ((isinstance(declared_set, dict) and declared_set.get('id') == config.W16R2_CATEGORY_SET_ID)
+             or any(e.get('profile_id') == w16r2_runtime.PROFILE_SHA for e in entries))
+    coverage = None
+    if w16r2:
+        from .w16r2_public_verifier import signed_post_coverage
+        try:
+            coverage = signed_post_coverage(m)
+        except (OSError, ValueError, ProverError) as exc:
+            chk('w16r2_signed_post_coverage', False, str(exc))
+            return {'accepted':False, 'checks':checks, 'reasons':reasons, 'pending_anchor':[]}
+        if coverage is not None:
+            chk('w16r2_signed_post_coverage', True)
     pid = m.get("item", {}).get("post_id")
     pending = []
-    for e in m.get("entries", []):
+    for e in entries:
         c = e.get("category")
         tag = f"c{e.get('chunk', 0)}.{c}"
         if e.get("verdict") == records.UNPROVED:
@@ -165,6 +202,12 @@ def verify_manifest(m: dict, publisher, expected_public_key: str | None = None, 
         if a is None:
             chk(f"{tag}.anchor", False, "no anchor for this entry in the ledger")
             continue
+        if coverage is not None:
+            bundle = e.get('bundle')
+            chk(f'{tag}.signed_bundle', isinstance(bundle, dict) and bundle.get('manifest_sha256') == a.manifest_sha256
+                and bundle.get('manifest_uri') == a.manifest_uri
+                and type(bundle.get('receipt_uris')) is int and bundle['receipt_uris'] == len(a.receipt_uris),
+                'signed receipt inventory differs from the publication anchor')
         chk(f"{tag}.anchor_leaf", a.leaf_hash == (e.get("anchor") or {}).get("leaf_hash"), "the leaf differs from the ledger's")
         r = publisher.verify_publication(a, rehash_segments=rehash_segments)
         man = r.get("manifest") or {}
@@ -181,4 +224,7 @@ def verify_manifest(m: dict, publisher, expected_public_key: str | None = None, 
             checks[f"{tag}.anchored"] = False
         else:
             chk(f"{tag}.anchored", r.get("accepted"), "; ".join(r.get("reasons", [])))
-    return {"accepted": not reasons, "pending_anchor": pending, "reasons": reasons, "checks": checks}
+    result = {"accepted": not reasons, "pending_anchor": pending, "reasons": reasons, "checks": checks}
+    if coverage is not None:
+        result['signed_post_coverage'] = coverage
+    return result

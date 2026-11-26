@@ -70,8 +70,12 @@ function toast(msg, ms = 3800) {
   setTimeout(() => t.remove(), ms);
 }
 function isFake() { return S.cfg && S.cfg.prover && S.cfg.prover.kind === "fake"; }
-function isShieldstral() { return S.cfg?.prover?.kind === "shieldstral"; }
+function isShieldstral(prover = S.cfg?.prover) { return ["shieldstral", "shieldstral-fast", "shieldstral-fast-w16r2"].includes(prover?.kind); }
+function isPublicContent(prover = S.cfg?.prover) {
+  return prover?.kind === "shieldstral-fast-w16r2" || prover?.public_content_only === true;
+}
 function privacyLabel(prover = S.cfg?.prover) {
+  if (isPublicContent(prover)) return "Public content only; privacy not claimed";
   return prover?.privacy_statement?.status || prover?.privacy_status || "privacy statement pending";
 }
 function stubTag() { return isFake() ? `<span class="tag fake">fake: no proof</span>` : `<span class="tag" title="${esc(S.cfg?.prover?.label || "")}">${isShieldstral() ? esc(privacyLabel()) : "demo stub"}</span>`; }
@@ -88,7 +92,11 @@ function renderModebar() {
     return;
   }
   mb.className = "modebar";
-  if (p.kind === "shieldstral") {
+  if (isPublicContent(p)) {
+    mb.innerHTML = `<div><b>W16R2 development candidate · Public content only.</b> Post only content already intended to be public. This mode makes no privacy claim. Registered moderate policies are selected.</div>`;
+    return;
+  }
+  if (isShieldstral(p)) {
     mb.innerHTML = `<div><b>Real Shieldstral classifier · ${esc(privacyLabel(p))}.</b> Each category label is bound to a verified model proof and checked against the post. Registered moderate policies are selected.</div>`;
     return;
   }
@@ -124,11 +132,23 @@ function credentials(p) {
 }
 
 /* ---------------------------------------------------------------- chunks */
+function chunkLabel(chunk = {}) {
+  if (chunk.category) {
+    const number = Number.isInteger(chunk.category_chunk_index) && chunk.category_chunk_index >= 0
+      ? `chunk ${chunk.category_chunk_index + 1}` : `proof ${chunk.index + 1}`;
+    return `${catName(chunk.category)} · ${number}`;
+  }
+  return `chunk ${chunk.index + 1}`;
+}
+function plannedChunk(p, index, category) {
+  return (p.chunks || []).find(c => c.index === index && (!category || !c.category || c.category === category))
+    || { index, category };
+}
 function progressBar(prog) {
   if (!prog || !prog.total) return "";
   const pct = Math.round(100 * (prog.done + prog.failed) / prog.total);
   return `<div class="progress"><div class="bar"><i style="width:${pct}%"></i></div>
-    <span class="small muted">${prog.done + prog.failed} of ${prog.total} chunk run${prog.total > 1 ? "s" : ""} done${prog.failed ? ` (${prog.failed} without proof)` : ""} ·
+    <span class="small muted">${prog.done + prog.failed} of ${prog.total} ${isShieldstral() ? "proof jobs" : `chunk run${prog.total > 1 ? "s" : ""}`} done${prog.failed ? ` (${prog.failed} without proof)` : ""} ·
     ${(prog.done + prog.failed) * (isShieldstral() ? 1 : 3)} of ${prog.total * (isShieldstral() ? 1 : 3)} category proofs</span></div>`;
 }
 function cell(ch, cat) {
@@ -141,7 +161,7 @@ function cell(ch, cat) {
 function chunkGrid(p, title) {
   const ch = p.chunks || []; if (!ch.length) return "";
   const cats = S.cfg.categories;
-  const rows = ch.map(c => `<tr class="${c.status}"><td><b>${c.index + 1}</b></td><td class="mono small">${c.start}–${c.end} <span class="muted">(${c.tokens})</span></td>
+  const rows = ch.map(c => `<tr class="${c.status}"><td><b>${esc(chunkLabel(c))}</b></td><td class="mono small">${c.start}–${c.end} <span class="muted">(${c.tokens})</span></td>
     ${cats.map(k => cell(c, k.id)).join("")}<td class="small">${c.status === "running" ? esc(c.step_label || "") : (c.status === "failed" ? `<span class="bad-t">${esc((c.error || "").slice(0, 120))}</span>` : (c.status === "done" ? `<span class="hash">${short(c.statement_sha256, 10)}</span>` : ""))}</td></tr>`).join("");
   const d = S.cfg.deploy;
   const separate = ch.some(c => c.category);
@@ -150,7 +170,7 @@ function chunkGrid(p, title) {
       profile <b>${esc(d.profile)}</b>: ${esc(d.effective_chunk_tokens)}-token chunks, overlap ${esc(d.effective_overlap_tokens)}${d.capped_by_prover ? ` (configured ${esc(d.chunk_tokens)}, capped by the stub's ${esc(S.cfg.limits.stub_chunk_max)}-token run)` : ""} ·
       demo stub: one run per chunk stands in for its 3 category proofs`}</p>
     ${progressBar(p.job && p.job.progress)}
-    <div style="overflow-x:auto"><table class="table grid"><tr><th>chunk</th><th>tokens</th>${cats.map(k => `<th>${esc(k.short)}</th>`).join("")}<th>proof</th></tr>${rows}</table></div>
+    <div style="overflow-x:auto"><table class="table proof-grid"><tr><th>chunk</th><th>tokens</th>${cats.map(k => `<th>${esc(k.short)}</th>`).join("")}<th>proof</th></tr>${rows}</table></div>
     <p class="small muted" style="margin-top:6px">A category is <b>yes</b> if any chunk is yes, and <b>not proved</b> if any chunk lacks an accepted proof (fail closed).</p></section>`;
 }
 
@@ -211,7 +231,7 @@ function composeHTML() {
         until its labels are proved. Fine detail and small text can be lost at ${px} px.</div>
       <div class="compose-foot"><button id="postbtn" class="btn ml-auto" disabled>Post image</button></div>`;
   }
-  return `<section class="card pad" id="compose"><div class="tabs">${tab("text", "Text")}${tab("image", "Image", true)}</div>${inner}</section>`;
+  return `<section class="card pad" id="compose"><div class="tabs">${tab("text", "Text")}${tab("image", "Image", true)}</div>${isPublicContent() ? '<p class="note info">Public content only. Post only content already intended to be public; privacy is not claimed.</p>' : ''}${inner}</section>`;
 }
 
 function bindCompose() {
@@ -241,7 +261,7 @@ function bindCompose() {
       try {
         const r = await api("/api/posts", { method: "POST", body: fd });
         ta.value = ""; ta.oninput();
-        toast(`Pending verification: ${r.proofs} proofs (${r.chunks} chunk${r.chunks > 1 ? "s" : ""} × 3 categories). Your post appears once its labels are proved.`);
+        toast(`Pending verification: ${r.proofs} proofs. Your post appears once its labels are proved.`);
         location.hash = `#/post/${r.post_id}`;
       } catch (e) { toast(e.message, 6000); btn.disabled = false; }
     };
@@ -297,7 +317,7 @@ async function viewFeed() {
     <section class="card pad panel" id="queue"></section><section class="card pad panel" id="subs"></section>
     <section class="card pad panel"><h3>What the labels mean</h3><p class="small">Published items carry three category labels in a signed manifest.
     The labels decide who receives the item. Open a post to inspect its proofs and what they establish.</p>
-    <p class="small muted">${isShieldstral() ? `This testnet demo verifies one Shieldstral proof per category and chunk. ${esc(privacyLabel())}.` :
+    <p class="small muted">${isShieldstral() ? `This demo verifies one Shieldstral proof per category and chunk. ${esc(privacyLabel())}.` :
       isFake() ? "Development mode: no proof is produced." : "In this demo one next-token stub proof stands in for the three classifier proofs; its labels are not bound by the proof."}</p></section></aside></div>`;
   bindCompose(); bindAudience();
   await refreshFeed();
@@ -320,7 +340,7 @@ function queueHTML(q, compact) {
   let body = "";
   if (q.held) body += `<div class="note stub">Queue paused by the project coordinator (HOLD file).</div>`;
   if (r) {
-    body += `<div class="qitem now"><div class="small"><b>${r.kind === "prove" ? `Proving chunk ${r.chunk + 1} of ${r.chunks}` : `Re-checking chunk ${r.chunk + 1}`}</b>
+    body += `<div class="qitem now"><div class="small"><b>${r.kind === "prove" ? `Proving ${isShieldstral() ? "proof job" : "chunk"} ${r.chunk + 1} of ${r.chunks}` : `Re-checking ${isShieldstral() ? "proof job" : "chunk"} ${r.chunk + 1}`}</b>
       · <a href="#/post/${esc(r.post_id)}">${esc(r.post_id.slice(0, 10))}…</a></div>
       <div class="small muted">${esc(r.label)}${r.step_since ? ` (${since(r.step_since)})` : ""}</div>${r.kind === "prove" ? progressBar(r.progress) : ""}</div>`;
   } else body += `<p class="small muted">Idle: no proof running.</p>`;
@@ -328,7 +348,7 @@ function queueHTML(q, compact) {
   if (items.length) {
     body += `<p class="small" style="margin:10px 0 4px"><b>${q.queued_jobs}</b> job${q.queued_jobs > 1 ? "s" : ""} waiting · one proof job at a time</p>`;
     body += items.slice(0, compact ? 4 : 50).map(it => `<div class="qitem"><div class="small">#${it.position} · <a href="#/post/${esc(it.post_id)}">${esc(it.post_id.slice(0, 10))}…</a> ·
-      ${it.kind === "prove" ? `${it.jobs} chunk run${it.jobs > 1 ? "s" : ""} (${it.jobs * 3} proofs)` : `${it.jobs} re-check${it.jobs > 1 ? "s" : ""}`}
+      ${it.kind === "prove" ? (isShieldstral() ? `${it.jobs} category proofs` : `${it.jobs} chunk run${it.jobs > 1 ? "s" : ""} (${it.jobs * 3} proofs)`) : `${it.jobs} re-check${it.jobs > 1 ? "s" : ""}`}
       <span class="muted">· done in ~${Math.max(1, Math.round(it.eta_s / 60))} min</span></div></div>`).join("");
     if (compact && items.length > 4) body += `<p class="small muted">… and ${items.length - 4} more (see <a href="#/status">Status</a>)</p>`;
   }
@@ -343,7 +363,7 @@ async function refreshSubs() {
     if (p.status === "failed") return `<li><a href="#/post/${esc(p.id)}">Could not be verified.</a></li>`;
     const snip = p.kind === "text" ? esc(p.text) : `<i>${esc(p.kind)} post</i>`;
     let prog = "";
-    if (p.job && (p.job.status === "running" || p.job.status === "queued")) prog = `<div class="muted">${p.job.status === "running" ? `chunk ${(p.job.chunk || 0) + 1}: ${esc(p.job.step_label || "")}` : "queued"}${p.job.eta_s != null ? ` · ~${Math.max(1, Math.round(p.job.eta_s / 60))} min left` : ""}</div>${progressBar(p.job.progress)}`;
+    if (p.job && (p.job.status === "running" || p.job.status === "queued")) prog = `<div class="muted">${p.job.status === "running" ? `${isShieldstral() ? "proof job" : "chunk"} ${(p.job.chunk || 0) + 1}: ${esc(p.job.step_label || "")}` : "queued"}${p.job.eta_s != null ? ` · ~${Math.max(1, Math.round(p.job.eta_s / 60))} min left` : ""}</div>${progressBar(p.job.progress)}`;
     else if (p.status === "published") prog = `<div>${chips(p.labels)}</div>`;
     const label = { "in-development": "pending verification", pending: "pending verification", published: "labelled" }[p.status] || p.status;
     return `<li><span class="status ${esc(p.status)}">${esc(label)}</span> · <a href="#/post/${esc(p.id)}">${esc(p.id.slice(0, 12))}…</a>
@@ -357,7 +377,9 @@ const PROVE_STEPS = [["seqgen", "Prepare the hidden input"], ["prove", "Prove (m
   ["verify", "Verify from public files only"], ["owner", "Platform opens the sealed output"], ["inowner", "Check the proof is about this post"], ["publish", "Publish the labels, anchor, sign the manifest"]];
 
 function stepsHTML(job) {
-  const steps = isShieldstral() ? PROVE_STEPS.filter(s => !["owner", "publish"].includes(s[0])).concat([
+  const sourceSteps = isPublicContent() ? PROVE_STEPS.map(([key, label]) => [key,
+    key === "seqgen" ? "Prepare the public input" : key === "prove" ? "Prove the model run on public content" : label]) : PROVE_STEPS;
+  const steps = isShieldstral() ? sourceSteps.filter(s => !["owner", "publish"].includes(s[0])).concat([
     ["label", "Verify whole-category coverage and aggregate label"], ["publish", "Store proofs, anchor batch, sign manifest"]]) : PROVE_STEPS;
   const cur = job && job.status === "running" ? job.step : null;
   const idx = cur ? steps.findIndex(s => s[0] === cur) : -1;
@@ -368,13 +390,18 @@ function stepsHTML(job) {
 }
 
 function honestLimits() {
+  if (isPublicContent()) return `<ul class="limits small">
+    <li><b>Public content only; privacy not claimed.</b> Use only content already intended to be public.</li>
+    <li><b>Development candidate.</b> W16R2 uses three registered moderate categories. Image proofs remain in development.</li>
+    <li><b>What was checked.</b> An independent verifier accepted the three category proofs for a public test post. Each label reports the model’s statistical screening result. Model quality review is still open.</li>
+    <li><b>Publication.</b> ${esc(S.cfg.publisher?.description || "Publication configuration unavailable.")} Audience filters still apply.</li></ul>`;
   if (isShieldstral()) return `<ul class="limits small">
     <li><b>${esc(privacyLabel())}.</b> ${esc(S.cfg.prover.privacy_statement?.scope || "Privacy review remains separate from proof verification.")} Deployment conditions for non-public posts still apply.</li>
     <li><b>Real text classifier.</b> Three moderate categories, with 55 / 55 / 49 content tokens per chunk, overlap 8. Image proofs remain in development.</li>
-    <li><b>Laptop cost.</b> Earlier real runs took about 7.5 minutes to prove each category, plus about a minute each for verification, input binding and aggregation. Work is sequential and may wait for the shared machine.</li>
+    <li><b>Runtime.</b> ${S.cfg.prover.kind === "shieldstral-fast" ? "This development mode runs category proofs concurrently on the Mac. Queueing and verification add to the proof time." : "Earlier laptop CPU runs took about 7.5 minutes to prove each category, plus about a minute each for verification, input binding and aggregation. Work may wait for the shared machine."}</li>
     <li><b>Content binding.</b> The platform checks each sealed input against the post. The statement hash is included in the anchored publication.</li>
     <li><b>Model quality.</b> The full integer/float benchmark comparison is complete. The original arithmetic had six refusals; a revised candidate passed the same cases and awaits native review.</li>
-    <li><b>Testnet storage.</b> Only a batch digest goes to Base Sepolia. Proof files remain in this machine's off-chain store.</li></ul>`;
+    <li><b>Publication.</b> ${esc(S.cfg.publisher?.description || "Publication configuration unavailable.")} Proof files remain in this machine's off-chain store.</li></ul>`;
   return `<ul class="limits small">
     <li><b>Demo stub.</b> One next-token proof of TinyLlama-1.1B stands in for the three Shieldstral-1.0-3B category proofs. It proves the approved
       model ran on the hidden post; each label comes from a placeholder keyword list and is <b>not</b> bound by the proof.</li>
@@ -408,7 +435,7 @@ function labelsHero(p, rec) {
         published ${ago(p.published_at)}</p>
       <div style="margin:6px 0 10px">${chips(p.labels)}</div>
       ${p.status_message ? `<div class="note bad" style="margin-bottom:8px">${esc(p.status_message)}</div>` : ""}
-      <div class="note ${fake ? "bad" : "stub"}">${fake ? "FAKE PROVER: nothing was proved for this post." : rec?.prover?.kind === "shieldstral" ?
+      <div class="note ${fake ? "bad" : "stub"}">${fake ? "FAKE PROVER: nothing was proved for this post." : isShieldstral(rec?.prover || {}) ?
         `<b>Real classifier proofs.</b> Every category label was verified and bound to this post. The complete category coverage was checked before publication. Privacy scope is listed with the proof's verification details.` :
         `<b>Demo stub: next-token proof, classifier proofs coming.</b> A real zero-knowledge proof was made and verified for this post: it shows the approved
         ${esc(rec && rec.prover ? rec.prover.model : "")} ran on each hidden chunk. Each run stands in for that chunk's three category proofs; the labels themselves come from a placeholder and are not yet bound by the proof.`}</div></div></section>`;
@@ -421,14 +448,14 @@ function labelsHero(p, rec) {
   }
   const j = p.job || {};
   const prog = j.progress || { total: (p.chunks || []).length, done: 0, failed: 0 };
-  const pos = j.status === "running" ? `Proving chunk ${(j.chunk || 0) + 1} of ${prog.total}: ${j.step_label || ""}` : `Queued${j.ahead ? ` behind ${j.ahead} job${j.ahead > 1 ? "s" : ""}` : ""}`;
+  const pos = j.status === "running" ? `Proving ${isShieldstral() ? "proof job" : "chunk"} ${(j.chunk || 0) + 1} of ${prog.total}: ${j.step_label || ""}` : `Queued${j.ahead ? ` behind ${j.ahead} job${j.ahead > 1 ? "s" : ""}` : ""}`;
   const eta = j.eta_s != null ? ` · about ${Math.max(1, Math.round(j.eta_s / 60))} min left (if the shared machine is free)` : "";
   return `<section class="card hero pending"><div class="seal">${SHIELD_DOTS}</div><div style="flex:1"><h1>Pending verification</h1>
-    <p>Proving this item's labels, once, at creation: ${prog.total} chunk${prog.total > 1 ? "s" : ""} × 3 categories. It is distributed only when every chunk's proofs are done.</p>
+    <p>Proving this item's labels, once, at creation: ${isShieldstral() ? `${prog.total} category proofs` : `${prog.total} chunk${prog.total > 1 ? "s" : ""} × 3 categories`}. It is distributed only when every chunk's proofs are done.</p>
     <p class="muted">${esc(pos)}${j.waiting_for_machine ? " (waiting for the shared machine)" : ""}${eta}${j.step_since ? ` · this step ${since(j.step_since)}` : ""}</p>
     ${progressBar(prog)}
     ${j.status === "running" ? stepsHTML({ status: "running", step: j.step, waiting_for_machine: j.waiting_for_machine }) : ""}
-    <p class="small muted">Minutes per chunk are expected (${esc(S.cfg.expected.stub_work_s)} per stub run). You can leave this page; the jobs run detached, one at a time.</p></div></section>`;
+    <p class="small muted">${isShieldstral() ? "Proof jobs may wait for the shared machine. You can leave this page while they run." : `Minutes per chunk are expected (${esc(S.cfg.expected.stub_work_s)} per stub run). You can leave this page; the jobs run detached, one at a time.`}</p></div></section>`;
 }
 
 function labelsTable(p, rec) {
@@ -439,17 +466,19 @@ function labelsTable(p, rec) {
     const mine = Object.values(anchors).filter(x => x.category === l.category);
     const a = mine.length ? { status: mine.every(x => x.status === "anchored") ? "anchored" : "pending", block_number: mine.map(x => x.block_number).filter(x => x != null).join(", ") } : null;
     const per = ((rec && rec.labels && rec.labels[l.category] && rec.labels[l.category].chunks) || []);
-    const yesIn = per.filter(x => x.value === "yes").map(x => x.index + 1), unpIn = per.filter(x => x.value === "unproved").map(x => x.index + 1);
-    const proof = (unpIn.length ? `<span class="bad-t">no proof in chunk ${unpIn.join(", ")}</span> <span class="muted">(counts as yes)</span>`
+    const describe = x => esc(chunkLabel(plannedChunk(p, x.index, l.category)));
+    const yesIn = per.filter(x => x.value === "yes").map(describe), unpIn = per.filter(x => x.value === "unproved").map(describe);
+    const proof = (unpIn.length ? `<span class="bad-t">no proof in ${unpIn.join(", ")}</span> <span class="muted">(counts as yes)</span>`
       : `<span class="ok-t">accepted in all ${per.length || 1} chunk${per.length > 1 ? "s" : ""}</span>${l.bound_by_proof ? "" : ` <span class="muted">(stub, label not bound)</span>`}`)
-      + (yesIn.length ? `<div class="small">yes in chunk ${yesIn.join(", ")}</div>` : "");
-    return `<tr><td><b>${esc(l.name)}</b></td><td>${chip(l)}</td><td>${proof}</td>
-      <td>${esc(l.policy_id)} <span class="hash">${short(l.policy_sha256, 10)}</span>${pol.text ? `<details><summary class="small">policy text</summary><pre class="code">${esc(pol.text)}</pre></details>` : ""}</td>
-      <td>${a ? (a.status === "anchored" ? `block ${esc(a.block_number)}` : "pending batch") : "—"}</td></tr>`;
+      + (yesIn.length ? `<div class="small">yes in ${yesIn.join(", ")}</div>` : "");
+    return `<tr role="row"><th scope="row" role="rowheader">${esc(l.name)}</th><td role="cell">${chip(l)}</td>
+      <td class="label-detail" role="cell"><span class="label-field" aria-hidden="true">Proofs</span><div>${proof}</div></td>
+      <td class="label-detail" role="cell"><span class="label-field" aria-hidden="true">Policy</span><div>${esc(l.policy_id)} <span class="hash">${short(l.policy_sha256, 10)}</span>${pol.text ? `<details><summary class="small">policy text</summary><pre class="code">${esc(pol.text)}</pre></details>` : ""}</div></td>
+      <td class="label-detail" role="cell"><span class="label-field" aria-hidden="true">Anchors</span><div>${a ? (a.status === "anchored" ? `block ${esc(a.block_number)}` : "pending batch") : "—"}</div></td></tr>`;
   }).join("");
   const th = (rec && rec.threshold) || S.cfg.threshold;
-  return `<section class="card pad"><h2>Labels: per category, over every chunk</h2>
-    <div style="overflow-x:auto"><table class="table"><tr><th>category</th><th>label</th><th>proofs</th><th>policy (registered)</th><th>anchors</th></tr>${rows}</table></div>
+  return `<section class="card pad"><h2 id="labels-title">Labels: per category, over every chunk</h2>
+    <div class="labels-scroll"><table class="table labels-table" role="table" aria-labelledby="labels-title"><thead role="rowgroup"><tr role="row"><th scope="col" role="columnheader">category</th><th scope="col" role="columnheader">label</th><th scope="col" role="columnheader">proofs</th><th scope="col" role="columnheader">policy (registered)</th><th scope="col" role="columnheader">anchors</th></tr></thead><tbody role="rowgroup">${rows}</tbody></table></div>
     <p class="small muted" style="margin-top:8px">Decision rule: ${esc(th.rule)} (τ = ${esc(th.tau)}, c = ${esc(Number(th.c).toFixed(3))}). One fixed policy and one threshold per category; never re-proved.</p></section>`;
 }
 
@@ -461,13 +490,16 @@ function manifestSection(p) {
     <div><button class="btn ghost small" id="vmanbtn">Verify manifest</button> <a class="btn ghost small" href="/api/posts/${esc(p.id)}/manifest.json?${audQuery()}">Download ${esc(p.id.slice(0, 8))}….manifest.json</a>
       <span class="small muted">signature, then each entry's anchor and Merkle path in the ledger</span></div>
     <div id="vmanout" class="small"></div>
+    <details><summary class="small">Check the publisher signature offline</summary>
+      <p class="small">Download the manifest. Obtain the publisher’s public key separately from a trusted source, then run this command from the app directory. It authenticates the publisher’s signed labels. The publication and model proof checks are separate.</p>
+      <pre class="code">python tools/verify_manifest.py ${esc(p.id)}.manifest.json --signature-only --public-key TRUSTED_KEY_HEX</pre></details>
     <details><summary class="small">Manifest JSON</summary><pre class="code">${esc(JSON.stringify(m, null, 1))}</pre></details></section>`;
 }
 
 function anchorSection(p) {
   const pub = p.publication;
   if (!pub) return `<section class="card pad"><h2>Anchored at</h2><p class="small muted">No published proof (only accepted label proofs are anchored).</p></section>`;
-  const rows = Object.entries(pub.anchors).map(([k, a]) => `<tr><td>chunk ${esc(a.chunk + 1)} · ${esc(catName(a.category))}</td><td>${a.status === "anchored" ? `block ${esc(a.block_number)} · ${esc(a.batch_id)}` : "pending"}</td>
+  const rows = Object.entries(pub.anchors).map(([k, a]) => `<tr><td>${esc(chunkLabel(plannedChunk(p, a.chunk, a.category)))}${(p.chunks || []).some(c => c.index === a.chunk && !c.category) ? ` · ${esc(catName(a.category))}` : ""}</td><td>${a.status === "anchored" ? `block ${esc(a.block_number)} · ${esc(a.batch_id)}` : "pending"}</td>
     <td><span class="hash">${short(a.leaf_hash, 14)}</span> ${a.leaf_index != null ? `<span class="muted">#${esc(a.leaf_index)}</span>` : ""}</td>
     <td>${a.merkle_root ? `<span class="hash">${short(a.merkle_root, 12)}</span> <span class="muted">${(a.merkle_proof || []).length}-step path</span>` : "—"}</td></tr>`).join("");
   const any = Object.values(pub.anchors)[0] || {};
@@ -504,30 +536,36 @@ async function checkCommitment(p) {
 }
 
 function verifySection(p, rec) {
-  if (!rec || p.status !== "published") return "";
+  if (!rec || p.status !== "published" || rec.prover?.kind === "fake") return "";
   const vw = rec.verify_with || {};
+  const classifier = isShieldstral(rec.prover || {});
   const last = (p.checks || [])[0];
+  const resident = ["shieldstral-fast", "shieldstral-fast-w16r2"].includes(rec.prover?.kind);
+  const canRecheck = S.operator || (S.handle && "@" + S.handle === p.author);
   let lastHTML = "";
   if (p.recheck) lastHTML = `<div class="note info"><span class="spinner"></span> ${esc(p.recheck.status === "queued" ? "Queued…" : (p.recheck.step_label || "Checking…"))}${p.recheck.waiting_for_machine ? " (waiting for the shared machine)" : ""}</div>`;
   else if (last) {
     const latest = {}; (p.checks || []).forEach(c => { const k = (c.verdict && c.verdict.chunk) || 0; if (!(k in latest)) latest[k] = c; });
     lastHTML = Object.entries(latest).sort((a, b) => a[0] - b[0]).map(([k, c]) => { const d = (c.verdict || {}).details || {};
-      return c.ok ? `<div class="note ok"><b>Chunk ${+k + 1}: proof valid.</b> Re-verified ${ago(c.at)} in a fresh process from the public files only: ${fmtS(d.verify_seconds)} ·
-         security floor ${esc(d.whole_run_floor_bits)} bits (≥ ${esc(d.min_bits)} required) · statement re-checked byte for byte${d.content_binding ? " · binding to this post confirmed by the platform" : ""}. Nothing was re-proved.</div>`
-        : `<div class="note bad"><b>Chunk ${+k + 1}: check failed.</b> ${esc((d.message || "") + " " + (d.detail || ""))}</div>`; }).join("");
+      const label = esc(chunkLabel(plannedChunk(p, +k)));
+      const elapsed = Number.isFinite(d.verify_seconds) ? ` · ${fmtS(d.verify_seconds)}` : "";
+      const floor = Number.isFinite(d.whole_run_floor_bits) ? ` · security floor ${esc(d.whole_run_floor_bits)} bits` : "";
+      return c.ok ? `<div class="note ok"><b>${label}: proof valid.</b> Rechecked ${ago(c.at)} by the ${resident ? "resident verifier" : "verifier"}${elapsed}${floor}${d.content_binding ? " · binding to this post confirmed by the platform" : ""}.</div>`
+        : `<div class="note bad"><b>${label}: check failed.</b> ${esc((d.message || "") + " " + (d.detail || ""))}</div>`; }).join("");
   } else {
-    lastHTML = `<div class="note ok">Every chunk's proof was verified in a fresh process when it was proved.</div>`;
+    lastHTML = `<div class="note ok">The ${resident ? "resident verifier" : "verifier"} accepted each chunk’s proof before publication.</div>`;
   }
   return `<section class="card pad stack" id="verify"><h2>Check the proof yourself</h2>
-    <div><button class="btn" id="verifybtn" ${p.recheck ? "disabled" : ""}>Re-verify now</button>
-      <span class="small muted">runs the verifier and input check again on this server in fresh processes for every chunk (${isShieldstral() ? "about two minutes" : "about 15 seconds"} of work each, through the shared machine's guard); it re-checks, it never re-proves</span></div>
+    ${canRecheck ? `<div><button class="btn" id="verifybtn" ${p.recheck ? "disabled" : ""}>Re-verify now</button>
+      <span class="small muted">Runs the verifier and the platform’s input check again for every chunk.</span></div>` : ""}
     ${lastHTML}
-    ${rec.prover?.kind === "shieldstral" ? `<p class="small"><b>Profile privacy: ${esc(privacyLabel(vw))}.</b> ${esc(vw.privacy_statement?.scope || "Privacy review remains pending for this proving path.")} ${esc(vw.privacy_statement?.conditions || "")}</p>` : ""}
+    ${isShieldstral(rec.prover || {}) ? `<p class="small"><b>Profile privacy: ${esc(privacyLabel(isPublicContent(rec.prover) ? rec.prover : vw))}.</b> ${isPublicContent(rec.prover) ? "Use only content already intended to be public." : `${esc(vw.privacy_statement?.scope || "Privacy review remains pending for this proving path.")} ${esc(vw.privacy_statement?.conditions || "")}`}</p>` : ""}
     <div><b class="small">Or verify on your own machine</b>
-      <p class="small">Download the bundle (${fmtBytes(rec.receipt.bytes)}: the receipt, the published statement, the record and the manifest) and run the public verifier:</p>
+      <p class="small">The bundle contains the receipts, published statements, record and signed manifest. ${classifier ? "Follow every category and chunk command in VERIFY.md using the pinned binary and public model files." : "Follow the verification instructions in VERIFY.md."}</p>
       <p><a class="btn ghost small" href="/api/posts/${esc(p.id)}/bundle.tar">Download bundle (.tar, ${fmtBytes(rec.receipt.bytes)})</a>
          <a class="btn ghost small" href="/api/posts/${esc(p.id)}/record.json">Download record.json</a></p>
-      <pre class="code">${esc(vw.command || "")}</pre>
+      ${p.publication?.verification_store_available ? `<p><a class="btn ghost small" href="/api/posts/${esc(p.id)}/verification-store.tar">Download offline verification store</a> <span class="small muted">Includes this post’s receipts and local ledger evidence. Interrupted downloads can resume.</span></p>` : ""}
+      ${vw.command ? (classifier ? "" : `<pre class="code">${esc(vw.command)}</pre>`) : `<p class="note info">${esc(vw.note || "Verifier instructions are unavailable for this record.")}</p>`}
       <p class="small muted">Binary: ${esc(vw.binary || "")}. Public model files: ${esc(vw.public_model_files || "")}. Accept if ${esc(vw.accept_if || "")}.</p></div></section>`;
 }
 
@@ -547,13 +585,15 @@ function publicTable(rec) {
     ${row("Content length", `${esc(rec.content_length)} tokens <span class="muted">(public, D45)</span>`)}
     ${row("Chunking", ch.categories ? Object.entries(ch.categories).map(([c, v]) => `${esc(c)}: ${esc(v.chunks)} chunks of ≤ ${esc(v.chunk_tokens)} tokens, overlap ${esc(v.overlap_tokens)}`).join('; ')
       : `${esc(ch.n_chunks)} chunk${ch.n_chunks > 1 ? "s" : ""} of ≤ ${esc(ch.chunk_tokens)} tokens, overlap ${esc(ch.overlap_tokens)} (profile ${esc(ch.profile)})`)}
-    ${row("Hidden-input commitments (in the proofs)", `one per proof, inside its statement (first: <span class="hash">${short(cc.value, 16)}</span>); ${esc(cc.kind || "")}. The anchor binds the statement hash; the opening stays private.`)}
+    ${row(isPublicContent(pr) ? "Input commitments (public content)" : "Hidden-input commitments (in the proofs)", `one per proof, inside its statement (first: <span class="hash">${short(cc.value, 16)}</span>); ${esc(cc.kind || "")}. The anchor binds the statement hash; ${isPublicContent(pr) ? "privacy is not claimed" : "the opening stays private"}.`)}
     ${row("Receipts", `${esc(rec.receipt.segments)} sealed segments in total · ${fmtBytes(rec.receipt.bytes)}`)}
     ${row("Security floor", `${esc(sec.whole_run_floor_bits)} bits per run <span class="muted">(verifier requires ${esc(sec.min_bits_required)}; ${esc(sec.note || "")})</span>`)}
   </table></section>`;
 }
 
-function privateList() {
+function privateList(prover = S.cfg?.prover) {
+  if (isPublicContent(prover)) return `<section class="card pad"><h2>Local working files</h2>
+    <p class="small">The platform keeps input tokens, activations and commitment openings as local working files. File permissions do not establish proof privacy. Use public content only; privacy is not claimed. Audience filters still apply.</p></section>`;
   return `<section class="card pad"><h2>Private material held by the platform</h2>${isShieldstral() ? '<p class="small">These files are excluded from the published proof bundles. The verification details show the privacy scope for each record.</p>' : ''}<ul class="small">
     <li>The post's tokens as the proof's input: a 0600 file on the platform, never on a command line or in a log.</li>
     <li>Intermediate model activations${isShieldstral() ? ' (retained privately for this integration demo)' : ''}.</li>
@@ -629,11 +669,11 @@ async function viewPost(id) {
     html += chunkGrid(p, "Chunks: one proof per chunk and category");
     html += manifestSection(p);
     if (rec) html += verifySection(p, rec);
-    html += `<div class="cols">${anchorSection(p)}<div class="stack">${commitmentSection(p)}${privateList()}</div></div>`;
+    html += `<div class="cols">${anchorSection(p)}<div class="stack">${commitmentSection(p)}${privateList(rec?.prover)}</div></div>`;
     if (rec) {
       html += publicTable(rec);
       const sts = chunkRecords(rec).filter(r => r.statement);
-      if (sts.length) html += `<section class="card pad"><details><summary>The published statements (statement.json, one per chunk)</summary>${sts.map(r => `<p class="small"><b>chunk ${(r.chunk || {}).index + 1}</b></p><pre class="code">${esc(JSON.stringify(r.statement, null, 1))}</pre>`).join("")}</details></section>`;
+      if (sts.length) html += `<section class="card pad"><details><summary>The published statements (statement.json, one per proof)</summary>${sts.map(r => `<p class="small"><b>${esc(chunkLabel(r.chunk))}</b></p><pre class="code">${esc(JSON.stringify(r.statement, null, 1))}</pre>`).join("")}</details></section>`;
     }
   } else if (p.kind === "image") html += imagePlan(p);
   else if (p.status === "queued" || p.status === "screening") html += chunkGrid(p, "Chunk × category proof status");
@@ -643,7 +683,6 @@ async function viewPost(id) {
   html += `<section class="card pad"><h2>Honest limits</h2>${honestLimits()}</section></div>`;
   $("#app").innerHTML = html;
   const vb = $("#verifybtn");
-  if (vb) vb.hidden = !S.operator && ("@" + S.handle) !== p.author;
   if (vb) vb.onclick = async () => { vb.disabled = true; try { await api(`/api/posts/${p.id}/verify`, { method: "POST" }); toast("Re-verification queued."); S.lastPostJSON = ""; viewPost(id); } catch (e) { toast(e.message); vb.disabled = false; } };
   const checkList = (checks) => Object.entries(checks).map(([k, v]) => `<li>${v ? `<span class="ok-t">✓</span>` : `<span class="bad-t">✗</span>`} ${esc(k.replace(/_/g, " "))}</li>`).join("");
   const pb = $("#vpubbtn");
@@ -655,7 +694,7 @@ async function viewPost(id) {
         return `<li>${bad.length ? `<span class="bad-t">✗</span>` : (x.pending ? "…" : `<span class="ok-t">✓</span>`)} ${esc(k)}${x.pending ? " (anchoring pending)" : ""}${bad.length ? ": " + esc(bad.join(", ")) : ` (${Object.keys(x.checks).length} checks)`}</li>`; }).join("");
       out.innerHTML = `<div class="note ${r.accepted ? "ok" : (r.pending ? "info" : "bad")}"><b>${r.accepted ? "Publication verified." : (r.pending ? "Stored and checked; anchoring pending." : "Publication NOT verified.")}</b><ul class="checks" style="list-style:none;padding:0;margin:6px 0 0">${per}</ul>
         <div class="muted">Segment sizes checked here; tools/verify_manifest.py --rehash re-hashes every segment.</div>
-        <div class="muted" style="margin-top:4px">The proof itself is re-checked by “Re-verify now”; a third party runs tools/verify_manifest.py --run-verifier.</div></div>`;
+        <div class="muted" style="margin-top:4px">To check the model proofs independently, follow VERIFY.md in the downloaded bundle. With a copy of the public store, you can also run tools/verify_manifest.py --run-verifier.</div></div>`;
     } catch (e) { out.textContent = e.message; }
   };
   const mb = $("#vmanbtn");
@@ -736,15 +775,15 @@ function viewAbout() {
   <section class="card pad"><h1>How it works</h1>
     <p>Proven Media attaches category labels to published items in a <b>signed proof manifest</b> (like content credentials).
     In classifier mode, a fixed question defines each category and each label is checked against its proof.
-    The platform uses these labels to decide who receives the item: explicit content is not sent to minors, for example. Anyone can inspect the proof files.
-    ${isShieldstral() ? `${esc(privacyLabel())}. Deployment conditions for non-public posts still apply.` : "The intended proof interface hides the item; the active stub has a separate privacy scope."}</p>
+    Readers can select an audience filter. The minor filter shows an item only when all three labels say no. Anyone can inspect the proof files. Each label is a statistical screen. Human authorship would require separate evidence.
+    ${isPublicContent() ? "Public content only; privacy not claimed." : isShieldstral() ? `${esc(privacyLabel())}. Deployment conditions for non-public posts still apply.` : "The intended proof interface hides the item; the active stub has a separate privacy scope."}</p>
     <div class="flow"><div><b>Post</b>The item goes to the platform; the proof's input is written to a private 0600 file. It is pending verification.</div>
-    <div><b>Label</b>The prover runs the classifier on the hidden item, once per category, and proves every step (minutes, on a laptop CPU).</div>
-    <div><b>Verify &amp; sign</b>A fresh verifier, holding only public model files, checks the proofs; the labels are anchored and the manifest is signed.</div>
+    <div><b>Label</b>The prover runs the classifier on each ${isPublicContent() ? "public" : "hidden"} chunk for every category and proves the computation.</div>
+    <div><b>Verify &amp; sign</b>The verifier checks each proof using public model files. The publisher signs the manifest and batches the proof references into the ledger.</div>
     <div><b>Distribute</b>Each audience receives the item only if its labels allow it. A label without an accepted proof counts as yes (fail closed).</div></div></section>
   <section class="card pad"><h2>The categories and the statement</h2>
     <p class="small"><b>${esc(S.cfg.classifier.name)}</b> (${esc(S.cfg.classifier.source)}). Each category is one fixed policy text with one threshold:
-    ${esc(S.cfg.threshold.rule)}. Public: the labels, the model identity, the policy texts and the content length. Private: the content and the confidence scores.
+    ${esc(S.cfg.threshold.rule)}. Public: the labels, the model identity, the policy texts and the content length. ${isPublicContent() ? "This mode accepts public content only and makes no privacy claim." : "Private: the content and the confidence scores."}
     <b>Today</b>: ${esc(S.cfg.prover.what_is_proved || "")}${isShieldstral() ? ` ${esc(privacyLabel())}.` : ""}</p>
     <ul class="small">${cats}</ul>
     <p class="small muted">${isShieldstral() ? "These are the registered moderate templates selected for the classifier." : "The stub policy texts are placeholders; each new text requires a new registered id."}</p></section>
