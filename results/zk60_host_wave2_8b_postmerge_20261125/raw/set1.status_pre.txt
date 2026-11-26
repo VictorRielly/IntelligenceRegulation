@@ -1,0 +1,22 @@
+2026-11-25T18:49:16Z
+B0 /Users/victorrielly/IntelligenceRegulation/.agy-worktrees/w2-8b-base/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-99331253074f9a28 sha256 1fd3e12f827d30be0e0c48abf2d74f3d272db35e4bbca5e093da7b42d1180c4a
+B1 /Users/victorrielly/IntelligenceRegulation/.agy-worktrees/wave2-8b-postmerge/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-47108cbd7bf5814a sha256 d4fb1ca9c14a3019350c4ac2a557178f612d5fb2923a626096ef2ea69efaf71b
+legs [('A0_leadin', 'hashline-99331253074f9a28', 'serve8+lanes2+ba1+frs1+sf1+sc1+hf1'), ('A1', 'hashline-99331253074f9a28', 'serve8+lanes2+ba1+frs1+sf1+sc1+hf1'), ('B1', 'hashline-47108cbd7bf5814a', 'serve8+lanes2+ba1+frs1+sf1+sc1+hf1'), ('C1', 'hashline-47108cbd7bf5814a', 'serve8+lanes2+ba1+frs1+sf1+sc1+hf1+hw1+ad0'), ('C2', 'hashline-47108cbd7bf5814a', 'serve8+lanes2+ba1+frs1+sf1+sc1+hf1+hw1+ad0'), ('B2', 'hashline-47108cbd7bf5814a', 'serve8+lanes2+ba1+frs1+sf1+sc1+hf1'), ('A2', 'hashline-99331253074f9a28', 'serve8+lanes2+ba1+frs1+sf1+sc1+hf1')]
+base_env {'HL_GPU': '1', 'HL_GPU_REQUIRED': '1', 'HL_PB_ORACLE': '0', 'HL_METAL_TIMING': '0', 'HL_D55_PROFILE': 'W16R2_8B_T128_H24', 'HL_D55_L': '32', 'HL_D55_WORKERS': '6', 'HL_A19_BUDGET_GIB': '32', 'HL_D55_AB_ALTERNATE': '1'}
+--- guard status ---
+RAM   200.35 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 0 of 252.5 GiB committed by guarded jobs
+LOCKS heavy free, build free
+GPU   526 of 196608 MiB used
+DISK  /System/Volumes/VM 98.2 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  20664 MiB  pid 48978   agy
+  rss   5392 MiB  pid 1578    claude
+  rss   2030 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1527 MiB  pid 17265   claude
+  rss   1482 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1067 MiB  pid 701     /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/
+--- sysctl -n vm.loadavg ---
+{ 5.31 5.34 5.41 }
+--- after set1, 2026-11-25T18:56:14Z ---
+loadavg { 25.02 17.03 11.19 }

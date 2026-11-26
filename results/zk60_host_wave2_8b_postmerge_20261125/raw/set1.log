@@ -1,0 +1,14 @@
+=== SET1 LEG 0 A0_leadin bin=hashline-99331253074f9a28 arm=serve8+lanes2+ba1+frs1+sf1+sc1+hf1 start=2026-11-25T18:49:17Z ===
+=== SET1 LEG 0 A0_leadin exit=0 wall=57.69s end=2026-11-25T18:50:14Z ===
+=== SET1 LEG 1 A1 bin=hashline-99331253074f9a28 arm=serve8+lanes2+ba1+frs1+sf1+sc1+hf1 start=2026-11-25T18:50:16Z ===
+=== SET1 LEG 1 A1 exit=0 wall=56.70s end=2026-11-25T18:51:13Z ===
+=== SET1 LEG 2 B1 bin=hashline-47108cbd7bf5814a arm=serve8+lanes2+ba1+frs1+sf1+sc1+hf1 start=2026-11-25T18:51:15Z ===
+=== SET1 LEG 2 B1 exit=0 wall=61.03s end=2026-11-25T18:52:16Z ===
+=== SET1 LEG 3 C1 bin=hashline-47108cbd7bf5814a arm=serve8+lanes2+ba1+frs1+sf1+sc1+hf1+hw1+ad0 start=2026-11-25T18:52:18Z ===
+=== SET1 LEG 3 C1 exit=0 wall=56.40s end=2026-11-25T18:53:14Z ===
+=== SET1 LEG 4 C2 bin=hashline-47108cbd7bf5814a arm=serve8+lanes2+ba1+frs1+sf1+sc1+hf1+hw1+ad0 start=2026-11-25T18:53:16Z ===
+=== SET1 LEG 4 C2 exit=0 wall=56.43s end=2026-11-25T18:54:13Z ===
+=== SET1 LEG 5 B2 bin=hashline-47108cbd7bf5814a arm=serve8+lanes2+ba1+frs1+sf1+sc1+hf1 start=2026-11-25T18:54:15Z ===
+=== SET1 LEG 5 B2 exit=0 wall=59.65s end=2026-11-25T18:55:14Z ===
+=== SET1 LEG 6 A2 bin=hashline-99331253074f9a28 arm=serve8+lanes2+ba1+frs1+sf1+sc1+hf1 start=2026-11-25T18:55:16Z ===
+=== SET1 LEG 6 A2 exit=0 wall=57.26s end=2026-11-25T18:56:14Z ===
