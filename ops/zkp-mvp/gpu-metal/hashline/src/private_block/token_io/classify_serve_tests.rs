@@ -1149,3 +1149,184 @@ fn host_fast_all_three_switches_r13_receipt_door_verifier_isolation_gate() {
 
     eprintln!("M1 RECEIPT-DOOR VERIFIER ISOLATION GATE PASS: R13_RUNG_H24 (prove_with_public -> check_one x2) + W16R2_RUNG_H24 (serve -> verify + input-owner + check-serve) hit HF_H4_ACC_FOLD & HF_W2_FOLD_TILED on prover with 0 fallbacks and moved 0 counters across all 3 switches on every verifier door");
 }
+
+#[test]
+fn serve_lines_with_recovers_from_panic_per_lane_1_and_2_with_k2_privacy() {
+    for per_lane in [1usize, 2] {
+        let lanes = 2usize;
+        // 12 requests with 6 panics (> lanes * per_lane = 4) proves DispatchGuard
+        // releases `load_r` and notifies `freed_r` on every unwind with zero deadlock.
+        let n = 12usize;
+        let mut out = Vec::new();
+        let (served_n, ok) = serve_lines_with(
+            lanes,
+            1,
+            0,
+            per_lane,
+            (0..n).map(|q| format!("SECRET_LINE_TOKEN_{q}")),
+            |q, line, _queued, lane| {
+                if q % 2 == 0 {
+                    panic!("SECRET_WITNESS_PAYLOAD_42_req_{q}:{line}");
+                }
+                (
+                    true,
+                    format!("{{\"event\":\"served\",\"request\":{q},\"status\":\"ok\",\"lane\":{lane}}}"),
+                )
+            },
+            &mut |l: &str| out.push(l.to_string()),
+        )
+        .expect("serve_lines_with must not fail or unwind on request panic");
+
+        assert_eq!((served_n, ok), (n, n / 2), "per_lane={per_lane}: expected all {n} served and {} ok", n / 2);
+        assert_eq!(out.len(), n, "per_lane={per_lane}: one emitted JSON line per request");
+
+        let mut seen_ok = Vec::new();
+        let mut seen_err = Vec::new();
+        for raw in &out {
+            // K-2 privacy: neither the panic payload nor the input line may ever appear in emitted output.
+            assert!(!raw.contains("SECRET_WITNESS"), "K-2 leak of panic payload in: {raw}");
+            assert!(!raw.contains("PAYLOAD_42"), "K-2 leak of panic payload in: {raw}");
+            assert!(!raw.contains("SECRET_LINE_TOKEN"), "K-2 leak of input line in: {raw}");
+
+            let j = parse_json(raw.as_bytes()).unwrap_or_else(|e| panic!("invalid JSON emitted: {raw}: {e}"));
+            assert_eq!(j.get("event").unwrap().str().unwrap(), "served");
+            let req = j.get("request").unwrap().i64().unwrap() as usize;
+            let st = j.get("status").unwrap().str().unwrap();
+            if st == "ok" {
+                seen_ok.push(req);
+            } else {
+                assert_eq!(st, "internal-error", "unexpected status for panicked request: {raw}");
+                assert_eq!(j.get("error").unwrap().str().unwrap(), "internal-error", "unexpected error for panicked request: {raw}");
+                let lane = j.get("lane").unwrap().i64().unwrap() as usize;
+                assert!(lane < lanes, "invalid lane {lane}");
+                seen_err.push(req);
+            }
+        }
+        seen_ok.sort_unstable();
+        seen_err.sort_unstable();
+        assert_eq!(seen_ok, vec![1, 3, 5, 7, 9, 11], "per_lane={per_lane}: all healthy requests must succeed");
+        assert_eq!(seen_err, vec![0, 2, 4, 6, 8, 10], "per_lane={per_lane}: all panicked requests must return internal-error");
+    }
+}
+
+#[test]
+fn with_captured_events_clears_tls_on_panic_inside_serve_lines() {
+    // 1. Direct unwind clears EVENT_CAPTURE TLS cleanly on the calling thread.
+    let direct = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        with_captured_events(|| {
+            event("{\"event\":\"SECRET_DIRECT_LEAK\"}".to_string());
+            panic!("SECRET_DIRECT_PANIC");
+        })
+    }));
+    assert!(direct.is_err(), "direct panic expected");
+    assert!(
+        EVENT_CAPTURE.with(|c| c.borrow().is_none()),
+        "EVENT_CAPTURE TLS must be restored to None after panic unwind"
+    );
+
+    // 2. Inside `serve_lines_with` (both per_lane=1 and per_lane=2), subsequent requests on the
+    //    same Rayon worker threads observe zero leaked events from prior panicked requests.
+    for per_lane in [1usize, 2] {
+        let n = if per_lane == 1 { 4usize } else { 8usize };
+        let panic_cutoff = if per_lane == 1 { 2usize } else { 4usize };
+        let mut out = Vec::new();
+        let (served_n, ok) = serve_lines_with(
+            1,
+            1,
+            0,
+            per_lane,
+            (0..n).map(|q| format!("req-{q}")),
+            |q, _line, _queued, _lane| {
+                let is_panic = if per_lane == 1 { q % 2 == 0 } else { q < panic_cutoff };
+                if is_panic {
+                    if per_lane == 2 && q < 2 {
+                        // Overlap the first two panics so both per-lane worker pools execute a panic.
+                        std::thread::sleep(std::time::Duration::from_millis(20));
+                    }
+                    let _ = with_captured_events(|| -> Result<(), String> {
+                        event(format!("{{\"event\":\"SECRET_LEAKED_EVENT_{q}\"}}"));
+                        panic!("SECRET_PANIC_777_{q}");
+                    });
+                    unreachable!()
+                }
+                let ((), events) = with_captured_events(|| {
+                    event("{\"event\":\"clean-ok\"}".to_string());
+                });
+                assert!(
+                    EVENT_CAPTURE.with(|c| c.borrow().is_none()),
+                    "EVENT_CAPTURE TLS must be None after with_captured_events returns"
+                );
+                assert_eq!(
+                    events,
+                    vec!["{\"event\":\"clean-ok\"}".to_string()],
+                    "per_lane={per_lane} req {q}: stale event leaked across panic: {events:?}"
+                );
+                (true, format!("{{\"event\":\"served\",\"request\":{q},\"status\":\"ok\",\"events\":1}}"))
+            },
+            &mut |l: &str| out.push(l.to_string()),
+        )
+        .expect("serve_lines_with must recover cleanly");
+
+        let want_ok = if per_lane == 1 { n / 2 } else { n - panic_cutoff };
+        assert_eq!((served_n, ok), (n, want_ok), "per_lane={per_lane}: expected {want_ok} ok of {n}");
+        for raw in &out {
+            assert!(!raw.contains("SECRET_LEAKED_EVENT"), "K-2 leaked event in output: {raw}");
+            assert!(!raw.contains("SECRET_PANIC_777"), "K-2 leaked panic payload in output: {raw}");
+            let _ = parse_json(raw.as_bytes()).unwrap_or_else(|e| panic!("invalid JSON: {raw}: {e}"));
+        }
+    }
+}
+
+/// The check server's entry (`serve_lines`, what `check_serve_inner` calls) has no panic guard: a
+/// panic in its `serve` is not turned into the prover server's fixed `internal-error` line (which
+/// has no `command`, no `id` and no fail-closed line). It unwinds its lane's thread and comes out
+/// of `serve_lines` as a panic, as before the guard existed; the other lane's request is still
+/// answered by its own line. Like the two tests above, this one runs in a test build, which
+/// unwinds (cargo ignores the profile's `panic` setting for tests); the release binary is built
+/// with `panic = "abort"` and ends at the first panic on either entry, so none of the three
+/// tests describes the release binary.
+#[test]
+fn serve_lines_the_check_servers_entry_does_not_catch_a_panic() {
+    let mut out: Vec<String> = Vec::new();
+    // two lanes, two requests: the lane that takes request 0 panics and takes no other; the
+    // other lane takes request 1 (the reader then ends, so nothing waits on the lost lane)
+    let r = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        serve_lines(
+            2,
+            1,
+            (0..2usize).map(|q| format!("line-{q}")),
+            |q, _line, _queued, lane| {
+                if q == 0 {
+                    panic!("CHECK_SIDE_PANIC_{q}");
+                }
+                (true, format!("{{\"event\":\"served\",\"command\":\"classify-check-serve\",\"request\":{q},\"status\":\"checked\",\"lane\":{lane}}}"))
+            },
+            &mut |l: &str| out.push(l.to_string()),
+        )
+    }));
+    assert!(r.is_err(), "a panic in the check server's serve must come out of serve_lines, not be answered: {out:?}");
+    assert_eq!(out.len(), 1, "only the healthy request has a line: {out:?}");
+    assert!(out[0].contains("\"request\":1") && out[0].contains("\"status\":\"checked\""), "{out:?}");
+    assert!(out.iter().all(|l| !l.contains("internal-error") && !l.contains("CHECK_SIDE_PANIC")), "{out:?}");
+
+    // the same closure through the prover server's entry is answered by the fixed line
+    let mut out2: Vec<String> = Vec::new();
+    let (n, ok) = serve_lines_with(
+        2,
+        1,
+        0,
+        1,
+        (0..2usize).map(|q| format!("line-{q}")),
+        |q, _line, _queued, lane| {
+            if q == 0 {
+                panic!("PROVER_SIDE_PANIC_{q}");
+            }
+            (true, format!("{{\"event\":\"served\",\"command\":\"classify-serve\",\"request\":{q},\"status\":\"proved\",\"lane\":{lane}}}"))
+        },
+        &mut |l: &str| out2.push(l.to_string()),
+    )
+    .expect("the prover server's entry answers a panic");
+    assert_eq!((n, ok), (2, 1));
+    assert_eq!(out2.iter().filter(|l| l.contains("\"status\":\"internal-error\"")).count(), 1, "{out2:?}");
+    assert!(out2.iter().all(|l| !l.contains("PROVER_SIDE_PANIC")), "{out2:?}");
+}

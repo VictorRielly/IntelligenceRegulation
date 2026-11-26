@@ -122,7 +122,11 @@ fn ctx() -> Result<&'static Ctx, String> {
                 let p = device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal pipeline {k}: {e}"))?;
                 pipes.insert(k, p);
             }
+            use metal::foreign_types::ForeignType;
             let queue = device.new_command_queue();
+            if queue.as_ptr().is_null() {
+                return Err("metal: failed to create command queue".into());
+            }
             Ok(Ctx {
                 device,
                 lib,
@@ -796,7 +800,12 @@ fn shared_buffer(c: &Ctx, bytes: u64) -> Result<PBuf, String> {
         return Ok(PBuf(Some(b)));
     }
     POOL_MISSES.fetch_add(1, Ordering::Relaxed);
-    Ok(PBuf(Some(c.device.new_buffer(bytes, MTLResourceOptions::StorageModeShared))))
+    use metal::foreign_types::ForeignType;
+    let b = c.device.new_buffer(bytes, MTLResourceOptions::StorageModeShared);
+    if b.as_ptr().is_null() {
+        return Err(format!("metal: failed to allocate shared buffer of {bytes} B"));
+    }
+    Ok(PBuf(Some(b)))
 }
 
 fn upload(c: &Ctx, vals: &[Fp]) -> Result<PBuf, String> {
@@ -895,7 +904,11 @@ fn head_pow2_buffers(c: &Ctx, ntt: &NttTables) -> Result<Option<(Buffer, Buffer)
     let made = match (exps(fw), exps(inv)) {
         (Some(f), Some(i)) => {
             let up = |v: &[u32]| -> Result<Buffer, String> {
+                use metal::foreign_types::ForeignType;
                 let b = c.device.new_buffer((v.len() * 4) as u64, MTLResourceOptions::StorageModeShared);
+                if b.as_ptr().is_null() {
+                    return Err("metal: failed to allocate pow2 twiddle buffer".into());
+                }
                 // SAFETY: a fresh shared buffer of v.len() u32 words, not yet used by the GPU
                 unsafe { std::ptr::copy_nonoverlapping(v.as_ptr(), b.contents() as *mut u32, v.len()) };
                 Ok(b)
@@ -1076,6 +1089,94 @@ fn run(c: &Ctx, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<
     run_tagged(c, "other", encode)
 }
 
+#[cfg(test)]
+#[derive(Clone, Copy, Debug)]
+struct CbErrSpec {
+    /// If `Some(t)`, fire only when `tag == t`; if `None`, fire on any tag.
+    tag: Option<&'static str>,
+    /// Number of matching command buffers to skip before firing.
+    skip: usize,
+    /// Remaining errors to inject (`1` = one-shot).
+    remaining: usize,
+}
+
+#[cfg(test)]
+thread_local! {
+    static INJECT_CB_ERR: std::cell::Cell<Option<CbErrSpec>> = const { std::cell::Cell::new(None) };
+    static INJECT_M6_CORRUPT: std::cell::Cell<u8> = const { std::cell::Cell::new(0) };
+}
+
+#[cfg(test)]
+fn take_injected_cb_err(tag: &'static str) -> Option<String> {
+    INJECT_CB_ERR.with(|cell| {
+        let mut spec = cell.get()?;
+        if spec.tag.is_some_and(|t| t != tag) {
+            return None;
+        }
+        if spec.skip > 0 {
+            spec.skip -= 1;
+            cell.set(Some(spec));
+            return None;
+        }
+        if spec.remaining == 0 {
+            cell.set(None);
+            return None;
+        }
+        spec.remaining -= 1;
+        if spec.remaining == 0 {
+            cell.set(None);
+        } else {
+            cell.set(Some(spec));
+        }
+        Some(format!("metal: injected command buffer Error on tag '{tag}'"))
+    })
+}
+
+/// Thread-local RAII guard for injecting a Metal command buffer error in tests.
+/// Restores the previous state on drop (including unwind).
+#[cfg(test)]
+pub struct CbErrGuard {
+    prev: Option<CbErrSpec>,
+}
+
+#[cfg(test)]
+impl CbErrGuard {
+    /// Arm a one-shot CB error on the (`skip + 1`)-th CB matching `tag` (`None` = any tag).
+    pub fn arm(tag: Option<&'static str>, skip: usize) -> Self {
+        let prev = INJECT_CB_ERR.with(|c| c.replace(Some(CbErrSpec { tag, skip, remaining: 1 })));
+        Self { prev }
+    }
+}
+
+#[cfg(test)]
+impl Drop for CbErrGuard {
+    fn drop(&mut self) {
+        INJECT_CB_ERR.with(|c| c.set(self.prev));
+    }
+}
+
+/// Thread-local RAII guard for injecting an M6 replay mismatch in tests.
+/// `mode == 1`: corrupt `dev_sums[*][1]`; `mode == 2`: corrupt `dev_r[0]`.
+#[cfg(test)]
+pub struct M6CorruptGuard {
+    prev: u8,
+}
+
+#[cfg(test)]
+impl M6CorruptGuard {
+    pub fn arm(mode: u8) -> Self {
+        let prev = INJECT_M6_CORRUPT.with(|c| c.replace(mode));
+        Self { prev }
+    }
+}
+
+#[cfg(test)]
+impl Drop for M6CorruptGuard {
+    fn drop(&mut self) {
+        INJECT_M6_CORRUPT.with(|c| c.set(self.prev));
+    }
+}
+
 /// [`run`], with a call-site tag for the [A7] timeline. The command buffer goes
 /// to this thread's queue ([`Ctx::with_queue`]) and is waited for before
 /// the call returns, as before: every later command buffer, on any queue, is
@@ -1097,9 +1198,17 @@ fn run_tagged(c: &Ctx, tag: &'static str, encode: impl FnOnce(&metal::ComputeCom
         if tl {
             tl_record(cb, tag, qi, begin, committed);
         }
+        #[cfg(test)]
+        if let Some(err) = take_injected_cb_err(tag) {
+            reset_own_queue();
+            return Err(err);
+        }
         match status {
             MTLCommandBufferStatus::Completed => Ok(()),
-            s => Err(format!("metal: command buffer ended {s:?}")),
+            s => {
+                reset_own_queue();
+                Err(format!("metal: command buffer ended {s:?}"))
+            }
         }
     })
 }
@@ -1141,8 +1250,17 @@ const DEFAULT_QUEUES: usize = Q_SHARED;
 /// 0 until read from the environment (or set by a test)
 static QUEUES: AtomicUsize = AtomicUsize::new(0);
 
+#[cfg(test)]
+thread_local! {
+    static QUEUES_TL: std::cell::Cell<Option<usize>> = const { std::cell::Cell::new(None) };
+}
+
 /// [A7] `HL_METAL_QUEUES`: `shared` (or `1`) or `thread`; anything else, the default
 fn queue_mode() -> usize {
+    #[cfg(test)]
+    if let Some(m) = QUEUES_TL.with(|c| c.get()) {
+        return m;
+    }
     match QUEUES.load(Ordering::Relaxed) {
         0 => {
             let m = match std::env::var("HL_METAL_QUEUES").as_deref() {
@@ -1187,9 +1305,24 @@ fn thread_serial() -> u32 {
 
 thread_local! {
     /// [A7] this thread's own queue (`HL_METAL_QUEUES=thread`), made at its first
-    /// command buffer, released when the thread ends; `None` if Metal gave none
-    /// (the thread then uses the shared queue)
-    static OWN_QUEUE: std::cell::OnceCell<Option<CommandQueue>> = const { std::cell::OnceCell::new() };
+    /// command buffer, released when the thread ends or dropped via [`reset_own_queue`]
+    /// on any non-`Completed` CB status; `None` while uninitialized/reset (or if
+    /// Metal refused queue creation, in which case `with_queue` uses the shared queue).
+    static OWN_QUEUE: std::cell::RefCell<Option<CommandQueue>> = const { std::cell::RefCell::new(None) };
+}
+
+/// Drop this thread's Metal command queue so the next GPU call allocates a fresh
+/// queue instead of reusing a queue that suffered a command buffer error/hang.
+fn reset_own_queue() {
+    OWN_QUEUE.with(|q| {
+        q.borrow_mut().take();
+    });
+}
+
+#[cfg(test)]
+fn own_queue_ptr() -> Option<usize> {
+    use metal::foreign_types::ForeignType;
+    OWN_QUEUE.with(|q| q.borrow().as_ref().map(|cq| cq.as_ptr() as usize))
 }
 
 impl Ctx {
@@ -1199,17 +1332,24 @@ impl Ctx {
         if queue_mode() != Q_THREAD {
             return f(&self.queue, 0);
         }
-        OWN_QUEUE.with(|q| {
-            let own = q.get_or_init(|| {
+        // Clone the handle and release the `RefCell` borrow BEFORE calling `f`
+        // so `f` may safely call `reset_own_queue()` on CB error without a
+        // re-entrant `BorrowMutError`.
+        let own: Option<CommandQueue> = OWN_QUEUE.with(|q| {
+            let mut slot = q.borrow_mut();
+            if slot.is_none() {
                 use metal::foreign_types::ForeignType;
                 let made = objc::rc::autoreleasepool(|| self.device.new_command_queue());
-                (!made.as_ptr().is_null()).then_some(made)
-            });
-            match own {
-                Some(own) => f(own, thread_serial() + 1),
-                None => f(&self.queue, 0),
+                if !made.as_ptr().is_null() {
+                    *slot = Some(made);
+                }
             }
-        })
+            slot.clone()
+        });
+        match own {
+            Some(ref own) => f(own, thread_serial() + 1),
+            None => f(&self.queue, 0),
+        }
     }
 }
 
@@ -3292,7 +3432,7 @@ pub struct MetalRounds {
     fold_r: Option<(usize, Fp2)>,
     /// [A12] the slot's tables' device build, not yet run: encoded ahead of
     /// the first command buffer that reads the tables (round 0's, the batch's)
-    /// or run alone before the host reads them ([`MetalRounds::into_host`])
+    /// or run alone before the host reads them ([`MetalRounds::try_into_host`])
     prelude: Option<TabBuild>,
     /// [A27] the slot's label for the GPU trace (the generated source's first
     /// comment line: slot number, name, profile, table counts); empty unless
@@ -3711,17 +3851,24 @@ impl MetalTables {
 }
 
 /// [`metal_rounds`] over tables already in device memory ([`MetalTables`]).
-/// `Err((tables, None))`: a table the kernel keeps as a base-field word has a
+/// `Err((Some(tables), None))`: a table the kernel keeps as a base-field word has a
 /// nonzero imaginary part (the typed kernel does not apply; the CPU runs);
-/// `Err((tables, Some(e)))`: a device error. Either way the tables come back.
-pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs: &[Fp2], base: &[bool]) -> Result<MetalRounds, (MetalTables, Option<String>)> {
+/// `Err((Some(tables), Some(e)))`: a device error after any deferred build flushed;
+/// `Err((None, Some(e)))`: a deferred table build failed to flush, so the device
+/// buffer is unusable and the caller must rebuild tables on the host.
+pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs: &[Fp2], base: &[bool]) -> Result<MetalRounds, (Option<MetalTables>, Option<String>)> {
     // [A12] a decline hands the tables to the host: a deferred device build
-    // runs first (a failure there leaves no tables to hand: the attempt is refused)
-    let fail = |mut t: MetalTables, why: Option<String>| -> Result<MetalRounds, (MetalTables, Option<String>)> {
+    // runs first; if the flush fails, drop the unusable buffer and let the
+    // caller rebuild on host (or fail closed under HL_GPU_REQUIRED=1).
+    let fail = |mut t: MetalTables, why: Option<String>| -> Result<MetalRounds, (Option<MetalTables>, Option<String>)> {
         if let Err(e) = t.flush() {
-            panic!("[ZK60-METAL A12] a deferred table build failed before a decline ({e}): the attempt is refused");
+            let msg = match why {
+                Some(w) => format!("[ZK60-METAL A12] a deferred table build failed before a decline ({w}): {e}"),
+                None => format!("[ZK60-METAL A12] a deferred table build failed before a decline: {e}"),
+            };
+            return Err((None, Some(msg)));
         }
-        Err((t, why))
+        Err((Some(t), why))
     };
     let c = match ctx() {
         Ok(c) => c,
@@ -3842,12 +3989,16 @@ pub fn metal_rounds_owned_cached(
     t: MetalTables,
     degree: usize,
     coefs: &[Fp2],
-) -> Result<MetalRounds, (MetalTables, Option<String>)> {
-    let fail = |mut t: MetalTables, why: Option<String>| -> Result<MetalRounds, (MetalTables, Option<String>)> {
+) -> Result<MetalRounds, (Option<MetalTables>, Option<String>)> {
+    let fail = |mut t: MetalTables, why: Option<String>| -> Result<MetalRounds, (Option<MetalTables>, Option<String>)> {
         if let Err(e) = t.flush() {
-            panic!("[ZK60-METAL A12] a deferred table build failed before a decline ({e}): the attempt is refused");
+            let msg = match why {
+                Some(w) => format!("[ZK60-METAL A12] a deferred table build failed before a decline ({w}): {e}"),
+                None => format!("[ZK60-METAL A12] a deferred table build failed before a decline: {e}"),
+            };
+            return Err((None, Some(msg)));
         }
-        Err((t, why))
+        Err((Some(t), why))
     };
     let c = match ctx() {
         Ok(c) => c,
@@ -4480,9 +4631,17 @@ fn run_tagged_pre(c: &Ctx, tag: &'static str, pre: Option<(&TabBuild, &metal::Bu
         if tl {
             tl_record(cb, tag, qi, begin, committed);
         }
+        #[cfg(test)]
+        if let Some(err) = take_injected_cb_err(tag) {
+            reset_own_queue();
+            return Err(err);
+        }
         match status {
             MTLCommandBufferStatus::Completed => Ok(()),
-            s => Err(format!("metal: command buffer ended {s:?}")),
+            s => {
+                reset_own_queue();
+                Err(format!("metal: command buffer ended {s:?}"))
+            }
         }
     })
 }
@@ -4833,19 +4992,16 @@ impl MetalRounds {
     }
 }
 
-impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
-    fn n_vars(&self) -> usize {
-        self.n_vars
-    }
-    fn degree(&self) -> usize {
-        self.degree
-    }
-
-    fn round(&mut self, j: usize) -> Vec<Fp2> {
-        assert_eq!(j, self.next, "sumcheck evaluator round order");
-        assert!(j < self.n_vars && self.pending.is_none(), "round needs the preceding fold");
+impl MetalRounds {
+    fn try_round(&mut self, j: usize) -> Result<Vec<Fp2>, String> {
+        if j != self.next {
+            return Err(format!("metal sumcheck: round order mismatch (got {j}, expected {})", self.next));
+        }
+        if j >= self.n_vars || self.pending.is_some() {
+            return Err("metal sumcheck: round needs the preceding fold".into());
+        }
         let t0 = std::time::Instant::now();
-        let c = ctx().expect("metal context");
+        let c = ctx()?;
         let half = self.len / 2;
         let claim = if self.recover_one { self.unmasked_claim } else { None };
         let eval_one = claim.is_none();
@@ -4858,7 +5014,7 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         trace_detail(|| format!("{} | k={} m={} log_cap={} deg={} j={j} half={half} fold={} pre={}", self.label, self.k, self.m, self.cap.trailing_zeros(), self.degree, fold.is_some() as u8, pre.is_some() as u8));
         // [A27] the materialized tables' values, ahead of the first round's kernel
         let mat = std::mem::replace(&mut self.mat_pending, false);
-        let sums = objc::rc::autoreleasepool(|| {
+        let sums = objc::rc::autoreleasepool(|| -> Result<Vec<Fp2>, String> {
             let pipe = if j == 0 { &self.pipe0 } else { &self.pipe };
             let tabs: &metal::BufferRef = &self.tabs;
             run_tagged_pre(c, "round", pre.as_ref().map(|p| (p, tabs)), |enc| {
@@ -4890,12 +5046,13 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                 let tg = if self.sc_fast { (tg_raw & !31).max(32) } else { tg_raw };
                 enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
                 Ok(())
-            })
-            .expect("metal sumcheck round");
+            })?;
             let de = self.de;
             // [A12] the deferred build's base-field tables were base by
             // construction; a word the device flags is a device fault
-            assert!(!pre.as_ref().is_some_and(|p| p.flagged()), "[ZK60-METAL A12] a base-field table built on the device has an extension word: the attempt is refused");
+            if pre.as_ref().is_some_and(|p| p.flagged()) {
+                return Err("[ZK60-METAL A12] a base-field table built on the device has an extension word".into());
+            }
             // [M4e] small rounds on this thread (a rayon region costs about
             // half a millisecond here), large ones in parallel; field addition
             // is exact, so the grouping does not change the sums. [M4g] Point
@@ -4916,7 +5073,7 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                         *s = a;
                     }
                 }
-                acc
+                Ok(acc)
             } else {
                 let p = as_u64s(&self.part, nthreads * d1 * 2);
                 let sum = |blk: &[u64]| -> Vec<Fp2> {
@@ -4930,7 +5087,7 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                     }
                     acc
                 };
-                if nthreads <= 1 << 14 {
+                Ok(if nthreads <= 1 << 14 {
                     sum(p)
                 } else {
                     p.par_chunks(4096 * d1 * 2).map(sum).reduce(|| vec![Fp2::ZERO; d1], |mut a, b| {
@@ -4939,9 +5096,9 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                         }
                         a
                     })
-                }
+                })
             }
-        });
+        })?;
         let mut sums = sums;
         if let Some(claim) = claim {
             sums[1] = claim.sub(sums[0]);
@@ -4955,12 +5112,12 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         let mut sp = self.split_ns.get();
         sp[if j == 0 { 0 } else { 1 }] += ns;
         self.split_ns.set(sp);
-        sums
+        Ok(sums)
     }
 
-    fn fold(&mut self, r: Fp2) {
+    fn try_fold(&mut self, r: Fp2) -> Result<(), String> {
         let t0 = std::time::Instant::now();
-        let sums = self.pending.take().expect("fold needs a round");
+        let sums = self.pending.take().ok_or_else(|| "metal sumcheck: fold needs a round".to_string())?;
         if self.recover_one {
             self.unmasked_claim = Some(zkp_core::mle::interpolate_eval(&sums, r));
         }
@@ -4970,7 +5127,7 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
             self.fold_r = Some((half, r));
         } else {
             // the last fold: the final tables are read right after it
-            let c = ctx().expect("metal context");
+            let c = ctx()?;
             trace_detail(|| format!("{} | k={} half={half} last", self.label, self.k));
             objc::rc::autoreleasepool(|| {
                 run_tagged(c, "fold", |enc| {
@@ -4979,8 +5136,7 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                     dispatch_2d(c, enc, fold_kernels().0, half as u64, self.k as u64);
                     Ok(())
                 })
-                .expect("metal sumcheck fold");
-            });
+            })?;
         }
         self.len = half;
         self.next += 1;
@@ -4990,11 +5146,19 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         let mut sp = self.split_ns.get();
         sp[2] += ns;
         self.split_ns.set(sp);
+        Ok(())
     }
 
-    fn finals(&self) -> Vec<Fp2> {
-        assert_eq!(self.next, self.n_vars, "finals need all folds");
-        assert!(self.pending.is_none() && self.fold_r.is_none());
+    fn try_finals(&self) -> Result<Vec<Fp2>, String> {
+        if self.next != self.n_vars {
+            return Err(format!("metal sumcheck: finals need all folds (got {}, expected {})", self.next, self.n_vars));
+        }
+        if self.pending.is_some() || self.fold_r.is_some() {
+            return Err("metal sumcheck: pending round or deferred fold at finals".into());
+        }
+        if self.prelude.is_some() {
+            return Err("[ZK60-METAL A12] the tables were read before their deferred device build ran".into());
+        }
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
             let sp = self.split_ns.get();
             eprintln!(
@@ -5011,7 +5175,28 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                 self.pipe.max_total_threads_per_threadgroup()
             );
         }
-        self.finals_inner()
+        Ok(self.finals_inner())
+    }
+}
+
+impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
+    fn n_vars(&self) -> usize {
+        self.n_vars
+    }
+    fn degree(&self) -> usize {
+        self.degree
+    }
+
+    fn round(&mut self, j: usize) -> Vec<Fp2> {
+        self.try_round(j).expect("metal sumcheck round")
+    }
+
+    fn fold(&mut self, r: Fp2) {
+        self.try_fold(r).expect("metal sumcheck fold")
+    }
+
+    fn finals(&self) -> Vec<Fp2> {
+        self.try_finals().expect("metal sumcheck finals")
     }
 }
 
@@ -5080,8 +5265,8 @@ impl MetalRounds {
         TailedRounds { dev: Some(self), host: Vec::new(), poly, per_eval, on, degree, n_vars, next: 0, pending: None, recover_one: false, unmasked_claim: None, host_rounds: 0 }
     }
 
-    fn run_fold_now(&self, half: usize, r: Fp2) {
-        let c = ctx().expect("metal context");
+    fn try_run_fold_now(&self, half: usize, r: Fp2) -> Result<(), String> {
+        let c = ctx()?;
         trace_detail(|| format!("{} | k={} half={half} to-host", self.label, self.k));
         objc::rc::autoreleasepool(|| {
             run_tagged(c, "fold", |enc| {
@@ -5090,27 +5275,28 @@ impl MetalRounds {
                 dispatch_2d(c, enc, fold_kernels().0, half as u64, self.k as u64);
                 Ok(())
             })
-            .expect("metal sumcheck fold");
-        });
+        })
     }
 
     /// [M4k] the current tables (`len` entries each) as host vectors, any
     /// deferred fold run first, and the claim-recovery state
-    fn into_host(mut self) -> (Vec<Vec<Fp2>>, bool, Option<Fp2>) {
+    fn try_into_host(mut self) -> Result<(Vec<Vec<Fp2>>, bool, Option<Fp2>), String> {
         // [A12] a deferred table build not yet run (the host takes the first round)
         if let Some(pre) = self.prelude.take() {
-            let c = ctx().expect("metal context");
+            let c = ctx()?;
             let tabs: &metal::BufferRef = &self.tabs;
             trace_detail(|| format!("{} | k={} log_cap={} plans={} to-host", self.label, self.k, self.cap.trailing_zeros(), pre.args.len()));
-            objc::rc::autoreleasepool(|| run_tagged_pre(c, "tables", Some((&pre, tabs)), |_| Ok(()))).expect("[ZK60-METAL A12] the deferred table build");
-            assert!(!pre.flagged(), "[ZK60-METAL A12] a base-field table built on the device has an extension word: the attempt is refused");
+            objc::rc::autoreleasepool(|| run_tagged_pre(c, "tables", Some((&pre, tabs)), |_| Ok(())))?;
+            if pre.flagged() {
+                return Err("[ZK60-METAL A12] a base-field table built on the device has an extension word".into());
+            }
         }
         if let Some((fh, r)) = self.fold_r.take() {
-            self.run_fold_now(fh, r);
+            self.try_run_fold_now(fh, r)?;
         }
         let raw = as_u64s(&self.tabs, self.k * self.cap * 2);
         let tables = (0..self.k).map(|t| (0..self.len).map(|i| Fp2::new(Fp(raw[(t * self.cap + i) * 2]), Fp(raw[(t * self.cap + i) * 2 + 1]))).collect()).collect();
-        (tables, self.recover_one, self.unmasked_claim)
+        Ok((tables, self.recover_one, self.unmasked_claim))
     }
 }
 
@@ -5177,36 +5363,34 @@ impl TailedRounds<'_> {
     }
 }
 
-impl zkp_core::sumcheck::SumcheckRounds for TailedRounds<'_> {
-    fn n_vars(&self) -> usize {
-        self.n_vars
-    }
-    fn degree(&self) -> usize {
-        self.degree
-    }
-
-    fn round(&mut self, j: usize) -> Vec<Fp2> {
-        assert_eq!(j, self.next, "sumcheck evaluator round order");
+impl TailedRounds<'_> {
+    fn try_round(&mut self, j: usize) -> Result<Vec<Fp2>, String> {
+        if j != self.next {
+            return Err(format!("metal sumcheck: round order mismatch (got {j}, expected {})", self.next));
+        }
         if let Some(d) = self.dev.as_mut() {
             let half = d.len / 2;
             let points = if d.recover_one && d.unmasked_claim.is_some() { self.degree } else { self.degree + 1 };
             if !self.on || (half * points) as f64 * self.per_eval > tail_round_budget_s() {
-                return d.round(j);
+                return d.try_round(j);
             }
-            let (tables, recover_one, unmasked_claim) = self.dev.take().expect("the device evaluator").into_host();
+            let dev = self.dev.take().ok_or_else(|| "metal sumcheck: missing device evaluator".to_string())?;
+            let (tables, recover_one, unmasked_claim) = dev.try_into_host()?;
             self.host = tables;
             self.recover_one = recover_one;
             self.unmasked_claim = unmasked_claim;
         }
-        assert!(self.pending.is_none(), "round needs the preceding fold");
-        self.host_round()
+        if self.pending.is_some() {
+            return Err("metal sumcheck: round needs the preceding fold".into());
+        }
+        Ok(self.host_round())
     }
 
-    fn fold(&mut self, r: Fp2) {
+    fn try_fold(&mut self, r: Fp2) -> Result<(), String> {
         match self.dev.as_mut() {
-            Some(d) => d.fold(r),
+            Some(d) => d.try_fold(r)?,
             None => {
-                let sums = self.pending.take().expect("fold needs a round");
+                let sums = self.pending.take().ok_or_else(|| "metal sumcheck: fold needs a round".to_string())?;
                 if self.recover_one {
                     self.unmasked_claim = Some(zkp_core::mle::interpolate_eval(&sums, r));
                 }
@@ -5221,17 +5405,43 @@ impl zkp_core::sumcheck::SumcheckRounds for TailedRounds<'_> {
             }
         }
         self.next += 1;
+        Ok(())
+    }
+
+    fn try_finals(&self) -> Result<Vec<Fp2>, String> {
+        if self.next != self.n_vars {
+            return Err(format!("metal sumcheck: finals need all folds (got {}, expected {})", self.next, self.n_vars));
+        }
+        match &self.dev {
+            Some(d) => d.try_finals(),
+            None => {
+                if self.pending.is_some() {
+                    return Err("metal sumcheck: pending round at host finals".into());
+                }
+                Ok(self.host.iter().map(|t| t[0]).collect())
+            }
+        }
+    }
+}
+
+impl zkp_core::sumcheck::SumcheckRounds for TailedRounds<'_> {
+    fn n_vars(&self) -> usize {
+        self.n_vars
+    }
+    fn degree(&self) -> usize {
+        self.degree
+    }
+
+    fn round(&mut self, j: usize) -> Vec<Fp2> {
+        self.try_round(j).expect("metal sumcheck round")
+    }
+
+    fn fold(&mut self, r: Fp2) {
+        self.try_fold(r).expect("metal sumcheck fold")
     }
 
     fn finals(&self) -> Vec<Fp2> {
-        assert_eq!(self.next, self.n_vars, "finals need all folds");
-        match &self.dev {
-            Some(d) => d.finals(),
-            None => {
-                assert!(self.pending.is_none());
-                self.host.iter().map(|t| t[0]).collect()
-            }
-        }
+        self.try_finals().expect("metal sumcheck finals")
     }
 }
 
@@ -5267,8 +5477,38 @@ pub fn set_batch_for_test(on: Option<bool>) -> Option<bool> {
     }
 }
 
+#[cfg(test)]
+thread_local! {
+    static BATCH_TL: std::cell::Cell<Option<bool>> = const { std::cell::Cell::new(None) };
+}
+
+/// Thread-local RAII override for [`batch_on()`] in unit tests so tests are
+/// isolated from process-wide `BATCH_TEST` toggles and `HL_METAL_BATCH`.
+#[cfg(test)]
+pub struct BatchModeGuard {
+    prev: Option<bool>,
+}
+
+#[cfg(test)]
+impl BatchModeGuard {
+    pub fn set(on: Option<bool>) -> Self {
+        Self { prev: BATCH_TL.with(|c| c.replace(on)) }
+    }
+}
+
+#[cfg(test)]
+impl Drop for BatchModeGuard {
+    fn drop(&mut self) {
+        BATCH_TL.with(|c| c.set(self.prev));
+    }
+}
+
 /// `HL_METAL_BATCH=0` restores one command buffer per device round (M4).
 fn batch_on() -> bool {
+    #[cfg(test)]
+    if let Some(b) = BATCH_TL.with(|c| c.get()) {
+        return b;
+    }
     #[cfg(test)]
     match BATCH_TEST.load(Ordering::Relaxed) {
         1 => return false,
@@ -5345,7 +5585,7 @@ impl MetalRounds {
     /// device's challenge. Returns the device's unmasked rounds and
     /// challenges, UNCHECKED: the caller replays them through `tr`. `tr` is
     /// only read (its state, counter and key) and must not have a masker.
-    fn batched_rounds(&mut self, nd: usize, mask: &zkp_core::sumcheck::CfsMask, c: Fp2, tr: &crate::transcript::Transcript) -> Result<(Vec<Vec<Fp2>>, Vec<Fp2>), String> {
+    fn try_batched_rounds(&mut self, nd: usize, mask: &zkp_core::sumcheck::CfsMask, c: Fp2, tr: &crate::transcript::Transcript) -> Result<(Vec<Vec<Fp2>>, Vec<Fp2>), String> {
         let cx = ctx()?;
         let (d, d1) = (self.degree, self.degree + 1);
         if self.next != 0 || self.pending.is_some() || self.fold_r.is_some() || nd == 0 || nd > self.n_vars || d1 > FS_MAX_POINTS || mask.degree != d || mask.n_vars < self.n_vars {
@@ -5495,7 +5735,7 @@ impl MetalRounds {
                     let (src, count) = if fast_pipes.is_some() {
                         (&self.part, nthreads.div_ceil(32))
                     } else if nthreads > PART_RED_MIN {
-                        let p2 = part2.as_ref().expect("part2 allocated when sc_fast is off");
+                        let p2 = part2.as_ref().ok_or_else(|| "metal batched rounds: missing part2 reduction buffer".to_string())?;
                         enc.set_buffer(0, Some(&self.part), 0);
                         enc.set_buffer(1, Some(p2), 0);
                         set_args(enc, 2, &PartRedArgs { nthreads: nthreads as u32, d1: d1 as u32, width: PART_RED_WIDTH as u32, eval_one: eval_one as u32, de: de as u32 });
@@ -5518,7 +5758,9 @@ impl MetalRounds {
             })?;
             // [A12] the deferred build's base-field tables were base by
             // construction; a word the device flags is a device fault
-            assert!(!pre.as_ref().is_some_and(|p| p.flagged()), "[ZK60-METAL A12] a base-field table built on the device has an extension word: the attempt is refused");
+            if pre.as_ref().is_some_and(|p| p.flagged()) {
+                return Err("[ZK60-METAL A12] a base-field table built on the device has an extension word".into());
+            }
             let o = as_u64s(&out, nd * rec);
             let at = |w: usize| Fp2::new(Fp(o[w]), Fp(o[w + 1]));
             let sums = (0..nd).map(|j| (0..d1).map(|x| at(j * rec + 2 * x)).collect()).collect();
@@ -5564,62 +5806,117 @@ impl TailedRounds<'_> {
         nd
     }
 
-    /// **[ZK60-METAL M6]** `crate::zk::masked_prove_rounds` for this
+    /// **[ZK60-METAL M6]** Fallible `crate::zk::masked_prove_rounds` for this
     /// evaluator, with its device rounds in ONE command buffer
-    /// ([`MetalRounds::batched_rounds`]). The host then REPLAYS each device
+    /// ([`MetalRounds::try_batched_rounds`]). The host then REPLAYS each device
     /// round through `tr` with the real `CfsMasker`: s(1) recomputed from its
     /// own claim, the masked message absorbed, the challenge drawn, and the
-    /// device's challenge required to equal it (the device folded by it). A
-    /// difference panics before any later round, so a device fault refuses
-    /// the attempt and never changes a byte. The remaining rounds run as
-    /// before (`round`/`fold`, the host tail). Returns (masked rounds,
-    /// challenges, finals), the transcript left exactly as the CPU leaves it.
-    pub fn masked_prove(&mut self, mask: &zkp_core::sumcheck::CfsMask, c: Fp2, tr: &mut crate::transcript::Transcript) -> (Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>) {
-        let nd = self.batched_round_count();
-        if nd < 2 {
-            return crate::zk::masked_prove_rounds(self, mask, c, tr);
-        }
+    /// device's challenge required to equal it (the device folded by it). Any
+    /// Metal command buffer failure, A12 base-field fault, or M6 device/host
+    /// mismatch returns `Err(String)` with the masker removed from `tr` so the
+    /// caller can fall back cleanly to the CPU oracle (or fail closed under
+    /// `HL_GPU_REQUIRED=1`). Returns (masked rounds, challenges, finals), the
+    /// transcript left exactly as the CPU leaves it.
+    pub fn try_masked_prove(
+        &mut self,
+        mask: &zkp_core::sumcheck::CfsMask,
+        c: Fp2,
+        tr: &mut crate::transcript::Transcript,
+    ) -> Result<(Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>), String> {
         assert!(!c.is_zero(), "zero mask challenge: abandon proof attempt");
         assert_eq!(self.degree, mask.degree, "masked evaluator degree mismatch");
         assert!(self.n_vars <= mask.n_vars, "masked evaluator variable count");
+        let nd = self.batched_round_count();
+        if nd < 2 {
+            tr.set_masker(Box::new(zkp_core::sumcheck::CfsMasker { mask: mask.clone(), c, challenges: Vec::new() }));
+            let run: Result<(Vec<Fp2>, Vec<Fp2>), String> = (|| {
+                let mut challenges = Vec::with_capacity(self.n_vars);
+                for j in 0..self.n_vars {
+                    let sums = self.try_round(j)?;
+                    if sums.len() != self.degree + 1 {
+                        return Err(format!("metal sumcheck: round length mismatch ({} != {})", sums.len(), self.degree + 1));
+                    }
+                    tr.absorb_fp2(b"sc-round", &sums);
+                    let r = tr.challenge_fp2();
+                    self.try_fold(r)?;
+                    challenges.push(r);
+                }
+                let finals = self.try_finals()?;
+                Ok((challenges, finals))
+            })();
+            let (_, masked) = tr.take_masker();
+            let (challenges, finals) = run?;
+            return Ok((masked, challenges, finals));
+        }
         let t0 = std::time::Instant::now();
-        let dev = self.dev.as_mut().expect("the device evaluator");
+        let dev = self.dev.as_mut().ok_or_else(|| "metal sumcheck: missing device evaluator".to_string())?;
         let fast_chain = dev.sc_fast;
-        let (dev_sums, dev_r) = dev.batched_rounds(nd, mask, c, tr).expect("metal batched sumcheck rounds");
+        #[allow(unused_mut)]
+        let (mut dev_sums, mut dev_r) = dev.try_batched_rounds(nd, mask, c, tr)?;
+        #[cfg(test)]
+        {
+            let mode = INJECT_M6_CORRUPT.with(|cell| cell.replace(0));
+            if mode == 1 {
+                let target = if dev.recover_one && dev.unmasked_claim.is_some() { 0 } else { 1.min(nd - 1) };
+                dev_sums[target][1] = dev_sums[target][1].add(Fp2::ONE);
+            } else if mode == 2 {
+                dev_r[0] = dev_r[0].add(Fp2::ONE);
+            }
+        }
         tr.set_masker(Box::new(zkp_core::sumcheck::CfsMasker { mask: mask.clone(), c, challenges: Vec::new() }));
         let recover = dev.recover_one;
+        let de = dev.de;
         let mut claim = if recover { dev.unmasked_claim } else { None };
-        let mut challenges = Vec::with_capacity(self.n_vars);
-        for j in 0..nd {
-            let mut sums = dev_sums[j].clone();
-            if let Some(cl) = claim {
-                sums[1] = cl.sub(sums[0]);
+        let run: Result<(Vec<Fp2>, Vec<Fp2>, f64), String> = (|| {
+            let mut challenges = Vec::with_capacity(self.n_vars);
+            for j in 0..nd {
+                let mut sums = dev_sums[j].clone();
+                if let Some(cl) = claim {
+                    sums[1] = cl.sub(sums[0]);
+                }
+                // [A27] and the points above the evaluated degree, from the same values
+                extrapolate(&mut sums, de);
+                if sums != dev_sums[j] {
+                    return Err(format!(
+                        "[ZK60-METAL M6] the device's s(1) differs from the host's claim at round {j} of {}",
+                        self.n_vars
+                    ));
+                }
+                tr.absorb_fp2(b"sc-round", &sums);
+                let r = tr.challenge_fp2();
+                if r != dev_r[j] {
+                    return Err(format!(
+                        "[ZK60-METAL M6] the device transcript differs from the host's at round {j} of {}",
+                        self.n_vars
+                    ));
+                }
+                if recover {
+                    claim = Some(zkp_core::mle::interpolate_eval(&sums, r));
+                }
+                challenges.push(r);
             }
-            // [A27] and the points above the evaluated degree, from the same values
-            extrapolate(&mut sums, dev.de);
-            assert!(sums == dev_sums[j], "[ZK60-METAL M6] the device's s(1) differs from the host's claim at round {j} of {}: the attempt is refused", self.n_vars);
-            tr.absorb_fp2(b"sc-round", &sums);
-            let r = tr.challenge_fp2();
-            assert!(r == dev_r[j], "[ZK60-METAL M6] the device transcript differs from the host's at round {j} of {}: the attempt is refused", self.n_vars);
             if recover {
-                claim = Some(zkp_core::mle::interpolate_eval(&sums, r));
+                if let Some(dev) = self.dev.as_mut() {
+                    dev.unmasked_claim = claim;
+                }
             }
-            challenges.push(r);
-        }
-        if recover {
-            dev.unmasked_claim = claim;
-        }
-        self.next = nd;
-        let replay_s = t0.elapsed().as_secs_f64();
-        use zkp_core::sumcheck::SumcheckRounds;
-        for j in nd..self.n_vars {
-            let sums = self.round(j);
-            assert_eq!(sums.len(), self.degree + 1, "sumcheck evaluator round length");
-            tr.absorb_fp2(b"sc-round", &sums);
-            let r = tr.challenge_fp2();
-            self.fold(r);
-            challenges.push(r);
-        }
+            self.next = nd;
+            let replay_s = t0.elapsed().as_secs_f64();
+            for j in nd..self.n_vars {
+                let sums = self.try_round(j)?;
+                if sums.len() != self.degree + 1 {
+                    return Err(format!("metal sumcheck: round length mismatch ({} != {})", sums.len(), self.degree + 1));
+                }
+                tr.absorb_fp2(b"sc-round", &sums);
+                let r = tr.challenge_fp2();
+                self.try_fold(r)?;
+                challenges.push(r);
+            }
+            let finals = self.try_finals()?;
+            Ok((challenges, finals, replay_s))
+        })();
+        let (_, masked) = tr.take_masker();
+        let (challenges, finals, replay_s) = run?;
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
             eprintln!(
                 "[ZK60-METAL M6] {} of {} rounds batched (degree {}, {}), batch + replay {:.4} s, then {} host rounds",
@@ -5631,9 +5928,7 @@ impl TailedRounds<'_> {
                 self.host_rounds
             );
         }
-        let finals = self.finals();
-        let (_, masked) = tr.take_masker();
-        (masked, challenges, finals)
+        Ok((masked, challenges, finals))
     }
 }
 
@@ -6030,7 +6325,12 @@ fn wctx() -> Result<(&'static Ctx, &'static WCtx), String> {
                     }
                     Ok(p)
                 };
-                Ok(WCtx { sg42: pipe("k_wprod_sg_4x2")?, sg24: pipe("k_wprod_sg_2x4")?, int: pipe("k_wprod_int")?, queue: c.device.new_command_queue() })
+                use metal::foreign_types::ForeignType;
+                let queue = c.device.new_command_queue();
+                if queue.as_ptr().is_null() {
+                    return Err("metal witness-product: failed to create command queue".into());
+                }
+                Ok(WCtx { sg42: pipe("k_wprod_sg_4x2")?, sg24: pipe("k_wprod_sg_2x4")?, int: pipe("k_wprod_int")?, queue })
             })?;
             wprod_self_check(c, &w)?;
             Ok(w)
@@ -6503,6 +6803,498 @@ mod sc_chain_fast_tests {
                 assert_eq!(as_u64s(&t1, k * cap * 2), as_u64s(&t2, k * cap * 2), "tabs mismatch k={k} m={m} half={half}");
                 assert_eq!(as_u64s(&x1, m * cap * 2), as_u64s(&x2, m * cap * 2), "xtabs mismatch k={k} m={m} half={half}");
             });
+        }
+    }
+}
+
+#[cfg(test)]
+mod err_recovery_tests {
+    use super::*;
+
+    /// Minimal valid 2-table degree-2 sumcheck kernel: `poly(T) = T[0] * T[1]`
+    /// with `base = [true, false]`, supporting both standard and `SC_SIMD_SOA` paths.
+    const TEST_MUL_KERNEL_SRC: &str = r#"// test err_recovery: 2 tables (1 base), degree 2: T[0] * T[1]
+struct RoundArgs { ulong nhalf; ulong cap; uint eval_one; uint nthreads; };
+#ifndef SC_DE
+#define SC_DE SC_D
+#endif
+kernel void k_sc_round0(device const ulong *tabs [[buffer(0)]],
+                        device ulong *part [[buffer(1)]],
+                        constant ulong *cf [[buffer(2)]],
+                        constant RoundArgs &a [[buffer(3)]],
+                        uint tid [[thread_position_in_grid]]) {
+    (void)cf;
+    uint np = a.eval_one != 0u ? SC_DE + 1u : SC_DE;
+    uint grp = tid >> 5;
+    uint di = grp % np;
+    uint d = (a.eval_one != 0u || di == 0u) ? di : di + 1u;
+#ifdef SC_SIMD_SOA
+    uint sg = grp / np;
+    uint lane = tid & 31u;
+    uint gid = sg * 32u + lane;
+    ulong dd = ulong(d);
+    fp2 acc = f2(0UL, 0UL);
+    if (gid < a.nthreads && (d != 1u || a.eval_one != 0u)) {
+#else
+    uint gid = (grp / np) * 32u + (tid & 31u);
+    if (gid >= a.nthreads) { return; }
+    ulong dd = ulong(d);
+    fp2 acc = f2(0UL, 0UL);
+    if (d != 1u || a.eval_one != 0u) {
+#endif
+        for (ulong i = ulong(gid); i < a.nhalf; i += ulong(a.nthreads)) {
+            ulong v0 = ln_base(tabs, (0UL * a.cap + i) * 2UL, (0UL * a.cap + i + a.nhalf) * 2UL, d, dd);
+            fp2 v1 = ln_ext(tabs, (1UL * a.cap + i) * 2UL, (1UL * a.cap + i + a.nhalf) * 2UL, d, dd);
+            fp2 out = f2_mulb(v1, v0);
+            acc = f2_add(acc, out);
+        }
+    }
+#ifdef SC_SIMD_SOA
+    for (ushort delta = 16; delta > 0; delta >>= 1) {
+        uint lo0 = simd_shuffle_down(uint(acc.c0), delta);
+        uint hi0 = simd_shuffle_down(uint(acc.c0 >> 32), delta);
+        uint lo1 = simd_shuffle_down(uint(acc.c1), delta);
+        uint hi1 = simd_shuffle_down(uint(acc.c1 >> 32), delta);
+        acc.c0 = gl_add(acc.c0, ulong(lo0) | (ulong(hi0) << 32));
+        acc.c1 = gl_add(acc.c1, ulong(lo1) | (ulong(hi1) << 32));
+    }
+    if (lane == 0u) {
+        ulong n_sg = (ulong(a.nthreads) + 31UL) >> 5;
+        ulong o = (ulong(d) * n_sg + ulong(sg)) * 2UL;
+        part[o] = acc.c0;
+        part[o + 1] = acc.c1;
+    }
+#else
+    ulong o = (ulong(gid) * (SC_D + 1) + ulong(d)) * 2UL;
+    part[o] = acc.c0;
+    part[o + 1] = acc.c1;
+#endif
+}
+kernel void k_sc_round(device const ulong *tabs [[buffer(0)]],
+                       device ulong *part [[buffer(1)]],
+                       constant ulong *cf [[buffer(2)]],
+                       constant RoundArgs &a [[buffer(3)]],
+                       uint tid [[thread_position_in_grid]]) {
+    (void)cf;
+    uint np = a.eval_one != 0u ? SC_DE + 1u : SC_DE;
+    uint grp = tid >> 5;
+    uint di = grp % np;
+    uint d = (a.eval_one != 0u || di == 0u) ? di : di + 1u;
+#ifdef SC_SIMD_SOA
+    uint sg = grp / np;
+    uint lane = tid & 31u;
+    uint gid = sg * 32u + lane;
+    ulong dd = ulong(d);
+    fp2 acc = f2(0UL, 0UL);
+    if (gid < a.nthreads && (d != 1u || a.eval_one != 0u)) {
+#else
+    uint gid = (grp / np) * 32u + (tid & 31u);
+    if (gid >= a.nthreads) { return; }
+    ulong dd = ulong(d);
+    fp2 acc = f2(0UL, 0UL);
+    if (d != 1u || a.eval_one != 0u) {
+#endif
+        for (ulong i = ulong(gid); i < a.nhalf; i += ulong(a.nthreads)) {
+            fp2 v0 = ln_ext(tabs, (0UL * a.cap + i) * 2UL, (0UL * a.cap + i + a.nhalf) * 2UL, d, dd);
+            fp2 v1 = ln_ext(tabs, (1UL * a.cap + i) * 2UL, (1UL * a.cap + i + a.nhalf) * 2UL, d, dd);
+            fp2 out = f2_mul(v0, v1);
+            acc = f2_add(acc, out);
+        }
+    }
+#ifdef SC_SIMD_SOA
+    for (ushort delta = 16; delta > 0; delta >>= 1) {
+        uint lo0 = simd_shuffle_down(uint(acc.c0), delta);
+        uint hi0 = simd_shuffle_down(uint(acc.c0 >> 32), delta);
+        uint lo1 = simd_shuffle_down(uint(acc.c1), delta);
+        uint hi1 = simd_shuffle_down(uint(acc.c1 >> 32), delta);
+        acc.c0 = gl_add(acc.c0, ulong(lo0) | (ulong(hi0) << 32));
+        acc.c1 = gl_add(acc.c1, ulong(lo1) | (ulong(hi1) << 32));
+    }
+    if (lane == 0u) {
+        ulong n_sg = (ulong(a.nthreads) + 31UL) >> 5;
+        ulong o = (ulong(d) * n_sg + ulong(sg)) * 2UL;
+        part[o] = acc.c0;
+        part[o + 1] = acc.c1;
+    }
+#else
+    ulong o = (ulong(gid) * (SC_D + 1) + ulong(d)) * 2UL;
+    part[o] = acc.c0;
+    part[o + 1] = acc.c1;
+#endif
+}
+"#;
+
+    struct QueueModeGuard(Option<usize>);
+    impl QueueModeGuard {
+        fn set(mode: Option<usize>) -> Self {
+            Self(QUEUES_TL.with(|c| c.replace(mode)))
+        }
+    }
+    impl Drop for QueueModeGuard {
+        fn drop(&mut self) {
+            QUEUES_TL.with(|c| c.set(self.0));
+        }
+    }
+
+    fn test_poly(v: &[Fp2]) -> Fp2 {
+        v[0].mul(v[1])
+    }
+
+    static TEST_POLY_FN: fn(&[Fp2]) -> Fp2 = test_poly;
+
+    /// Build two deterministic tables of length `1 << 4 = 16`:
+    /// table 0 = `hi[x >> 2] * lo[x & 3]` (all base-field, `c1 == 0`) so it can
+    /// also be built via deferred A12 `plan_eq`; table 1 = extension-field.
+    fn make_test_tables_and_deferred() -> (Vec<Vec<Fp2>>, MetalTables) {
+        let hi = vec![Fp2::from_u64(3), Fp2::from_u64(5), Fp2::from_u64(7), Fp2::from_u64(11)];
+        let lo = vec![Fp2::from_u64(13), Fp2::from_u64(17), Fp2::from_u64(19), Fp2::from_u64(23)];
+        let t0: Vec<Fp2> = (0..16).map(|x| hi[x >> 2].mul(lo[x & 3])).collect();
+        let t1: Vec<Fp2> = (0..16)
+            .map(|x| Fp2::new(Fp::new(100 + 7 * x as u64), Fp::new(200 + 13 * x as u64)))
+            .collect();
+        let mut mt = MetalTables::new(2, 16).expect("MetalTables::new");
+        mt.plan_eq(0, hi, lo, 0, 4);
+        let taken = mt
+            .build_planned([&[]; 4], &[true, false], true, false, |host| {
+                for (ti, dst) in host {
+                    assert_eq!(ti, 1);
+                    dst.copy_from_slice(&t1);
+                }
+            })
+            .expect("build_planned deferred");
+        assert!(taken && mt.deferred(), "expected deferred MetalTables prelude");
+        (vec![t0, t1], mt)
+    }
+
+    fn set_prelude_flag(tb: &TabBuild) {
+        // SAFETY: `tb.flag` is a 4-byte shared Metal buffer; GPU kernels only ever
+        // atomically OR/store nonzero on `c1 != 0`, never clear it to 0.
+        unsafe {
+            *(tb.flag.contents() as *mut u32) = 1;
+        }
+    }
+
+    #[test]
+    fn own_queue_resets_on_cb_error_and_recovers() {
+        let Ok(c) = ctx() else { return };
+        let _q = QueueModeGuard::set(Some(Q_THREAD));
+
+        // 1. Healthy `run_tagged` populates OWN_QUEUE.
+        objc::rc::autoreleasepool(|| {
+            run_tagged(c, "test-ok", |_| Ok(())).expect("healthy run_tagged");
+        });
+        assert!(own_queue_ptr().is_some(), "OWN_QUEUE must be populated in Q_THREAD mode");
+
+        // 2. Injected CB error in `run_tagged` returns Err and resets OWN_QUEUE cleanly (no RefCell BorrowMutError).
+        {
+            let _err = CbErrGuard::arm(Some("test-err"), 0);
+            let res = objc::rc::autoreleasepool(|| run_tagged(c, "test-err", |_| Ok(())));
+            let msg = res.expect_err("injected run_tagged CB error must return Err");
+            assert!(msg.contains("injected"), "unexpected error: {msg}");
+        }
+        assert!(own_queue_ptr().is_none(), "OWN_QUEUE must be cleared after run_tagged CB error");
+
+        // 3. Subsequent healthy call recreates OWN_QUEUE and succeeds.
+        objc::rc::autoreleasepool(|| {
+            run_tagged(c, "test-recover", |_| Ok(())).expect("recovery run_tagged");
+        });
+        assert!(own_queue_ptr().is_some(), "OWN_QUEUE must be recreated after recovery");
+
+        // 4. Injected CB error in `run_tagged_pre` (via deferred MetalTables::flush) resets OWN_QUEUE and recovers.
+        let (want, mut mt_bad) = make_test_tables_and_deferred();
+        {
+            let _err = CbErrGuard::arm(Some("tables"), 0);
+            let msg = mt_bad.flush().expect_err("injected flush CB error must return Err");
+            assert!(msg.contains("injected"), "unexpected flush error: {msg}");
+        }
+        assert!(own_queue_ptr().is_none(), "OWN_QUEUE must be cleared after run_tagged_pre CB error");
+
+        let (_, mut mt_ok) = make_test_tables_and_deferred();
+        mt_ok.flush().expect("recovery flush must succeed");
+        assert!(own_queue_ptr().is_some(), "OWN_QUEUE must be recreated after flush recovery");
+        assert_eq!(mt_ok.to_vecs(), want, "recovered deferred tables must match host reference");
+    }
+
+    #[test]
+    fn metal_rounds_owned_and_cached_deferred_flush_err_returns_none_tables() {
+        if ctx().is_err() {
+            return;
+        }
+        let _q = QueueModeGuard::set(Some(Q_THREAD));
+
+        // 1. `metal_rounds_owned`: decline with injected CB error during deferred flush -> Err((None, Some(_))), no panic.
+        let (want, mt) = make_test_tables_and_deferred();
+        {
+            let _err = CbErrGuard::arm(Some("tables"), 0);
+            let err = match metal_rounds_owned(TEST_MUL_KERNEL_SRC, mt, 0, &[], &[true, false]) {
+                Ok(_) => panic!("degree 0 must decline"),
+                Err(e) => e,
+            };
+            assert!(err.0.is_none(), "failed flush must drop unusable MetalTables");
+            assert!(err.1.as_deref().is_some_and(|s| s.contains("A12") && s.contains("injected")), "unexpected err: {:?}", err.1);
+        }
+        assert!(own_queue_ptr().is_none(), "OWN_QUEUE must reset on flush CB error");
+
+        // 2. `metal_rounds_owned`: decline with A12 `flagged()` during deferred flush -> Err((None, Some(_))), no panic.
+        let (_, mut mt_flag) = make_test_tables_and_deferred();
+        mt_flag.typed = Some(false); // triggers `fail(t, None)` (unsupported-typing decline path)
+        set_prelude_flag(mt_flag.pending.as_ref().expect("deferred prelude"));
+        let err_flag = match metal_rounds_owned(TEST_MUL_KERNEL_SRC, mt_flag, 2, &[], &[true, false]) {
+            Ok(_) => panic!("typed=Some(false) must decline"),
+            Err(e) => e,
+        };
+        assert!(err_flag.0.is_none(), "A12-flagged flush must return None tables");
+        assert!(err_flag.1.as_deref().is_some_and(|s| s.contains("A12")), "unexpected A12 err: {:?}", err_flag.1);
+
+        // 3. `metal_rounds_owned`: healthy decline flushes deferred tables and returns Err((Some(mt), None)).
+        let (_, mut mt_ok_dec) = make_test_tables_and_deferred();
+        mt_ok_dec.typed = Some(false);
+        let (mt_back, why) = match metal_rounds_owned(TEST_MUL_KERNEL_SRC, mt_ok_dec, 2, &[], &[true, false]) {
+            Ok(_) => panic!("typed=Some(false) must decline"),
+            Err(e) => e,
+        };
+        assert!(why.is_none(), "typing decline after clean flush keeps why=None");
+        assert_eq!(mt_back.expect("clean flush returns Some(mt)").to_vecs(), want);
+
+        // 4. `metal_rounds_owned_cached`: decline with injected CB error during deferred flush -> Err((None, Some(_))), no panic.
+        if let Some(cached) = slot_pipes_get_or_compile(
+            b"err-recovery-test-mul-k2-d2".to_vec(),
+            2,
+            2,
+            0,
+            || (TEST_MUL_KERNEL_SRC.to_string(), 0, vec![true, false]),
+        )
+        .expect("slot_pipes_get_or_compile")
+        {
+            let (_, mt_c) = make_test_tables_and_deferred();
+            {
+                let _err = CbErrGuard::arm(Some("tables"), 0);
+                let err_c = match metal_rounds_owned_cached(&cached, "test".into(), mt_c, 0, &[]) {
+                    Ok(_) => panic!("degree 0 cached must decline"),
+                    Err(e) => e,
+                };
+                assert!(err_c.0.is_none(), "cached failed flush must return None tables");
+                assert!(err_c.1.as_deref().is_some_and(|s| s.contains("A12") && s.contains("injected")), "unexpected cached err: {:?}", err_c.1);
+            }
+            assert!(own_queue_ptr().is_none(), "OWN_QUEUE must reset on cached flush CB error");
+
+            // Healthy cached call succeeds right after error.
+            let (_, mt_c_ok) = make_test_tables_and_deferred();
+            let mut r = metal_rounds_owned_cached(&cached, "test".into(), mt_c_ok, 2, &[])
+                .unwrap_or_else(|(_, w)| panic!("healthy cached call failed: {w:?}"));
+            let s0 = r.try_round(0).expect("healthy cached try_round(0)");
+            assert_eq!(s0.len(), 3);
+        }
+    }
+
+    #[test]
+    fn metal_rounds_try_round_fold_into_host_and_a12_err_recover() {
+        if ctx().is_err() {
+            return;
+        }
+        let _q = QueueModeGuard::set(Some(Q_THREAD));
+
+        // (a) `MetalRounds::try_round` CB error on tag "round".
+        let (host_tabs, mt) = make_test_tables_and_deferred();
+        let mut r = metal_rounds_owned(TEST_MUL_KERNEL_SRC, mt, 2, &[], &[true, false])
+            .unwrap_or_else(|(_, w)| panic!("metal_rounds_owned: {w:?}"));
+        {
+            let _err = CbErrGuard::arm(Some("round"), 0);
+            let msg = r.try_round(0).expect_err("injected round CB error");
+            assert!(msg.contains("injected"), "unexpected round err: {msg}");
+        }
+        assert!(own_queue_ptr().is_none(), "OWN_QUEUE must reset on round CB error");
+
+        // (b) `MetalRounds::try_round` A12 `flagged()` error.
+        let (_, mt_a12) = make_test_tables_and_deferred();
+        let mut r_a12 = metal_rounds_owned(TEST_MUL_KERNEL_SRC, mt_a12, 2, &[], &[true, false])
+            .unwrap_or_else(|(_, w)| panic!("metal_rounds_owned: {w:?}"));
+        set_prelude_flag(r_a12.prelude.as_ref().expect("prelude"));
+        let msg_a12 = r_a12.try_round(0).expect_err("A12 flagged round must return Err");
+        assert!(msg_a12.contains("A12"), "unexpected A12 round err: {msg_a12}");
+
+        // (c) `MetalRounds::try_fold` last-fold CB error on tag "fold".
+        let mut r_fold = metal_rounds(TEST_MUL_KERNEL_SRC, &host_tabs, 2, &[], &[true, false])
+            .expect("metal_rounds")
+            .expect("Some(MetalRounds)");
+        let challenge = Fp2::new(Fp::new(42), Fp::new(99));
+        for j in 0..3 {
+            r_fold.try_round(j).expect("healthy round");
+            r_fold.try_fold(challenge).expect("deferred fold");
+        }
+        r_fold.try_round(3).expect("healthy final round");
+        {
+            let _err = CbErrGuard::arm(Some("fold"), 0);
+            let msg = r_fold.try_fold(challenge).expect_err("injected last-fold CB error");
+            assert!(msg.contains("injected"), "unexpected fold err: {msg}");
+        }
+        assert!(own_queue_ptr().is_none(), "OWN_QUEUE must reset on last-fold CB error");
+
+        // (d) `MetalRounds::try_into_host` deferred prelude CB error on tag "tables".
+        let (_, mt_ih1) = make_test_tables_and_deferred();
+        let r_ih1 = metal_rounds_owned(TEST_MUL_KERNEL_SRC, mt_ih1, 2, &[], &[true, false])
+            .unwrap_or_else(|(_, w)| panic!("metal_rounds_owned: {w:?}"));
+        {
+            let _err = CbErrGuard::arm(Some("tables"), 0);
+            let msg = r_ih1.try_into_host().expect_err("injected into_host prelude CB error");
+            assert!(msg.contains("injected"), "unexpected into_host tables err: {msg}");
+        }
+        assert!(own_queue_ptr().is_none(), "OWN_QUEUE must reset on into_host tables CB error");
+
+        // (e) `MetalRounds::try_into_host` deferred prelude A12 `flagged()` error.
+        let (_, mt_ih2) = make_test_tables_and_deferred();
+        let r_ih2 = metal_rounds_owned(TEST_MUL_KERNEL_SRC, mt_ih2, 2, &[], &[true, false])
+            .unwrap_or_else(|(_, w)| panic!("metal_rounds_owned: {w:?}"));
+        set_prelude_flag(r_ih2.prelude.as_ref().expect("prelude"));
+        let msg_ih2 = r_ih2.try_into_host().expect_err("A12 flagged into_host must return Err");
+        assert!(msg_ih2.contains("A12"), "unexpected A12 into_host err: {msg_ih2}");
+
+        // (f) `MetalRounds::try_into_host` with deferred `fold_r` -> `try_run_fold_now` CB error on tag "fold".
+        let mut r_ih3 = metal_rounds(TEST_MUL_KERNEL_SRC, &host_tabs, 2, &[], &[true, false])
+            .expect("metal_rounds")
+            .expect("Some(MetalRounds)");
+        r_ih3.try_round(0).expect("round 0");
+        r_ih3.try_fold(challenge).expect("deferred fold 0");
+        assert!(r_ih3.fold_r.is_some(), "fold_r must be deferred");
+        {
+            let _err = CbErrGuard::arm(Some("fold"), 0);
+            let msg = r_ih3.try_into_host().expect_err("injected try_run_fold_now CB error");
+            assert!(msg.contains("injected"), "unexpected run_fold_now err: {msg}");
+        }
+        assert!(own_queue_ptr().is_none(), "OWN_QUEUE must reset on run_fold_now CB error");
+
+        // (g) Healthy recovery call right after all errors.
+        let mut r_ok = metal_rounds(TEST_MUL_KERNEL_SRC, &host_tabs, 2, &[], &[true, false])
+            .expect("recovery metal_rounds")
+            .expect("Some(MetalRounds)");
+        for j in 0..4 {
+            r_ok.try_round(j).expect("recovery round");
+            r_ok.try_fold(challenge).expect("recovery fold");
+        }
+        let finals = r_ok.try_finals().expect("recovery finals");
+        assert_eq!(finals.len(), 2);
+        assert!(own_queue_ptr().is_some(), "OWN_QUEUE recreated on recovery");
+    }
+
+    #[test]
+    fn tailed_rounds_try_masked_prove_all_error_paths_and_recovery() {
+        if ctx().is_err() {
+            return;
+        }
+        let _q = QueueModeGuard::set(Some(Q_THREAD));
+        let (host_tabs, _) = make_test_tables_and_deferred();
+        let mut rng = crate::zk::ZkRng::new(0x2026_1124_E440_0001, b"metal-err-recovery-mask");
+        let mask = zkp_core::sumcheck::CfsMask::random(&mut rng, 4, 2);
+        let c = Fp2::new(Fp::new(17), Fp::new(31));
+        let claim: Fp2 = (0..16).fold(Fp2::ZERO, |acc, i| acc.add(host_tabs[0][i].mul(host_tabs[1][i])));
+
+        // Pure CPU oracle
+        let mut cpu_tabs = host_tabs.clone();
+        let mut cpu_tr = crate::transcript::Transcript::new(b"metal-err-recovery-oracle");
+        let cpu_out = crate::zk::masked_prove(&mut cpu_tabs, 2, test_poly, &mask, c, &mut cpu_tr);
+
+        let fresh_ev = |with_deferred: bool| -> TailedRounds<'static> {
+            let r = if with_deferred {
+                let (_, mt) = make_test_tables_and_deferred();
+                metal_rounds_owned(TEST_MUL_KERNEL_SRC, mt, 2, &[], &[true, false])
+                    .unwrap_or_else(|(_, w)| panic!("metal_rounds_owned: {w:?}"))
+            } else {
+                metal_rounds(TEST_MUL_KERNEL_SRC, &host_tabs, 2, &[], &[true, false])
+                    .expect("metal_rounds")
+                    .expect("Some(MetalRounds)")
+            };
+            r.recover_one(Some(claim)).with_host_tail(&TEST_POLY_FN)
+        };
+
+        // (a) `nd >= 2`: batched CB error on tag "batch".
+        {
+            let _b = BatchModeGuard::set(Some(true));
+            let mut ev = fresh_ev(false);
+            ev.on = false; // all 4 rounds batched
+            let mut tr = crate::transcript::Transcript::new(b"metal-err-recovery-oracle");
+            let _err = CbErrGuard::arm(Some("batch"), 0);
+            let msg = ev.try_masked_prove(&mask, c, &mut tr).expect_err("injected batch CB error");
+            assert!(msg.contains("injected"), "unexpected batch err: {msg}");
+            // Must leave no masker installed on `tr` (`clone_state` asserts `masker.is_none()`).
+            let _ = crate::transcript::Transcript::clone_state(&tr);
+            assert!(own_queue_ptr().is_none(), "OWN_QUEUE must reset on batch CB error");
+        }
+
+        // (b) `nd >= 2`: `try_batched_rounds` A12 `flagged()` error.
+        {
+            let _b = BatchModeGuard::set(Some(true));
+            let mut ev = fresh_ev(true);
+            ev.on = false;
+            set_prelude_flag(ev.dev.as_ref().unwrap().prelude.as_ref().expect("prelude"));
+            let mut tr = crate::transcript::Transcript::new(b"metal-err-recovery-oracle");
+            let msg = ev.try_masked_prove(&mask, c, &mut tr).expect_err("A12 flagged batch must return Err");
+            assert!(msg.contains("A12"), "unexpected A12 batch err: {msg}");
+            let _ = crate::transcript::Transcript::clone_state(&tr);
+        }
+
+        // (c) `nd >= 2`: M6 s(1) mismatch -> Err + masker removed.
+        {
+            let _b = BatchModeGuard::set(Some(true));
+            let mut ev = fresh_ev(false);
+            ev.on = false;
+            let mut tr = crate::transcript::Transcript::new(b"metal-err-recovery-oracle");
+            let _m6 = M6CorruptGuard::arm(1);
+            let msg = ev.try_masked_prove(&mask, c, &mut tr).expect_err("M6 s(1) mismatch must return Err");
+            assert!(msg.contains("M6"), "unexpected M6 s(1) err: {msg}");
+            let _ = crate::transcript::Transcript::clone_state(&tr);
+        }
+
+        // (d) `nd >= 2`: M6 transcript challenge mismatch -> Err + masker removed.
+        {
+            let _b = BatchModeGuard::set(Some(true));
+            let mut ev = fresh_ev(false);
+            ev.on = false;
+            let mut tr = crate::transcript::Transcript::new(b"metal-err-recovery-oracle");
+            let _m6 = M6CorruptGuard::arm(2);
+            let msg = ev.try_masked_prove(&mask, c, &mut tr).expect_err("M6 challenge mismatch must return Err");
+            assert!(msg.contains("M6"), "unexpected M6 challenge err: {msg}");
+            let _ = crate::transcript::Transcript::clone_state(&tr);
+        }
+
+        // (e) `nd < 2`: unbatched `try_round` CB error ("round") and last `try_fold` CB error ("fold").
+        for tag in ["round", "fold"] {
+            let _b = BatchModeGuard::set(Some(false));
+            let mut ev = fresh_ev(false);
+            ev.on = false;
+            let mut tr = crate::transcript::Transcript::new(b"metal-err-recovery-oracle");
+            let _err = CbErrGuard::arm(Some(tag), 0);
+            let msg = ev.try_masked_prove(&mask, c, &mut tr).expect_err("unbatched CB error must return Err");
+            assert!(msg.contains("injected"), "unexpected unbatched {tag} err: {msg}");
+            let _ = crate::transcript::Transcript::clone_state(&tr);
+            assert!(own_queue_ptr().is_none(), "OWN_QUEUE must reset on unbatched {tag} CB error");
+        }
+
+        // (f) `nd < 2` with host-tail switch at round 1 (`try_into_host` -> `try_run_fold_now` CB error).
+        if tail_round_budget_s() > 0.0 {
+            let _b = BatchModeGuard::set(Some(false));
+            let mut ev = fresh_ev(false);
+            ev.on = true;
+            // Round 0: half=8, points=2 (claim known) => 16 * per_eval > budget (device);
+            // Round 1: half=4, points=2 => 8 * per_eval <= budget (switches via try_into_host -> fold!).
+            ev.per_eval = tail_round_budget_s() / 12.0;
+            let mut tr = crate::transcript::Transcript::new(b"metal-err-recovery-oracle");
+            let _err = CbErrGuard::arm(Some("fold"), 0);
+            let msg = ev.try_masked_prove(&mask, c, &mut tr).expect_err("host-tail into_host fold CB error");
+            assert!(msg.contains("injected"), "unexpected tail fold err: {msg}");
+            let _ = crate::transcript::Transcript::clone_state(&tr);
+            assert!(own_queue_ptr().is_none(), "OWN_QUEUE must reset on tail fold CB error");
+        }
+
+        // (g) Healthy recovery on both batched (`nd >= 2`) and unbatched (`nd < 2`) matches CPU oracle bit-for-bit.
+        for batch in [true, false] {
+            let _b = BatchModeGuard::set(Some(batch));
+            let mut ev = fresh_ev(true);
+            ev.on = false;
+            let mut tr = crate::transcript::Transcript::new(b"metal-err-recovery-oracle");
+            let got = ev.try_masked_prove(&mask, c, &mut tr).expect("healthy recovery try_masked_prove");
+            assert_eq!(got, cpu_out, "recovery output mismatch (batch={batch})");
+            assert_eq!((tr.state(), tr.counter()), (cpu_tr.state(), cpu_tr.counter()), "recovery transcript mismatch (batch={batch})");
+            assert!(own_queue_ptr().is_some(), "OWN_QUEUE active after recovery (batch={batch})");
         }
     }
 }

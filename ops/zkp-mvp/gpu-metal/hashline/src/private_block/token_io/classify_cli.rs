@@ -165,10 +165,24 @@ fn event(line: String) {
     }
 }
 
-/// [A24] run `f` with this thread's event lines captured; returns its result and the lines
+/// [A24] run `f` with this thread's event lines captured; returns its result and the lines.
+/// Restores the previous thread-local capture on panic unwind so subsequent requests on the
+/// same worker thread never inherit partial events from an aborted request.
 fn with_captured_events<R>(f: impl FnOnce() -> R) -> (R, Vec<String>) {
+    struct Restore(Option<Option<Vec<String>>>);
+    impl Drop for Restore {
+        fn drop(&mut self) {
+            if let Some(was) = self.0.take() {
+                EVENT_CAPTURE.with(|c| {
+                    let _ = c.replace(was);
+                });
+            }
+        }
+    }
     let was = EVENT_CAPTURE.with(|c| c.replace(Some(Vec::new())));
+    let mut guard = Restore(Some(was));
     let r = f();
+    let was = guard.0.take().flatten();
     let lines = EVENT_CAPTURE.with(|c| c.replace(was)).unwrap_or_default();
     (r, lines)
 }

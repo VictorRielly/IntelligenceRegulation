@@ -227,12 +227,18 @@ fn write_log(path: &Path, lines: &[String]) -> Result<(), String> {
 
 /// **The stream** (both servers): a reader takes the lines (blank lines skipped) in order;
 /// `lanes` lane threads each take the next line and run `serve` on their own rayon pool; the
-/// calling thread prints each result line as it arrives.
+/// calling thread prints each result line as it arrives. This entry is the check server's: a panic
+/// in `serve` is NOT caught here, in any build, and no line is made up for a request whose check
+/// did not finish. In the release profile (`panic = "abort"` in `Cargo.toml`) a panic ends the
+/// process at once. In a build that unwinds (tests, debug) it unwinds its lane's thread, the other
+/// lanes go on, and the panic comes out of this function at the end of the stream; if every lane
+/// is lost and more lines arrive than the request queue (capacity `lanes`) has room for, the
+/// reader blocks on that queue.
 fn serve_lines<F>(lanes: usize, threads: usize, lines: impl Iterator<Item = String> + Send, serve: F, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String>
 where
     F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
 {
-    serve_lines_with(lanes, threads, 0, 1, lines, serve, emit)
+    serve_lines_core(lanes, threads, 0, 1, false, lines, serve, emit)
 }
 
 /// **[A28] `HL_A28_STAGGER_MS`** (the prover server only; default 0, as before): no two requests start
@@ -272,7 +278,26 @@ pub(super) fn a28_seal_ahead_on() -> bool {
 
 /// [`serve_lines`] with a minimum interval between request starts (`stagger_ms`, 0: none) and
 /// `per_lane` request threads per lane (1, or 2 with [`a28_seal_ahead_on`]); `serve` gets the lane
+/// (the prover server's entry: in a build that unwinds, a panic in `serve` is caught and answered
+/// with one fixed `internal-error` line, and the lane goes on to its next request. NOT in the
+/// release profile: `Cargo.toml` sets `panic = "abort"` there, `catch_unwind` catches nothing, and
+/// a panic ends the server process at once, as it did before this guard. Until the release
+/// profile unwinds, the guard acts in test and debug builds only.)
 fn serve_lines_with<F>(lanes: usize, threads: usize, stagger_ms: u64, per_lane: usize, lines: impl Iterator<Item = String> + Send, serve: F, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String>
+where
+    F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
+{
+    serve_lines_core(lanes, threads, stagger_ms, per_lane, true, lines, serve, emit)
+}
+
+/// The loop behind both entries. `catch_panics` is set by the prover server only
+/// ([`serve_lines_with`]): a panic in `serve` becomes the fixed `internal-error` line. Unset (the
+/// check server, [`serve_lines`]), `serve` is called with no guard, exactly as before: the check
+/// server's own lines carry `command`, `id` and, on a refusal, the fail-closed line of D45(4); the
+/// fixed line carries none of them, so the check server never emits it. Under `panic = "abort"`
+/// (the release profile) the flag makes no difference: either way a panic ends the process.
+#[allow(clippy::too_many_arguments)]
+fn serve_lines_core<F>(lanes: usize, threads: usize, stagger_ms: u64, per_lane: usize, catch_panics: bool, lines: impl Iterator<Item = String> + Send, serve: F, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String>
 where
     F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
 {
@@ -344,6 +369,24 @@ where
                 q += 1;
             }
         });
+        struct DispatchGuard<'a> {
+            load: &'a std::sync::Mutex<Vec<Vec<Instant>>>,
+            freed: &'a std::sync::Condvar,
+            lane: usize,
+            at: Option<Instant>,
+        }
+        impl Drop for DispatchGuard<'_> {
+            fn drop(&mut self) {
+                if let Some(at) = self.at.take() {
+                    // [A28] this request no longer counts against its lane
+                    let mut g = self.load.lock().unwrap_or_else(|e| e.into_inner());
+                    if let Some(k) = g[self.lane].iter().position(|t| *t == at) {
+                        g[self.lane].remove(k);
+                    }
+                    self.freed.notify_all();
+                }
+            }
+        }
         for (i, pool) in pools.iter().map(|(i, p)| (*i, p)) {
             let (out_tx, req_rx, serve, next_start, lane_rx, load_r, freed_r) = (out_tx.clone(), &req_rx, &serve, &next_start, &lane_rx, &load, &freed);
             s.spawn(move || loop {
@@ -352,6 +395,7 @@ where
                     None => req_rx.lock().unwrap_or_else(|e| e.into_inner()).recv(),
                 };
                 let Ok((q, line, t_read, dispatched)) = next else { break };
+                let dispatch_guard = DispatchGuard { load: load_r, freed: freed_r, lane: i, at: dispatched };
                 if !stagger.is_zero() {
                     // [A28] this request's start: no earlier than the last start plus the stagger
                     let wait = {
@@ -366,15 +410,27 @@ where
                     }
                 }
                 let queued = t0.elapsed().as_secs_f64() - t_read;
-                let (good, l) = pool.install(|| serve(q, &line, queued, i));
-                if let Some(at) = dispatched {
-                    // [A28] this request no longer counts against its lane
-                    let mut g = load_r.lock().unwrap_or_else(|e| e.into_inner());
-                    if let Some(k) = g[i].iter().position(|t| *t == at) {
-                        g[i].remove(k);
+                let req_t0 = Instant::now();
+                let (good, l) = if !catch_panics {
+                    // the check server: no guard, the call as it was before the guard existed
+                    pool.install(|| serve(q, &line, queued, i))
+                } else {
+                    match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| pool.install(|| serve(q, &line, queued, i)))) {
+                        Ok(res) => res,
+                        Err(_panic) => {
+                            // K-2 / D65(2): never downcast, format, or echo the panic payload or input
+                            // line; emit only public framing fields with a fixed constant error reason.
+                            let secs = req_t0.elapsed().as_secs_f64();
+                            (
+                                false,
+                                format!(
+                                    "{{\"event\":\"served\",\"request\":{q},\"status\":\"internal-error\",\"error\":\"internal-error\",\"lane\":{i},\"queued_seconds\":{queued:.3},\"seconds\":{secs:.3}}}"
+                                ),
+                            )
+                        }
                     }
-                    freed_r.notify_all();
-                }
+                };
+                drop(dispatch_guard);
                 if out_tx.send((good, l)).is_err() {
                     break;
                 }

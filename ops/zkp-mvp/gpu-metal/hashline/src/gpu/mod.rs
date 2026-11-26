@@ -98,6 +98,9 @@ pub use metal::{
     head_pow2_for_test as metal_head_pow2_for_test,
     set_a27_fold_for_test as metal_set_a27_fold_for_test,
     set_batch_for_test as metal_set_batch_for_test,
+    BatchModeGuard as MetalBatchModeGuard,
+    CbErrGuard as MetalCbErrGuard,
+    M6CorruptGuard as MetalM6CorruptGuard,
 };
 // [A27] the GPU trace's buffered lines, written out (a server may call it after a request)
 #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
@@ -157,6 +160,34 @@ pub fn fused_rs_calls_for_test() -> u64 {
     0
 }
 
+#[cfg(test)]
+thread_local! {
+    static REQUIRED_TEST: std::cell::Cell<Option<bool>> = const { std::cell::Cell::new(None) };
+}
+
+/// Thread-local RAII override for [`required()`] in unit tests so tests can
+/// verify both CPU fallback and `HL_GPU_REQUIRED=1` fail-closed behavior
+/// without mutating process-wide environment variables.
+#[cfg(test)]
+pub struct RequiredGuard {
+    prev: Option<bool>,
+}
+
+#[cfg(test)]
+impl RequiredGuard {
+    pub fn set(on: Option<bool>) -> Self {
+        let prev = REQUIRED_TEST.with(|c| c.replace(on));
+        Self { prev }
+    }
+}
+
+#[cfg(test)]
+impl Drop for RequiredGuard {
+    fn drop(&mut self) {
+        REQUIRED_TEST.with(|c| c.set(self.prev));
+    }
+}
+
 /// **ROUND 2 (R2-5): GPU MODE FAILS CLOSED.** Every place a device entry
 /// point declines and the prover would silently take the CPU body reports
 /// here. The decline is counted and logged; and when the caller CLAIMED the
@@ -166,19 +197,73 @@ pub fn fused_rs_calls_for_test() -> u64 {
 /// either way (the differential discipline above); what fails closed is the
 /// CLAIM about how they were made.
 pub fn required() -> bool {
+    #[cfg(test)]
+    if let Some(v) = REQUIRED_TEST.with(|c| c.get()) {
+        return v;
+    }
     std::env::var("HL_GPU_REQUIRED").map(|v| v == "1").unwrap_or(false)
 }
 
 static DECLINES: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 
+#[cfg(test)]
+thread_local! {
+    /// When `Some(n)` on the current test thread, `declined()` increments this
+    /// thread-local counter instead of the process-wide `DECLINES` atomic and
+    /// `declines()` returns `n`. Keeps fault-injection tests isolated from
+    /// concurrent `--test-threads=8` CLI tests that enforce Q-2 (`gpu_declines == 0`
+    /// on CPU-path backends). Compiles away completely in production (`#[cfg(test)]`).
+    static DECLINES_TEST_LOCAL: std::cell::Cell<Option<usize>> = const { std::cell::Cell::new(None) };
+}
+
+/// Thread-local RAII guard isolating `gpu::declined()` / `gpu::declines()` on
+/// the current test thread so fault-injection tests never pollute the
+/// process-wide `DECLINES` counter read by concurrent CLI/Q-2 tests.
+#[cfg(test)]
+pub struct LocalDeclinesGuard {
+    prev: Option<usize>,
+}
+
+#[cfg(test)]
+impl LocalDeclinesGuard {
+    pub fn enter() -> Self {
+        let prev = DECLINES_TEST_LOCAL.with(|c| c.replace(Some(0)));
+        Self { prev }
+    }
+}
+
+#[cfg(test)]
+impl Drop for LocalDeclinesGuard {
+    fn drop(&mut self) {
+        DECLINES_TEST_LOCAL.with(|c| c.set(self.prev));
+    }
+}
+
 /// the number of device declines in this process so far
 pub fn declines() -> usize {
+    #[cfg(test)]
+    if let Some(n) = DECLINES_TEST_LOCAL.with(|c| c.get()) {
+        return n;
+    }
     DECLINES.load(std::sync::atomic::Ordering::Relaxed)
 }
 
 /// report one decline at `site` (never returns when the GPU is required)
 pub fn declined(site: &str, err: &str) {
-    DECLINES.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    #[cfg(test)]
+    let local = DECLINES_TEST_LOCAL.with(|c| {
+        if let Some(n) = c.get() {
+            c.set(Some(n + 1));
+            true
+        } else {
+            false
+        }
+    });
+    #[cfg(not(test))]
+    let local = false;
+    if !local {
+        DECLINES.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    }
     eprintln!("[ZK60-GPU] {site} declined ({err}); CPU path");
     if required() {
         panic!("[ZK60-GPU] HL_GPU_REQUIRED=1 and {site} declined ({err}): refusing to fall back to the CPU (fail closed)");
