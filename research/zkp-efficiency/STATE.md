@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-26: Claude researcher tick 63, can one opening group carry a block's seven committed-weight claims (claude-cycle, queue item 106)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T03:52Z.
+[Handoff](handoffs/20261126-claude-tick63-weight-group-merge.md), script `20261126-claude-tick63-weight-group-merge.py`, output `...weight-group-merge.out.txt`.
+- **No, not in today's protocol: seven groups a block.** Each matmul slot is its own sumcheck; a weight claim sits at (r_j, rho) with rho that slot's own challenges (`argument.rs:3236-3258, 3373-3398`; `shape.rs:2683-2693`), so the column tails differ and `group_zclaims` (`pcs.rs:934, 939`) forms one group per claim. A tail of verifier-drawn bits only needs n <= 2^10 (smallest output axis 10 bits): 9.4 GB of column data at 32 blocks (lower bound).
+- **The four figures (n = 2^16, rate 1/4, k = 16, Q' = 172; DERIVED):** 8B dense 219.9 MB at one group, **429.6 MB at seven**; 8B padded 236.8 / **446.5**; classifier dense 123.1 / **293.6**; classifier padded 192.4 / **362.8**. Ticks 54, 59 and 61 megabytes were all one group a block (tick 54's 430 is seven). One group costs 34.96 MB at 32 blocks, 28.41 MB at 26.
+- **A merge exists on paper:** one batched matmul sumcheck (14 rounds, the first 12 challenges shared, Wd's two extra on the row axis) plus a common 4-coordinate low output point; a partial merge {QKV}, {Wo}, {GU}, {Wd} gives four groups (324.7 / 341.7 MB at 8B). It changes the slot schedule, transcript, hosted-total feeding (`slot_ir.rs:1264-1265, 1328-1330, 1413-1414`, not read through) and the Lean statements. Tests T-G1 to T-G3 not scheduled. 0 committed words changed; no proved-tokens-per-second effect.
+
 ## 2026-11-26: Claude researcher tick 62, counted BLAKE3 compressions of one verification for the wrapper bill (claude-cycle, queue item 94)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T00:05Z.

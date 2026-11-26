@@ -1,0 +1,39 @@
+== A. bits of each matmul's claim point (8B profile; log2 of the padded axes: d 12, q 12, kv 10, f 14)
+  Wq: r_j 12 bits (verifier draw), rho 12 bits (sumcheck end), claim point 24 bits
+  Wk: r_j 10 bits (verifier draw), rho 12 bits (sumcheck end), claim point 22 bits
+  Wv: r_j 10 bits (verifier draw), rho 12 bits (sumcheck end), claim point 22 bits
+  Wo: r_j 12 bits (verifier draw), rho 12 bits (sumcheck end), claim point 24 bits
+  Wg: r_j 14 bits (verifier draw), rho 12 bits (sumcheck end), claim point 26 bits
+  Wu: r_j 14 bits (verifier draw), rho 12 bits (sumcheck end), claim point 26 bits
+  Wd: r_j 12 bits (verifier draw), rho 14 bits (sumcheck end), claim point 26 bits
+  smallest output axis 10 bits: a tail made only of r_j bits can be at most 2^10 columns wide
+  at n = 2^16 the tail is 16 coordinates; a matrix with an inner axis of 12 bits supplies 12 rho coordinates and 4 r_j coordinates; Wd (inner 14) supplies 14 rho coordinates, 2 more than the others share, which can sit on the ROW axis (row weights are general vectors, pcs.rs:957-964)
+
+== B. receipt bytes added by a committed-weight opening, n = 2^16, rate 1/4, k = 16, Q' = 172
+
+  8B W16R2 (32 blocks); today's receipt 818.7 MB
+   groups a block |      dense rows 3328 |     padded rows 3712
+                1 |     219.9 MB x1.27   |     236.8 MB x1.29
+                2 |     254.8 MB x1.31   |     271.7 MB x1.33
+                4 |     324.7 MB x1.40   |     341.7 MB x1.42
+                7 |     429.6 MB x1.52   |     446.5 MB x1.55
+  the four figures: dense G=1 219.9, dense G=7 429.6, padded G=1 236.8, padded G=7 446.5 MB
+  ratio G=7 / G=1: dense x1.95, padded x1.89
+
+  classifier W16R2 Shieldstral (26 blocks); today's receipt 669.6 MB
+   groups a block |      dense rows 1776 |     padded rows 3712
+                1 |     123.1 MB x1.18   |     192.4 MB x1.29
+                2 |     151.5 MB x1.23   |     220.8 MB x1.33
+                4 |     208.3 MB x1.31   |     277.6 MB x1.41
+                7 |     293.6 MB x1.44   |     362.8 MB x1.54
+  the four figures: dense G=1 123.1, dense G=7 293.6, padded G=1 192.4, padded G=7 362.8 MB
+  ratio G=7 / G=1: dense x2.38, padded x1.89
+
+== C. marginal cost of one more group, and the narrow-row lower bound
+  one more group = one more vector of n + q_pad = 68,288 Fp2 = 1,092,608 B a block = 34.96 MB at 32 blocks, 28.41 MB at 26 blocks
+  n = 2^10: rows a block 212,992; column part alone at Q' = 172 (a lower bound) = 293.1 MB a block, 9.4 GB at 32 blocks
+
+== D. tick 59's once-a-request embedding and head openings, restated with their group count
+  embedding 8B: 8016 rows at G = 1 (ASSUMED one claim, one group; the head claim form was not read) 13.32 MB; at G = 2 14.41 MB
+  head 8B: 8016 rows at G = 1 (ASSUMED one claim, one group; the head claim form was not read) 13.32 MB; at G = 2 14.41 MB
+  embedding classifier: 6144 rows at G = 1 (ASSUMED one claim, one group; the head claim form was not read) 10.75 MB; at G = 2 11.84 MB

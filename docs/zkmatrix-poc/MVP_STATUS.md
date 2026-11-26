@@ -801,6 +801,17 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 03:54 UTC, hidden weights (the later version, study level) [formula-level estimate;
+    the grouping rule read by me in the code; nothing run, nothing built]: hiding the weights would
+    add about twice as much to a receipt as the earlier estimates said.** A receipt would have to
+    open the hidden weights once for each of a block's seven matrix products, because each product
+    is checked on its own with its own random challenges; the earlier estimates assumed one opening
+    a block. With seven, the 8B-shape receipt (819 MB today) would grow by about 430 to 447 MB
+    instead of 220 to 237 MB, and the classifier's by about 294 to 363 MB instead of 123 to 192 MB.
+    Getting back to one opening needs the seven checks merged into one, which exists only as a
+    sketch and would be a new profile with its own Lean proofs. Nothing changes for today's version
+    (weights public), for the first size step or for speed. Record:
+    `research/zkp-efficiency/handoffs/20261126-claude-tick63-weight-group-merge.md`.
     **Nov 26, 03:21 UTC, Lean, the chain merged on Nov 25: the three unopened modules are now read,
     no serious gap found [independent read; the one Medium point checked by me against the approved
     statement].** These modules carry the part of the zero-knowledge proof that rebuilds what the
