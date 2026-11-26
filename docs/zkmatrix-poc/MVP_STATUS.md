@@ -873,6 +873,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 06:30 UTC, product [counted by the applications researcher with the publishers' own
+    tokenizer files; both of its scripts re-run by me with the same output; the cited code lines
+    re-read by me]: two well-known open guard models do not drop into the app's 128-token profile.**
+    The app gives each request 128 tokens, of which a fixed public instruction takes a part.
+    Qwen3Guard's default instruction alone is 297 tokens, more than the 128 and the 256 that the
+    app's code accepts. Granite Guardian 3.3's is 116 tokens, which leaves 12 tokens of content at
+    128 and 140 at 256. Neither model gives its verdict as the first word it writes (one writes
+    "Safety:" first, the other a tag), while the installed proof reads the verdict at one fixed
+    place, so each would also need a new public ending of the prompt, a new policy entry and its own
+    calibration. Llama Guard 3 could not be counted: its tokenizer is behind a licence gate, and the
+    researcher did not log in; its stand-in estimates are not carried forward. One follow-up is
+    queued: the 72- and 78-token lengths of the app's own policy texts come from the statement for
+    the earlier profile and have not been recounted on the installed files. Record:
+    `research/applications/handoffs/20261126-apps-guard-policy-lengths.md`.
     **Nov 26, 06:21 UTC, privacy evidence for the profile the app runs [COUNTED by me from the
     gate's own records and today's source; nothing run]: the privacy gate has no recorded run on
     that profile, and 40 of the 75 source files it pins have changed since it last passed.** The
