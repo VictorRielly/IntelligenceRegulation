@@ -2767,7 +2767,8 @@ trait SealHand {
     /// before-challenge part is made from it) or handed back
     fn witness(&mut self, k: usize, w: Witness, ssh: &Shape) -> Result<Option<Witness>, String>;
     /// Whether this hand shares the sealing pass's `BlockPublic` objects with the proving pass
-    /// (required for `HL_HOST_FAST_W2=1` `SealedWitness` histogram reuse to match `BlkSig`).
+    /// (keeps the `OnceLock`-cached `lookup_tables_digest` warm for `HL_HOST_FAST_W2=1`
+    /// `SealedWitness` histogram reuse and avoids collecting histograms for non-fork `NoHand` runs).
     fn shares_blocks(&self) -> bool {
         false
     }

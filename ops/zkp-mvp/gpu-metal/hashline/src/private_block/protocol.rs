@@ -796,7 +796,7 @@ fn scan_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, wit: &Witness
     }
     Ok(Some(Box::new(SealedHistograms {
         sh: sh.clone(),
-        blk_sig: blk_sig(blk),
+        blk_digest: blk.lookup_tables_digest(),
         m_u8,
         m_rng,
         m_exp,
@@ -2567,45 +2567,13 @@ impl std::fmt::Debug for CheckedPublic<'_> {
     }
 }
 
-/// [HOST-FAST-W2 W2-2] Heap-identity fingerprint of a `BlockPublic`: invariant when
-/// `BlockPublic` is moved by value (e.g. from the sealing pass into `SealedBlocks`),
-/// and distinct for any cloned, reloaded, or different `BlockPublic`.
-#[derive(Clone, Debug, PartialEq, Eq)]
-struct BlkSig {
-    exp_ptr: usize,
-    exp_len: usize,
-    wq_ptr: usize,
-    wg_ptr: usize,
-    acc_group_ptr: usize,
-    acc_tbl_ptr: usize,
-    act: [i16; 256],
-}
-
-fn blk_sig(blk: &BlockPublic) -> BlkSig {
-    let att = blk.attention();
-    let ff = blk.feed_forward();
-    let (acc_group_ptr, acc_tbl_ptr) = match blk.accuracy() {
-        Some(a) => (a.group_ids().as_ptr() as usize, a.scaled_tables().as_ptr() as usize),
-        None => (0, 0),
-    };
-    BlkSig {
-        exp_ptr: att.exp.as_ptr() as usize,
-        exp_len: att.exp.len(),
-        wq_ptr: att.wq.as_ptr() as usize,
-        wg_ptr: ff.wg_t.as_ptr() as usize,
-        acc_group_ptr,
-        acc_tbl_ptr,
-        act: ff.act,
-    }
-}
-
-/// [HOST-FAST-W2 W2-2] Private histograms computed during the sealing pass's
+/// [HOST-FAST-W2 W2-2 / L1] Private histograms computed during the sealing pass's
 /// CS-3 lookup-miss check ([`check_lookup_misses_sealed`]), owned inseparably
 /// beside its `Witness` inside [`SealedWitness`].
 #[derive(Clone, Debug)]
 struct SealedHistograms {
     sh: Shape,
-    blk_sig: BlkSig,
+    blk_digest: [u8; 32],
     m_u8: Vec<u64>,
     m_rng: Vec<Vec<u64>>,
     m_exp: Vec<u64>,
@@ -2616,14 +2584,15 @@ struct SealedHistograms {
 impl SealedHistograms {
     /// Checks whether these histograms were collected for `(sh, blk)` with zero misses.
     ///
-    /// **Lifetime requirement (L1):** `blk_sig` identifies `blk` by the heap buffer addresses of
-    /// its weight/exp/accuracy arrays plus `act` by value. Callers MUST keep the originating
-    /// `BlockPublic` alive (as `ResidentClassifier::blocks` and `SealedBlocks` do) for at least as
-    /// long as any `SealedWitness` produced from it may be consumed, so no other `BlockPublic` can
-    /// be allocated at the same addresses. (Binding by block content digest or lifetime borrow is
-    /// queued as a follow-up behind the serve-hang recovery item.)
+    /// **Content binding (L1):** `blk_digest` is [`BlockPublic::lookup_tables_digest`], a
+    /// cached domain-separated BLAKE3 digest over every public lookup table in `blk`
+    /// (`attention.exp`, `feed_forward.act`, and `accuracy` — both its canonical encoding
+    /// and derived `scaled_tables`). Unlike heap-address checks, this binding does not
+    /// depend on allocation address or object lifetime: cloning `blk` and dropping the
+    /// original remains valid, while any single-element table difference is rejected
+    /// regardless of heap reuse.
     fn matches_block(&self, sh: &Shape, blk: &BlockPublic) -> bool {
-        self.zero_misses && self.sh == *sh && self.blk_sig == blk_sig(blk)
+        self.zero_misses && self.sh == *sh && self.blk_digest == blk.lookup_tables_digest()
     }
 
     fn bytes(&self) -> u64 {
@@ -2642,10 +2611,11 @@ impl SealedHistograms {
 ///
 /// Because `wit` is private with no `&mut Witness` accessor, callers can neither
 /// mutate a sealed witness in place nor pair a histogram record with a different
-/// witness. `SealedHistograms` additionally checks `(Shape, BlkSig)` so handing a
-/// `SealedWitness` built for one block/shape to a different block/shape falls back
-/// cleanly to the full CS-3 scan. The histogram payload is heap-boxed (`8` bytes
-/// when `None`) so the `HL_HOST_FAST_W2` unset path carries zero struct bloat.
+/// witness. `SealedHistograms` additionally checks `(Shape, BlockPublic::lookup_tables_digest)`
+/// so handing a `SealedWitness` built for one block/shape to a block with any different
+/// lookup table or a different shape falls back cleanly to the full CS-3 scan. The histogram
+/// payload is heap-boxed (`8` bytes when `None`) so the `HL_HOST_FAST_W2` unset path carries
+/// zero struct bloat.
 pub(crate) struct SealedWitness {
     wit: Witness,
     hists: Option<Box<SealedHistograms>>,
@@ -5099,8 +5069,11 @@ mod tests {
         assert!(sw_hit.hist_bytes() > 0);
         let shist_ref = sw_hit.hists.as_ref().unwrap();
         assert!(shist_ref.matches_block(&sh, &blk), "SealedHistograms must match exact (sh, blk)");
-        let blk_other = blk.clone();
-        assert!(!shist_ref.matches_block(&sh, &blk_other), "SealedHistograms must reject live distinct block object");
+        let blk_clone = blk.clone();
+        assert!(shist_ref.matches_block(&sh, &blk_clone), "L1: SealedHistograms must match cloned block with identical lookup tables");
+        let mut blk_other = blk.clone();
+        blk_other.feed_forward.act[0] ^= 1;
+        assert!(!shist_ref.matches_block(&sh, &blk_other), "L1: SealedHistograms must reject block with mutated lookup table");
         assert!(!shist_ref.matches_block(&Shape::toy(), &blk), "SealedHistograms must reject other shape");
 
         let hb1 = crate::zk::host_fast_w2_hits_for_test();
@@ -5114,7 +5087,8 @@ mod tests {
         assert!(ha1[crate::zk::HF_W2_PAR_OPEN] > hb1[crate::zk::HF_W2_PAR_OPEN], "HF_W2_PAR_OPEN must hit");
 
         // W2 deterministic cross-block mismatch fallback + AD=false: seal against `blk`, prove against
-        // live `blk_other` (keeping `blk` alive so their BlkSig addresses are guaranteed distinct!).
+        // `blk_other` whose `feed_forward.act[0]` is flipped (distinct lookup_tables_digest(), while
+        // W16R2_RUNG_H24 proves against `accuracy` so the resulting CoreProof stays bit-identical).
         crate::zk::set_host_fast_async_drop_for_test(Some(false));
         let sw_cross = check_lookup_misses_sealed(&sh, &lay, &blk, wit.clone(), false).unwrap();
         let hb2 = crate::zk::host_fast_w2_hits_for_test();
@@ -5127,6 +5101,176 @@ mod tests {
         assert!(ha2[crate::zk::HF_W2_FLAT_W16] > hb2[crate::zk::HF_W2_FLAT_W16]);
         assert!(ha2[crate::zk::HF_W2_PAR_OPEN] > hb2[crate::zk::HF_W2_PAR_OPEN]);
         drop(blk_other);
+        drop(blk_clone);
         let _ = &blk;
+    }
+
+    #[test]
+    fn sealed_histograms_l1_content_binding_and_switch_off() {
+        let _lock = crate::zk::host_fast_test_lock();
+        struct Reset {
+            hf: Option<bool>,
+            w2: Option<bool>,
+            ad: Option<bool>,
+        }
+        impl Drop for Reset {
+            fn drop(&mut self) {
+                crate::zk::set_host_fast_for_test(self.hf);
+                crate::zk::set_host_fast_w2_for_test(self.w2);
+                crate::zk::set_host_fast_async_drop_for_test(self.ad);
+            }
+        }
+        let _guard = Reset {
+            hf: crate::zk::set_host_fast_for_test(Some(false)),
+            w2: crate::zk::set_host_fast_w2_for_test(Some(false)),
+            ad: crate::zk::set_host_fast_async_drop_for_test(Some(false)),
+        };
+
+        let (sh, blk_src, wit) = super::super::range16_tests::rung_case(super::super::shape::W16R2_RUNG_H24);
+        let lay = Layout::for_shape(&sh).unwrap();
+        let ids = lay.ids();
+        let (rows_ep, n_ep) = (sh.endpoint_rows, 1usize << sh.endpoint_log_n);
+        let make_io = |p: usize| -> Vec<Fp> {
+            let mut d = vec![Fp::ZERO; rows_ep * n_ep];
+            for (i, v) in wit.planes[p].iter().enumerate().take(d.len()) {
+                d[i] = Fp::from_i64(*v);
+            }
+            d
+        };
+        let (ein, eout) = (make_io(ids.at(A_X)), make_io(ids.at(A_X2)));
+        let ntt = NttTables::new(ntt_log_at(&sh));
+        let prove_fp = |blk_in: &BlockPublic, sw_in: SealedWitness| -> String {
+            let mut rng = ZkRng::new(20261125, b"l1-sealed-hist-content-binding");
+            let mut tr = tagged_transcript(&sh, b"l1-sealed-hist-content-binding");
+            tr.absorb(b"profile", sh.profile.as_bytes());
+            tr.absorb(b"schedule", &lay.schedule_digest());
+            let mut ph = timing::Phases::start();
+            let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+            let c = prove_core_sealed(
+                &sh,
+                &lay,
+                blk_in,
+                sw_in,
+                [ein.as_slice(), eout.as_slice()],
+                &ntt,
+                &mut rng,
+                &mut tr,
+                &mut ph,
+                &mut phases,
+                &mut tick,
+                CoreHints::default(),
+            )
+            .unwrap();
+            format!(
+                "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
+                c.a_root, c.h_root, c.mask_root, c.slots, c.mask_open, c.a_open, c.h_open, c.io_claims, c.order, c.lookups, tr.state()
+            )
+        };
+
+        // (1) Switch-off (`HL_HOST_FAST_W2=false`): lookup_digest is NEVER computed or initialized.
+        let blk_off = blk_src.clone();
+        assert!(!blk_off.lookup_digest_is_initialized(), "fresh BlockPublic must start with empty lookup_digest");
+        check_lookup_misses(&sh, &lay, &blk_off, &wit).unwrap();
+        let fp_base = prove_fp(&blk_off, SealedWitness::unsealed(wit.clone()));
+        assert!(!blk_off.lookup_digest_is_initialized(), "HL_HOST_FAST_W2=false path must never initialize lookup_digest");
+
+        // (2) Clone + drop original safety: sealing against `blk_orig`, dropping `blk_orig`, and
+        // allocating decoy blocks in between still matches `blk_clone` by content digest and hits
+        // `HF_W2_SEAL_HIST` with bit-identical CoreProof.
+        crate::zk::set_host_fast_for_test(Some(true));
+        crate::zk::set_host_fast_w2_for_test(Some(true));
+        let blk_orig = blk_src.clone();
+        let sw_clone = check_lookup_misses_sealed(&sh, &lay, &blk_orig, wit.clone(), false).unwrap();
+        assert!(blk_orig.lookup_digest_is_initialized(), "check_lookup_misses_sealed must populate lookup_digest");
+        let orig_digest = blk_orig.lookup_tables_digest();
+        let blk_clone = blk_orig.clone();
+        assert!(!blk_clone.lookup_digest_is_initialized(), "Clone must start with fresh OnceLock");
+        drop(blk_orig);
+        // Exercise allocator reuse after drop with distinct mutated blocks.
+        let mut decoy = blk_src.clone();
+        decoy.feed_forward.act[1] ^= 1;
+        assert!(!sw_clone.hists.as_ref().unwrap().matches_block(&sh, &decoy), "L1: drop-and-realloc distinct block must be rejected");
+        drop(decoy);
+
+        assert!(sw_clone.hists.as_ref().unwrap().matches_block(&sh, &blk_clone), "L1: cloned block must match after original is dropped");
+        assert_eq!(blk_clone.lookup_tables_digest(), orig_digest);
+        let hb = crate::zk::host_fast_w2_hits_for_test();
+        let fb = crate::zk::host_fast_w2_fallbacks_for_test();
+        let fp_clone = prove_fp(&blk_clone, sw_clone);
+        let ha = crate::zk::host_fast_w2_hits_for_test();
+        let fa = crate::zk::host_fast_w2_fallbacks_for_test();
+        assert_eq!(fp_clone, fp_base, "L1 clone-after-drop hit must produce bit-identical CoreProof");
+        assert_eq!(ha[crate::zk::HF_W2_SEAL_HIST] - hb[crate::zk::HF_W2_SEAL_HIST], 1, "clone-after-drop must hit HF_W2_SEAL_HIST");
+        assert_eq!(fa[crate::zk::HF_W2_FB_SEAL_HIST] - fb[crate::zk::HF_W2_FB_SEAL_HIST], 0, "clone-after-drop must record 0 seal-hist fallbacks");
+
+        // (3) Single-element mutations in ALL THREE lookup families (`exp`, `act`, `accuracy`) are rejected.
+        let sw_ref = check_lookup_misses_sealed(&sh, &lay, &blk_clone, wit.clone(), false).unwrap();
+        let shist = sw_ref.hists.as_ref().unwrap();
+
+        // (3a) `attention.exp` single-element mutation
+        let mut blk_exp = blk_clone.clone();
+        blk_exp.attention.exp[255] = blk_exp.attention.exp[255].wrapping_add(1);
+        assert_ne!(blk_exp.lookup_tables_digest(), orig_digest, "L1: exp mutation must change lookup_tables_digest");
+        assert!(!shist.matches_block(&sh, &blk_exp), "L1: exp mutation must fail matches_block");
+
+        // (3b) `feed_forward.act` single-element mutation + prove fallback parity
+        let mut blk_act = blk_clone.clone();
+        blk_act.feed_forward.act[255] ^= 1;
+        assert_ne!(blk_act.lookup_tables_digest(), orig_digest, "L1: act mutation must change lookup_tables_digest");
+        assert!(!shist.matches_block(&sh, &blk_act), "L1: act mutation must fail matches_block");
+        let fb_act = crate::zk::host_fast_w2_fallbacks_for_test();
+        let fp_act = prove_fp(&blk_act, sw_ref);
+        let fa_act = crate::zk::host_fast_w2_fallbacks_for_test();
+        assert_eq!(fp_act, fp_base, "L1 act-mismatch fallback must produce bit-identical CoreProof");
+        assert_eq!(fa_act[crate::zk::HF_W2_FB_SEAL_HIST] - fb_act[crate::zk::HF_W2_FB_SEAL_HIST], 1, "L1 act-mismatch must trigger HF_W2_FB_SEAL_HIST");
+
+        // (3c) `accuracy` single-element mutation AND `with_accuracy` cache invalidation
+        let sw_ref2 = check_lookup_misses_sealed(&sh, &lay, &blk_clone, wit.clone(), false).unwrap();
+        let shist2 = sw_ref2.hists.as_ref().unwrap();
+        let acc = blk_clone.accuracy().expect("W16R2_RUNG_H24 carries accuracy");
+        let mut mult_mut = acc.multipliers().clone();
+        mult_mut.q[0] = if mult_mut.q[0] == 1 { 2 } else { 1 };
+        let acc_mut = super::super::accuracy_public::AccuracyPublic::new_with_registry(
+            acc.registry(),
+            acc.stack(),
+            acc.geometry(),
+            acc.base(),
+            acc.member(),
+            mult_mut,
+            acc.groups().to_vec(),
+            acc.group_ids().to_vec(),
+            acc.raw_tables().to_vec(),
+        )
+        .expect("mutated AccuracyPublic");
+        // Explicitly warm lookup_digest BEFORE calling `with_accuracy` to verify cache reset!
+        let warmed = blk_clone.clone();
+        assert_eq!(warmed.lookup_tables_digest(), orig_digest);
+        assert!(warmed.lookup_digest_is_initialized());
+        let blk_acc = warmed.with_accuracy(acc_mut);
+        assert!(!blk_acc.lookup_digest_is_initialized(), "with_accuracy must clear cached lookup_digest");
+        assert_ne!(blk_acc.lookup_tables_digest(), orig_digest, "L1: accuracy mutation must change lookup_tables_digest");
+        assert!(!shist2.matches_block(&sh, &blk_acc), "L1: accuracy mutation must fail matches_block");
+
+        // Removing accuracy (`Some` -> `None`) must also change digest and fail matches_block.
+        let blk_no_acc = BlockPublic::new(blk_clone.attention().clone(), blk_clone.feed_forward().clone());
+        assert_ne!(blk_no_acc.lookup_tables_digest(), orig_digest, "L1: None vs Some(accuracy) must differ");
+        assert!(!shist2.matches_block(&sh, &blk_no_acc), "L1: missing accuracy must fail matches_block");
+
+        // (4) Legacy block (`accuracy == None`): clone-after-drop matches, exp/act mutations rejected.
+        let (leg_blk, leg_in) = BlockPublic::synthetic_fixture();
+        let leg_sh = Shape::toy();
+        let leg_lay = Layout::for_shape(&leg_sh).unwrap();
+        let leg_wit = super::super::witness::build(leg_blk.attention(), leg_blk.feed_forward(), &leg_in).unwrap();
+        let leg_sw = check_lookup_misses_sealed(&leg_sh, &leg_lay, &leg_blk, leg_wit, false).unwrap();
+        let leg_clone = leg_blk.clone();
+        drop(leg_blk);
+        let leg_shist = leg_sw.hists.as_ref().unwrap();
+        assert!(leg_shist.matches_block(&leg_sh, &leg_clone), "L1: legacy clone must match after drop");
+        let mut leg_exp = leg_clone.clone();
+        leg_exp.attention.exp[1] = leg_exp.attention.exp[1].wrapping_add(1);
+        assert!(!leg_shist.matches_block(&leg_sh, &leg_exp), "L1: legacy exp mutation must be rejected");
+        let mut leg_act = leg_clone.clone();
+        leg_act.feed_forward.act[1] ^= 1;
+        assert!(!leg_shist.matches_block(&leg_sh, &leg_act), "L1: legacy act mutation must be rejected");
     }
 }

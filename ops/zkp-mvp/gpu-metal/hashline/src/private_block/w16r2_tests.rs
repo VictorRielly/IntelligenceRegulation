@@ -6467,10 +6467,16 @@ fn host_fast_w2_rung_golden() {
     }
     eprintln!("HOST-FAST-W2-RUNG {} CheckedPublic+SealedWitness: digest {} (golden); all 10 w2_hits={w2_d:?}", sh.name, &d_hints[..8]);
 
-    // Deterministic cross-block SealedWitness mismatch fallback (Read A M2) + AD=false zero-hit check:
-    // seal against `blk`, prove against live `blk_other = blk.clone()` (guaranteed distinct BlkSig).
+    // Deterministic cross-block SealedWitness mismatch fallback (Read A M2, L1 content binding) + AD=false zero-hit check:
+    // seal against `blk`, prove against `blk_other` whose lookup table differs by 1 element
+    // (`feed_forward.act[0]` flipped: distinct `lookup_tables_digest()`, still valid for W16R2_RUNG_H24
+    // whose active table is `accuracy` so `CoreProof` stays bit-identical to `cpu0`).
     crate::zk::set_host_fast_async_drop_for_test(Some(false));
-    let blk_other = blk.clone();
+    let mut blk_other = blk.clone();
+    assert_eq!(blk_other.lookup_tables_digest(), blk.lookup_tables_digest(), "L1: unmodified clone must share lookup_tables_digest");
+    blk_other = blk.clone();
+    blk_other.feed_forward.act[0] ^= 1;
+    assert_ne!(blk_other.lookup_tables_digest(), blk.lookup_tables_digest(), "L1: single-element act mutation must change lookup_tables_digest");
     let record_other = protocol::CheckedPublic::check(&blk_other, &sh).expect("CheckedPublic other");
     let w_cross = copy(&w);
     let (ein2, eout2) = io_planes(&sh, &w_cross);

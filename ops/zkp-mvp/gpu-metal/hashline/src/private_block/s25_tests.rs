@@ -3172,8 +3172,14 @@ const CALL_SITES: [(&str, &str, usize, &str); 32] = [
     // (`HL_A21_B3PAR`, `BlockPublic::a21_digest_tree`): the same input in the same
     // order, hashed as BLAKE3's own tree, its subtrees by `blake3::hazmat` in rayon
     // tasks. Its subtree hasher is a second `blake3::Hasher::new(` here, and its
-    // four `hazmat` calls are entry points of their own below
-    ("src/private_block.rs", "blake3::Hasher::new(", 2, "D2 — the block's public/weights digest, unkeyed, over a 31-byte literal and the framed public tensors: the one pass, and (A21) the subtree hasher of the same input hashed as BLAKE3's tree"),
+    // four `hazmat` calls are entry points of their own below.
+    // HOST-FAST-W2 L1 (2026-11-25): the third `blake3::Hasher::new(` here is
+    // `BlockPublic::lookup_tables_digest`, an in-process cache key over a 36-byte
+    // domain literal (`hashline/sealed-hist-lookup-tables/1`) and the block's public
+    // lookup tables (`exp`, `act`, `accuracy`) used exclusively to bind
+    // `SealedHistograms` by content instead of heap addresses; compared in-process
+    // and dropped, enters no transcript, commitment, or receipt.
+    ("src/private_block.rs", "blake3::Hasher::new(", 3, "D2 (2 sites: one pass + A21 subtree hasher) over a 31-byte literal and framed public tensors, plus (1 site, HOST-FAST-W2 L1) in-process cache key `BlockPublic::lookup_tables_digest` over a 36-byte literal and public lookup tables, compared in-process and dropped"),
     ("src/private_block.rs", "set_input_offset(", 1, "D2 (A21's tree form) — a subtree hasher placed at its chunk offset of D2's own input (`hazmat::HasherExt`), unkeyed; no new input, no new domain"),
     ("src/private_block.rs", "finalize_non_root(", 1, "D2 (A21's tree form) — a subtree's chaining value, a non-root node of D2's BLAKE3 tree (`hazmat::HasherExt`), unkeyed"),
     ("src/private_block.rs", "merge_subtrees_non_root(", 1, "D2 (A21's tree form) — a parent node of two subtrees of D2's BLAKE3 tree (`hazmat`, `Mode::Hash`)"),
