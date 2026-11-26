@@ -879,6 +879,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 16:11 UTC, product [quoted from the Content Credentials documents by the researcher;
+    all 49 quotations re-found by me in my own copies of the pages and the key passages read by me;
+    no viewer was run]: a verdict stored in an image's Content Credentials as a third party's own
+    assertion cannot be assumed visible to a person looking at the image.** The display guidance for
+    implementers (edition 2.2, the one the current specification set links) says such custom
+    assertions "may be shown with a label that clearly describes its purpose, or excluded from
+    progressive disclosure displays altogether", as a recommendation and not a rule. The JSON format
+    for manifest data lets a tool represent a custom assertion as an empty object. Nothing in the
+    conformance programme (version 0.2), its web page or the trust-list page restricts such
+    assertions. The programme attributes a signer's own assertions to the signer and counts whatever
+    produced them as part of the product it evaluates. What any real viewer does was not verified:
+    the public Verify page's documentation did not load, and two programme documents were not read.
+    So a product would need its own check page that reads the assertion and the receipt it points
+    to. The follow-up item (A32) reads the open web reader's source; the direct test, one manifest
+    through three viewers, needs the open tool installed, which waits on Victor's decision. Handoff:
+    `research/applications/handoffs/20261126-apps-third-party-assertion-viewers.md`.
     **Nov 26, 15:59 UTC, receipt size, study level (D82) [read from the code by the researcher and
     re-read by me; its script re-run with identical output; one count corrected by my own check
     script; nothing built or run]: if a future profile hides the weights, the embedding and output

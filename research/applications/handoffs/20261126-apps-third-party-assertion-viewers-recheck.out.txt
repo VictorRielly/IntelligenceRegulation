@@ -1,0 +1,77 @@
+INPUTS
+ux sha256 15e0f7e44459acf7b3eec26a4a2240c8fec07e781c6f9e35f67761d38c027b82 bytes 69782
+aiml sha256 84ad53731af4c19e5eeb74193edc1ecde014787717c0b626ad10a2c148ccd652 bytes 46524
+conf sha256 e1a0b51715a2c7ee8e8dc26fd46afb6254febb50e164869f0e32d8726d6b2d96 bytes 31362
+confprog sha256 d1d4b932320866479fc78abbcd81c35234bdb6f666ca8138fbca71b8bbdf198a bytes 710818
+crjson sha256 f3e269af8fc5f9d3cf9e01ca669ff17c61e080252c2b440df32e94f0bd8ad00c bytes 143104
+trust sha256 9a515c29c1dac5e823e120b6e14eac513ee9782d56ce070f1bfa51b75baa8edd bytes 29745
+cawgid sha256 348cc18cb460f8b585db641cc40da7bf2a8ea1f22f674680004b475eddce0dfe bytes 43434
+fmt sha256 31db84a032d87010f520c401f377fdcb0990d866a55217869d85cdd257878553 bytes 132144
+
+QUOTES
+U1 ux FOUND nearest-heading=[3.4.2. Custom Assertions] heading-text-before-quote=yes
+U2 ux FOUND nearest-heading=[3.4.2. Custom Assertions] heading-text-before-quote=yes
+U3 ux FOUND nearest-heading=[3.4.2. Custom Assertions] heading-text-before-quote=yes
+U4 ux FOUND nearest-heading=[3.4.2. Custom Assertions] heading-text-before-quote=yes
+U5 ux FOUND nearest-heading=[3.4.2. Custom Assertions] heading-text-before-quote=yes
+U6 ux FOUND nearest-heading=[3.4. Assertions] heading-text-before-quote=yes
+U7 ux FOUND nearest-heading=[3.4.1. Created vs. Gathered Assertions] heading-text-before-quote=yes
+U8 ux FOUND nearest-heading=[3.4.3. Identity Assertions] heading-text-before-quote=yes
+U9 ux FOUND nearest-heading=[2. Principles] heading-text-before-quote=yes
+U10 ux FOUND nearest-heading=[3.1.2. Level 2 (L2)] heading-text-before-quote=yes
+U11 ux FOUND nearest-heading=[3.1.3. Level 3 (L3)] heading-text-before-quote=yes
+U12 ux FOUND nearest-heading=[3.1.4. Level 4 (L4)] heading-text-before-quote=yes
+U13 ux FOUND nearest-heading=[4.4. L2 and L3 Summaries] heading-text-before-quote=yes
+U14 ux FOUND nearest-heading=[4.5. Validation States] heading-text-before-quote=yes
+U15 ux FOUND nearest-heading=[4.5.3. Not Well-Formed, Valid or Trusted] heading-text-before-quote=yes
+U16 ux FOUND nearest-heading=[4.5.1. Well-Formed and Valid, But Not Trusted] heading-text-before-quote=yes
+U17 ux FOUND nearest-heading=[3.3.2. Source Disclosures] heading-text-before-quote=yes
+U18 ux FOUND nearest-heading=[4.3. L1 Source Disclosures] heading-text-before-quote=yes
+U19 ux FOUND nearest-heading=[2.1. Designing for trust] heading-text-before-quote=yes
+A1 aiml FOUND nearest-heading=[9. AI-ML Output Content Credential] heading-text-before-quote=yes
+J1 crjson FOUND nearest-heading=[3.6.4. Custom Assertions] heading-text-before-quote=yes
+J2 crjson FOUND nearest-heading=[3.6.4. Custom Assertions] heading-text-before-quote=yes
+J3 crjson FOUND nearest-heading=[3.6.4. Custom Assertions] heading-text-before-quote=yes
+J4 crjson FOUND nearest-heading=[3.6.1. General]
+C1 conf FOUND nearest-heading=[Generator products] heading-text-before-quote=yes
+C2 conf FOUND nearest-heading=[Validator products] heading-text-before-quote=yes
+T1 trust FOUND nearest-heading=[C2PA trust list] heading-text-before-quote=yes
+T2 trust FOUND nearest-heading=[C2PA trust list] heading-text-before-quote=yes
+T3 trust FOUND nearest-heading=[Verify tool] heading-text-before-quote=yes
+T4 trust FOUND nearest-heading=[Verify tool] heading-text-before-quote=yes
+P0 confprog FOUND nearest-heading=[]
+P1 confprog FOUND nearest-heading=[] heading-text-before-quote=yes
+P2 confprog FOUND nearest-heading=[] heading-text-before-quote=yes
+P3 confprog FOUND nearest-heading=[] heading-text-before-quote=yes
+P4 confprog FOUND nearest-heading=[] heading-text-before-quote=yes
+P5 confprog FOUND nearest-heading=[] heading-text-before-quote=yes
+P6 confprog FOUND nearest-heading=[] heading-text-before-quote=yes
+P7 confprog FOUND nearest-heading=[] heading-text-before-quote=yes
+P8 confprog FOUND nearest-heading=[] heading-text-before-quote=yes
+P9 confprog FOUND nearest-heading=[] heading-text-before-quote=yes
+G1 cawgid FOUND nearest-heading=[Trusting identity claims aggregation issuers] heading-text-before-quote=yes
+G2 cawgid FOUND nearest-heading=[Trusting identity claims aggregation issuers] heading-text-before-quote=yes
+G3 cawgid FOUND nearest-heading=[Trusting identity claims aggregation issuers] heading-text-before-quote=yes
+G4 cawgid FOUND nearest-heading=[Trusting identity claims aggregation issuers] heading-text-before-quote=yes
+G5 cawgid FOUND nearest-heading=[Example]
+F1 fmt FOUND nearest-heading=[Code from the lesson]
+F2 fmt FOUND nearest-heading=[Code from the lesson]
+F3 fmt FOUND nearest-heading=[Code from the lesson]
+F4 fmt FOUND nearest-heading=[Code from the lesson]
+
+quotes not found: 0 of 49
+
+RAW CHECKS (index page of the specification set, raw markup)
+idx sha256 d59b5846adb8d44dec77680e0d6e3a96ca0e7722162c87f0517c8aa98a4e8e59 bytes 14504
+  contains href="../2.2/ux/UX_Recommendations.html" -> True
+  contains href="../2.5/ux/UX_Recommendations.html" -> False
+  contains UX_Recommendations.html" class="xref page">User Experience Guidance< -> True
+
+TERM COUNTS (whitespace and case ignored)
+ux chars 37688 assertion=51 custom assertion=7 entity-specific=0 third-party assertion=0 third party assertion=0 gathered=4 created_assertions=0 unknown assertion=0 unrecognized=0 unrecognised=0
+aiml chars 22024 assertion=18 custom assertion=0 entity-specific=0 third-party assertion=0 third party assertion=0 gathered=0 created_assertions=0 unknown assertion=0 unrecognized=0 unrecognised=0
+conf chars 4178 assertion=1 custom assertion=0 entity-specific=0 third-party assertion=0 third party assertion=0 gathered=0 created_assertions=0 unknown assertion=0 unrecognized=0 unrecognised=0
+confprog chars 42062 assertion=16 custom assertion=0 entity-specific=0 third-party assertion=0 third party assertion=0 gathered=0 created_assertions=2 unknown assertion=0 unrecognized=0 unrecognised=0
+crjson chars 68526 assertion=190 custom assertion=3 entity-specific=1 third-party assertion=0 third party assertion=0 gathered=6 created_assertions=6 unknown assertion=0 unrecognized=0 unrecognised=0
+trust chars 3415 assertion=0 custom assertion=0 entity-specific=0 third-party assertion=0 third party assertion=0 gathered=0 created_assertions=0 unknown assertion=0 unrecognized=0 unrecognised=0
+cawgid chars 3927 assertion=16 custom assertion=0 entity-specific=0 third-party assertion=0 third party assertion=0 gathered=0 created_assertions=0 unknown assertion=0 unrecognized=0 unrecognised=0
