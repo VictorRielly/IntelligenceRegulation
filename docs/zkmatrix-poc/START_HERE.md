@@ -1,5 +1,11 @@
 # START HERE — the proof project in plain words
 
+> **Note added 2026-11-26: this guide was last revised in mid-October 2026.** It is kept for its plain-words
+> explanation of the problem, its rules and its glossary. Its numbers, its hardware notes (the work moved to an M3
+> Ultra Mac on 2026-10-31), its list of what is built and its next steps are out of date. For the current state read
+> the short answer at the top of [MVP_STATUS.md](MVP_STATUS.md), then the
+> [decisions register](ZK60_DECISIONS.md).
+
 **Latest, 2026-09-26:** the current goal is a complete private 8B forward-pass
 proof at **at least 50 proved tokens/s on an RTX 5090 or another high-end GPU**.
 Victor permits larger workloads to amortize startup and initial prefill; the

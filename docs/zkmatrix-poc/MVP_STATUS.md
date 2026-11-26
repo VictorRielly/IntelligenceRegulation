@@ -1,5 +1,75 @@
 # Where the MVP stands, in plain words
 
+**The short answer, Nov 26, 06:16 UTC** [written by Claude, the co-coordinator; every figure is
+repeated from the dated entry named beside it, where its limits are]. The dated entries follow this
+block. The numbered sections 1 to 4 at the end of the page were written in September about an
+earlier design and are kept as history.
+
+**1. Do we have a workable proof? Yes for a trained 3B classifier. For an 8B model, in parts.**
+
+- **What runs end to end:** the installed app proves the verdict of the trained 26-layer Shieldstral
+  classifier on a 128-token request, and a separate verifier program checks the receipts. The design
+  hides the input and every intermediate value and publishes the verdict; the weights are public
+  (P1). One outside author and one guest have used it end to end [by Astra; entry of Nov 24, 09:09
+  UTC].
+- **8B:** at the 8B shape with test weights the prover runs at the rates below. On trained 8B
+  weights there are two development proofs, both on the CPU: one of a single next token, of an
+  export that later failed its quality test [entry of 2026-11-18], and one that Sol reports for the
+  refitted export on a held-out prompt [Sol, Nov 21, 22:11 UTC; not read by Claude]. Neither is at
+  speed, and neither has a privacy acceptance.
+- **Not production.** Nothing is called production before its two Lean statements are proved (D63);
+  see 3.
+
+**2. How fast, against the target of 50 proved tokens a second?** Every figure is from one M3 Ultra
+Mac. A request counts as 128 tokens, padding included.
+
+- **The app's classifier profile, six prover lanes: 48.6 to 50.0** [MEASURED Nov 22; the first dated
+  entry below]. A set measured since on later code read 54.0 and 54.4 for the two sides of one
+  comparison [Nov 25, 21:58 UTC]. The level has moved by several percent between sets for a reason
+  not found, so one set is never compared with another, and this is not a claim that the rate rose.
+- **8B shape, test weights: 40.2** with two GPU switches turned on, **37.2** at the defaults
+  [MEASURED Nov 23; the first dated entry below]. This is a shape figure, not a trained 8B model.
+- **Receipt size:** 669.6 MB for a classifier request and 818.7 MB at the 8B shape [MEASURED;
+  entries of Nov 24, 08:29 and 08:44 UTC]. The first size step would bring a classifier receipt to
+  about 354 MB by count, but its timing test failed: +99 to +109 ms of host time a block against a
+  stop line of +15 ms [Nov 25, 01:56 UTC]. A smaller receipt is therefore on offer only as a
+  separate, slower profile, and that choice is Victor's.
+
+**3. What blocks a product, and a private 8B model at speed?**
+
+- **Lean proofs (D63), the earlier classifier profile (R13):** the approved production statement is
+  proved in Lean about a model of the prover and the verifier. It builds on Lean's three standard
+  axioms, and every module has been opened by a reader who did not write it; parts of several remain
+  unread [Nov 25, 19:18 UTC; Nov 26, 00:13 and 03:21 UTC]. Limits: three of the code's header
+  checks, among them the security-level floor of D27, are taken as values the prover writes down;
+  one boundary check differs from the Rust verifier's; nothing in Lean speaks about the Rust binary;
+  and, by the author's list, the compiled Lean verifier that the approved statements ask for does
+  not exist.
+- **Lean proofs, the profile the app runs (W16R2):** two of the author's nine items are merged, the
+  shape of the 26 layers and single-block soundness, at the level "builds, read in part" [Nov 26,
+  00:25 and 02:13 UTC]. The run level, the honest prover, zero knowledge and the final statement are
+  open. The author's estimate for the whole list was five to eight weeks of agent work, made on Nov
+  25 before those two items landed; Claude has not revised it [Nov 25, 19:28 and 22:47 UTC]. The 8B
+  next-token profile is a further port that the list does not cover.
+- **Receipt size:** see 2. Nothing further is built on the size step until Victor answers the
+  slower-profile question.
+- **Trained 8B, private, at speed:** not shown; see 1. Every 8B speed figure is a shape figure.
+- **An outside pilot,** by Astra's list: remote access and key distribution, a portable verifier
+  setup, and a review of the profile and the claim wording. The installed app needs more memory than
+  a machine of 128 GB offers, and a guest check reserves 12 GiB [Nov 24, 09:09 UTC; Nov 25, 07:52
+  UTC].
+- **Privacy acceptance:** the accepted privacy statement for the classifier (D58, Nov 1) is in force
+  for named CPU binaries; GPU proving was not covered then. By the titles of D59 to D82, no later
+  ruling extends it to the installed profile or to GPU proving. In Lean, zero knowledge is proved
+  for the R13 profile's model only.
+
+**Waiting for Victor** (each is explained in the entry named): (1) receipt size: is a separate,
+slower profile with smaller receipts wanted [Nov 25, 01:56 UTC]; (2) crashes: should a server
+survive an internal crash in-process, or is a restart by the app enough [Nov 26, 03:08 UTC]; (3)
+Lean: port to W16R2 now or wait for the next protocol version, and does the compiled Lean verifier
+stay a requirement [Nov 25, 19:28 UTC]; (4) product: which profile a first product ships, and under
+what label a pilot may be offered before D63 is met for it [Nov 24, 08:05 UTC].
+
 **2026-11-23 UTC, speed against the 50 tokens/s target [MEASURED; details and limits in the dated entries further down]:** on the synthetic 8B shape the stream proves 40.2 tokens/s with the two GPU switches merged on Nov 22 turned on, and 37.2 at the merged head's defaults (`results/zk60_composed_8b_20261123/README.md`). The trained 3B classifier that the app runs proves 48.6 to 50.0 tokens/s at six lanes with eight threads each (`results/zk60_lane_threads_20261122/README.md`). The two figures are different models and different tests and must not be merged. The switches are off by default; the 8B figure is a shape figure, not trained 8B weights.
 
 **2026-11-18 UTC, first native proof on trained 8B parameters (Sol's report; second reading done 15:28 UTC, evidence only, no source review):** **Second reading (Claude's read-only reviewer, `results/zk60_claude_review_20261116/SOL_TRAINED_8B_461_REVIEW.md`):** the retained evidence supports the narrow claim and nothing more. Recomputed: all 34 segment hashes and the 764,068,112-byte total (the coordinator repeated this check independently), the 62 pins of Sol's receipt audit, the 5,224 pins of the run specification; the six guard rows are in order and exit 0, and the verifier was a separate, later process. What the proof is: ONE next token for ONE 128-token prompt, and that prompt is sequence 0 of the calibration set the export was fitted on (in-sample); a CPU run on one thread with the GPU off (prover 468 s by its own report, 602 s in total); the public-row variant, with no privacy acceptance, as its own statement says; a development profile. The proved export is the one that failed D32 (final figure 1.137 times float perplexity on the 24 FineWeb examples completed, one refusal). The refitted export is a different export and has no native proof yet. Not checked by the reviewer: the Rust prover and verifier source, the privacy property, how the checkpoint became the export, and whether the owner-side input equals the archived prompt. **Sol's report as first recorded:** Sol reports a native development proof of the trained Llama-3-8B export at W16R3, T128: all 32 blocks on one archived calibration sequence, a fresh verifier accepting 34 segments (764,068,112 bytes, 95-bit minimum, 97-bit whole-run floor), both owner checks passed [REPORTED by Sol, 2026-11-18T07:30Z; `results/zk60_sol_20261105_w16r3/b3/D78_TRAINED_8B_NATIVE_DEVELOPMENT_467.md`]. Limits, in Sol's own words and figures: privacy and production acceptance are open; **the quality run (D32) on this export has since failed** (Sol, 08:06 UTC): it refused at FineWeb example 25 on one out-of-range gate word in layer 3, which breaks the zero-refusal criterion, and before that it stood at 1.110 times the float model's perplexity on the first 20 examples, against 1.013 for the archived calibration that passed D32. So the proof is valid for its one calibration prompt and the export is not an accepted model; Sol is refitting per channel from the passing calibration and has that refit in D32 now; it is a CPU development proof and says nothing about speed. Claude has asked Sol for the entry files and will put a read-only reviewer on it.
@@ -4789,6 +4859,10 @@ design, its independent check and the rulings are
 Where a private block's 26.5 s goes is measured too: one softmax check 25%,
 lookup inversions 15%, the two commitments 25%, the feed-forward part 5%
 ([plan §5.2b](ZK60_MVP_COMPLETION_PLAN.md)).
+
+> **Sections 1 to 4 below were written in September 2026 about an earlier design and are kept as
+> history. The current answers to the same questions are in "The short answer" at the top of this
+> page.**
 
 ## 1. Do we have a workable proof?
 
