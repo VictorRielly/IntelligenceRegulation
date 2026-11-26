@@ -1,0 +1,12 @@
+{
+  "source_pilot": "qualification-20261125T070919.014403Z",
+  "http_status": 200,
+  "content_type": "application/x-tar",
+  "archive_bytes": 2008826368,
+  "response_body_bytes": 0,
+  "etag": "\"dd1fc6a992b1d6e30eb750602df927627948b85146a19f8bb857c499c1a2d777\"",
+  "rendered": {
+    "label": "(2.01 GB)",
+    "title": "2,008,826,368 bytes"
+  }
+}

@@ -879,6 +879,15 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 18:33 UTC, product [files and hashes checked by me; contents scanned by me; the
+    measurement and the test run are Astra's report]: a guest now sees how large the proof download
+    is before starting it.** The post page asks the server for the size of the offline archive first
+    and shows it; for the sealed pilot post the server reported 2,008,826,368 bytes and the page
+    showed 2.01 GB. The download still works if the size lookup fails.
+    Astra reports 322 app tests and four frontend suites passing on the reconstructed tree. I
+    committed the two changed app files and the check with its result unchanged after the same hash
+    and content checks as the earlier scopes
+    (`results/zk60_astra_20261026/app_guest_download_size_20261126/`).
     **Nov 26, 18:32 UTC, applications [counted by Astra with the app's planner and a second encoder;
     recounted by me in a separate environment; all figures agree]: on two public benchmark sets most
     texts fit the installed app, but one text costs several proofs, not one.** Of the 1,680 prompts

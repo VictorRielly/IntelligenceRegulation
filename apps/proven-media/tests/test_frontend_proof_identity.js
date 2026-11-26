@@ -71,3 +71,40 @@ const recheck = run(`verifySection({id:'fixture',status:'published',
 assert.match(recheck, /violence · chunk 1: proof valid/);
 assert.doesNotMatch(recheck, /Chunk 3: proof valid|chunk 3: proof valid/);
 console.log('PASS: category-local chunk identity, ledger lookup, legacy/missing metadata, publication scope and escaping');
+
+async function testStoreDownloadSize() {
+  const link = {href: '/api/posts/fixture/verification-store.tar', title: ''};
+  const label = {textContent: ''};
+  link.querySelector = selector => { assert.equal(selector, 'span'); return label; };
+  context.downloadLink = link;
+  const render = available => run(`verifySection({id:'fixture',status:'published',
+    publication:{verification_store_available:${available}}}, {receipt:{bytes:1234}})`);
+  assert.match(render(true), /id="store-download" href="\/api\/posts\/fixture\/verification-store.tar"/);
+  assert.match(render(true), /1.2 kB of receipts/);
+  assert.doesNotMatch(render(false), /store-download/);
+
+  const cases = [
+    [200, 'application/x-tar', '2008826368', ' (2.01 GB)'],
+    [200, 'application/x-tar', null, ' (size unavailable)'],
+    [200, 'application/x-tar', '1e6', ' (size unavailable)'],
+    [200, 'text/html', '512', ' (size unavailable)'],
+    [409, 'application/json', '78', ' (size unavailable)'],
+  ];
+  for (const [status, type, length, expected] of cases) {
+    link.title = '';
+    context.fetch = async (url, opts) => {
+      assert.equal(url, link.href);
+      assert.equal(opts.method, 'HEAD');
+      return {status, headers: new Map([['content-type', type], ['content-length', length]])};
+    };
+    await run('showStoreDownloadSize(downloadLink)');
+    assert.equal(label.textContent, expected);
+    assert.equal(link.title, expected === ' (2.01 GB)' ? (2008826368).toLocaleString() + ' bytes' : '');
+  }
+  context.fetch = async () => { throw new Error('offline'); };
+  await run('showStoreDownloadSize(downloadLink)');
+  assert.equal(label.textContent, ' (size unavailable)');
+  assert.equal(link.href, '/api/posts/fixture/verification-store.tar');
+}
+
+testStoreDownloadSize().catch(error => { console.error(error); process.exitCode = 1; });

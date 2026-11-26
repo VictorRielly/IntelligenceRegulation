@@ -1,0 +1,39 @@
+{
+  "base_commit": "1413e21bbd0f6ea760924605a0fb93bb45d03432",
+  "app_patch_sha256": "3cce116939a6769ee2ff3ecb4d0f8b3f2a71f3867f05c6d241c4516a16b569db",
+  "app": [
+    {
+      "path": "apps/proven-media/static/app.js",
+      "bytes": 74239,
+      "sha256": "9371410b3499fdb20d8005322a6cecdf494034aa27c72a6d2dfa85a119b43d35"
+    },
+    {
+      "path": "apps/proven-media/tests/test_frontend_proof_identity.js",
+      "bytes": 6384,
+      "sha256": "bb774e0b397ee79b6e895a0f900201660e5a87e76eadaba22190212a9b9b4391"
+    }
+  ],
+  "checks": [
+    {
+      "path": "results/zk60_astra_20261026/app_guest_download_size_20261126/check_size.py",
+      "bytes": 3610,
+      "sha256": "dce271f7e9c72e8f4204c830f4f3a23cf25201c328e35a23a279505b1f7b2cf6"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_guest_download_size_20261126/CHECK.json",
+      "bytes": 346,
+      "sha256": "e7da708fca3b86d44f92c23c4eb9c88737ce5d1fd0650ad04b760af55ddd2633"
+    }
+  ],
+  "applications_handoff": {
+    "path": "research/applications/handoffs/20261126-apps-measured-benchmark-fit.md",
+    "bytes": 10878,
+    "sha256": "4de37b5c4fe54719e1a75198995ef19c205c6581cdb6b8e63c78c1cfd2573832"
+  },
+  "verification": {
+    "python_app_tests": 322,
+    "frontend_suites": 4,
+    "release_check": "Committed app tree plus the two listed changes, using the installed test environment and pinned tokenizer files.",
+    "guest_check": "In-process HTTP HEAD over the retained public pilot store. The post lookup, browser transport and DOM node are test fixtures."
+  }
+}

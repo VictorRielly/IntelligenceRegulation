@@ -570,11 +570,29 @@ function verifySection(p, rec) {
     ${isShieldstral(rec.prover || {}) ? `<p class="small"><b>Profile privacy: ${esc(privacyLabel(isPublicContent(rec.prover) ? rec.prover : vw))}.</b> ${isPublicContent(rec.prover) ? "Use only content already intended to be public." : `${esc(vw.privacy_statement?.scope || "Privacy review remains pending for this proving path.")} ${esc(vw.privacy_statement?.conditions || "")}`}</p>` : ""}
     <div><b class="small">Or verify on your own machine</b>
       <p class="small">The bundle contains the receipts, published statements, record and signed manifest. ${classifier ? "Follow every category and chunk command in VERIFY.md using the pinned binary and public model files." : "Follow the verification instructions in VERIFY.md."}</p>
-      <p><a class="btn ghost small" href="/api/posts/${esc(p.id)}/bundle.tar">Download bundle (.tar, ${fmtBytes(rec.receipt.bytes)})</a>
+      <p><a class="btn ghost small" href="/api/posts/${esc(p.id)}/bundle.tar">Download proof bundle (.tar, ${fmtBytes(rec.receipt.bytes)} of receipts)</a>
          <a class="btn ghost small" href="/api/posts/${esc(p.id)}/record.json">Download record.json</a></p>
-      ${p.publication?.verification_store_available ? `<p><a class="btn ghost small" href="/api/posts/${esc(p.id)}/verification-store.tar">Download offline verification store</a> <span class="small muted">Includes this post’s receipts and local ledger evidence. Interrupted downloads can resume.</span></p>` : ""}
+      ${p.publication?.verification_store_available ? `<p><a class="btn ghost small" id="store-download" href="/api/posts/${esc(p.id)}/verification-store.tar">Download offline verification store<span aria-live="polite"></span></a> <span class="small muted">Includes this post’s receipts and local ledger evidence. Interrupted downloads can resume.</span></p>` : ""}
       ${vw.command ? (classifier ? "" : `<pre class="code">${esc(vw.command)}</pre>`) : `<p class="note info">${esc(vw.note || "Verifier instructions are unavailable for this record.")}</p>`}
       <p class="small muted">Binary: ${esc(vw.binary || "")}. Public model files: ${esc(vw.public_model_files || "")}. Accept if ${esc(vw.accept_if || "")}.</p></div></section>`;
+}
+
+async function showStoreDownloadSize(link) {
+  const label = link.querySelector("span");
+  try {
+    const response = await fetch(link.href, { method: "HEAD", cache: "no-store" });
+    const length = response.headers.get("content-length");
+    const bytes = Number(length);
+    if (response.status === 200 && response.headers.get("content-type")?.split(";")[0] === "application/x-tar"
+        && /^\d+$/.test(length) && Number.isSafeInteger(bytes) && bytes > 0) {
+      label.textContent = ` (${fmtBytes(bytes)})`;
+      link.title = `${bytes.toLocaleString()} bytes`;
+      return;
+    }
+  } catch {
+    // A guest can still use the download link if the size request fails.
+  }
+  label.textContent = " (size unavailable)";
 }
 
 function chunkRecords(rec) { return ((rec && rec.chunks) || []).filter(c => c.record).map(c => c.record); }
@@ -690,6 +708,8 @@ async function viewPost(id) {
       the anchored leaves stay on the ledger and can no longer be linked to the content.</p><button class="btn ghost small" id="delbtn">Delete this post</button></section>`;
   html += `<section class="card pad"><h2>Honest limits</h2>${honestLimits()}</section></div>`;
   $("#app").innerHTML = html;
+  const download = $("#store-download");
+  if (download) void showStoreDownloadSize(download);
   const vb = $("#verifybtn");
   if (vb) vb.onclick = async () => { vb.disabled = true; try { await api(`/api/posts/${p.id}/verify`, { method: "POST" }); toast("Re-verification queued."); S.lastPostJSON = ""; viewPost(id); } catch (e) { toast(e.message); vb.disabled = false; } };
   const checkList = (checks) => Object.entries(checks).map(([k, v]) => `<li>${v ? `<span class="ok-t">✓</span>` : `<span class="bad-t">✗</span>`} ${esc(k.replace(/_/g, " "))}</li>`).join("");
