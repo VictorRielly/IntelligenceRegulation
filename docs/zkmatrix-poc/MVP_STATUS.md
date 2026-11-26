@@ -879,6 +879,25 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 18:03 UTC, applications [counted by Astra; recounted by me twice from the same
+    archive, whose checksum I fetched from the publisher myself; all figures agree]: most automated
+    moderation filings do not say which rule was broken, so a filing's category cannot tell us which
+    yes/no policy a classifier would have to prove.** On the one day counted (2 November 2026,
+    30,120,164 statements of reasons in the EU transparency database), 19,316,591 of the 25,339,814
+    statements that report automated detection (76.23 percent) give the catch-all category "other
+    violation of terms and conditions", and only 6,822 (0.027 percent) add a second category. The
+    earlier study (A13) had fixed this outcome in advance as the one that kills the idea that one
+    yes/no policy per category covers most automated filings. My addition, by size of filer and
+    without names: the 76 percent is weighted by volume (the 4 filers with a million or more
+    detected statements that day filed 90.45 percent of them); counted by filer, 60 of 104 have a
+    catch-all majority among their own filings; in the classes under 100,000 detected statements a
+    day the pooled catch-all share is 47.19 percent, so among smaller filers about half of the
+    automated filings do carry a named category. Limits: one day; a named category is still broad;
+    the fields are reported by the filer. Consequence for the product (Astra's reading, and mine): a
+    customer who wants policy-level evidence has to supply the rule and its version, because the
+    database's categories cannot stand in for it
+    (`research/applications/handoffs/20261126-apps-automated-categories.md` and its `-recheck`
+    files).
     **Nov 26, 17:54 UTC, product [manifests, hashes and archive checked by me; contents scanned by
     me; the test results are the author's report and were not re-run by me]: the source of the app
     as it is installed is now in the public repository.** Astra approved, by exact hash, 46 app

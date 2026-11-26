@@ -1,0 +1,38 @@
+ok   cells of the handoff program (my re-run) equal the cells of my second count: 78 cells
+ok   rows 30,120,164 in both, and in the handoff
+ok   302 CSV files in 31 inner archives
+     raw automated_detection values: {'No': 4780350, 'Yes': 25339814}
+     raw automated_decision values: {'AUTOMATED_DECISION_FULLY': 13646725, 'AUTOMATED_DECISION_NOT_AUTOMATED': 8615955, 'AUTOMATED_DECISION_PARTIALLY': 7857484}
+     additional-category field states: {'blank': 26601192, 'empty list': 3511867, 'non-empty list': 7105}
+ok   blank 26,601,192 and empty lists 3,511,867 as the handoff says
+ok   group sizes 25,339,814 / 13,646,725 / 25,469,494, overlap 13,517,045
+ok   Other violation of terms and conditions: 76.23% / 82.93% / 76.16%
+ok   Consumer information: 13.22% / 0.20% / 13.15%
+ok   Unsafe and prohibited products: 3.05% / 5.32% / 3.11%
+ok   Illegal or harmful speech: 2.35% / 4.06% / 2.36%
+ok   Scams and fraud: 1.95% / 2.45% / 2.00%
+ok   Violence: 1.70% / 2.99% / 1.70%
+ok   the six rows are the six largest primary categories among detected statements
+     next two among detected: [('INTELLECTUAL_PROPERTY_INFRINGEMENTS', '0.74%'), ('PROTECTION_OF_MINORS', '0.19%')]
+ok   OTHER_VIOLATION_TC 19,316,591 / 11,317,631 / 19,397,342
+ok   NOT_SPECIFIED_NOTICE 1,462 / 789 / 1,462
+ok   additional 6,822 (0.027%) / 6,813 (0.050%) / 6,822 (0.027%): got [6822, 6813, 6822] ['0.027%', '0.050%', '0.027%']
+ok   both catch-all and additional 9 / 6 / 9
+ok   catch-all or additional 19,324,866 (76.26%) / 11,325,227 (82.99%) / 19,405,617 (76.19%): got [19324866, 11325227, 19405617] ['76.26%', '82.99%', '76.19%']
+ok   named primary category and no additional, detected: 6,014,948 = 23.74%%
+ok   headline sentence: 19,316,591 of 25,339,814 (76.23%)
+ok   A13 kill condition (most detected rows have an additional category or sit in the two catch-all codes) holds for this day
+     non-empty additional lists over all filings: 7105 | blank + empty + non-empty = 30120164
+BY VOLUME CLASS of the filer's detected statements on the day (no names):
+     filers with at least one detected statement: 104 | field platform_name present: True
+     1M and more  filers    4 | with a catch-all majority    2 | detected 22,920,709 | catch-all share  77.00%
+     100k to 1M   filers    6 | with a catch-all majority    4 | detected  1,948,277 | catch-all share  74.28%
+     10k to 100k  filers   14 | with a catch-all majority    8 | detected    369,875 | catch-all share  44.02%
+     1k to 10k    filers   25 | with a catch-all majority   16 | detected     92,451 | catch-all share  59.78%
+     under 1k     filers   55 | with a catch-all majority   30 | detected      8,502 | catch-all share  48.05%
+ok   class totals add up to the detected group and to the two catch-all codes
+ok   every filer with a detected statement is in one class
+     filers with a catch-all majority among their own detected statements: 60 of 104 (57.7%)
+     the 4 filers of the class "1M and more" filed 90.45% of the detected statements
+     the three classes under 100k pooled: catch-all share 47.19% of 470,828 detected statements, 94 filers
+RESULT: ALL FIGURES REPRODUCED
