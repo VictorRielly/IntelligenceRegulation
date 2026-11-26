@@ -1,0 +1,80 @@
+{
+ "tokenizer_sha256": "ceb11e85e44d7c91d051604d636d97b05aee59a907a0dc96a3c6e557d9634e18",
+ "moderation prompts": {
+  "totals": {
+   "actual: one chunk for all three": 417,
+   "actual: one chunk for each 55-token policy": 479,
+   "actual: whole": 1348,
+   "both limits": 214,
+   "characters only": 114,
+   "fits": 1348,
+   "rows": 1680,
+   "tokens only": 4
+  },
+  "accepted": 1348,
+  "planned_proofs": 8919,
+  "mean_proofs_per_accepted_post": 6.6165,
+  "median_nearest_rank": 6,
+  "p95_nearest_rank": 13,
+  "proofs_histogram": {
+   "3": 417,
+   "4": 62,
+   "6": 369,
+   "7": 87,
+   "9": 186,
+   "10": 66,
+   "12": 56,
+   "13": 43,
+   "15": 25,
+   "16": 24,
+   "19": 4,
+   "21": 1,
+   "22": 8
+  },
+  "length_rule_errors": {
+   "one chunk for all three at 196 characters: promised by the length rule but not true": 22,
+   "one chunk for all three at 196 characters: true but missed by the length rule": 39,
+   "one chunk for each 55-token policy at 220 characters: promised by the length rule but not true": 24,
+   "one chunk for each 55-token policy at 220 characters: true but missed by the length rule": 39,
+   "whole at 1000 characters: promised by the length rule but not true": 4
+  }
+ },
+ "chatbot user messages": {
+  "totals": {
+   "actual: one chunk for all three": 4208,
+   "actual: one chunk for each 55-token policy": 4273,
+   "actual: whole": 4888,
+   "both limits": 68,
+   "characters only": 125,
+   "fits": 4888,
+   "rows": 5083,
+   "tokens only": 2
+  },
+  "accepted": 4888,
+  "planned_proofs": 18251,
+  "mean_proofs_per_accepted_post": 3.7338,
+  "median_nearest_rank": 3,
+  "p95_nearest_rank": 9,
+  "proofs_histogram": {
+   "3": 4208,
+   "4": 65,
+   "6": 261,
+   "7": 55,
+   "9": 107,
+   "10": 52,
+   "12": 51,
+   "13": 36,
+   "15": 22,
+   "16": 25,
+   "19": 3,
+   "22": 3
+  },
+  "length_rule_errors": {
+   "one chunk for all three at 196 characters: promised by the length rule but not true": 24,
+   "one chunk for all three at 196 characters: true but missed by the length rule": 83,
+   "one chunk for each 55-token policy at 220 characters: promised by the length rule but not true": 22,
+   "one chunk for each 55-token policy at 220 characters: true but missed by the length rule": 60,
+   "whole at 1000 characters: promised by the length rule but not true": 2
+  }
+ }
+}

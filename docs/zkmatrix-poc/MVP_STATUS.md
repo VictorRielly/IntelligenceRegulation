@@ -879,6 +879,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 18:32 UTC, applications [counted by Astra with the app's planner and a second encoder;
+    recounted by me in a separate environment; all figures agree]: on two public benchmark sets most
+    texts fit the installed app, but one text costs several proofs, not one.** Of the 1,680 prompts
+    of the OpenAI moderation evaluation set, 1,348 fit (80.24 percent) and need 6.62 proofs each on
+    average (median 6). Of the 5,083 user messages of the ToxicChat test split, 4,888 fit (96.16
+    percent) and need 3.73 on average (median 3). Three proofs is the minimum, one per policy; only
+    24.82 percent of the first set and 82.79 percent of the second fit one chunk for every policy. A
+    character count is a poor stand-in for the token limits: at 196 characters it wrongly promises
+    one chunk for 22 and 24 texts and misses 39 and 83 that do fit, so the app's preview, which
+    counts with the real tokenizer, is the right tool. These are benchmark files, not a customer's
+    traffic, and no proof was generated for this count. Next on the queue (A34): turn these proof
+    counts into posts a day and bytes a post
+    (`research/applications/handoffs/20261126-apps-measured-benchmark-fit.md` and its `-recheck`
+    files).
     **Nov 26, 18:26 UTC, applications [read from published papers by Astra; three studies, the
     conversion rule and all arithmetic re-checked by me in my own copies; the shares use a length
     proxy, not the installed tokenizer]: short messages would mostly need one proof per policy; for
