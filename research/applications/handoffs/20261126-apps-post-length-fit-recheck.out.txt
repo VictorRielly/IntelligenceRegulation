@@ -1,0 +1,32 @@
+sms       bytes   614779  sha256 d8a88dce16e97c89e675faa3d1aef38a8bb5154bcee72eab1a6ac20941c7f572
+comments  bytes  1085580  sha256 05048cd2a9e8e36ab9b71d81114145837ecb93bad7bdf29efe10601bad90bb21
+reviews   bytes   601041  sha256 1d74aef368c3fd8285fd7b4caded1d6e5e6826d4b594e60c77ee83e35e9d1a3c
+tokens    bytes    72277  sha256 fda25f4d2605ad2ed7bb90c8adfd9bab5728d462511fc554da7774352f78a7bd
+result    bytes     1931  sha256 f112934a52ea374cdbae6249fa56212cb1fd57f8bbccfc7fc3dea9565d857d22
+handoff   bytes     5535  sha256 e7a264466274d9c2849f1a02966887abda29fee21205058069c1f2da501a9844
+found     sms: 936 text messages in English
+found     sms: a sample of 139 students
+found     sms: Seven percent of messages exceeded the notional 160 character per message limit
+found     comments: 311167 categorized, direct responses
+found     comments: the second and third quartile of the comment lengths range from 1 to 45 words
+found     reviews: and 101 reviews
+found     reviews: reviews was 244
+found     reviews: with well over half being 300 words or less
+found     tokens: 1 token is approximately 4 characters
+found     tokens: 1 token is approximately three-quarters of a word
+ok   49 tokens -> 196 characters or 36 whole words
+ok   55 tokens -> 220 characters or 41 whole words
+ok   336 tokens -> 1,344 characters or 252 words
+ok   1,000 characters -> about 187 whole words
+ok   messages: 7 percent over 160 characters and 160 < 196, so at least 93 percent fit one chunk and the whole post
+ok   comments: 36 and 41 words lie between the quartiles 1 and 45, so 25 to 75 percent; 187 words lies above, so 75 to 100 percent
+ok   reviews: a mean and a share at 300 words give no share at 36, 41 or 187 words
+ok   50 tokens need four proofs, 336 need 22, 337 is over the limit
+ok   49 tokens need one proof per policy, 56 need two per policy
+ok   the 1,000- and 1,001-character drafts have 223 tokens each; only the first is within the character limit
+ok   two 196-character strings: 18 and 98 content tokens, three and seven proofs
+ok   pilot fixture: 62 characters, 13 words, 14 tokens
+ok   capacities 55 / 55 / 49 in the record
+ok   no new native run in the record
+ok   byte rule: one leading space plus 48 bytes is 49 bytes, plus 335 bytes is 336 (a byte-level encoder emits at most one token per byte)
+RESULT: ALL CHECKS PASSED

@@ -879,6 +879,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 18:26 UTC, applications [read from published papers by Astra; three studies, the
+    conversion rule and all arithmetic re-checked by me in my own copies; the shares use a length
+    proxy, not the installed tokenizer]: short messages would mostly need one proof per policy; for
+    forum comments the published figures only bound the share between a quarter and three
+    quarters.** A post fits one chunk for all three policies if it has at most 49 content tokens,
+    about 196 characters or 36 words of English by the usual rule of thumb. On that proxy a
+    published sample of 936 text messages gives 93 to 100 percent (7 percent exceeded 160
+    characters), and 311,167 categorized comments on technology news give 25 to 75 percent (the
+    middle half of their lengths spans 1 to 45 words). A study of 101 book reviews gives no share,
+    only a mean of 244 words. The proxy can be far off: two test strings of 196 characters measured
+    18 and 98 tokens with the installed tokenizer. Two further figures on short posts are in the
+    handoff as Astra's reading; I could not read those two sources. Next: Astra's A33 replaces the
+    proxy with the installed tokenizer on two retained benchmark releases
+    (`research/applications/handoffs/20261126-apps-post-length-fit.md` and its `-recheck` files).
     **Nov 26, 18:22 UTC, product [files and hashes checked by me; contents scanned by me; the
     measurements and the test run are Astra's report]: the installed app's text limits are measured,
     and the author's preview now agrees with what submission accepts.** The app takes trimmed text
