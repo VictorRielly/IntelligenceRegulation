@@ -1,0 +1,23 @@
+{
+  "zip_bytes": 63598,
+  "sha256": "3cb9eaee62a00e0cf94a73ea2701e8ef6a10f0c6ba13388346c5c5c50b8979f3",
+  "files": 9,
+  "signed_manifest_bytes": 6264,
+  "scope": "publisher_signature_only",
+  "labels": {
+    "hate": {
+      "proof": "accepted",
+      "value": "no"
+    },
+    "sexual": {
+      "proof": "accepted",
+      "value": "no"
+    },
+    "violence": {
+      "proof": "accepted",
+      "value": "no"
+    }
+  },
+  "wrong_key_refused": true,
+  "changed_label_refused": true
+}

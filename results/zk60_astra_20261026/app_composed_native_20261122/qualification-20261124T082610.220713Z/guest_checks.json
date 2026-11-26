@@ -1,0 +1,90 @@
+{
+  "manifest": {
+    "accepted": true,
+    "pending_anchor": [],
+    "reasons": [],
+    "checks": {
+      "schema": true,
+      "issuer_key": true,
+      "signature": true,
+      "c0.sexual.anchor_leaf": true,
+      "c0.sexual.publication_matches": true,
+      "c0.sexual.anchored": true,
+      "c1.violence.anchor_leaf": true,
+      "c1.violence.publication_matches": true,
+      "c1.violence.anchored": true,
+      "c2.hate.anchor_leaf": true,
+      "c2.hate.publication_matches": true,
+      "c2.hate.anchored": true
+    }
+  },
+  "publication": {
+    "accepted": true,
+    "pending": false,
+    "per_proof": {
+      "c0.sexual": {
+        "accepted": true,
+        "reasons": [],
+        "checks": {
+          "manifest_hash": true,
+          "manifest_post_id": true,
+          "label_value": true,
+          "statement_hash": true,
+          "leaf_hash": true,
+          "receipt_segments": true,
+          "chain_integrity": true,
+          "anchor_tx": true,
+          "merkle_path": true,
+          "batch_file": true
+        },
+        "block": {
+          "block_number": 0,
+          "block_hash": "dbe424a8b716b437268ca6d118bf64d03ac6c9f23f5b2e83bebae4664c56a3c3",
+          "ts": "2026-11-24T08:29:15Z"
+        }
+      },
+      "c1.violence": {
+        "accepted": true,
+        "reasons": [],
+        "checks": {
+          "manifest_hash": true,
+          "manifest_post_id": true,
+          "label_value": true,
+          "statement_hash": true,
+          "leaf_hash": true,
+          "receipt_segments": true,
+          "chain_integrity": true,
+          "anchor_tx": true,
+          "merkle_path": true,
+          "batch_file": true
+        },
+        "block": {
+          "block_number": 0,
+          "block_hash": "dbe424a8b716b437268ca6d118bf64d03ac6c9f23f5b2e83bebae4664c56a3c3",
+          "ts": "2026-11-24T08:29:15Z"
+        }
+      },
+      "c2.hate": {
+        "accepted": true,
+        "reasons": [],
+        "checks": {
+          "manifest_hash": true,
+          "manifest_post_id": true,
+          "label_value": true,
+          "statement_hash": true,
+          "leaf_hash": true,
+          "receipt_segments": true,
+          "chain_integrity": true,
+          "anchor_tx": true,
+          "merkle_path": true,
+          "batch_file": true
+        },
+        "block": {
+          "block_number": 0,
+          "block_hash": "dbe424a8b716b437268ca6d118bf64d03ac6c9f23f5b2e83bebae4664c56a3c3",
+          "ts": "2026-11-24T08:29:15Z"
+        }
+      }
+    }
+  }
+}

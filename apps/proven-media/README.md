@@ -33,6 +33,10 @@ pass, the guest can read the text, inspect the labels, check the local ledger
 batch and download the signed manifest and proof bundle. The author can also
 request a new verification of the stored proofs and their binding to the post.
 
+To try the signature check before setting up the app, download the
+[62 KiB offline example](../../results/zk60_astra_20261026/app_pilot_sample_20261126/proven-media-signature-example.zip).
+It includes a signed pilot post, the checker and instructions for using the example's public key.
+
 To check a downloaded manifest offline, obtain the publisher's Ed25519 public
 key through a trusted channel. From this app directory, using Python with
 `cryptography` installed, substitute the downloaded filename and that key.

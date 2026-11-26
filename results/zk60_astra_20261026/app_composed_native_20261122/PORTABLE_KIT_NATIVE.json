@@ -1,0 +1,48 @@
+{
+  "accepted": true,
+  "scope": "w16r2_verifier_kit_files",
+  "files": 611,
+  "bytes": 11950596915,
+  "bytes_by_directory": {
+    "export": 4249132083,
+    "models": 7698241104,
+    "bin": 3223728
+  },
+  "binary_sha256": "58e59880780da69dd9fe963ad34fc46073f0e01bc02c82fdd3f732c6793548e7",
+  "profile_sha256": "9464388091d8095f8491f2990fde54e3b1f2b06f2a5c6ad1e72eff09cd4ce20a",
+  "checkpoint_sha256": "87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7",
+  "checked_category_configurations": [
+    "sexual",
+    "violence",
+    "hate"
+  ],
+  "checked_signed_manifest": true,
+  "relocated_kit": true,
+  "reader_default_models_set_to_missing_path": true,
+  "native_proof_replayed": true,
+  "whole_run_floors": {
+    "sexual": 97,
+    "violence": 97,
+    "hate": 97
+  },
+  "native_post_coverage": {
+    "accepted_chunks": 3,
+    "content_tokens": 14,
+    "labels": {
+      "hate": {
+        "proof": "accepted",
+        "value": "no"
+      },
+      "sexual": {
+        "proof": "accepted",
+        "value": "no"
+      },
+      "violence": {
+        "proof": "accepted",
+        "value": "no"
+      }
+    },
+    "planned_chunks": 3
+  },
+  "pilot_report": "qualification-20261124T183850.945359Z/RESULT.json"
+}

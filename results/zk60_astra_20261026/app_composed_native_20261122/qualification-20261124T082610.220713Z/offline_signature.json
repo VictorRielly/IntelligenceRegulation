@@ -1,0 +1,10 @@
+{
+  "accepted": true,
+  "checks": {
+    "issuer_key": true,
+    "schema": true,
+    "signature": true
+  },
+  "reasons": [],
+  "scope": "publisher_signature_only"
+}

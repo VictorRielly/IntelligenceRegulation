@@ -1,0 +1,181 @@
+{
+ "category_set": {
+  "digest": "f3c031d08ad407d577cdfa8c449201e412ecd9d835179765f0099449d41b42f5",
+  "id": "shieldstral-moderate-w16r2-public-dev-v1"
+ },
+ "chunking": {
+  "categories": {
+   "hate": {
+    "chunk_tokens": 49,
+    "chunks": 1,
+    "overlap_tokens": 8
+   },
+   "sexual": {
+    "chunk_tokens": 55,
+    "chunks": 1,
+    "overlap_tokens": 8
+   },
+   "violence": {
+    "chunk_tokens": 55,
+    "chunks": 1,
+    "overlap_tokens": 8
+   }
+  },
+  "n_chunks": 3,
+  "profile": "per-category"
+ },
+ "entries": [
+  {
+   "anchor": {
+    "chain": "local-chain (stand-in for base-mainnet)",
+    "contract": "local:ProvenMediaAnchor",
+    "leaf_hash": "ca7a73b8c650704bcbd310e727498a369b771388c6bd891d76996cb48fc12227",
+    "resolve": "post 6d024ab274a5c2dd1491751bcb535611 chunk 0 category sexual"
+   },
+   "bundle": {
+    "manifest_sha256": "7f9f5f791a7262c52146d28b7d5c3894dbf85992cccb5b6de3269ac042c13f06",
+    "manifest_uri": "local-cas://sha256/7f9f5f791a7262c52146d28b7d5c3894dbf85992cccb5b6de3269ac042c13f06",
+    "receipt_uris": 28
+   },
+   "category": "sexual",
+   "category_chunk_index": 0,
+   "category_name": "Sexual / explicit content",
+   "chunk": 0,
+   "classifier": "Shieldstral-1.0-3B",
+   "content_commitment": "2bccd4731bc157bffe0d10385e4c0b26139836f92f1b2b236e7e36e500793f4b",
+   "error": null,
+   "model_id": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+   "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+   "policy_sha256": "e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822",
+   "profile_id": "9464388091d8095f8491f2990fde54e3b1f2b06f2a5c6ad1e72eff09cd4ce20a",
+   "proof_status": "accepted",
+   "statement_sha256": "bee876295a67bb7652c0ca92b64ef97f0eb916c775d0e5ee02e17c47df914ec9",
+   "threshold": {
+    "c": 0.0,
+    "tau": 0.5
+   },
+   "token_range": [
+    0,
+    14
+   ],
+   "verdict": "no",
+   "verdict_bound_by_proof": true,
+   "verifier_id": "58e59880780da69dd9fe963ad34fc46073f0e01bc02c82fdd3f732c6793548e7"
+  },
+  {
+   "anchor": {
+    "chain": "local-chain (stand-in for base-mainnet)",
+    "contract": "local:ProvenMediaAnchor",
+    "leaf_hash": "3be60ba8f02086a672b287491c8259f31101fa0379ae345cef7661528f7c5f6a",
+    "resolve": "post 6d024ab274a5c2dd1491751bcb535611 chunk 1 category violence"
+   },
+   "bundle": {
+    "manifest_sha256": "302d4734ef5dc1289b3098a72c0fed0e024c71b4c69bcb7327233058cfb30a50",
+    "manifest_uri": "local-cas://sha256/302d4734ef5dc1289b3098a72c0fed0e024c71b4c69bcb7327233058cfb30a50",
+    "receipt_uris": 28
+   },
+   "category": "violence",
+   "category_chunk_index": 0,
+   "category_name": "Graphic violence",
+   "chunk": 1,
+   "classifier": "Shieldstral-1.0-3B",
+   "content_commitment": "2bccd4731bc157bffe0d10385e4c0b26139836f92f1b2b236e7e36e500793f4b",
+   "error": null,
+   "model_id": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+   "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+   "policy_sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128",
+   "profile_id": "9464388091d8095f8491f2990fde54e3b1f2b06f2a5c6ad1e72eff09cd4ce20a",
+   "proof_status": "accepted",
+   "statement_sha256": "5815e344937ced4524adfd0307a9a440f926904e85c4664ed09972489f886824",
+   "threshold": {
+    "c": 0.0,
+    "tau": 0.5
+   },
+   "token_range": [
+    0,
+    14
+   ],
+   "verdict": "no",
+   "verdict_bound_by_proof": true,
+   "verifier_id": "58e59880780da69dd9fe963ad34fc46073f0e01bc02c82fdd3f732c6793548e7"
+  },
+  {
+   "anchor": {
+    "chain": "local-chain (stand-in for base-mainnet)",
+    "contract": "local:ProvenMediaAnchor",
+    "leaf_hash": "08f00a68dd60b3c04cff693264ce8b0b6e5f1f0dba3d5fde8f41c3b4da494b32",
+    "resolve": "post 6d024ab274a5c2dd1491751bcb535611 chunk 2 category hate"
+   },
+   "bundle": {
+    "manifest_sha256": "ab48b764e2725b5db996b1bf6342928f06fc020dff3d9974cb5ca2871c4536e7",
+    "manifest_uri": "local-cas://sha256/ab48b764e2725b5db996b1bf6342928f06fc020dff3d9974cb5ca2871c4536e7",
+    "receipt_uris": 28
+   },
+   "category": "hate",
+   "category_chunk_index": 0,
+   "category_name": "Hate / harassment",
+   "chunk": 2,
+   "classifier": "Shieldstral-1.0-3B",
+   "content_commitment": "2bccd4731bc157bffe0d10385e4c0b26139836f92f1b2b236e7e36e500793f4b",
+   "error": null,
+   "model_id": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+   "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+   "policy_sha256": "c9a65df1b6a57e0e1aa5a497949aaae2b8c00843a7b3b465d69f9ee811b68f89",
+   "profile_id": "9464388091d8095f8491f2990fde54e3b1f2b06f2a5c6ad1e72eff09cd4ce20a",
+   "proof_status": "accepted",
+   "statement_sha256": "cb801758497feee70423b1b484d60bb3b55514a40f77713205109b32679ee652",
+   "threshold": {
+    "c": 0.0,
+    "tau": 0.5
+   },
+   "token_range": [
+    0,
+    14
+   ],
+   "verdict": "no",
+   "verdict_bound_by_proof": true,
+   "verifier_id": "58e59880780da69dd9fe963ad34fc46073f0e01bc02c82fdd3f732c6793548e7"
+  }
+ ],
+ "issued_at": "2026-11-24T08:28:46Z",
+ "issuer": {
+  "alg": "Ed25519",
+  "key_id": "e37f6c783da6b21f",
+  "name": "Proven Media (local demo publisher, DEV KEY)",
+  "note": "local development key; no real keys",
+  "public_key": "32c026629c724e2b9ccac8670e54c1c2349110733b011065cd97ff37ac451d90"
+ },
+ "item": {
+  "content_commitment": "2bccd4731bc157bffe0d10385e4c0b26139836f92f1b2b236e7e36e500793f4b",
+  "content_commitment_rule": "SHA-256(\"zk60/proven-media/content/v1\" || salt_32 || u64-be len || UTF-8 content)",
+  "content_length_tokens": 14,
+  "created_at": "2026-11-24T08:26:13Z",
+  "kind": "text",
+  "post_id": "6d024ab274a5c2dd1491751bcb535611"
+ },
+ "label_rule": "per category: yes if any chunk is proved yes; not proved if any chunk lacks an accepted proof (fail closed); else no",
+ "labels": {
+  "hate": {
+   "proof": "accepted",
+   "value": "no"
+  },
+  "sexual": {
+   "proof": "accepted",
+   "value": "no"
+  },
+  "violence": {
+   "proof": "accepted",
+   "value": "no"
+  }
+ },
+ "notes": [
+  "Public content only; privacy not claimed. W16R2 development candidate; not production."
+ ],
+ "proved_once_at_creation": "2026-11-24T08:28:44Z",
+ "schema": "zk60.manifest/1",
+ "signature": {
+  "alg": "Ed25519",
+  "key_id": "e37f6c783da6b21f",
+  "value": "TYXtDMVLUT3HJJSZ20t2pmn3lQUIHdC1QnA5itLZu5whaXJ6JvhQzlX2ho8P8TfPfcZYtDu5jvBxP0SqDbFFDw=="
+ }
+}

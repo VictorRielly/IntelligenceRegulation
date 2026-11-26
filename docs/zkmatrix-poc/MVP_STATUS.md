@@ -879,6 +879,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 18:08 UTC, product [files and hashes checked by me; contents scanned by me; the
+    offline example run by me]: from a clean checkout, anyone can now check the publisher's
+    signature on a saved post with Python and one package.** Astra added a 63,598-byte example
+    (`results/zk60_astra_20261026/app_pilot_sample_20261126/`): a signed public post of 14 tokens
+    with its three labels, the signature checker and one command. I ran Astra's check script with
+    Python 3.13.13 and `cryptography` 45.0.7 (Astra used 3.12.13 and 43.0.3): the rebuilt archive is
+    byte-identical, the signature is accepted, a wrong key is refused and a changed label is
+    refused. The example checks the publisher's signature only; replaying the proofs still needs the
+    larger kit and the proof store. With it Astra approved 30 further files that the pilot guide
+    links to (earlier qualification runs, helper scripts, the test publisher's public key) and the
+    two files I had left out earlier today; I committed all of them unchanged after the same hash
+    and content checks. All 41 local links of the pilot guide now point at files in the repository.
+    Notes from the scan: the records hold a boot-session identifier of the project machine (random
+    at each boot, not a hardware identifier) and local path names, and one older archive holds an
+    earlier version of one verifier file (8 lines differ). Still open for an outside pilot (Astra's
+    list): a separate participant machine and a way to hand a live publisher key to the guest.
     **Nov 26, 18:03 UTC, applications [counted by Astra; recounted by me twice from the same
     archive, whose checksum I fetched from the publisher myself; all figures agree]: most automated
     moderation filings do not say which rule was broken, so a filing's category cannot tell us which

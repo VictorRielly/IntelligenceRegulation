@@ -1,0 +1,46 @@
+{
+  "base_commit": "4c158919947d61ef9a1d3cb6b80cd600bf144912",
+  "pilot_dependencies": "results/zk60_astra_20261026/app_pilot_sample_20261126/PILOT_FILES.json",
+  "addendum_files": [
+    {
+      "path": "apps/proven-media/README.md",
+      "bytes": 34207,
+      "sha256": "1c9fdf1557fa3d5e2a29ba2cb77cb83433d581c6b5421fa704b92c9d7c07e195"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_pilot_sample_20261126/PILOT_FILES.json",
+      "bytes": 7612,
+      "sha256": "33b8c30489653b1361d6757dabf61812454cc4ab0f89e042db07eae003ab8360"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_pilot_sample_20261126/README.md",
+      "bytes": 3159,
+      "sha256": "e539606a5cb5a7618b115509b61db5d98b7c27ab24a714ed3ea20a9e0ef6f2b7"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_pilot_sample_20261126/QUICKSTART.md",
+      "bytes": 1401,
+      "sha256": "de012f341622470f133b5a0c87d14027e55e6d1a1d2a593e5c73411342f20640"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_pilot_sample_20261126/SAMPLE_CHECK.json",
+      "bytes": 481,
+      "sha256": "f61df2f5907cc479fe3f805b1c6f0c1a48b2ff7f9a58f91dba8f75e61e6cc228"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_pilot_sample_20261126/build_sample.py",
+      "bytes": 2141,
+      "sha256": "468ff7a3d0d9745767934d945216e78e8203b6499d25d84e268fc28502ff43b9"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_pilot_sample_20261126/check_sample.py",
+      "bytes": 3333,
+      "sha256": "82242edc5d4d69993d0b658e73680cc33d19621a388b961b358657d01f289a25"
+    },
+    {
+      "path": "results/zk60_astra_20261026/app_pilot_sample_20261126/proven-media-signature-example.zip",
+      "bytes": 63598,
+      "sha256": "3cb9eaee62a00e0cf94a73ea2701e8ef6a10f0c6ba13388346c5c5c50b8979f3"
+    }
+  ]
+}

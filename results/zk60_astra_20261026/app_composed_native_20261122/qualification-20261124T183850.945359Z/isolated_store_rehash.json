@@ -1,0 +1,45 @@
+{
+  "archive_sha256": "2b121fa670ef2bd6c5618935f46c38d726b28932c324d87487e3b6f184886fd0",
+  "source_root": "extracted archive",
+  "operator_checkout_configured": false,
+  "accepted": true,
+  "checks": {
+    "c0.sexual.anchor_leaf": true,
+    "c0.sexual.anchored": true,
+    "c0.sexual.publication_matches": true,
+    "c0.sexual.signed_bundle": true,
+    "c1.violence.anchor_leaf": true,
+    "c1.violence.anchored": true,
+    "c1.violence.publication_matches": true,
+    "c1.violence.signed_bundle": true,
+    "c2.hate.anchor_leaf": true,
+    "c2.hate.anchored": true,
+    "c2.hate.publication_matches": true,
+    "c2.hate.signed_bundle": true,
+    "issuer_key": true,
+    "schema": true,
+    "signature": true,
+    "w16r2_signed_post_coverage": true
+  },
+  "pending_anchor": [],
+  "reasons": [],
+  "signed_post_coverage": {
+    "accepted_chunks": 3,
+    "content_tokens": 14,
+    "labels": {
+      "hate": {
+        "proof": "accepted",
+        "value": "no"
+      },
+      "sexual": {
+        "proof": "accepted",
+        "value": "no"
+      },
+      "violence": {
+        "proof": "accepted",
+        "value": "no"
+      }
+    },
+    "planned_chunks": 3
+  }
+}

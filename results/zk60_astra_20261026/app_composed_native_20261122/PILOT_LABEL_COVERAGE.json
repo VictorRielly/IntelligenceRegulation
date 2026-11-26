@@ -1,0 +1,33 @@
+{
+  "post_id": "6d024ab274a5c2dd1491751bcb535611",
+  "publisher_test_key": "32c026629c724e2b9ccac8670e54c1c2349110733b011065cd97ff37ac451d90",
+  "signed_post_coverage": {
+    "content_tokens": 14,
+    "planned_chunks": 3,
+    "accepted_chunks": 3,
+    "labels": {
+      "sexual": {
+        "value": "no",
+        "proof": "accepted"
+      },
+      "violence": {
+        "value": "no",
+        "proof": "accepted"
+      },
+      "hate": {
+        "value": "no",
+        "proof": "accepted"
+      }
+    }
+  },
+  "inventory_segments": 84,
+  "original_native_floor_bits": {
+    "sexual": 97,
+    "violence": 97,
+    "hate": 97
+  },
+  "original_qualification_sha256": "a551256720477c86108cc2e69ecdddf383fba8505f741d7a889aee7b8aa15943",
+  "archived_merkle_paths_checked": 3,
+  "fresh_native_replay": false,
+  "fresh_input_owner_check": false
+}

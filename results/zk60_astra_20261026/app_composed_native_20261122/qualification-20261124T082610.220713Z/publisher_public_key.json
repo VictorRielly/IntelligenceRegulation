@@ -1,0 +1,6 @@
+{
+  "alg": "Ed25519",
+  "public_key": "32c026629c724e2b9ccac8670e54c1c2349110733b011065cd97ff37ac451d90",
+  "key_id": "e37f6c783da6b21f",
+  "note": "local development key"
+}

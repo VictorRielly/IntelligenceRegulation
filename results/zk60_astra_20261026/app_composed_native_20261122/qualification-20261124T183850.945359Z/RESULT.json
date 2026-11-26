@@ -1,0 +1,152 @@
+{
+  "passed": true,
+  "public_fixture_only": true,
+  "public_scratch": "/Users/victorrielly/zk60-artifacts/astra-merged-w16r2-5ldx8ggh",
+  "guest_source_sha256": "2b121fa670ef2bd6c5618935f46c38d726b28932c324d87487e3b6f184886fd0",
+  "prover": [
+    "/Users/victorrielly/IntelligenceRegulation/results/zk60_astra_20261026/app_composed_native_20261122/classify-host/bin/zk60_classify",
+    "serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/astra-merged-w16r2-5ldx8ggh/verifier-export-w16r2-94643880/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--dev-w16r2-public-content-only",
+    "--lanes",
+    "6",
+    "--lane-threads",
+    "8",
+    "--witness-cache-gib",
+    "16"
+  ],
+  "verifier": [
+    "/Users/victorrielly/zk60-artifacts/proven-media-fast/bin/zk60_classify.a30a31",
+    "check-serve",
+    "--export",
+    "/Users/victorrielly/zk60-artifacts/astra-merged-w16r2-5ldx8ggh/verifier-export-w16r2-94643880",
+    "--tables",
+    "/Users/victorrielly/zk60-artifacts/astra-merged-w16r2-5ldx8ggh/verifier-export-w16r2-94643880/token_io",
+    "--policies",
+    "shieldstral-1.0-3b-moderate-sexual/1,shieldstral-1.0-3b-moderate-violence/1,shieldstral-1.0-3b-moderate-hate/1",
+    "--label",
+    "zk60-classify-verdict",
+    "--dev-w16r2-public-content-only",
+    "--expect-statement",
+    "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "--min-bits",
+    "95",
+    "--lanes",
+    "3",
+    "--lane-threads",
+    "4"
+  ],
+  "writer_binding": {
+    "schema": "pm-fast-writer-binding/2",
+    "kind": "shieldstral-fast-w16r2",
+    "mode": "resident",
+    "public_content_only": true,
+    "production": false,
+    "native_flag": "--dev-w16r2-public-content-only",
+    "intake_sha256": "cc937f3c69806295cc504b7f420cb8a539db2d6ecc72690ebd36377ef48dd829",
+    "writer_sha256": "27a6742dbb3fdc8d47cd53406579379608b56cff6a2f8c334fdc54768d6388d5",
+    "resident_source_digest": "265b595851a82cf301a30f578b0d67869f82b2f48cdf2e5b58fd3eafeae10ea4",
+    "profile_sha256": "9464388091d8095f8491f2990fde54e3b1f2b06f2a5c6ad1e72eff09cd4ce20a",
+    "binary_sha256": "58e59880780da69dd9fe963ad34fc46073f0e01bc02c82fdd3f732c6793548e7",
+    "model_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-w16r2-dev-only/2",
+    "prover_binary_sha256": "3a540c08b3cc00d559e3cd44ed38c6ab45cdc4007087e03b3503bb08f068da8f",
+    "prover_lane_threads": 8,
+    "export": "/Users/victorrielly/zk60-artifacts/a29-uniform-calibration/export_u1",
+    "verifier_export": "/Users/victorrielly/zk60-artifacts/astra-merged-w16r2-5ldx8ggh/verifier-export-w16r2-94643880",
+    "resources": {
+      "need_gib": 196,
+      "cap_gib": 220,
+      "max_seconds": 21600
+    },
+    "native_settings": {
+      "HL_METAL_QUEUES": "thread",
+      "HL_METAL_SPIN_US": "200",
+      "HL_A28_STAGGER_MS": "300",
+      "HL_A26_KEPT": "1",
+      "HL_A30_B3PAR": "1",
+      "HL_A26_VERIFY_ONCE": "0",
+      "HL_A28_SEAL_AHEAD": "0",
+      "HL_METAL_FUSED_RS": "1",
+      "HL_METAL_SPARSE_FOLD": "1",
+      "HL_METAL_SC_CHAIN_FAST": "1",
+      "HL_HOST_FAST": "1",
+      "HL_CLASSIFY_HOST_FAST": "1"
+    },
+    "writer_processes": 2,
+    "writer_threads": 4,
+    "prover_lanes": 6,
+    "check_lanes": 3
+  },
+  "fixture_sha256": "1fb15f749fe9ca1d93cb7bc59cfa2d81aeb4c3047b9ecd5a98daab78955b5316",
+  "cold_app_start_seconds": 3.201795083936304,
+  "post_id": "26a14a3d34f5bd974e507b9b4b12a5ff",
+  "invited_author": true,
+  "guest_pending_hidden": true,
+  "operator_routes_refused": true,
+  "cold_submission_to_publication_seconds": 128.96254558395594,
+  "service_run_id": "f9baeb712cec4a76b3c70f949cf05af4",
+  "guest_labels": {
+    "sexual": "no",
+    "violence": "no",
+    "hate": "no"
+  },
+  "minor_filter_hidden": false,
+  "guest_bundle": {
+    "bytes": 2008870912,
+    "members": 91,
+    "segments_rehashed": 84,
+    "signed_statement_hashes_checked": 3
+  },
+  "author_native_rechecks_with_owner_binding": 3,
+  "automatic_local_batch_seconds_configured": 30.0,
+  "downloaded_store_bytes": 2008826368,
+  "downloaded_store_members": 97,
+  "segments": {
+    "sexual": 28,
+    "violence": 28,
+    "hate": 28
+  },
+  "guard_exit": 0,
+  "public_verification": {
+    "sexual": {
+      "accepted": true,
+      "report_sha256": "26779b126be0f861580f194e4bd3fa98f6eee0256ec3e14294af3fde5677bdaf"
+    },
+    "violence": {
+      "accepted": true,
+      "report_sha256": "58c033934f199fd7d5f06c25cc94d5f4560593ec611dd38c696bdec7efd57c9b"
+    },
+    "hate": {
+      "accepted": true,
+      "report_sha256": "5e903508122d8e5b943922fc7cf592923d8c6ba1c968c7cdbf7cf2f6d3e5fc1b"
+    }
+  },
+  "native_post_coverage": {
+    "accepted_chunks": 3,
+    "content_tokens": 14,
+    "labels": {
+      "hate": {
+        "proof": "accepted",
+        "value": "no"
+      },
+      "sexual": {
+        "proof": "accepted",
+        "value": "no"
+      },
+      "violence": {
+        "proof": "accepted",
+        "value": "no"
+      }
+    },
+    "planned_chunks": 3
+  },
+  "public_scratch_removed": true
+}

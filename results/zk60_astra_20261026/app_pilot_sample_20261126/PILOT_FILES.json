@@ -1,0 +1,182 @@
+[
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/PILOT_LABEL_COVERAGE.json",
+    "bytes": 838,
+    "sha256": "8f0677a63cb1997a41e0d5548009ac221ad9910c9e32a25a96ed0e6306d958b6",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/PORTABLE_KIT.json",
+    "bytes": 702,
+    "sha256": "ef02ed1c3944b71928a99a60d68e6e012b10ed20ce26559c66f8da3366910044",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/PORTABLE_KIT_NATIVE.json",
+    "bytes": 1219,
+    "sha256": "84eab895d731139e9ddec217937d824c834970275ef2c255a0cafca8b480341e",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/READER_SOURCE.json",
+    "bytes": 609,
+    "sha256": "82587cd8a02e8ffbe090ce09df5cfa9e5153bad313d7f502d4d442a489a99345",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/audit_pilot_labels.py",
+    "bytes": 4181,
+    "sha256": "b386ec7445a4723a3450dc87a34b7d372911294ba814afa1fd788e71f097cc06",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/guest-20261125T073308.630547Z/verified-manifest.json",
+    "bytes": 10896,
+    "sha256": "29667635f98ded7e6b28b6ab8e6c195f774b86fd9913c655b46a2dfb71649a60",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/package_reader.py",
+    "bytes": 2411,
+    "sha256": "7b7605b4f141700a52cede410029385a28b9de8862bb8c3988595106bdaadf99",
+    "used_by": "qualification code"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/RESULT.json",
+    "bytes": 4754,
+    "sha256": "a551256720477c86108cc2e69ecdddf383fba8505f741d7a889aee7b8aa15943",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/guest_checks.json",
+    "bytes": 2491,
+    "sha256": "af1f419fac778c7f20c8c31c9d804e3d39b7cf929a63aea24024004a160ce66d",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/hate.json",
+    "bytes": 6814,
+    "sha256": "e057299ee21c0647c80703af91e19aa452b44ec8916daa40019629bab8cf2303",
+    "used_by": "qualification code"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/hate.publication.json",
+    "bytes": 4296,
+    "sha256": "ab48b764e2725b5db996b1bf6342928f06fc020dff3d9974cb5ca2871c4536e7",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/manifest.json",
+    "bytes": 6264,
+    "sha256": "c6e655cd57c98f87b4c2fb96b54378c3c42c5042ecc8ea31129cd3337e03c09e",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/offline_signature.json",
+    "bytes": 164,
+    "sha256": "b094df2d6f0d42a092e1734accd71d9225123706360055b0c4baa3703716eb8a",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/publisher_public_key.json",
+    "bytes": 174,
+    "sha256": "3855dcea2f8f12a707727280913d2103d0b6c2838631f44ab8de8c3d2473276e",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/service.guard.json",
+    "bytes": 1457,
+    "sha256": "2d3c2dccee3b897fa6d2660340d04b6230ba7427e7285c9b22909a3cff5d831f",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/sexual.json",
+    "bytes": 6748,
+    "sha256": "e108c04b47ba59924c01b8e3afa89d791da3840677d251d4d1875c7ce023b0a3",
+    "used_by": "qualification code"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/sexual.publication.json",
+    "bytes": 4298,
+    "sha256": "7f9f5f791a7262c52146d28b7d5c3894dbf85992cccb5b6de3269ac042c13f06",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/violence.json",
+    "bytes": 6825,
+    "sha256": "5066fd213c3d530081ffe367e16039b853aff83a38c37d22f6354b27367a122f",
+    "used_by": "qualification code"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T082610.220713Z/violence.publication.json",
+    "bytes": 4300,
+    "sha256": "302d4734ef5dc1289b3098a72c0fed0e024c71b4c69bcb7327233058cfb30a50",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T183850.945359Z/RESULT.json",
+    "bytes": 5287,
+    "sha256": "44a33e495de297348b870b982caf79a8745af5c0c71f4258a32231af65ae48c7",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261124T183850.945359Z/isolated_store_rehash.json",
+    "bytes": 1162,
+    "sha256": "2d4559936c8cf5ae812c31667335ca0a4a5bda3ba99c65f7f89364bafa0fce1c",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261125T070919.014403Z/RESULT.json",
+    "bytes": 4479,
+    "sha256": "80251af92a491dec704108ba34e673ea1c5db31776aab1079c9247cceb0cc2af",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261125T070919.014403Z/service.guard.json",
+    "bytes": 1524,
+    "sha256": "5feae7a585a72dee4db86461c1afe29bee837f0977c99ccb507f4ab98300a9dc",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualify.py",
+    "bytes": 20079,
+    "sha256": "2638f62462c5341b85a4ed85e67df65331d07945799bcd318c63442df12f43ce",
+    "used_by": "qualification code"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualify_download_resume.py",
+    "bytes": 4548,
+    "sha256": "5a210f610deb82658a39a8db9270848e9ed5f1a173a13b729fd8dff08d9cd1cd",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualify_existing_guest.py",
+    "bytes": 5254,
+    "sha256": "e2d8c4b6cdcc3be623f53e25d3b9725ba5468b716e3c01e62072ba3f3fc7f22e",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualify_kit.py",
+    "bytes": 6191,
+    "sha256": "22750fdad9d6399b4304985ea08a8fc4f1b11a76e9a8e4c8a6d8d0351df4b081",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/qualify_reader_source.py",
+    "bytes": 4426,
+    "sha256": "facf89a3a0e240767798c14988ce6ee81cd31b40b3e2946d3efb23585b3e5078",
+    "used_by": "qualification code"
+  },
+  {
+    "path": "results/zk60_astra_20261026/app_composed_native_20261122/w16r2-guest-source.tar.gz",
+    "bytes": 103712,
+    "sha256": "2b121fa670ef2bd6c5618935f46c38d726b28932c324d87487e3b6f184886fd0",
+    "used_by": "pilot guide"
+  },
+  {
+    "path": "results/zk60_astra_20261026/w16r2_app_native_qualification_20261113/support.py",
+    "bytes": 6666,
+    "sha256": "dd64403585cd692523952c9ca2ad77af9e1d0c37e6624aa1870aa79465f44759",
+    "used_by": "qualification code"
+  }
+]
