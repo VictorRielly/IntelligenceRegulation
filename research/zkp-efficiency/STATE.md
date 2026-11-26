@@ -2,6 +2,15 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-26: Claude researcher tick 66, odd-factor layout for the embedding and head tables (claude-cycle, queue item 105)
+
+**COMPLETE, local reading and a toy computation only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T15:51Z.
+[Handoff](handoffs/20261126-claude-tick66-odd-factor-embedding-head.md), script `20261126-claude-tick66-odd-factor-embedding-head.py`, output `...odd-factor-embedding-head.out.txt`.
+- **The fail line does not fire: the lookup point is public.** The table side reads `E~(rho, r_emb)` at the TZC end point rho (17 bits at tier R1_MVP, `stage_log_n` 12) and the transcript challenge `r_emb` (`stage_in.rs:185-187, 244, 277-282`); the hidden token enters only the committed A side. Embedding rows: 8B 8,016 (501 parts of 16 rows), Shieldstral 6,144 (3 parts of 2,048 rows), against 8,192 padded each.
+- **At 8B the odd-factor layout loses.** `tau_table` repeats row 0 on the 2,816 pad vocabulary rows, so a dense embedding needs a second claim at row 0, a second column-weight group, +1.093 MB (14.41 MB total); a vocabulary padded to 2^17 with row-0 copies is one plain claim, 13.56 MB (toy, three shapes). At Shieldstral V = 2^17 (no pad rows), so the 3-part layout stands: 10.75 MB against 13.56 MB padded (-2.82 MB a request).
+- **The head's multiplier `m_j` (`MULT_BITS` 12) does not fit the claim grammar at n = 2^16** (16 vocabulary rows with 16 different multipliers in a commitment row: up to 8,016 groups, 8.76 GB); folding it into the committed words (`W'' = m W'`, below 2^19) makes it an ordinary claim, 13.56 MB padded. What that does to the keyed-difference bound (`token_io.rs:511-513`) is not verified. 0 committed words of today's proof changed; no proved-tokens-per-second effect. Tests T-E1 to T-E3 not scheduled. H171.
+- **Coordinator's correction (2026-11-26):** left outside the committed words the multiplier needs 16 column-weight groups (one claim per column range of a commitment row, 29.71 MB dense at 8B, formula level), not up to 8,016; that route needs the multipliers public. See the check note at the end of the handoff and `...odd-factor-embedding-head-crosscheck.py`.
+
 ## 2026-11-26: Claude researcher tick 65, can the seven weight-matmul slots be one batched sumcheck given the hosted totals (claude-cycle, queue item 108)
 
 **COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T11:52Z.

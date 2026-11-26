@@ -879,6 +879,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 15:59 UTC, receipt size, study level (D82) [read from the code by the researcher and
+    re-read by me; its script re-run with identical output; one count corrected by my own check
+    script; nothing built or run]: if a future profile hides the weights, the embedding and output
+    tables would add about 27 MB a request at the 8B shape, about 3 percent of today's receipt.**
+    Today the verifier folds both public tables itself. Under hidden weights (P3, not specified)
+    each fold would become one opening of a committed table at a public point: the points are
+    transcript challenges and the hidden token is on the committed side. Formula-level sizes at tick
+    54's parameter row: 13.3 to 13.6 MB for each table at 8B, and 10.75 MB for the classifier's
+    embedding when the factor 3 of its width is laid out as three parts, against 13.56 MB padded.
+    Two points would need a ruling in such a design. The stage's table repeats row 0 on its 2,816
+    padded vocabulary rows (`stage_in.rs:186`), which costs one more claim group unless the table is
+    committed with those copies. And the output table has a multiplier per row: the handoff said it
+    must be folded into the committed words, and my check shows it can also stay outside as 16 claim
+    groups (29.7 MB instead of 13.3 MB) if the multipliers may stay public. No effect on proved
+    tokens per second. Nothing is proposed for building. Handoff:
+    `research/zkp-efficiency/handoffs/20261126-claude-tick66-odd-factor-embedding-head.md`.
     **Nov 26, 14:29 UTC, product [COUNTED by me from seven public monthly files of the EU
     transparency database, November 2025 to May 2026, each matching the publisher's SHA-1; the
     machine's rate MEASURED on Nov 22 and scaled to a day by arithmetic]: over seven months the text

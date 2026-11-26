@@ -1,0 +1,36 @@
+== A1. toy: the stage-IN table claim through parts plus the row-0 claim (n = 2^3 columns)
+  V=12 d=8: parts 3, rows 12, padded vocabulary rows 4, tau~(rho) reproduced: True
+  V=24 d=4: parts 3, rows 12, padded vocabulary rows 8, tau~(rho) reproduced: True
+  V=20 d=16: parts 5, rows 40, padded vocabulary rows 12, tau~(rho) reproduced: True
+  V=16 d=12: parts 3, rows 24, padded vocabulary rows 0, tau~(rho) reproduced: True
+  V=12 d=24: parts 9, rows 36, padded vocabulary rows 4, tau~(rho) reproduced: True
+
+== A1b. toy: padded vocabulary committed with row-0 copies, one plain claim
+  V=12 d=8: tau~(rho) reproduced by ONE claim: True
+  V=20 d=16: tau~(rho) reproduced by ONE claim: True
+  V=24 d=4: tau~(rho) reproduced by ONE claim: True
+
+== A2. toy: the stage-OUT head claim with the multiplier folded into the words
+  V=12 d=8: folded claim (W'' = m W') reproduced: True, parts 3, rows 6; without folding, distinct column-weight vectors needed (distinct, rows): (6, 6)
+  V=20 d=16: folded claim (W'' = m W') reproduced: True, parts 5, rows 20; without folding, distinct column-weight vectors needed (distinct, rows): (20, 20)
+  V=24 d=8: folded claim (W'' = m W') reproduced: True, parts 3, rows 12; without folding, distinct column-weight vectors needed (distinct, rows): (12, 12)
+
+== B. W16R2 8B embedding (int16) and head (int8 W'' = m W'), each: V=128,256 = 501 x 2^8, d=4,096 = 1 x 2^12 (d_pad 4096), V_pad 131,072
+  words 525,336,576; rows at n=2^16: dense 8,016; vocabulary padded 8,192; both padded 8,192 (x1.022)
+  claim parts 501  (v side 501, d side 1); one part = 1,048,576 words = 16 rows (whole rows: True)
+  pad vocabulary rows 2,816; the table repeats row 0 on them: one extra claim, one extra group
+  one opening, dense, one group: 13.32 MB (columns 11.03 MB, vectors 2.19 MB)
+  + row-0 claim as a second group: 14.41 MB (+1.093 MB = one group 1,092,608 B)
+  both axes padded: 13.56 MB (dense saves 0.24 MB)
+
+== B. W16R2 Shieldstral embedding (int16; its classifier has no head): V=131,072 = 1 x 2^17, d=3,072 = 3 x 2^10 (d_pad 4096), V_pad 131,072
+  words 402,653,184; rows at n=2^16: dense 6,144; vocabulary padded 6,144; both padded 8,192 (x1.333)
+  claim parts 3  (v side 1, d side 3); one part = 134,217,728 words = 2,048 rows (whole rows: True)
+  pad vocabulary rows 0; the table repeats row 0 on them: none
+  one opening, dense, one group: 10.75 MB (columns 8.45 MB, vectors 2.19 MB)
+  both axes padded: 13.56 MB (dense saves 2.82 MB)
+
+== C. the head's multiplier left outside the committed words (8B), distinct column-weight groups
+  vocabulary rows per commitment row 16; commitment rows 8,016; each holds 16 different m_j, so up to 8,016 distinct column-weight vectors = 8,016 groups
+  extra bytes at one group = 1,092,608 B: 8.76 GB a request (against 13.32 MB for the folded form)
+  words of W'' = m_j W'[j][i]: |w| <= 127 x 2^12 = 520,192 < 2^19 (one 8-byte field word each, no extra receipt bytes)

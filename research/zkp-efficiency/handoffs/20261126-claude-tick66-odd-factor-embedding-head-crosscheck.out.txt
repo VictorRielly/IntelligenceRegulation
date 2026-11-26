@@ -1,0 +1,13 @@
+== 1. toy head claims through a port of the claim grammar (Goldilocks base field)
+  V=12 d_pad=8 n=8: vocabulary rows per commitment row 1; one claim over all rows: accepted; by column range: 1 groups, value reproduced: True; folded: 1 group, value reproduced: True
+  V=12 d_pad=8 n=32: vocabulary rows per commitment row 4; one claim over all rows: refused (zk claim: parts with different column weights); by column range: 4 groups, value reproduced: True; folded: 1 group, value reproduced: True
+  V=20 d_pad=16 n=64: vocabulary rows per commitment row 4; one claim over all rows: refused (zk claim: parts with different column weights); by column range: 4 groups, value reproduced: True; folded: 1 group, value reproduced: True
+  V=24 d_pad=8 n=64: vocabulary rows per commitment row 8; one claim over all rows: refused (zk claim: parts with different column weights); by column range: 8 groups, value reproduced: True; folded: 1 group, value reproduced: True
+  V=40 d_pad=4 n=64: vocabulary rows per commitment row 16; one claim over all rows: refused (zk claim: parts with different column weights); by column range: 16 groups, value reproduced: True; folded: 1 group, value reproduced: True
+
+== 2. receipt bytes of one head opening at 8B (V = 128,256, d_pad = 4,096), formula level
+  vocabulary rows per commitment row at n = 2^16: 16; rows dense 8,016, padded 8,192; one group = 1,092,608 B
+  multiplier folded into the words, dense, 1 group:   13,321,184 B = 13.32 MB
+  multiplier folded into the words, padded, 1 group:  13,563,360 B = 13.56 MB
+  multiplier outside the words, dense, 16 groups:     29,710,304 B = 29.71 MB (+16.39 MB over the folded dense form)
+  the handoff counted this case as up to 8,016 groups, 8.76 GB
