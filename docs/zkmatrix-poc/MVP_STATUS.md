@@ -801,6 +801,17 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 03:08 UTC, the two Rust branches are merged [MEASURED: two full gates by me;
+    independent reads of the branches and of my fix].** What the app's prover gains: when the GPU
+    reports a command error, the request is finished on the CPU instead of the whole server stopping
+    (with the app's setting). The second branch makes a cache key depend on the tables' content.
+    What it does not give: a server that survives an internal crash; the crash guard on the branch
+    acts in test builds only, and the code and records now say so. Default-path speed was measured
+    on Nov 25 and is unchanged within that set's rule. Open for Victor: should a server survive a
+    crash in-process, or is a restart by the app enough; and two points of the first read (after one
+    recovered GPU error a Metal build of the older stack server refuses later requests; GPU faults
+    that used to end an attempt now fall back to the CPU). Record:
+    `results/zk60_p23_merge_20261126/README.md`.
     **Nov 26, 02:24 UTC, the two Rust branches: the crash guard acts in test builds only; my fix is
     written; the merge waits for one more gate [READ and MEASURED by me; independent read of the
     fix].** The fix I had asked for is written on a branch of mine: the check server has no guard.

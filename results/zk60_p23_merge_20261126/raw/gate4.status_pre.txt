@@ -1,0 +1,14 @@
+2026-11-26T02:24:25Z
+RAM   189.63 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 16.0 of 252.5 GiB committed by guarded jobs
+  job  p23b-merge-gate3             gpu   need 16G since 2026-11-26T02:12:00Z
+LOCKS heavy HELD, build free
+GPU   521 of 196608 MiB used
+DISK  /System/Volumes/VM 72.3 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+  rss  24025 MiB  pid 48978   agy
+  rss   6540 MiB  pid 61566   /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratc
+  rss   5505 MiB  pid 1578    claude
+  rss   2030 MiB  pid 25259   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma
+  rss   1559 MiB  pid 17265   claude
+  rss   1482 MiB  pid 25258   /System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.WebContent.xpc/Contents/Ma

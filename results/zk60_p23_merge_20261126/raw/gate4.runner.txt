@@ -1,0 +1,18 @@
+[zk60-guard 18:24:25] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:25:26] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:26:27] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:27:28] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:28:29] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:29:30] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:30:31] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:31:32] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:32:33] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:33:34] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:34:35] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:35:36] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:36:38] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:37:39] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:38:40] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:39:41] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:40:26] START p23b-merge-gate4 class=gpu need=16G cap=32G enforce=watchdog-only waited=961s run=424d6f0cb5f7
+[zk60-guard 19:08:40] END p23b-merge-gate4 exit=0 child_wall=1693s peak_rss=10.23G min_avail=186.64G peak_vram=5431MiB
