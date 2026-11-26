@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-26: Claude researcher tick 62, counted BLAKE3 compressions of one verification for the wrapper bill (claude-cycle, queue item 94)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T00:05Z.
+[Handoff](handoffs/20261126-claude-tick62-wrapper-hash-counts.md), script `20261126-claude-tick62-wrapper-hash-counts.py`, output `...wrapper-hash-counts.out.txt`.
+- **Tick 55's block counts stand; its request counts missed the join.** Exact BLAKE3 compressions (chunks of 1 KiB, parents, 64-byte salted leaf and path nodes; `pcs.rs:1317-1320`, `merkle.rs:120-127`, `transcript.rs:59-75`), reproducing the codec's A, H, M, boundary and endpoint byte totals: 412,788 to 415,419 a block (tick 55: 419,221), so 13.21 to 13.29 M (13.42 M) today and 6.80 to 6.88 M (6.90 M) at B6a for 32 blocks; the 31 boundary and 2 endpoint openings add 0.62 M: **13.83 to 13.92 M today, 6.99 to 7.08 M at B6a** (join vectors switched; 7.42 to 7.51 M if the join stays in today's form, item 101). Classifier 26 blocks, no join: 10.73 to 10.80 M.
+- Inside the block: leaf hash 191,632 (tick 55 198,750), paths and salts 12,288 (13,440: the mask tree has 12 hops and 256 columns), vector absorbs 208,615 (207,031). At B6a 94% of compressions are the unchanged A and H column and path hashing; the tower adds 7,719 a block (W 4,140, W2 2,520).
+- Layer 1 at B6a: 19.6 to 31.3 s by tick 55's methods (a 1.4% move), 6.2 to 9.9 cadences at the 3.18 s stream; with Sable v2's measured 1.3 to 2.4 us and 5,344 cells the honest range is 9 to 41 s. Tests T-H0 (the counter against a reference), T-H1 (a counting shim over one retained receipt verify, pass 13.83 to 13.92 M within 1%), T-H2 stated, not scheduled. Not counted: the non-PCS hashing of `verify_core` (item 104), B6b. 0 committed words changed; no proved-tokens-per-second effect.
+
 ## 2026-11-25: Claude researcher tick 61, whether a dense true-words weight commitment can answer padded-domain claims (claude-cycle, queue item 102)
 
 **COMPLETE, local reading and a toy computation only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-25T20:36Z.

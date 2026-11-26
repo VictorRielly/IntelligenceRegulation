@@ -801,6 +801,17 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 00:07 UTC, receipt size, study level [COUNTED by formula from the code's hashing rules
+    and the measured opening sizes; nothing run, nothing built]: one check of an 8B-shape request
+    makes about 13.8 to 13.9 million hash calls.** This matters for one route of the size study,
+    wrapping the receipt in a second, small proof, whose cost follows that count. The earlier
+    estimate (13.4 million) had left out the join between blocks. About half of the calls hash the
+    vectors a receipt sends in the clear, so the first size step would about halve the count; the
+    other half is the hashing of the commitments themselves. Making that half cheap for a wrapper
+    would mean changing the commitments' hash, which is a new profile with its own Lean proofs, not
+    a switch. The tick's time estimates for a wrapper are not carried forward: they rest on another
+    system's reported rates. No effect on speed. Record:
+    `research/zkp-efficiency/handoffs/20261126-claude-tick62-wrapper-hash-counts.md`.
     **Nov 25, 23:54 UTC, Lean for the installed profile, build check [MEASURED: my own build and
     axiom audit, rule posted before the run]: the 17 new files build; not yet read, not merged.**
     Antigravity's branch states, for the profile the app runs, the single-block soundness result
