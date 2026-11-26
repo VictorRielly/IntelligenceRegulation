@@ -1,0 +1,47 @@
+records read from results/zk60_astra_20261026/app_composed_native_20261122/qualification-20261125T070919.014403Z/
+manifest.json: entries 3 | lines of manifest_sha256 [36, 73, 110] | lines of receipt_uris [38, 75, 112] | profile note at line [172]
+manifest.json: signature alg Ed25519 | issuer name: Proven Media (local demo publisher, DEV KEY)
+RESULT.json: passed = False (line [2]) | guard_exit = 75 (line [117]) | public_fixture_only = True
+downloaded_store.json: accepted = True | publication_matches checks true: 3 of 3 (lines [6, 10, 14])
+
+== sexual (chunk 0): sexual.publication.json
+   inventory file: 4298 bytes, 0 newline characters (one line: every field is at line 1), sha256 30f2e99bb17892acaec807d51b64c835539274047a30de0c3812c5c461e82171
+   signed manifest entry bundle.manifest_sha256 equals the sha256 of this file: True | bundle.receipt_uris = 28
+   bundle keys in the signed manifest: ['manifest_sha256', 'manifest_uri', 'receipt_uris']
+   segments: 28 | key sets: [('bytes', 'file', 'sha256')] | names segment-000.. in order: True
+   with a 64-hex sha256: 28 of 28 | with a positive integer byte length: 28 of 28
+   sum of byte lengths: 669561472 | smallest 1415192 | largest 25570824 | distinct hashes 28
+   segments_json_sha256 = None | statement_sha256 is 64-hex: True | statement_uri scheme: local-cas | occurrences of "http" in the file: 0
+   verdict field: no | schema: zk60.publication-manifest/1
+   files in the store directory <runs>/<post id>-c0: present 28 of 28 | length equal 28 | sha256 equal 28 | bytes read 669561472 | other segment files 0
+
+== violence (chunk 1): violence.publication.json
+   inventory file: 4300 bytes, 0 newline characters (one line: every field is at line 1), sha256 4a9218f6428e6e03d73526f0c6bc8359b2687149977b7abdb1bb5df3f3f5a041
+   signed manifest entry bundle.manifest_sha256 equals the sha256 of this file: True | bundle.receipt_uris = 28
+   bundle keys in the signed manifest: ['manifest_sha256', 'manifest_uri', 'receipt_uris']
+   segments: 28 | key sets: [('bytes', 'file', 'sha256')] | names segment-000.. in order: True
+   with a 64-hex sha256: 28 of 28 | with a positive integer byte length: 28 of 28
+   sum of byte lengths: 669561472 | smallest 1415192 | largest 25570824 | distinct hashes 28
+   segments_json_sha256 = None | statement_sha256 is 64-hex: True | statement_uri scheme: local-cas | occurrences of "http" in the file: 0
+   verdict field: no | schema: zk60.publication-manifest/1
+   files in the store directory <runs>/<post id>-c1: present 28 of 28 | length equal 28 | sha256 equal 28 | bytes read 669561472 | other segment files 0
+
+== hate (chunk 2): hate.publication.json
+   inventory file: 4296 bytes, 0 newline characters (one line: every field is at line 1), sha256 d8f25fcc64186c446f33db068f73476cda00bdfcf8d6ca6b1a8c6866bccd82b7
+   signed manifest entry bundle.manifest_sha256 equals the sha256 of this file: True | bundle.receipt_uris = 28
+   bundle keys in the signed manifest: ['manifest_sha256', 'manifest_uri', 'receipt_uris']
+   segments: 28 | key sets: [('bytes', 'file', 'sha256')] | names segment-000.. in order: True
+   with a 64-hex sha256: 28 of 28 | with a positive integer byte length: 28 of 28
+   sum of byte lengths: 669561472 | smallest 1415192 | largest 25570824 | distinct hashes 28
+   segments_json_sha256 = None | statement_sha256 is 64-hex: True | statement_uri scheme: local-cas | occurrences of "http" in the file: 0
+   verdict field: no | schema: zk60.publication-manifest/1
+   files in the store directory <runs>/<post id>-c2: present 28 of 28 | length equal 28 | sha256 equal 28 | bytes read 669561472 | other segment files 0
+
+== one classifier receipt (sexual) against the fields of a hashed external reference
+   route A, one reference per file: references needed 28 | hash on record 28 | length on record 28 | http(s) URL on record 0
+   route B, one reference to one archive of the 28 files: digest of the archive on record 0 | length of the archive on record 0
+     (the files' lengths sum to 669561472 bytes [DERIVED]; an archive format adds its own framing, so neither value follows from the records)
+   route C, one reference to the inventory file: digest on record 1 (in the signed manifest, equal to the file's sha256) | length on record 0
+     (the file is 4298 bytes [COUNTED here]; it lists the 28 hashes and lengths) | http(s) URL on record 0
+   inventory bytes per receipt byte: 4298 / 669561472 = 1 / 155784 [DERIVED]
+== the whole item of this run: categories 3 | files 84 | bytes 2008684416

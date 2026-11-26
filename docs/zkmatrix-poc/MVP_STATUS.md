@@ -879,6 +879,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 10:16 UTC, product [counted by me from the app's retained records and by re-hashing
+    the receipt's files; those records are on the project's machine only; nothing built, no proof
+    verified in this count]: the app already records the hashes a Content Credentials reference
+    would need, and no web address.** One classifier receipt is 28 files. The app's record lists a
+    SHA-256 and a byte length for each of the 28 (sum 669,561,472 bytes), and the 84 files of the
+    run's three categories re-hash to those records. The app's signed manifest also holds one digest
+    per receipt: the SHA-256 of a 4,298-byte inventory that lists the 28 hashes. So one 32-byte
+    value that is already recorded fixes a whole receipt through two hash steps. A hashed external
+    reference in the standard needs an http or https address, a hash algorithm and a hash, and its
+    size field is optional (C2PA 2.5, section 9.4.2.2); SHA-256 is on its allowed list. What the
+    records lack is the address: every location in them is a local name. No digest or length of a
+    single archive of the 28 files is on record either. The manifest in these records is signed with
+    a development key, and the profile's own note reads "Public content only; privacy not claimed".
+    Handoff: `research/applications/handoffs/20261126-apps-receipt-reference-records.md`.
     **Nov 26, 08:07 UTC, product [read by the applications researcher from the full text of the
     specification; its quote-check script re-run by me on my own downloads with identical output;
     the key passages re-read by me; no manifest built, no validator run]: the Content Credentials
