@@ -1,0 +1,16 @@
+ok   legs per setting: six, four and four; 14 legs, 756 requests, all proved and checked
+ok   every receipt is 669,561,472 bytes
+ok   mean rates 48.637 / 48.963 / 49.997 padded positions a second
+ok   nine signed inventories of 28 segments each; 252 distinct segment hashes; 6,026,053,248 bytes
+ok   one measured archive: 2,008,826,368 bytes; three receipts are 2,008,684,416; the rest is 141,952
+ok   workloads: 1,680 received / 1,348 eligible / 8,919 requests and 5,083 / 4,888 / 18,251
+ok   | Six thread-setting legs, defaults | 48.637 | 32,830 | 6,184 / 4,962 | 9,143 / 8,793 |
+ok   | Four later tail-round legs, default C | 48.963 | 33,050 | 6,225 / 4,995 | 9,205 / 8,851 |
+ok   | Same later comparison, experimental D | 49.997 | 33,748 | 6,357 / 5,101 | 9,399 / 9,038 |
+ok   headline: about 4,962 eligible posts a day for the first mix and 8,793 for the second
+ok   | Mean per eligible text | 4.430 GB | 2.500 GB |
+ok   | Median per eligible text | 4.017 GB (6 receipts) | 2.009 GB (3 receipts) |
+ok   | 95th percentile per eligible text | 8.704 GB (13 receipts) | 6.026 GB (9 receipts) |
+ok   | All eligible texts in the source file | 5.972 TB | 12.220 TB |
+ok   sustained generation at the first row's rate: 21.982 decimal TB a day
+RESULT: ALL CHECKS PASSED

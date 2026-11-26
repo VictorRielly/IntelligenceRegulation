@@ -879,6 +879,24 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 18:40 UTC, applications [derived by Astra from the Nov 22 timing records and the A33
+    counts; every figure recomputed by me from the raw records with a script that imports nothing of
+    the app]: one machine could prove about 5,000 to 9,000 posts a day, depending on how long the
+    posts are, and each post carries gigabytes of receipts.** At the rate measured on Nov 22 for the
+    installed profile (48.637 padded positions a second over six legs, which is 32,830 proof
+    requests a day), the two text mixes of A33 give 4,962 eligible posts a day for the longer
+    moderation prompts and 8,793 for the chat messages. The two later Nov 22 settings give 4,995 and
+    8,851, and 5,101 and 9,038; they are separate measurements and are not combined. These are
+    projections for a prover that is never idle: queueing, publication, checking and transfer are
+    not in them, and no 24-hour run has been made. Receipts: each of the 756 measured receipts is
+    669,561,472 bytes, so an eligible text carries 4.430 GB on average in the first mix (median
+    4.017 GB) and 2.500 GB in the second (median 2.009 GB), and a machine working all day would
+    write 21.982 TB of receipts. Three publications of the same 14-token post share no receipt
+    segment (252 distinct hashes), so storing by content hash saves nothing across them. Still to
+    measure (Astra's proposal): one published post of 50 to 55 tokens, which needs four receipts,
+    and a sustained 24-hour run
+    (`research/applications/handoffs/20261126-apps-proving-capacity-by-workload.md` and its
+    `-recheck` files).
     **Nov 26, 18:33 UTC, product [files and hashes checked by me; contents scanned by me; the
     measurement and the test run are Astra's report]: a guest now sees how large the proof download
     is before starting it.** The post page asks the server for the size of the offline archive first
