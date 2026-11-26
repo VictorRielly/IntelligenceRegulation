@@ -1,0 +1,16 @@
+inner bits: {'Q': 12, 'K': 12, 'V': 12, 'Wo': 12, 'G': 12, 'U': 12, 'Wd': 14}
+round messages a block: today 93 ; four groups 54 ; one batch 15
+  today: <= 4464 B a block of rounds = 0.0174% of one block's receipt (25.59 MB)
+   four: <= 2592 B a block of rounds = 0.0101% of one block's receipt (25.59 MB)
+    one: <= 720 B a block of rounds = 0.0028% of one block's receipt (25.59 MB)
+  saving, one batch: <= 3744 B a block = 0.0146%
+A terminals a block: today 7 ; four groups 4 (QKV share A_Y at (r_q, rho), GU share A_YM at (r_tf, rho)) ; one batch 4 (Wo reads A_O8, Wd reads A_H16)
+  Q: 14-round batch pads 2 dummy rounds, claimed total scaled by 2^2 = 4
+  K: 14-round batch pads 2 dummy rounds, claimed total scaled by 2^2 = 4
+  V: 14-round batch pads 2 dummy rounds, claimed total scaled by 2^2 = 4
+  Wo: 14-round batch pads 2 dummy rounds, claimed total scaled by 2^2 = 4
+  G: 14-round batch pads 2 dummy rounds, claimed total scaled by 2^2 = 4
+  U: 14-round batch pads 2 dummy rounds, claimed total scaled by 2^2 = 4
+  Wd: 14-round batch pads 0 dummy rounds, claimed total scaled by 2^0 = 1
+hosts (layout.rs:1107-1114): DZC [Wo,Dmm], QZC [Qmm,PV], KVZC [Kmm,Vmm], SZC [RS,SCORE], FZC [Gmm,Umm], TZC [SS,SSM]
+slot order (layout.rs:982-990): QMM 5, SCORE 8, PV 9, WO 10, DMM 13: every hosted private slot runs before its host (test layout.rs:1642-1652)

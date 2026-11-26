@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-26: Claude researcher tick 65, can the seven weight-matmul slots be one batched sumcheck given the hosted totals (claude-cycle, queue item 108)
+
+**COMPLETE, local reading and arithmetic only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T11:52Z.
+[Handoff](handoffs/20261126-claude-tick65-batched-matmul-hosted.md), script `20261126-claude-tick65-batched-matmul-hosted.py`, output `...batched-matmul-hosted.out.txt`.
+- **The hosted totals separate, so the fail line does not fire.** A matmul slot publishes one masked scalar; its host's claimed sum is `sp.scalar + sum coef * acc.scalars[hs]` at the instance's own point (`argument.rs:2255, 2034, 3253-3257, 3394-3398`). A batched slot must publish seven scalars, not one total, and needs its own `lambda` drawn after them: the host's `nu` is drawn in the host slot, after the slots it hosts (`argument.rs:3405`; `layout.rs:1642-1652`).
+- **The pairs are claim pairs in the host, not batched matmuls** (`HOSTS`, `layout.rs:1107-1114`); PV is not a weight matmul. The seven `c_k` and masks stay per instance (each hosted exactly once, `layout.rs:1648-1652`), so `M_ROWS` does not shrink; eval functionals fall 3 (four groups).
+- **Changes named:** four groups {QKV}, {Wo}, {GU}, {Wd} (the smaller list: Q, K, V share `A_Y` at one point, G and U `A_YM`; Wo redraws `r_q`, Wd has 14 inner bits); full merge adds dummy rounds (x4 scale on six instances) and four distinct A points. Round messages 93, 54, 15 a block (at most 0.015% of a block receipt saved): the value is only tick 63's P3 weight bytes. Tests T-B1 to T-B3 not scheduled. 0 committed words changed; no proved-tokens-per-second effect.
+
 ## 2026-11-26: Claude researcher tick 64, what Sable v2's measured BLAKE3 rate covers and whether it transfers (claude-cycle, queue item 107)
 
 **COMPLETE, web reading and arithmetic** (0 searches, 5 page reads; the PDF could not be decoded, Sections 10.2, 10.3 and 11.1 read through the fetch tool's summary); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T07:51Z.

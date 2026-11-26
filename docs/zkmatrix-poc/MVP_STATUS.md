@@ -879,6 +879,21 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 11:55 UTC, receipt size, study level (D82) [read from the code by the researcher; its
+    script re-run by me with identical output; the cited code lines read by me; nothing built or
+    run]: merging a block's seven weight matmul checks is possible on paper and saves almost nothing
+    while weights are public.** Today each of the seven weight matmuls of a block runs its own
+    sumcheck and publishes one masked scalar, and a later host check reads each scalar separately
+    (`argument.rs:2255`). So a merged check would have to publish one scalar per matmul and draw its
+    own combining challenge, because a host draws its own only after the checks it hosts. Counted at
+    the 8B shape, a merge would cut the round messages of these checks from 93 a block to 54 (four
+    groups) or 15 (one batch). Under an assumed message size the saving is at most 3,744 bytes a
+    block, under 0.02 percent of the mean 25.6 MB of receipt a block. The merge would matter only
+    for a future profile that hides weights (P3): tick 63's formula-level figures put the weight
+    openings at 429.6 MB for seven groups a block, 324.7 MB for four and 219.9 MB for one (8B, dense
+    layout). It would change the slot schedule, the transcript, the verifier and the Lean
+    statements. Nothing is proposed for building. Handoff:
+    `research/zkp-efficiency/handoffs/20261126-claude-tick65-batched-matmul-hosted.md`.
     **Nov 26, 10:16 UTC, product [counted by me from the app's retained records and by re-hashing
     the receipt's files; those records are on the project's machine only; nothing built, no proof
     verified in this count]: the app already records the hashes a Content Credentials reference
