@@ -33,6 +33,20 @@ of the L69 check). The number of modules the probe rebuilt is reported; none is 
 A wrong name in AxiomsW16U1.lean (an "unknown constant" error) is an error of this harness, not a result about the branch: it
 is corrected and step 4 alone is repeated under a new label, and the record says so.
 The check says nothing about whether the definitions mean what the documents say; that is a read, not a build.
+
+ROOT STEP, added 2026-11-26 after `check1` and before its own run (the author had not answered the request for the root
+imports; the coordinator adds them as a covering step):
+       run_check.py prepare-root         append the 17 import lines (dependency order) to the scratch copy's ZK60Formal.lean,
+                                         which must not have any of them yet; write AxiomsW16U1Root.lean, which imports ONLY
+                                         the root; record the time in root_t0.txt
+       run_check.py launch <label> leaf-root
+       run_check.py summary-root <label>
+Steps of `leaf-root`: (1) `lake build ZK60Formal`; (2) `lake env lean AxiomsW16U1Root.lean`.
+PASS RULE of the root step, written before its run: both steps exit 0; no error line and no warning with the word sorry in
+step 1; none of the 17 modules is rebuilt in step 1 (their products of `check1` stand; a rebuild would mean the sources
+changed); the root's own .olean is newer than root_t0.txt; the six axiom reports are present through the root import alone
+and name only the three standard axioms. The line appended to the repository's root file must then be byte-identical to the
+17 lines of the scratch copy.
 """
 import io
 import os
@@ -149,6 +163,69 @@ def leaf(only_axioms=False):
     return 1 if bad else 0
 
 
+ROOT_ORDER = ["RunShapeShieldU1", "BlockInstW16Shield", "BlockDefineW16Shield", "BlockW16U1Base", "BlockW16U1TabBase",
+              "BlockW16U1TabForm", "BlockW16U1Help", "BlockW16U1HostTzc", "BlockW16U1HostDzc", "BlockW16U1HostQkv",
+              "BlockW16U1HostSzc", "BlockW16U1HostFzc", "BlockW16U1Hosts", "BlockW16U1LookBase", "BlockW16U1LookCov",
+              "BlockW16U1LookRel", "BlockW16U1Done"]
+ROOT_LINES = "".join(f"import ZK60Formal.{m}\n" for m in ROOT_ORDER)
+
+
+def prepare_root():
+    assert sorted(ROOT_ORDER) == family() and len(ROOT_ORDER) == 17
+    rp = F / "ZK60Formal.lean"
+    root = rp.read_text()
+    assert root.endswith("\n") and not any(f"import ZK60Formal.{m}\n" in root for m in ROOT_ORDER)
+    # each module is listed after everything of the family it imports
+    seen = set()
+    for m in ROOT_ORDER:
+        deps = re.findall(r"^import ZK60Formal\.(\w+)$", (F / "ZK60Formal" / (m + ".lean")).read_text(), flags=re.M)
+        assert all(d in seen for d in deps if FAM.match(d)), (m, deps)
+        seen.add(m)
+    (SCR / "root_t0.txt").write_text(str(time.time()) + "\n")
+    rp.write_text(root + ROOT_LINES)
+    (F / "AxiomsW16U1Root.lean").write_text("import ZK60Formal\n" + "".join(f"#print axioms {t}\n" for t in TOPS))
+    print("appended 17 import lines to the scratch root; it now has", (root + ROOT_LINES).count("\nimport ") + 1, "import lines")
+
+
+def leaf_root():
+    env = dict(os.environ, LEAN_NUM_THREADS="4", PYTHONDONTWRITEBYTECODE="1")
+    bad = 0
+    for name, argv in (("root", [LAKE, "-d", str(F), "build", "ZK60Formal"]),
+                       ("axioms", [LAKE, "-d", str(F), "env", "lean", str(F / "AxiomsW16U1Root.lean")])):
+        print(f"=== STEP {name} START {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())} argv {' '.join(argv[1:])}", flush=True)
+        rc = subprocess.run(argv, env=env, stdin=subprocess.DEVNULL).returncode
+        print(f"=== STEP {name} EXIT {rc} {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}", flush=True)
+        bad += rc != 0
+    return 1 if bad else 0
+
+
+def summary_root(label):
+    log = (RAW / (label + ".log")).read_text(errors="replace")
+    done = RAW / (label + ".done")
+    fin = done.exists() and done.read_text().strip() == "0"
+    root = log.split("=== STEP root START")[1].split("=== STEP root EXIT")[0]
+    rc_root = re.search(r"^=== STEP root EXIT (-?\d+)", log, re.M).group(1)
+    ax = log.split("=== STEP axioms START")[1]
+    rc_ax = re.search(r"^=== STEP axioms EXIT (-?\d+)", log, re.M).group(1)
+    rows = root.split("\n")
+    errs = [l for l in rows if re.search(r"\berror\b", l)]
+    sorry = [l for l in rows if "warning" in l and "sorry" in l]
+    fam_built = re.findall(r"Built ZK60Formal\.(?:" + FAMSRC[1:-1] + r")\b", root)
+    all_built = re.findall(r"Built (ZK60Formal[.\w]*)", root)
+    t0 = float((SCR / "root_t0.txt").read_text())
+    ol = F / ".lake/build/lib/lean/ZK60Formal.olean"
+    fresh = ol.exists() and ol.stat().st_mtime >= t0
+    reps = re.findall(r"'([^']+)' depends on axioms: \[([^\]]*)\]", ax.replace("\n", " "))
+    other = sorted({a.strip() for _, x in reps for a in x.split(",") if a.strip()} - ALLOWED)
+    names = sorted(n for n, _ in reps)
+    print(f"root build: exit {rc_root}; error lines {len(errs)}; warnings with the word sorry {len(sorry)}; modules built {all_built}; "
+          f"of the 17 rebuilt {len(fam_built)}; root .olean newer than the import edit: {fresh}")
+    print(f"axioms through the root import alone: exit {rc_ax}; reports {len(reps)} of {len(TOPS)}; outside the three standard axioms: {other or 'none'}")
+    ok = (fin and rc_root == "0" and rc_ax == "0" and not errs and not sorry and not fam_built and fresh
+          and names == sorted(TOPS) and not other)
+    print("ROOT STEP:", "GREEN" if ok else "NOT GREEN (or unfinished)")
+
+
 def launch(label, mode="leaf"):
     RAW.mkdir(parents=True, exist_ok=True)
     log, gj, done = RAW / (label + ".log"), RAW / (label + ".guard.json"), RAW / (label + ".done")
@@ -232,5 +309,11 @@ if __name__ == "__main__":
         sys.exit(leaf())
     elif sys.argv[1] == "leaf-axioms":
         sys.exit(leaf(only_axioms=True))
+    elif sys.argv[1] == "prepare-root":
+        prepare_root()
+    elif sys.argv[1] == "leaf-root":
+        sys.exit(leaf_root())
+    elif sys.argv[1] == "summary-root":
+        summary_root(sys.argv[2])
     else:
         summary(sys.argv[2], tuple(sys.argv[3].split(",")) if len(sys.argv) > 3 else ("probe", "family", "oleans", "axioms"))

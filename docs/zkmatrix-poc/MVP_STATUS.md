@@ -801,6 +801,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 00:23 UTC, Lean for the installed profile [independent read by an Opus agent of about
+    2,700 of the 9,623 lines, with compiles; its three main points checked by me, two of them by my
+    own compiles]: no serious gap found in what was read.** The new single-block result assumes
+    exactly what the earlier result for the R13 profile assumed, and its assumptions can be met
+    together: the reader built a verifier model that satisfies them and applied the theorem to it.
+    Three things to carry: (1) the next item of the port, the run level, is larger than the file's
+    own note suggests, because the R13 run level was built on an R13-specific record that has no
+    counterpart yet for this profile; (2) the note names the wrong lemma for one assumption (the
+    fact holds, by a five-line proof); (3) some constants are typed in and tied to the code only by
+    a script or a comment. The reader also explains the speed of this port: the probability and
+    opening layers were already general, and the new lines are per-shape evaluations. Not read:
+    about 6,900 lines of per-part identities, which the build checks but nobody independent has
+    compared with the Rust definitions. Record:
+    `results/zk60_claude_review_20261116/W16U1_READ_20261126.md`.
     **Nov 26, 00:13 UTC, Lean, the chain merged on Nov 25 [independent read by an Opus agent on a
     prioritised scope, with three compiles; its highest finding verified by me]: no serious gap
     found; one limit added.** What was open on Nov 24 is closed by the reader's account: the
