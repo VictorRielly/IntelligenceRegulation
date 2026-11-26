@@ -1,0 +1,91 @@
+== A. quoted public pages ==
+PASS column layout holds: pub inputs: [T; WIDTH],
+PASS column layout holds: pub beginning_full_rounds: [FullRound<T, WIDTH, SBOX_DEGREE,
+PASS column layout holds: pub partial_rounds: [PartialRound<T, SBOX_DEGREE, SBOX_REGIS
+PASS column layout holds: pub ending_full_rounds: [FullRound<T, WIDTH, SBOX_DEGREE, SB
+PASS column layout holds: pub sbox: [SBox<T, SBOX_DEGREE, SBOX_REGISTERS>; WIDTH],
+PASS column layout holds: pub post: [T; WIDTH],
+PASS column layout holds: pub sbox: SBox<T, SBOX_DEGREE, SBOX_REGISTERS>,
+PASS column layout holds: pub post_sbox: T,
+PASS column layout holds: pub struct SBox<T, const DEGREE: u64, const REGISTERS: usize
+PASS constraints: degree 7 with no register is x^7 directly
+PASS constraints: degree 7 with one register commits x^3 and returns x3^2 * x
+PASS library 1: 4 + 4 full rounds
+PASS library 1: 22 partial rounds at width 12
+PASS library 2: width 12, degree 7, 8 full, 22 partial
+PASS issue: number and state | Mixed-hash Merkle trees
+PASS issue: the measured row
+PASS issue: 2^13 Goldilocks leaves
+PASS issue: a dev build
+PASS issue: width 16
+PASS issue: each leaf is one field element
+PASS issue comments: one core
+PASS issue comments: the implementation was unoptimised then
+PASS issue: ratios 2.4 and 9 (measured row) | 2.42 9.36
+     MINE: from the estimated row the ratio to Blake3 is 11.7
+PASS GPU library: Poseidon2, 8192 leaves, 8.4 ms with the GPU
+PASS GPU library: one NVIDIA L4
+PASS browser demo: 2^16 leaves 177.2 ms
+PASS browser demo: height 20, 2119.3 ms
+PASS browser demo: Chrome on a 2021 M1 Max
+PASS secondary page: heading of the timing table
+PASS secondary page: Monolith-64 210.5 ns
+PASS secondary page: Poseidon2 1291.5 ns (variable-time column)
+PASS secondary page: Monolith needs lookups in a circuit too
+== B. figures taken from this repository ==
+PASS tick 62: **412,788 to 415,419 compressions**
+PASS tick 62: **Per block 212,438 to 215,069;**
+PASS tick 62: **6.99 to 7.08 M at B6a**
+PASS tick 62: | **block** | **208,615** | **203,920** | **412,788 to 415,419** |
+PASS tick 62: columns only 194,040
+PASS tick 62: **9 to 41 s (3 to 13 cadences)**
+PASS tick 62: A and H columns 198,800 of 212,438 a block, 94%
+PASS tick 55: | column products per request | 1,062 M | 53.4 M | 2.6 M |
+PASS tick 55: **constant tail of 15 to 197 s**
+PASS tick 55: 16 cells an extension operation [AUTHORS, estimate, not measured]
+PASS tick 42: the split and the hash share
+PASS tick 58: verifier at B6a
+PASS tick 64: cells and rates
+PASS tick 21: block GPU
+PASS code: salted leaf at pcs.rs:695-701 of the GPU prover tree
+PASS code: four keys of 32 bytes, one keyed hasher (hashtag.rs:111-160)
+     note: in the root zkp-core/src/pcs.rs the salted leaf is at line 640 and there is no hashtag.rs beside it: True
+== C. derived figures, recomputed ==
+PASS cells at one register = 248 | handoff: **248 at R = 1**
+PASS cells at no register = 130 | handoff: **130 at R = 0**
+PASS ratio 16.5 to 41.1
+PASS permutations a column 313, 326; opened column 329, 342, 20
+PASS BLAKE3 side of the same columns: 348 and 362, 203,920 in all
+PASS absorbed vectors = 196314 | handoff: absorbed vectors 196,314 (208,615)
+PASS block today = 389567 to 392198 | handoff: 389,567 to 392,198 permutations
+PASS B6a block = 200702 | handoff: B6a block 200,702
+PASS B6a request = 6.63 M | handoff: request at B6a 6.63 M
+PASS 5 to 7% fewer than compressions | 5.2% 6.4%
+PASS hash cells = 1.64 G and 0.86 G, products 0.85 G | handoff: hash cells 1.64 G (R = 1) or 0.86 G (R = 0)
+PASS total cells = 1.72 to 2.50 G | handoff: Total 1.72 to 2.50 G cells
+PASS seconds at this prover rate = 1.9 to 2.7 s | handoff: **1.9 to 2.7 s**
+PASS per-cell rates 0.24 to 0.45 ns
+PASS seconds at the other system fastest rate alone (the handoff writes 0.7 for the upper end) = 0.42 to 0.61 s | handoff: 0.4 to 0.7 s
+     MINE: over both of that system rates, as the handoff words it (0.24 to 0.45 ns): 0.4 to 1.1 s
+PASS MINE: over both rates the range is 0.4 to 1.1 s, inside 0.4 to 2.7 s
+PASS encoded words and permutations a block = 167.2 M, 20.9 M | handoff: 167.2 M words (1.34 GB), 20.9 M permutations a block
+PASS multiplications a permutation = 736 | handoff: about 736 a permutation
+PASS multiplications a block = 15.4 G | handoff: 15.4 G a block
+PASS rate bounds = 89.6 and 478 G/s | handoff: **89.6 G/s**
+PASS the assumed ceiling is 478 G/s
+PASS 32 and 172 ms a block | 32.2 171.7
+PASS 8 to 50 times slower | 8.3 50.5
+PASS extra a block = +28 to +168 ms | handoff: **+28 to +168 ms a block
+PASS share of block GPU = +31% to +184% | handoff: +31% to +184% of block GPU 91.46 ms
+PASS extra a request = +0.9 to +5.4 s | handoff: +0.9 to +5.4 s a request**
+PASS browser demo per permutation 1.0 to 1.35 us, 21 to 28 s a block
+PASS verifier hashing on one thread = 8.6 s | handoff: **8.6 s on one thread**
+PASS four field words are 255.99 bits
+== MINE: three remarks, not in the handoff ==
+  1. like for like (constraint degree 3 on both sides): 16.5 to 21.5 times fewer cells a step; layer 1 0.6 to 2.7 s
+PASS MINE 1: degree-3 range is 0.6 to 2.7 s
+  2. share of a B6a block that is the opened columns own words: BLAKE3 88.3 to 89.4%, field hash 89.1%; prover side: 99.38% of the permutations are column words (the rest is the tree)
+PASS MINE 2: the columns own words are 88 to 90% of the hashing on the checking side
+  3. by operation count at the rate the shipped BLAKE3 kernel already reaches (ASSUMED counts, not measured): 22080 against 800 word operations a step, 27.6 times; 94 to 108 ms a block
+PASS MINE 3: that figure lies inside the 32 to 172 ms range
+checks: 80, failed: 0

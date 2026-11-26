@@ -879,6 +879,26 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 20:03 UTC, research [tick 67: web reading and arithmetic; the cited pages re-read in
+    my own copies and every derived figure recomputed; nothing built or run]: swapping the
+    commitment hash for a field hash would make a wrapper proof cheaper and every request slower, so
+    it is a trade and nothing is scheduled.** A wrapper proof (a small proof that the large proof
+    was checked) must repeat the checker's hashing inside a circuit. With today's hash, BLAKE3, that
+    hashing was priced at 9 to 41 s a request at the B6a design point (ticks 62 and 64). A field
+    hash (Poseidon2 over our field, width 12) takes 248 trace cells a step at constraint degree 3
+    [COUNTED from the published column layout] against 4,096 to 5,344 for a BLAKE3 step [authors],
+    which puts that hashing at about 0.6 to 2.7 s [DERIVED with borrowed per-cell rates]. The cost
+    is on the proving side: the prover hashes every committed column, and a field-hash step is about
+    736 field multiplications where BLAKE3 is bit operations, so the commitment hash would go from
+    3.4 to 3.9 ms a block to 32 to 172 ms [DERIVED from assumed operation counts and two assumed
+    device rates; not measured], which is 0.9 to 5.4 s more a request if all of it lands on the
+    stream's 3.18 s period. The checker's hashing would slow as well. The trade cannot be split
+    between tree levels: about nine tenths of what a wrapper re-hashes, and nearly all of what the
+    prover hashes, is the columns' own words. A wrapper's constant tail of 15 to 197 s is untouched,
+    and a hash swap would change every root, the verifier and the Lean model, so it would need the
+    owner's ruling. Three small tests are stated, none scheduled
+    (`research/zkp-efficiency/handoffs/20261126-claude-tick67-field-hash-wrapper.md`, with the
+    coordinator's check at its end).
     **Nov 26, 18:40 UTC, applications [derived by Astra from the Nov 22 timing records and the A33
     counts; every figure recomputed by me from the raw records with a script that imports nothing of
     the app]: one machine could prove about 5,000 to 9,000 posts a day, depending on how long the

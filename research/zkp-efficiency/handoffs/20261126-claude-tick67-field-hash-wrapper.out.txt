@@ -1,0 +1,31 @@
+== Poseidon2 AIR columns a permutation (Plonky3 formula, COUNTED in columns.rs; widths ASSUMED) ==
+  SBOX_REGISTERS=1: 248 cells (max constraint degree 3 (x^3 kept in a register)); BLAKE3 4,096 -> x16.5, 5,344 -> x21.5 fewer
+  SBOX_REGISTERS=0: 130 cells (degree-7 constraints, no register); BLAKE3 4,096 -> x31.5, 5,344 -> x41.1 fewer
+
+== Field-sponge permutations a block (DERIVED; BLAKE3 numbers from tick 62) ==
+  per opened column: A 329 (BLAKE3 348), H 342 (362), M 20 (20)
+  columns, salts, paths: 193,000 (BLAKE3 203,920)
+  absorbed vectors today: 196,314 (BLAKE3 208,615) ratio 0.941
+  block today: 389,567 to 392,198 (BLAKE3 412,788 to 415,419) ratio 0.944
+  tower 7,702; B6a block 200,702 (BLAKE3 212,438 to 215,069) ratio 0.933 to 0.945
+  join (33 openings, columns only) 194,040 (BLAKE3 194,040)
+  request at B6a: 6.63 M perms (BLAKE3 6.99 to 7.08 M), 0.936 to 0.948
+
+== Layer 1 (wrapper) cells and seconds at B6a ==
+  regs=1: hash cells 1.64 G + ext-op cells 0.85 G = 2.50 G; at our 1.094 ns a cell 2.7 s (0.86 cadences); at Sable's 0.24 ns a cell 0.61 s
+  regs=0: hash cells 0.86 G + ext-op cells 0.85 G = 1.72 G; at our 1.094 ns a cell 1.9 s (0.59 cadences); at Sable's 0.24 ns a cell 0.42 s
+  BLAKE3 at 4096 cells: 28.7 G cells (+ ext 0.85 G) -> 32.3 s at our rate
+  BLAKE3 at 5344 cells: 37.4 G cells (+ ext 0.85 G) -> 41.9 s at our rate
+  tail of 15 to 197 s (tick 55 s3) unchanged by the hash
+
+== Prover side: the commitments hash every encoded column (DERIVED) ==
+  encoded words hashed a block (A+H): 167.2 M = 1.34 GB; perms 20.9 M; mulmods a perm ~736
+  NTT-implied lower bound on mulmod rate: 1.25 G butterflies / 14.0 ms = 89.6 G/s (tick 21/42 split, rows pairing ASSUMED)
+  hardware ceiling (ASSUMED 80 cores x 128 lanes x 1.4 GHz / 30 ops a mulmod): 478 G/s
+  NTT-implied: 15.4 G mulmods -> 172 ms a block; extra over BLAKE3 hash (3.4 to 3.9 ms): +168 to +168 ms; +184% of block GPU 91.46 ms; request x32: +5.4 s against cadence 3.18 s (full pass-through)
+  ceiling: 15.4 G mulmods -> 32 ms a block; extra over BLAKE3 hash (3.4 to 3.9 ms): +28 to +29 ms; +31% of block GPU 91.46 ms; request x32: +0.9 s against cadence 3.18 s (full pass-through)
+  WebGPU demo (M1 Max, browser): 2^16 leaves 177.2 ms, 2^20 leaves 2,119 ms; at one perm a leaf and one a node: 1.35 and 1.01 us a perm -> 21 to 28 s a block at those rates (upper bound, leaf width unstated)
+
+== Verifier CPU (one thread) ==
+  6.63 M perms x 1291.5 ns = 8.6 s (Monolith page, Goldilocks t=12, variable-time [secondary])
+  Plonky3 issue 476: Poseidon2 about 9x slower than Blake3 on Goldilocks (Merkle, 2^13 leaves, dev build, w16)

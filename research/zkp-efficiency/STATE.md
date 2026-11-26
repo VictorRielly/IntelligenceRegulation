@@ -2,6 +2,14 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-26: Claude researcher tick 67, which hash makes a wrapper cheap and what it costs the commitments (claude-cycle, queue item 95)
+
+**COMPLETE, web reading and arithmetic** (5 searches, 9 fetches attempted, 3 refused: ePrint 2026/1931 and 2023/107 and the ToSC Monolith PDF); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T19:52Z.
+[Handoff](handoffs/20261126-claude-tick67-field-hash-wrapper.md), script `20261126-claude-tick67-field-hash-wrapper.py`, output `...field-hash-wrapper.out.txt`.
+- **Wrapper side:** a Goldilocks width-12 Poseidon2 permutation is 248 AIR cells (degree 3) or 130 (degree 7) by Plonky3's column formula (COUNTED, `columns.rs`), against 4,096 to 5,344 for a BLAKE3 compression [Sable], for the same 64 bytes. Permutations a request at B6a: 6.63 M (BLAKE3 6.99 to 7.08 M, only 5 to 7% fewer: the columns' bytes dominate). Layer 1 at B6a: 0.4 to 2.7 s (1.9 to 2.7 s at our 1.094 ns a word) against 9 to 41 s; the verifier's extension products (0.85 G cells) now equal the hash part. The 15 to 197 s tail is unchanged.
+- **Commitment side:** the prover hashes every encoded column (167.2 M words, 20.9 M permutations a block, about 736 multiplications each, ASSUMED): 32 to 172 ms a block against 3.4 to 3.9 ms today, +0.9 to +5.4 s a request at full pass-through; the verifier's one-thread hashing about 8.6 s at a secondary 1,291.5 ns a permutation. The swap trades a cheaper wrapper for a slower prover and verifier; salted leaf and the four 32-byte keys map onto 4 + 4 words and 4 capacity words. Tests T-P1 (device kernel), T-P2, T-P3 stated, not scheduled. 0 committed words changed. H167b.
+- **Coordinator's check (2026-11-26):** script re-run, output identical; quoted pages re-read in my own copies and every derived figure recomputed (80 checks). The pairing of degree and registers is read in `air.rs`, no longer assumed. Like for like (degree-3 constraints on both sides) the cell ratio is 16.5 to 21.5 times and layer 1 is 0.6 to 2.7 s; the 130-cell form has degree-7 constraints and is a floor. Section 3's "0.4 to 0.7 s" is 0.4 to 1.1 s over the two rates it names. The cited code lines are in `ops/zkp-mvp/gpu-metal/zkp-core/src/`. The commitment-side range rests on assumed counts and rates, and the 8.6 s on a secondary page only. See the check note at the end of the handoff and `...field-hash-wrapper-crosscheck.py`.
+
 ## 2026-11-26: Claude researcher tick 66, odd-factor layout for the embedding and head tables (claude-cycle, queue item 105)
 
 **COMPLETE, local reading and a toy computation only** (0 searches, 0 fetches); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T15:51Z.
