@@ -26,3 +26,17 @@ rule is in the docstring of `run_check.py`.
   same 17 lines to `formal/ZK60Formal.lean`; the root file and the 17 sources in the repository are byte-identical to the
   private copy that was built.
 - **Independent read:** `results/zk60_claude_review_20261116/W16U1_READ_20261126.md` (about 2,700 of 9,623 lines; no High finding).
+
+## Covering module `BlockW16U1Cover.lean` (Nov 26)
+
+Two facts of the independent read (M2, M3) as one new file of 146 lines, written by the co-coordinator after the author had not
+answered: `cov_layR_c0` (`LayR` at `c0` for `shdP_bitLay`, the lemma the header of `BlockW16U1Done.lean` should cite), and a record
+`covParamsW16` with `cov_isShieldW16` and `cov_block_knowledge_w16r2_shieldU1` (the last theorem applied to it, conclusion written
+out). The record is a satisfiability witness with placeholder fields; the file header lists them. Item (6) is not started.
+
+- Runner `run_cover.py`, rule in its docstring, posted before the recorded run.
+- **`cover1` (guard run `86bd947eca68`, 24 s, peak 3.95 GiB): GREEN.** The module builds alone (exit 0, no error line); the root builds with the
+  import line appended, and neither this module nor any of the 17 is rebuilt in that step; three axiom reports through the root
+  import alone, each on `propext`, `Classical.choice`, `Quot.sound`.
+- The file and the root line in the repository are byte-identical to the private copy that was built.
+- **Not read independently:** this is the co-coordinator's own text. A pass means "builds, three standard axioms".

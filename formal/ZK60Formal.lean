@@ -655,3 +655,4 @@ import ZK60Formal.BlockW16U1LookBase
 import ZK60Formal.BlockW16U1LookCov
 import ZK60Formal.BlockW16U1LookRel
 import ZK60Formal.BlockW16U1Done
+import ZK60Formal.BlockW16U1Cover

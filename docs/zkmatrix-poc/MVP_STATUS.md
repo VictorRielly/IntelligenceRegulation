@@ -801,6 +801,15 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 02:13 UTC, Lean for the installed profile: two loose ends of the independent read are
+    tied [MEASURED: my build check; my own text, not read independently].** The read had found that
+    the single-block theorem credited one of its premises to a lemma of the wrong type, and that the
+    structure naming "the verifier" had never been built for any record. One new file now proves the
+    lemma in the right form and builds one record that meets every verifier-identity premise, with
+    the theorem applied to it, so the theorem is shown to apply to something. The record is a
+    stand-in with placeholder fields, not the app's own verifier record: pinning that down is the
+    run-level item, still open and still with Antigravity. Record:
+    `results/zk60_lean_w16u1_check_20261126/README.md`.
     **Nov 26, 00:25 UTC, Lean for the installed profile: the single-block step is merged [MEASURED:
     my build check and root build; read once independently in part].** The 17 files are in the tree
     and are now part of the normal build (I added the 17 import lines myself, as the author had not
