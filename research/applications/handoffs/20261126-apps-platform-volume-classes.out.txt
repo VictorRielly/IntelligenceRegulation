@@ -1,0 +1,56 @@
+== inputs (sha256, bytes)
+data_sources.html 7e6d624685ed914ed16b2f3f866095c5cce12ff5395b923c5639de6f09509340 24925
+download.html 7bbbf8ea2e6b260d6741149856571e25e80eccf65e297b32eb8518a439f23cf8 213951
+aggregated-simple-2026-05-01-csv.zip 385aec6232bafa34f4e93c85e138338383ca42e90a209fddad471349f274bcbd 1198577
+
+== quoted sentences re-checked against the files
+FOUND | https://dsa.pages.code.europa.eu/transparency-database/dsa-tdb/data_sources.html, section "Aggregated data" | We provide aggregated data in both CSV and parquet format.
+FOUND | same page, section "Aggregated data" | These aggregated views report the overall count of Statements of Reasons (SoRs) that share the same value in a specific subset of the categorical features.
+FOUND | same page, section "Aggregated data", list "In aggregating the data" | The created_at datetime field is truncated (floored) at the day level.
+FOUND | same page, same list | The count of SoRs is reported in the count column.
+FOUND | same page, section "Versions", Limited version | This version contains the SoRs data aggregated in a way to reproduce the website version of the dashboard
+FOUND | same page, section "Versions", Limited version, group-by list | platform_name created_at (truncated to day) source_type
+FOUND | same page, section "Aggregated data", file naming | aggregated - { simple , complete } - YYYY - MM . { parquet , csv } . zip
+FOUND | same page, section "Aggregated data", warning | The aggregated data provisioning is still in an experimentatl phase and are not guaranteed to be up-to-date with the raw data.
+FOUND | https://transparency.dsa.ec.europa.eu/explore-data/download, notification | You can also download daily aggregates of statements of reasons submissions in csv or Parquet format.
+quotations found: 9 of 9
+
+== archive (never extracted)
+members: 5, declared uncompressed total: 1210776 bytes (stop rule: > 314572800)
+csv.gz parts: 2
+data rows per part: [44105, 48537] total rows: 92642
+rows with an unreadable count: 0
+rows with an empty platform_name: 0
+
+== columns (header of the file)
+automated_decision,automated_detection,category,CONTENT_TYPE_APP,CONTENT_TYPE_AUDIO,CONTENT_TYPE_IMAGE,CONTENT_TYPE_PRODUCT,CONTENT_TYPE_SYNTHETIC_MEDIA,CONTENT_TYPE_TEXT,CONTENT_TYPE_VIDEO,CONTENT_TYPE_OTHER,CONTENT_TYPE_LINK,CONTENT_TYPE_ACCOUNT,CONTENT_TYPE_AD,CONTENT_TYPE_STICKER,CONTENT_TYPE_HASHTAG,decision_account,decision_ground,decision_monetary,decision_provision,DECISION_VISIBILITY_CONTENT_REMOVED,DECISION_VISIBILITY_CONTENT_DISABLED,DECISION_VISIBILITY_CONTENT_DEMOTED,DECISION_VISIBILITY_CONTENT_AGE_RESTRICTED,DECISION_VISIBILITY_CONTENT_INTERACTION_RESTRICTED,DECISION_VISIBILITY_CONTENT_LABELLED,DECISION_VISIBILITY_OTHER,platform_name,created_at,source_type,count
+
+== what a row counts
+One row = one combination of (automated_decision, automated_detection, category, content-type flags, decision fields,
+platform_name, day, source_type); the count column is the number of statements of reasons in that combination
+(SOURCE, quoted above). Summing count per platform gives that platform's statements in the file.
+distinct days present in the file: 31; months present: 2026-05; days in that month: 31
+days range from 2026-05-01 to 2026-05-31; calendar days missing from the file: 0
+
+== counts (COUNTED from the file, DERIVED means)
+platforms in the file (distinct platform_name values): 192
+statements in the month (sum of count): 491248553
+
+Basis: mean = month total / 31 calendar days of the month
+  class under 1,000      platforms:  124   statements:       352271   share of month:   0.07%
+  class 1,000 to 30,000  platforms:   48   statements:     11733281   share of month:   2.39%
+  class over 30,000      platforms:   20   statements:    479163001   share of month:  97.54%
+  check: platforms 192, statements 491248553
+
+Basis: mean = month total / days on which the platform appears
+  class under 1,000      platforms:  122   statements:       321670   share of month:   0.07%
+  class 1,000 to 30,000  platforms:   49   statements:     11419033   share of month:   2.32%
+  class over 30,000      platforms:   21   statements:    479507850   share of month:  97.61%
+  check: platforms 192, statements 491248553
+
+platforms whose class differs between the two bases: 3
+platforms present on every day in the file: 102 of 192
+platforms by number of days present: 1 day: 15, 2 to 7 days: 22, 8 to 30 days: 53, every day: 102
+largest platform share of the month: 56.07%
+top 5 platforms together: 81.02% of the month
+platform names printed: NONE

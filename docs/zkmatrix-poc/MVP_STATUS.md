@@ -879,6 +879,28 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 14:20 UTC, product [COUNTED by the applications researcher from one public monthly
+    file of the EU transparency database; recounted by me with a second parser and compared with the
+    website's daily table; the machine's rate MEASURED on Nov 22 and scaled to a day by arithmetic]:
+    in May 2026, 172 of the 192 platform names that filed statements of reasons each filed fewer a
+    day, on the month's mean, than one machine proves, and 20 names filed 97.5 percent of the
+    total.** The file is the database's pre-made aggregation for May 2026, the latest month offered
+    as CSV (1,198,577 bytes; 491,248,553 statements over 31 days, a mean of 15.8 million a day). By
+    mean statements a day over the 31 days: 124 names under 1,000 (0.07 percent of the month's
+    statements), 48 from 1,000 to 30,000 (2.39 percent) and 20 over 30,000 (97.54 percent); the
+    largest single name filed 56 percent and the top five 81 percent. Dividing by the days on which
+    a name appears instead gives 122, 49 and 21. Against the installed classifier profile's 32,805
+    to 33,750 requests a day per machine (the Nov 22 rate if it held for 24 hours, one policy and
+    one 128-position chunk per request): the 124 smallest together need about a third of one
+    machine, the 48 in the middle together 11.2 to 11.5 machines, and all 192 together 470 to 483.
+    My checks: the publisher's SHA-1 matches the file, and the file's 31 daily totals agree with the
+    website's own daily table to within 0.05 percent on every day. Limits: the month is May, and the
+    daily total over the 50 days to Nov 25 was about twice May's, so a recent month may count
+    differently; a name is a string in the file, not necessarily one company or one service; the
+    share of statements that concern text is not known (A29); a longer post needs several chunks;
+    the installed profile is "Public content only; privacy not claimed". No platform is named and no
+    target is recommended. Handoff:
+    `research/applications/handoffs/20261126-apps-platform-volume-classes.md`.
     **Nov 26, 12:04 UTC, product [the machine's rate MEASURED on Nov 22 and scaled to a day by
     arithmetic; the database's figures read by the applications researcher from its public pages and
     checked by me on my own downloads; no day-long run exists]: one machine covers about a tenth of

@@ -1,0 +1,54 @@
+== the zip
+bytes 1198577
+sha256 385aec6232bafa34f4e93c85e138338383ca42e90a209fddad471349f274bcbd
+sha1   75165ca490c50312442405d7154dc52c3a1fe425
+publisher sha1 file: 79 bytes, first field equals the zip sha1: True
+
+== recount (independent parser)
+rows 92642; days 31 (2026-05-01 to 2026-05-31); platforms 192; statements 491248553
+basis 31 days      under 1,000: 124 platforms, 352271 statements, 0.07%; 1,000 to 30,000: 48 platforms, 11733281 statements, 2.39%; over 30,000: 20 platforms, 479163001 statements, 97.54%
+basis days present under 1,000: 122 platforms, 321670 statements, 0.07%; 1,000 to 30,000: 49 platforms, 11419033 statements, 2.32%; over 30,000: 21 platforms, 479507850 statements, 97.61%
+largest 56.07%; top five 81.02%; top 20 97.54%
+platforms whose 31-day mean is within 10 percent of a class boundary: 3
+mean a day over the month: 15846727
+
+== against the website daily table (statements of reasons per day, all platforms)
+page rows 50 (2026-05-10 to 2026-06-28)
+page rows 50 (2026-03-21 to 2026-05-09)
+days of the file found in the table: 31 of 31
+table sum over those days: 491231345; file sum over those days: 491248553; file / table = 1.0000
+days on which the two are equal: 15
+lowest file/table ratio 1.0000 on 2026-05-04; highest 1.0004 on 2026-05-16
+days within 1 percent: 31
+  2026-05-01 table    19602850 file    19602850 ratio 1.0000
+  2026-05-02 table    14799145 file    14799145 ratio 1.0000
+  2026-05-03 table    14224119 file    14224066 ratio 1.0000
+  2026-05-04 table    11738507 file    11738233 ratio 1.0000
+  2026-05-05 table    13208235 file    13208235 ratio 1.0000
+  2026-05-06 table    18093555 file    18093556 ratio 1.0000
+  2026-05-07 table    20041305 file    20041307 ratio 1.0000
+  2026-05-08 table    17405997 file    17405997 ratio 1.0000
+  2026-05-09 table    13533179 file    13533171 ratio 1.0000
+  2026-05-10 table    14919997 file    14920007 ratio 1.0000
+  2026-05-11 table    13160872 file    13160872 ratio 1.0000
+  2026-05-12 table    13917174 file    13917174 ratio 1.0000
+  2026-05-13 table    17664900 file    17664900 ratio 1.0000
+  2026-05-14 table    19888520 file    19888520 ratio 1.0000
+  2026-05-15 table    14806284 file    14807223 ratio 1.0001
+  2026-05-16 table    14791070 file    14797394 ratio 1.0004
+  2026-05-17 table    14015295 file    14015295 ratio 1.0000
+  2026-05-18 table    19834342 file    19836972 ratio 1.0001
+  2026-05-19 table    20035284 file    20041496 ratio 1.0003
+  2026-05-20 table    17586539 file    17586539 ratio 1.0000
+  2026-05-21 table    18094156 file    18094156 ratio 1.0000
+  2026-05-22 table    14747899 file    14747899 ratio 1.0000
+  2026-05-23 table    13224562 file    13224562 ratio 1.0000
+  2026-05-24 table    11667925 file    11667925 ratio 1.0000
+  2026-05-25 table    12456738 file    12457236 ratio 1.0000
+  2026-05-26 table    16093587 file    16093657 ratio 1.0000
+  2026-05-27 table    19747905 file    19748323 ratio 1.0000
+  2026-05-28 table    23209387 file    23209676 ratio 1.0000
+  2026-05-29 table    13492124 file    13492198 ratio 1.0000
+  2026-05-30 table    12492231 file    12492307 ratio 1.0000
+  2026-05-31 table    12737662 file    12737662 ratio 1.0000
+table mean a day over those days: 15846172
