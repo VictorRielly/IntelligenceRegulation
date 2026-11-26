@@ -10,8 +10,12 @@ earlier design and are kept as history.
 - **What runs end to end:** the installed app proves the verdict of the trained 26-layer Shieldstral
   classifier on a 128-token request, and a separate verifier program checks the receipts. The design
   hides the input and every intermediate value and publishes the verdict; the weights are public
-  (P1). One outside author and one guest have used it end to end [by Astra; entry of Nov 24, 09:09
-  UTC].
+  (P1). The profile the app runs is a development profile for public content: the app's deployment
+  file on the project's machine says "Public content only; privacy not claimed" and "production:
+  false" for it. That profile is in Astra's working copy only; the committed `apps/proven-media/` is
+  the state of Nov 10, and its newest GPU profile reads "privacy statement pending" [Nov 26, 06:21
+  and later entries]. One outside author and one guest have used it end to end [by Astra; entry of
+  Nov 24, 09:09 UTC].
 - **8B:** at the 8B shape with test weights the prover runs at the rates below. On trained 8B
   weights there are two development proofs, both on the CPU: one of a single next token, of an
   export that later failed its quality test [entry of 2026-11-18], and one that Sol reports for the
@@ -70,7 +74,9 @@ slower profile with smaller receipts wanted [Nov 25, 01:56 UTC]; (2) crashes: sh
 survive an internal crash in-process, or is a restart by the app enough [Nov 26, 03:08 UTC]; (3)
 Lean: port to W16R2 now or wait for the next protocol version, and does the compiled Lean verifier
 stay a requirement [Nov 25, 19:28 UTC]; (4) product: which profile a first product ships, and under
-what label a pilot may be offered before D63 is met for it [Nov 24, 08:05 UTC].
+what label a pilot may be offered before D63 is met for it [Nov 24, 08:05 UTC]; (5) publication: may
+the app's current source (46 files) and the 48 record files of Astra and Sol that this page cites be
+committed to the public repository [Nov 26, 06:41 UTC].
 
 **2026-11-23 UTC, speed against the 50 tokens/s target [MEASURED; details and limits in the dated entries further down]:** on the synthetic 8B shape the stream proves 40.2 tokens/s with the two GPU switches merged on Nov 22 turned on, and 37.2 at the merged head's defaults (`results/zk60_composed_8b_20261123/README.md`). The trained 3B classifier that the app runs proves 48.6 to 50.0 tokens/s at six lanes with eight threads each (`results/zk60_lane_threads_20261122/README.md`). The two figures are different models and different tests and must not be merged. The switches are off by default; the 8B figure is a shape figure, not trained 8B weights.
 
@@ -873,6 +879,32 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 06:41 UTC, what the public repository holds [COUNTED by me from git and the files;
+    nothing of the other agents' was changed or committed]: the app version this page describes, and
+    51 record files this page cites, are on the project's machine only.** The last commit under the
+    app's directory is of Nov 10. Everything Astra has built since, including the whole profile the
+    app runs today, is 46 uncommitted files (0.6 MiB). This page cites 226 distinct paths; 167 are
+    in the public tree, and 55 exist only on the machine (51 files and 4 directories). The 51 files:
+    44 of Astra's record files, 4 of Sol's, 2
+    of an earlier coordinator batch and one of mine, 0.43 MiB together. Mine (a timing record of Nov
+    17) is committed with this note. Sol's whole result directory has no committed file. Why: Sol
+    and Astra work in sessions that cannot write to git, and my own push check refuses their
+    directories, so nobody commits their work. Their directories also hold large files and model
+    weights (378 GiB and 33 GiB), so they can never be committed whole; only the app source and the
+    small cited records are candidates. A pattern scan of the small text files found no key or
+    token; it did find path names of the owner-private store, which I have sampled, not read in
+    full. This is Victor's decision or the authors', and it is asked of them. One wording here is
+    corrected because of it: the profile the app runs is labelled in its own deployment file "Public
+    content only; privacy not claimed", and the short answer and the README now say so.
+    **Nov 26, 06:41 UTC, product [counted by the applications researcher with the pinned tokenizer;
+    its script re-run by me with the same output; the cited code lines re-read by me]: the app's
+    three policy texts take 72, 72 and 78 of the 128 tokens, as the statement for the earlier
+    profile says.** That leaves 55, 55 and 49 tokens of content per piece. The profile the app runs
+    has no policy texts of its own; it reads the same pinned template file as the earlier profile,
+    the three policy files match their pinned hashes, and the displayed text re-tokenizes to the
+    pinned token ids. Not checked: that the native prover and its export use these same ids (the app
+    compares them on every receipt; no receipt was opened). Record:
+    `research/applications/handoffs/20261126-apps-installed-policy-lengths.md`.
     **Nov 26, 06:30 UTC, product [counted by the applications researcher with the publishers' own
     tokenizer files; both of its scripts re-run by me with the same output; the cited code lines
     re-read by me]: two well-known open guard models do not drop into the app's 128-token profile.**

@@ -1,0 +1,42 @@
+s1_sampled: 4 sealing passes in the window (passes 2..5); lane seal_chain samples 3360, sealing walls (sampled run) 11.110 s => 3.307 ms/sample
+main line: 3358 samples = 2.776 s per pass (lane own 1138 + in-pool 2220); lane parked on the pool latch 2222 samples (cross-check vs in-pool 2220)
+per pass lane samples/ wall: p2: 678 / 2.553, p3: 859 / 2.747, p4: 918 / 2.946, p5: 905 / 2.864
+
+group table (s per pass at the sampled run's wall, share of main line):
+  a: 1.326 s  47.8%  (1604 samples)
+  b: 0.187 s  6.7%  (226 samples)
+  c: 0.708 s  25.5%  (856 samples)
+  d: 0.555 s  20.0%  (671 samples)
+  x: 0.001 s  0.0%  (1 samples)
+categories:
+  a_assign_alloc_zero                        0.019 s  0.7%  (23)
+  a_assign_limb_loops                        0.367 s  13.2%  (444)
+  a_cs3_check_accuracy_weight_scan           0.422 s  15.2%  (510)
+  a_cs3_exp                                  0.040 s  1.4%  (48)
+  a_cs3_histogram                            0.042 s  1.5%  (51)
+  a_cs3_layout_for_shape                     0.003 s  0.1%  (4)
+  a_cs3_looked_built                         0.066 s  2.4%  (80)
+  a_cs3_other                                0.001 s  0.0%  (1)
+  a_cs3_w16_histograms_cols                  0.317 s  11.4%  (383)
+  a_padded_plane                             0.012 s  0.4%  (14)
+  a_true_words                               0.022 s  0.8%  (27)
+  a_true_words_or_padded_inlined             0.016 s  0.6%  (19)
+  b_check_accuracy_weight_scan               0.162 s  5.8%  (196)
+  b_norm_a                                   0.018 s  0.7%  (22)
+  b_x_plane_zero                             0.007 s  0.2%  (8)
+  c_middle_other                             0.466 s  16.8%  (564)
+  c_norm_m                                   0.041 s  1.5%  (50)
+  c_other_product_prelude                    0.046 s  1.7%  (56)
+  c_qkv_requant_rotate                       0.154 s  5.5%  (186)
+  d_device_wait                              0.528 s  19.0%  (639)
+  d_pool_wait_join                           0.026 s  1.0%  (32)
+  x_lane_other                               0.001 s  0.0%  (1)
+workers (8): working samples 9738, device-wait-spin samples 1281, yield-spin 762; avg workers working during sealing 2.90; incl. device wait 3.28
+  hl-seal8-0: {'total': 8727, 'other_sleep': 6505, 'main_line_device_wait': 776, 'main_line_work': 1313, 'main_line_sleep': 54, 'main_line_spin': 77, 'other_work': 1, 'other_spin': 1}
+  hl-seal8-1: {'total': 8727, 'other_sleep': 7257, 'other_work': 1213, 'other_spin': 106, 'other_device_wait': 151}
+  hl-seal8-2: {'total': 8727, 'other_sleep': 7345, 'other_work': 1195, 'other_spin': 103, 'other_device_wait': 84}
+  hl-seal8-3: {'total': 8727, 'other_sleep': 7372, 'other_work': 1198, 'other_spin': 108, 'other_device_wait': 49}
+  hl-seal8-4: {'total': 8727, 'other_sleep': 7371, 'other_work': 1212, 'other_spin': 89, 'other_device_wait': 55}
+  hl-seal8-5: {'total': 8727, 'other_sleep': 7359, 'other_work': 1203, 'other_spin': 97, 'other_device_wait': 68}
+  hl-seal8-6: {'total': 8727, 'other_sleep': 7390, 'other_work': 1207, 'other_spin': 90, 'other_device_wait': 40}
+  hl-seal8-7: {'total': 8727, 'other_sleep': 7382, 'other_work': 1196, 'other_spin': 91, 'other_device_wait': 58}

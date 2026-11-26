@@ -1,0 +1,124 @@
+{
+ "s1": {
+  "total_working": 11019,
+  "top": [
+   [
+    "(no hashline frame) rayon::iter::plumbing::bridge_produc",
+    6813
+   ],
+   [
+    "(main line, see split)",
+    1313
+   ],
+   [
+    "(device wait spin in a product)",
+    1281
+   ],
+   [
+    "witness::accuracy::assign_with::_$u7b$",
+    959
+   ],
+   [
+    "witness::accuracy::build_with::_$u7b$$ > witness::accuracy::quantized_with",
+    116
+   ],
+   [
+    "(no hashline frame) rayon_core::registry::WorkerThread::",
+    102
+   ],
+   [
+    "(no hashline frame) rayon_core::join::join_context::_$u7",
+    98
+   ],
+   [
+    "(no hashline frame) crossbeam_epoch::internal::Global::t",
+    70
+   ],
+   [
+    "(no hashline frame) crossbeam_deque::deque::Stealer$LT$T",
+    51
+   ],
+   [
+    "(no hashline frame) crossbeam_epoch::default::with_handl",
+    44
+   ],
+   [
+    "(no hashline frame) __psynch_cvsignal",
+    39
+   ],
+   [
+    "witness::accuracy::build_with::_$u7b$$ > witness::matmul",
+    28
+   ],
+   [
+    "(no hashline frame) _platform_memmove",
+    24
+   ],
+   [
+    "(no hashline frame) __psynch_mutexdrop",
+    20
+   ]
+  ]
+ },
+ "s2": {
+  "total_working": 11204,
+  "top": [
+   [
+    "(no hashline frame) rayon::iter::plumbing::bridge_produc",
+    6996
+   ],
+   [
+    "(device wait spin in a product)",
+    1367
+   ],
+   [
+    "(main line, see split)",
+    1288
+   ],
+   [
+    "witness::accuracy::assign_with::_$u7b$",
+    932
+   ],
+   [
+    "witness::accuracy::build_with::_$u7b$$ > witness::accuracy::quantized_with",
+    117
+   ],
+   [
+    "(no hashline frame) rayon_core::registry::WorkerThread::",
+    97
+   ],
+   [
+    "(no hashline frame) rayon_core::join::join_context::_$u7",
+    96
+   ],
+   [
+    "(no hashline frame) crossbeam_epoch::internal::Global::t",
+    84
+   ],
+   [
+    "(no hashline frame) crossbeam_deque::deque::Stealer$LT$T",
+    55
+   ],
+   [
+    "(no hashline frame) crossbeam_epoch::default::with_handl",
+    33
+   ],
+   [
+    "(no hashline frame) __psynch_cvsignal",
+    29
+   ],
+   [
+    "(no hashline frame) _platform_memmove",
+    23
+   ],
+   [
+    "(no hashline frame) __psynch_mutexdrop",
+    15
+   ],
+   [
+    "(no hashline frame) _tlv_get_addr",
+    13
+   ]
+  ]
+ }
+}

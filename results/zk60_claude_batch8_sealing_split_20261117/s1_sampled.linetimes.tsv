@@ -1,0 +1,20 @@
+671827.6788	A22-AB W16R2_8B_T128_H24 L32 T128: the fixture (one synthetic block, the honest chain) in 5.8 s
+671828.5550	A22-AB STARTUP W16R2_8B_T128_H24 L32: the resident model (every layer loaded once with its record hashed, the statement) in 0.868 s; footprint 1.5 -> 8.8 GiB; V
+671834.9189	A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1 (cold)] cold request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.328 (sealing pass 2.313 s), prover 2.
+671836.7795	A22-AB W16R2_8B_T128_H24 L32 [serve1 (cold)] cold: all 1 receipts verified from their run directories, 818728672 B each
+671836.8097	A22-AB W16R2_8B_T128_H24 L32 N6: the cold request 6.361 s
+671843.2220	A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1] pass 0 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.546 (sealing pass 2.531 s), prover 2.546-6
+671844.9434	A22-AB W16R2_8B_T128_H24 L32 [serve1] pass 0: all 1 receipts verified from their run directories, 818728672 B each
+671844.9718	A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve1] pass 0: 1 requests in 6.428 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, 
+671851.0351	A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1] pass 1 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.189 (sealing pass 2.177 s), prover 2.189-5
+671851.0351	A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve1] pass 1: 1 requests in 6.063 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, 
+671858.0212	A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1] pass 2 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.569 (sealing pass 2.553 s), prover 2.569-6
+671858.0498	A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve1] pass 2: 1 requests in 6.986 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, 
+671865.0441	A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1] pass 3 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.763 (sealing pass 2.747 s), prover 2.763-6
+671865.0441	A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve1] pass 3: 1 requests in 6.989 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, 
+671872.4036	A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1] pass 4 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.962 (sealing pass 2.946 s), prover 2.962-7
+671872.4036	A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve1] pass 4: 1 requests in 7.355 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, 
+671879.7673	A22-AB REQ W16R2_8B_T128_H24 L32 N6 [serve1] pass 5 request 0: arrived 0.000, sealing turn 0.000, sealing side done 2.880 (sealing pass 2.864 s), prover 2.880-7
+671879.7673	A22-AB STREAM W16R2_8B_T128_H24 L32 N6 [serve1] pass 5: 1 requests in 7.360 s (window 0, digests ahead false, lanes 2, shared blocks true, startup checks true, 
+671879.7673	A22-AB SUMMARY W16R2_8B_T128_H24 L32 N6 | [serve1] | 6 passes | steady mean NaN tok/s (best NaN) | amortized mean 18.74 tok/s (best 21.11) | mean latency 6.863 
+671879.7673	A22-AB W16R2_8B_T128_H24 L32: total 57.9 s (startup 0.868 s)

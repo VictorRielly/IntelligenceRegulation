@@ -1,0 +1,28 @@
+{
+ "label": "b2_view0",
+ "view": false,
+ "sampled": false,
+ "launch_utc": "2026-11-17T16:16:03Z",
+ "t_launch_mono": 672037.690524958,
+ "t_end_mono": 672104.040647875,
+ "child_first_seen_mono": 672048.482846833,
+ "pid": 37664,
+ "guard_rc": 0,
+ "guard_run_id": "81b2f60ed625",
+ "guard_waited_s": 10.2,
+ "guard_wall_s": 56.0,
+ "child_wall_seconds": 55.97687602043152,
+ "peak_rss_gib": 29.74,
+ "peak_vram_mib": 23333,
+ "ds4_bench_pre": [],
+ "ds4_bench_post": [],
+ "trace": {
+  "gz": "/Users/victorrielly/zk60-artifacts/batch8_traces_20261117/b2_view0.trace.tsv.gz",
+  "gz_bytes": 153670,
+  "gz_sha256": "4613b1500c7142b01449c30b915154c07d7e81b13f9a0a0e0e01b3cfdc663f5a",
+  "raw_bytes": 1161442,
+  "raw_sha256": "f9e99a291fc5abe0cb01c5cdb60530d87ce2817c2a0501184b94b3f060ed8879"
+ },
+ "sample": null,
+ "counter_rows": 1966
+}

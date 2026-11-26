@@ -22,7 +22,10 @@ entry there, where its limits are stated.
 - **What runs today:** a local demo app, [Proven Media](apps/proven-media/README.md), a feed in which every item
   carries proved content labels. As installed on the project's machine it proves the verdicts of a trained 3B
   safety classifier (Shieldstral-1.0-3B, 26 layers, 128 tokens a request), and a separate verifier program checks
-  the receipts. The input and every intermediate value are hidden; the verdict is published.
+  the receipts. The proof system is built to hide the input and every intermediate value and to publish only the
+  verdict. The profile the app runs on that machine is a development profile for public content, and privacy is
+  not claimed for it (see the privacy and Lean lines below for what is missing). The app code for that profile is
+  newer than the copy in this repository, which is the state of 2026-11-10.
 - **The prover (Hashline)**:
   - Ligero-style hiding polynomial commitments over the Goldilocks field and its quadratic extension, BLAKE3
     Merkle trees and Fiat–Shamir, LogUp lookups and a masked sumcheck.

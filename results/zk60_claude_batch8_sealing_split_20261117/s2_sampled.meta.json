@@ -1,0 +1,35 @@
+{
+ "label": "s2_sampled",
+ "view": true,
+ "sampled": true,
+ "launch_utc": "2026-11-17T16:17:22Z",
+ "t_launch_mono": 672116.211741291,
+ "t_end_mono": 672180.275764666,
+ "child_first_seen_mono": 672121.36914475,
+ "pid": 38428,
+ "guard_rc": 0,
+ "guard_run_id": "c7f7868c4ec7",
+ "guard_waited_s": 5.1,
+ "guard_wall_s": 58.9,
+ "child_wall_seconds": 58.81811833381653,
+ "peak_rss_gib": 28.59,
+ "peak_vram_mib": 21712,
+ "ds4_bench_pre": [],
+ "ds4_bench_post": [],
+ "trace": {
+  "gz": "/Users/victorrielly/zk60-artifacts/batch8_traces_20261117/s2_sampled.trace.tsv.gz",
+  "gz_bytes": 154890,
+  "gz_sha256": "6b12484ef83300c3f59aa004e2c4d9d584fcb74b101b4505c1cbf0b80e0ed68c",
+  "raw_bytes": 1164831,
+  "raw_sha256": "8ea89b537d29820373fcef119883c02d673adadea39d444a0133d9feca430663"
+ },
+ "sample": {
+  "path": "/Users/victorrielly/zk60-artifacts/batch8_traces_20261117/sample_s2_sampled.txt",
+  "bytes": 56504406,
+  "sha256": "d604b8b8a2dd410026eae72f4fd851da4f51ac28f354c6c3e81f7fabab03f33f",
+  "interval_ms": 2,
+  "duration_s": 30,
+  "t_attach_mono": 672150.565306375
+ },
+ "counter_rows": 2120
+}
