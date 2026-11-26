@@ -142,3 +142,7 @@ share exceeds 10 percent in any of those months (queue item A30). A recent month
 - The five added columns' definition beyond the page's sentence (the package's code was not read).
 - A17 (the category mix of automated statements) is a separate, claimed item; the file also has
   `automated_detection` and `automated_decision` columns, which were not crossed with content type here.
+
+## Follow-up (A30, 2026-11-26)
+
+The same count was repeated on the six earlier monthly files. Over November 2025 to May 2026 the text share is 3.03 to 6.82 percent (kill line not reached) and the text-type statements are 614,211 to 1,384,708 a day, which is 18.2 to 42.2 machines; May is near the low end. See `20261126-apps-months-check.md`.

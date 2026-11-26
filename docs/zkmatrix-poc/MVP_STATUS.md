@@ -879,6 +879,24 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 14:29 UTC, product [COUNTED by me from seven public monthly files of the EU
+    transparency database, November 2025 to May 2026, each matching the publisher's SHA-1; the
+    machine's rate MEASURED on Nov 22 and scaled to a day by arithmetic]: over seven months the text
+    share stayed between 3.0 and 6.8 percent, and covering every text-type statement would take 18
+    to 42 machines depending on the month, not May's 21 alone.** This repeats the two counts below
+    on the six earlier months as their confirm-or-kill test. The kill line set beforehand for the
+    text finding (a text share over 10 percent in any month) was not reached. Text-type statements
+    ran from 614,211 a day (November 2025) to 1,384,708 a day (January 2026), which at one request
+    per statement is 18.2 to 42.2 machines. In every month 16 to 23 platform names filed over 30,000
+    statements a day and held 97.5 to 98.4 percent of the total, 39 to 48 names filed 1,000 to
+    30,000 a day and 92 to 124 filed fewer; the number of names grew from 152 to 192. Among names
+    filing text-type statements, 25 to 30 each month filed 1,000 to 30,000 of them a day and 3 to 6
+    filed more. 225 distinct names appear over the seven months, 134 of them in every month, and 33
+    change class at least once. Limits: the series ends in May 2026, because later months are
+    offered only in a format the download rule excludes, and the website's daily totals over the 50
+    days to Nov 25 are about twice May's; only May's totals were compared with the website's table.
+    No platform is named and no target is recommended. Handoff:
+    `research/applications/handoffs/20261126-apps-months-check.md`.
     **Nov 26, 14:25 UTC, product [COUNTED by me from the same public monthly file of the EU
     transparency database (May 2026); the allowed values read from the database's API page; the
     machine's rate MEASURED on Nov 22 and scaled to a day by arithmetic]: 4.3 percent of statements

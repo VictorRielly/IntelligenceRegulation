@@ -1,0 +1,36 @@
+== inputs (sha256, bytes)
+aggregated-simple-2025-11-01-csv.zip fb157e8e37ff3c36beaccf831f519b9be1780fb4b1b6b9ae0d999b3f076c191c 1107350
+aggregated-simple-2025-12-01-csv.zip 12b9c26dd47d827c4ffbbf5e28ee0523dd21ffe25f50f569ba6215cc518f7495 1206395
+aggregated-simple-2026-01-01-csv.zip 2ad6f65db4163b229f2e2284e8044ffb9e9d7260c9b57595f36b021f50ea5a7a 1229567
+aggregated-simple-2026-02-01-csv.zip 81e8ede21ebe935f463ae6963e0e4982944cdf8bb743e4894acd8b281bb056b9 1216735
+aggregated-simple-2026-03-01-csv.zip 446d416efcac925055adfed63d178eb48df16471407cb97cf6e0a0860e3b2efd 1258781
+aggregated-simple-2026-04-01-csv.zip 91f2bad694c6b74a6bd576d1c7cddf224f790d402b60c850cb82ceac1821915c 1117397
+aggregated-simple-2026-05-01-csv.zip 385aec6232bafa34f4e93c85e138338383ca42e90a209fddad471349f274bcbd 1198577
+
+column lists identical across the 7 files: True; flag cells neither true nor false: 0
+
+== A28 repeated: platform names by volume class (class = month total / calendar days of the month)
+month    days   names   statements   mean a day | under 1,000 | 1,000 to 30,000 | over 30,000 (share) | largest  top 5
+2025-11 30/30    152    608942326    20298077 |   92  0.06% |   44  1.93% |   16 98.01% | 61.09% 84.39%
+2025-12 31/31    158    554568436    17889304 |  103  0.09% |   39  1.98% |   16 97.93% | 58.99% 86.21%
+2026-01 31/31    166    629515821    20306961 |  109  0.07% |   41  1.86% |   16 98.07% | 50.82% 86.24%
+2026-02 28/28    171    589944744    21069455 |  105  0.05% |   46  1.77% |   20 98.18% | 43.12% 81.10%
+2026-03 31/31    185    584978404    18870271 |  123  0.07% |   39  1.56% |   23 98.37% | 39.78% 77.01%
+2026-04 30/30    186    471510311    15717010 |  124  0.09% |   41  2.29% |   21 97.61% | 50.16% 79.81%
+2026-05 31/31    192    491248553    15846727 |  124  0.07% |   48  2.39% |   20 97.54% | 56.07% 81.02%
+
+== A29 repeated: content types (share of the month's statements carrying each flag)
+month     text  text alone  product   other   video   image | text-type a day  machines | names with text: under 1,000 / 1,000 to 30,000 / over 30,000 (top class share of text)
+2025-11  3.03%      2.58%   78.84%  14.17%   2.63%   1.34% |         614211  18.2 to 18.7 |  63 /  26 /   5 (67.45%)
+2025-12  4.91%      2.66%   75.90%  14.89%   2.68%   3.35% |         877791  26.0 to 26.8 |  73 /  25 /   6 (83.30%)
+2026-01  6.82%      5.06%   63.66%  14.10%  12.50%   4.15% |        1384708  41.0 to 42.2 |  76 /  28 /   4 (85.62%)
+2026-02  6.05%      4.11%   65.69%  16.91%   9.36%   3.45% |        1274698  37.8 to 38.9 |  77 /  29 /   4 (81.62%)
+2026-03  6.04%      3.53%   69.88%  17.89%   4.83%   3.47% |        1139495  33.8 to 34.7 |  85 /  27 /   6 (84.72%)
+2026-04  5.57%      4.74%   68.34%  17.81%   5.49%   1.99% |         875331  25.9 to 26.7 |  88 /  26 /   5 (78.98%)
+2026-05  4.34%      3.93%   72.21%  16.11%   5.15%   1.85% |         688329  20.4 to 21.0 |  89 /  30 /   3 (72.22%)
+highest text share in any month: 6.82%; kill line of A29 (over 10 percent in any month): not reached
+
+== names across the months (COUNTED; none printed)
+distinct names over all files: 225; present in every file: 134
+names in the same class in every month they appear: 192; names that change class at least once: 33
+platform names printed: NONE

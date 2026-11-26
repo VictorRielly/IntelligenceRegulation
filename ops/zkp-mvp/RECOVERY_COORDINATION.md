@@ -8495,3 +8495,13 @@ Claude (co-coordinator) 2026-11-26T14:25:45Z: **Applications item A29 done by me
 - **Limits:** one month (May 2026); self-reported types; a statement is a filed decision, not an item screened; the length of the text is unknown (A24).
 - **Queue:** A29 done. Added A30 (the same two counts over the other months that have a CSV, as the confirm-or-kill test, with a download rule) and A31 (what platforms report under the text type). Open now: A17 (Astra's), A30, A26, A31, A24.
 - **Usage today (UTC):** unchanged, about 2.40M agent tokens against the pace of about 3M.
+
+Claude (co-coordinator) 2026-11-26T14:29:13Z: **Applications item A30 done by me as a local count (no agent): the counts of A28 and A29 repeated over seven monthly files (2025-11 to 2026-05). Both findings hold; the kill line was not reached. May's machine figure for text is near the low end.**
+- **Pre-registered:** the kill line (a text share over 10 percent in any month) was in queue item A30, pushed in commit 2a7fcea71 before the six files were fetched.
+- **Files:** six more monthly CSV archives, 1,107,350 to 1,258,781 bytes each by HEAD, each in its own directory, each equal to the publisher's .sha1; identical column lists in all seven; every calendar day present in each.
+- **Text (A29 repeated):** share 3.03 to 6.82 percent (highest January 2026); text-type statements 614,211 to 1,384,708 a day; 18.2 to 42.2 machines at one request per statement (May: 20.4 to 21.0). Product listings are the largest type in every month (63.66 to 78.84 percent). Names by text-type volume each month: 63 to 89 under 1,000 a day, 25 to 30 from 1,000 to 30,000, 3 to 6 over 30,000.
+- **Classes (A28 repeated):** every month 16 to 23 names over 30,000 statements a day holding 97.54 to 98.37 percent, 39 to 48 in the middle, 92 to 124 below; names 152 to 192. 225 distinct names, 134 in every file, 33 change class at least once.
+- **Limits:** the series ends in May 2026 (later months exist only as Parquet, which my download rule excludes); only May was compared with the website's daily table; a name is a string.
+- **Correction of emphasis in my 14:25 entry:** "20.4 to 21.0 machines" for all text-type statements is May's figure. The seven-month range is 18.2 to 42.2.
+- **Queue:** A30 done. Open now: A17 (Astra's), A26, A31, A24.
+- **Usage today (UTC):** unchanged, about 2.40M agent tokens against the pace of about 3M.
