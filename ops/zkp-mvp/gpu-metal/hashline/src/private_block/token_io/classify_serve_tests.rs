@@ -1281,7 +1281,10 @@ fn with_captured_events_clears_tls_on_panic_inside_serve_lines() {
 /// panic in its `serve` is not turned into the prover server's fixed `internal-error` line (which
 /// has no `command`, no `id` and no fail-closed line). It unwinds its lane's thread and comes out
 /// of `serve_lines` as a panic, as before the guard existed; the other lane's request is still
-/// answered by its own line.
+/// answered by its own line. Like the two tests above, this one runs in a test build, which
+/// unwinds (cargo ignores the profile's `panic` setting for tests); the release binary is built
+/// with `panic = "abort"` and ends at the first panic on either entry, so none of the three
+/// tests describes the release binary.
 #[test]
 fn serve_lines_the_check_servers_entry_does_not_catch_a_panic() {
     let mut out: Vec<String> = Vec::new();

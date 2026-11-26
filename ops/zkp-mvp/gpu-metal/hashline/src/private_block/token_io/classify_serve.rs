@@ -228,9 +228,12 @@ fn write_log(path: &Path, lines: &[String]) -> Result<(), String> {
 /// **The stream** (both servers): a reader takes the lines (blank lines skipped) in order;
 /// `lanes` lane threads each take the next line and run `serve` on their own rayon pool; the
 /// calling thread prints each result line as it arrives. This entry is the check server's: a panic
-/// in `serve` is NOT caught here. It unwinds its lane's thread and ends the process with the
-/// stream, as it did before the prover server's guard existed ([`serve_lines_with`]); no line is
-/// made up for a request whose check did not finish.
+/// in `serve` is NOT caught here, in any build, and no line is made up for a request whose check
+/// did not finish. In the release profile (`panic = "abort"` in `Cargo.toml`) a panic ends the
+/// process at once. In a build that unwinds (tests, debug) it unwinds its lane's thread, the other
+/// lanes go on, and the panic comes out of this function at the end of the stream; if every lane
+/// is lost and more lines arrive than the request queue (capacity `lanes`) has room for, the
+/// reader blocks on that queue.
 fn serve_lines<F>(lanes: usize, threads: usize, lines: impl Iterator<Item = String> + Send, serve: F, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String>
 where
     F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
@@ -275,8 +278,11 @@ pub(super) fn a28_seal_ahead_on() -> bool {
 
 /// [`serve_lines`] with a minimum interval between request starts (`stagger_ms`, 0: none) and
 /// `per_lane` request threads per lane (1, or 2 with [`a28_seal_ahead_on`]); `serve` gets the lane
-/// (the prover server's entry: a panic in `serve` is caught and answered with one fixed
-/// `internal-error` line, and the lane goes on to its next request)
+/// (the prover server's entry: in a build that unwinds, a panic in `serve` is caught and answered
+/// with one fixed `internal-error` line, and the lane goes on to its next request. NOT in the
+/// release profile: `Cargo.toml` sets `panic = "abort"` there, `catch_unwind` catches nothing, and
+/// a panic ends the server process at once, as it did before this guard. Until the release
+/// profile unwinds, the guard acts in test and debug builds only.)
 fn serve_lines_with<F>(lanes: usize, threads: usize, stagger_ms: u64, per_lane: usize, lines: impl Iterator<Item = String> + Send, serve: F, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String>
 where
     F: Fn(usize, &str, f64, usize) -> (bool, String) + Sync,
@@ -288,7 +294,8 @@ where
 /// ([`serve_lines_with`]): a panic in `serve` becomes the fixed `internal-error` line. Unset (the
 /// check server, [`serve_lines`]), `serve` is called with no guard, exactly as before: the check
 /// server's own lines carry `command`, `id` and, on a refusal, the fail-closed line of D45(4); the
-/// fixed line carries none of them, so the check server never emits it.
+/// fixed line carries none of them, so the check server never emits it. Under `panic = "abort"`
+/// (the release profile) the flag makes no difference: either way a panic ends the process.
 #[allow(clippy::too_many_arguments)]
 fn serve_lines_core<F>(lanes: usize, threads: usize, stagger_ms: u64, per_lane: usize, catch_panics: bool, lines: impl Iterator<Item = String> + Send, serve: F, emit: &mut dyn FnMut(&str)) -> Result<(usize, usize), String>
 where
