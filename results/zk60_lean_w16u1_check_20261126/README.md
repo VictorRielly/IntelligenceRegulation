@@ -18,4 +18,11 @@ rule is in the docstring of `run_check.py`.
   single-block statement with premises left for the run level (`BlockW16U1Done.lean:59-97`: that the verifier is the code's block
   verifier, an assumed bound on the endpoint event, and run-level items); the file's header lists them. An independent read has
   not been done.
-- **Not merged:** the root file needs the 17 imports from the author; what is then left of this check is the root build.
+- **Root step, `root1` (guard run `bc445d6747f2`, 7 s, peak 3.83 GiB; rule in the docstring of `run_check.py`, posted before the run): GREEN.**
+  The author had not answered two requests for the root imports, so the coordinator added the 17 import lines to the root file
+  in the private copy, at its end, in dependency order. `lake build ZK60Formal`: exit 0, no error line, only the root rebuilt,
+  none of the 17 modules rebuilt. The six axiom reports come out through the root import alone, on the three standard axioms.
+- **Merged** as `cb58d6b12` (merge of `dd255855e`, 18 files added, nothing else changed), followed by one commit that adds the
+  same 17 lines to `formal/ZK60Formal.lean`; the root file and the 17 sources in the repository are byte-identical to the
+  private copy that was built.
+- **Independent read:** `results/zk60_claude_review_20261116/W16U1_READ_20261126.md` (about 2,700 of 9,623 lines; no High finding).

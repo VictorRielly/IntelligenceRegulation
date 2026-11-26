@@ -801,6 +801,15 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 00:25 UTC, Lean for the installed profile: the single-block step is merged [MEASURED:
+    my build check and root build; read once independently in part].** The 17 files are in the tree
+    and are now part of the normal build (I added the 17 import lines myself, as the author had not
+    answered; the root build is green and the six theorems rest on the three standard axioms through
+    the root). Where this puts the port to the profile the app runs: of the author's nine items, the
+    shape and the single-block soundness (two items) are done at the level "builds, read in part, no
+    gap found in what was read". The next item, the run level, is open and larger than first noted.
+    Nothing in Lean yet covers zero knowledge or completeness for this profile; those remain proved
+    for the R13 profile only. Record: `results/zk60_lean_w16u1_check_20261126/README.md`.
     **Nov 26, 00:23 UTC, Lean for the installed profile [independent read by an Opus agent of about
     2,700 of the 9,623 lines, with compiles; its three main points checked by me, two of them by my
     own compiles]: no serious gap found in what was read.** The new single-block result assumes
