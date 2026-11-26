@@ -1,0 +1,206 @@
+{
+ "sha1": "4f7936a6eb735d4fef78771a6255f9ed568822a2",
+ "inner_archives": 31,
+ "csv_files": 302,
+ "rows": 30120164,
+ "by_content_type_set": [
+  {
+   "content_type": [
+    "CONTENT_TYPE_PRODUCT"
+   ],
+   "raw_forms": 1,
+   "statements": 22459987,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_OTHER"
+   ],
+   "raw_forms": 1,
+   "statements": 4620101,
+   "with_description": 4620101
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_VIDEO"
+   ],
+   "raw_forms": 1,
+   "statements": 1233088,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_TEXT"
+   ],
+   "raw_forms": 1,
+   "statements": 1185967,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_IMAGE"
+   ],
+   "raw_forms": 1,
+   "statements": 307396,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_SYNTHETIC_MEDIA"
+   ],
+   "raw_forms": 1,
+   "statements": 123954,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_IMAGE",
+    "CONTENT_TYPE_TEXT"
+   ],
+   "raw_forms": 2,
+   "statements": 76942,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_OTHER",
+    "CONTENT_TYPE_PRODUCT"
+   ],
+   "raw_forms": 1,
+   "statements": 57072,
+   "with_description": 57072
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_IMAGE",
+    "CONTENT_TYPE_VIDEO"
+   ],
+   "raw_forms": 2,
+   "statements": 35024,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_AUDIO"
+   ],
+   "raw_forms": 1,
+   "statements": 10086,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_APP"
+   ],
+   "raw_forms": 1,
+   "statements": 6546,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_IMAGE",
+    "CONTENT_TYPE_OTHER",
+    "CONTENT_TYPE_TEXT"
+   ],
+   "raw_forms": 5,
+   "statements": 2607,
+   "with_description": 2607
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_AUDIO",
+    "CONTENT_TYPE_IMAGE",
+    "CONTENT_TYPE_TEXT",
+    "CONTENT_TYPE_VIDEO"
+   ],
+   "raw_forms": 1,
+   "statements": 647,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_AUDIO",
+    "CONTENT_TYPE_IMAGE",
+    "CONTENT_TYPE_VIDEO"
+   ],
+   "raw_forms": 1,
+   "statements": 371,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_TEXT",
+    "CONTENT_TYPE_VIDEO"
+   ],
+   "raw_forms": 1,
+   "statements": 195,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_IMAGE",
+    "CONTENT_TYPE_TEXT",
+    "CONTENT_TYPE_VIDEO"
+   ],
+   "raw_forms": 2,
+   "statements": 145,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_IMAGE",
+    "CONTENT_TYPE_PRODUCT"
+   ],
+   "raw_forms": 1,
+   "statements": 26,
+   "with_description": 0
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_OTHER",
+    "CONTENT_TYPE_TEXT"
+   ],
+   "raw_forms": 1,
+   "statements": 7,
+   "with_description": 7
+  },
+  {
+   "content_type": [
+    "CONTENT_TYPE_AUDIO",
+    "CONTENT_TYPE_TEXT"
+   ],
+   "raw_forms": 1,
+   "statements": 3,
+   "with_description": 0
+  }
+ ],
+ "exact_description_matches": {
+  "posts": [
+   0,
+   302
+  ],
+  "comments": [
+   0,
+   625
+  ],
+  "messages": [
+   0,
+   0
+  ],
+  "reviews": [
+   0,
+   0
+  ],
+  "listing descriptions": [
+   0,
+   0
+  ]
+ },
+ "text_tagged_description_mentions": {
+  "posts": 0,
+  "comments": 0,
+  "messages": 0,
+  "reviews": 0,
+  "listing descriptions": 0
+ },
+ "distinct_descriptions_among_text_tagged": 6
+}

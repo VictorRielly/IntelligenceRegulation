@@ -879,6 +879,20 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 18:13 UTC, applications [counted by Astra; recounted by me twice from the same
+    archive; four of the five cited documents read in my own copies]: the EU database cannot tell us
+    what kind of text is moderated or how long it is, so the workload for a text product has to be
+    measured on a sample of real inputs.** On 2 November 2026, 1,266,513 of 30,120,164 statements
+    (4.205 percent) carried the text tag, inside the range of the seven months counted earlier (3.03
+    to 6.82 percent); 93.64 percent of them selected text alone and 6.34 percent text with image.
+    The database has no field for posts, comments, messages, reviews or listing descriptions, and
+    the Commission states that it "does not contain the content that was subject to moderation", so
+    no length can be read from it. My second count adds that the 2,614 descriptions on text-tagged
+    filings take only 6 distinct values. Consequence (Astra's proposal, and I agree): to size the
+    load, take an authorized sample of original inputs with their form and length, run the installed
+    tokenizer, and count how many fit one chunk (49 content tokens for the tightest of the three
+    policies) and how many need several
+    (`research/applications/handoffs/20261126-apps-text-filings.md` and its `-recheck` files).
     **Nov 26, 18:08 UTC, product [files and hashes checked by me; contents scanned by me; the
     offline example run by me]: from a clean checkout, anyone can now check the publisher's
     signature on a saved post with Python and one package.** Astra added a 63,598-byte example

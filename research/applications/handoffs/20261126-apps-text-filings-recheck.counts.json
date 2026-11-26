@@ -1,0 +1,40 @@
+{
+  "counts": {
+    "all": 30120164,
+    "text": 1266513,
+    "text alone": 1185967,
+    "text and product": 0,
+    "text and image": 80341,
+    "text and other": 2614,
+    "text and descriptor": 2614
+  },
+  "descriptors": {
+    "posts": [
+      0,
+      302
+    ],
+    "comments": [
+      0,
+      625
+    ],
+    "messages": [
+      0,
+      0
+    ],
+    "reviews": [
+      0,
+      0
+    ],
+    "listing descriptions": [
+      0,
+      0
+    ]
+  },
+  "text descriptor mentions": {
+    "posts": 0,
+    "comments": 0,
+    "messages": 0,
+    "reviews": 0,
+    "listing descriptions": 0
+  }
+}

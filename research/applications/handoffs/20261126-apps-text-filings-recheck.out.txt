@@ -1,0 +1,22 @@
+ok   rows 30,120,164 in both counts and in the handoff
+ok   the seven counts of the handoff program equal my second count: {'all': 30120164, 'text': 1266513, 'text alone': 1185967, 'text and product': 0, 'text and image': 80341, 'text and other': 2614, 'text and descriptor': 2614}
+ok   text-tagged 1,266,513 = 4.205%% of all
+ok   text alone 1,185,967 = 93.64%
+ok   text and image 80,341 = 6.34%
+ok   text and product 0
+ok   text and other 2,614 = 0.21%, each with a description
+ok   exact description matches equal in both counts: {'posts': [0, 302], 'comments': [0, 625], 'messages': [0, 0], 'reviews': [0, 0], 'listing descriptions': [0, 0]}
+ok   posts 302 and comments 625 outside the text tag, none inside
+ok   no exact match for messages, reviews or listing descriptions in either set
+ok   no text-tagged description mentions any of the five forms: {'posts': 0, 'comments': 0, 'messages': 0, 'reviews': 0, 'listing descriptions': 0}
+ok   the day's text share lies inside the monthly range 3.03 to 6.82 percent of A30
+     media-type sets among text-tagged statements (my count; sets with fewer than 1 in 10,000 pooled):
+       text                                                        1,185,967   93.64%
+       image + text                                                   76,942    6.08%
+       image + other + text                                            2,607    0.21%
+       audio + image + text + video                                      647    0.05%
+       text + video                                                      195    0.02%
+       image + text + video                                              145    0.01%
+       all smaller sets together                                          10
+     distinct descriptions among text-tagged statements: 6
+RESULT: ALL FIGURES REPRODUCED
