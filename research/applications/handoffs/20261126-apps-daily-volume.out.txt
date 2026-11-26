@@ -1,0 +1,80 @@
+== inputs (sha256) ==
+a8d6b729c93f6f698baeaee6ddba8ddb2ddeb164c998f4b38fc92d16a786602f  MVP_STATUS.md  [status page]
+cb5e200225ef256e62307ccfe20536edf542c375317b86833d5a8a0c3d6af0ca  README.md  [lane-threads README]
+7bbbf8ea2e6b260d6741149856571e25e80eccf65e297b32eb8518a439f23cf8  download.html  [DSA download page]
+ce50b5ca59f6e2ca9cd5ce9fa46bae62af731a2ba2f5ec41435c4b0ac1f24d8d  home.html  [DSA homepage]
+c2d65f47dc174cd8aed7e2055f15bb22658a0752814940d993b014c1ecc63dbe  year.html  [arXiv 2504.06976 (html)]
+7e6d624685ed914ed16b2f3f866095c5cce12ff5395b923c5639de6f09509340  data_sources.html  [dsa-tdb data-sources page]
+72ee0ea9b7e1739176a2a14ee7640f9f23e24f0101c35fa1371383d56e9e7254  dashboard.html  [DSA dashboard page]
+82b6431a45ed435966ab1d1ca94327ad3832be71eea67ae23fa9496ade07cc5c  kaushal.html  [extra file (sha only)]
+9a471de16043c6ef8ad5c92ce52c184d88a0402dc78eb05ad72cf8891bef470c  policyreview.html  [extra file (sha only)]
+131904f054848c248d933d17cad441de710353cf2e34f6771177eedaa335bc79  announcements.html  [extra file (sha only)]
+
+== 1. quoted sentences found in the files ==
+ok   [status page] "**2026-11-23 UTC, speed against the 50 tokens/s target [MEASURED; details and limits in the dated entries further down]:**"
+ok   [status page] "The trained 3B classifier that the app runs proves 48.6 to 50.0 tokens/s at six lanes with eight threads each (`results/zk60_lane_threads_20261122/README.md`)."
+ok   [status page] "On the installed classifier profile one run of one policy over one chunk takes 2.6 to 2.7 s of the machine's six-lane capacity (128 padded positions at the 47.1 to 50.0 tok/s of the 22 November sets, which are not ranked) and one 0.67 GB receipt."
+ok   [status page] "the app's deployment file on the project's machine says "Public content only; privacy not claimed""
+ok   [status page] "**Nov 23, 23:12 UTC, speed [MEASURED by Claude at the installed app profile; gains DERIVED from the raw completions]:"
+ok   [status page] "So the installed profile, with this fifth switch, measures about 53 to 55 tok/s on public test posts with the trained 3B classifier; the day began at about 46.5. This is not the private 8B target."
+ok   [lane-threads README] "rate = 48 x 128 / (c[L+48] - c[L])"
+ok   [lane-threads README] "a fresh `zk60_classify serve --lanes L --lane-threads T --witness-cache-gib 16` per leg on the installed W16R2 Shieldstral export"
+ok   [lane-threads README] "per-thread Metal queues, the eight public posts, L warm-up requests then 48 timed"
+ok   [lane-threads README] "| **6 x 8** | 6 | **48.64** | **+3.2%** |"
+ok   [lane-threads README] "Levels over four legs each: X 48.96, Y 50.00, Z 49.70 tok/s."
+ok   [DSA homepage] "Below you can find some summary statistics on the statements of reasons submitted by providers of online platforms to the Commission in the last six months (180 days, see the Data retention policy for details)."
+ok   [DSA homepage] "4 911 188 424 Total number of statements of reasons submitted"
+ok   [DSA homepage] "396 Number of active platforms"
+ok   [DSA download page] "On this page, you can download zipped csv files containing the daily submissions of statements of reasons, either for all platforms collectively or for each platform individually."
+ok   [DSA download page] "Date Statements of reasons Full Size Light Size"
+ok   [arXiv 2504.06976 (html)] "The SoRs cover all self-reported moderation actions that eight very large social media platforms took in the EU between March and October 2024."
+ok   [arXiv 2504.06976 (html)] "In detail, our data includes 646.1M SoRs from TikTok, 300.8M from Instagram, 260.2M from Facebook, 81.9M from Pinterest, 36.3M from YouTube, 2.3M from Snapchat, 628K from X, and 293K from LinkedIn."
+ok   [dsa-tdb data-sources page] "These aggregated views report the overall count of Statements of Reasons (SoRs) that share the same value in a specific subset of the categorical features."
+ok   [dsa-tdb data-sources page] the token platform_name occurs (aggregation field)
+dashboard page: 5979 characters of text; contains a statement count: False; contains "platforms active": False
+
+== 2. the platform selector on the download page (counted from the raw option list) ==
+options 398; placeholders ['-- Choose here --', 'All platforms']; platform names 396 [COUNTED]; this is the list of platforms that can be chosen, not a count of platforms active in a period
+
+== 3. daily totals on page 1 of the download table (all platforms, statements of reasons a day) ==
+rows 50, from 2026-10-07 to 2026-11-25
+sum 1,543,527,638; mean a day 30,870,553; min 18,994,508 (2026-10-14); max 46,877,410 (2026-11-11)
+days with fewer than 1 million: 0
+
+== 4. homepage window: 180 days, all active platforms ==
+statements a day, mean over the 180 days: 4,911,188,424 / 180 = 27,284,380 [DERIVED]
+mean a day per active platform: 27,284,380 / 396 = 68,900 [DERIVED; a mean over a very uneven spread, NOT a class count]
+
+== 5. eight-platform table: statements over March to October 2024, mean a day (DERIVED) ==
+days March to October 2024: 245
+p1: 646,100,000 / 245 = 2,637,143 a day -> over 30,000
+p2: 300,800,000 / 245 = 1,227,755 a day -> over 30,000
+p3: 260,200,000 / 245 = 1,062,041 a day -> over 30,000
+p4: 81,900,000 / 245 = 334,286 a day -> over 30,000
+p5: 36,300,000 / 245 = 148,163 a day -> over 30,000
+p6: 2,300,000 / 245 = 9,388 a day -> 1,000 to 30,000
+p7: 628,000 / 245 = 2,563 a day -> 1,000 to 30,000
+p8: 293,000 / 245 = 1,196 a day -> 1,000 to 30,000
+class counts among these eight (ONLY these eight very large platforms, 2024, an average over the whole period): {'under 1,000': 0, '1,000 to 30,000': 3, 'over 30,000': 5}
+sum of the eight: 1,328,521,000 statements
+
+== 6. requests one machine proves a day at one request per statement (DERIVED) ==
+one request = one chunk window of 128 padded positions under one policy = one category
+rate set (tokens/s; padded positions)                   tok/s        req/s      req/day statements/day at 3 categories
+status sentence, low end (22 Nov sets)                  48.60       0.3797       32,805         10,935
+lane-threads README, 6x8 level of 6 legs                48.64       0.3800       32,832         10,944
+lane-threads README, default arm, 4 legs                48.96       0.3825       33,048         11,016
+status sentence, high end (README tail-250 arm, 4 legs)    50.00       0.3906       33,750         11,250
+separate, later test (23 Nov 23:12 UTC entry, other binary, not merged then; NOT chained with the rows above):
+later entry, low end                                    53.00       0.4141       35,775         11,925
+later entry, high end                                   55.00       0.4297       37,125         12,375
+seconds a request occupies the stream: 128/48.6 = 2.634 s; 128/50.0 = 2.560 s (status page says 2.6 to 2.7 s)
+
+== 7. one machine against the all-platform totals (DERIVED; one request per statement, one chunk each) ==
+homepage 180-day mean a day                                  27,284,380 a day: one machine covers 0.120% to 0.124%; 808 to 832 machines
+page-1 table mean a day (2026-10-07 to 2026-11-25)           30,870,553 a day: one machine covers 0.106% to 0.109%; 915 to 941 machines
+smallest of the eight, mean a day                                 1,196 a day: 0.04 to 0.04 machine-days of capacity a day
+the second smallest                                               2,563 a day: 0.08 to 0.08 machine-days of capacity a day
+the middle-class one with the most                                9,388 a day: 0.28 to 0.29 machine-days of capacity a day
+Statements of reasons that need J chunks (a post longer than one chunk) divide these figures by J; the repository
+records give J = 3 to 22 for posts at T = 128 (A18); no source read here gives the share of statements that are text.

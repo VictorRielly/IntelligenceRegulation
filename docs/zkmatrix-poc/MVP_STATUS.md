@@ -879,6 +879,24 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 12:04 UTC, product [the machine's rate MEASURED on Nov 22 and scaled to a day by
+    arithmetic; the database's figures read by the applications researcher from its public pages and
+    checked by me on my own downloads; no day-long run exists]: one machine covers about a tenth of
+    one percent of the statements of reasons that platforms file each day.** Under the EU's Digital
+    Services Act, platforms file a statement of reasons for each moderation decision in a public
+    database. Its homepage reports 4,911,188,424 statements in the last 180 days from 396 active
+    platforms, a mean of about 27.3 million a day; the 50 daily totals from 2026-10-07 to 2026-11-25
+    average about 30.9 million. At the installed classifier profile's measured 48.6 to 50.0 tokens/s
+    (six lanes, eight threads each, public test posts), one machine would prove 32,805 to 33,750
+    requests a day if that rate held for 24 hours, at one policy and one 128-position chunk per
+    request. That is 0.11 to 0.12 percent of the daily total, or 808 to 941 machines for all of it.
+    Each request also produces a 0.67 GB receipt, about 22 TB a day per machine. No page read gives
+    per-platform volumes for a recent period, so the number of platforms whose volume one machine
+    could cover is not known; a follow-up study (A28) will count it from the database's aggregated
+    files. For the eight very large platforms of one published study (March to October 2024), 5
+    averaged over 30,000 statements a day, 3 between 1,000 and 30,000 and none under 1,000. The
+    installed profile is "Public content only; privacy not claimed". Handoff:
+    `research/applications/handoffs/20261126-apps-daily-volume.md`.
     **Nov 26, 11:55 UTC, receipt size, study level (D82) [read from the code by the researcher; its
     script re-run by me with identical output; the cited code lines read by me; nothing built or
     run]: merging a block's seven weight matmul checks is possible on paper and saves almost nothing
