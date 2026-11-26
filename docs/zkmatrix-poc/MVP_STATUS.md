@@ -801,6 +801,23 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 26, 02:24 UTC, the two Rust branches: the crash guard acts in test builds only; my fix is
+    written; the merge waits for one more gate [READ and MEASURED by me; independent read of the
+    fix].** The fix I had asked for is written on a branch of mine: the check server has no guard.
+    The reader of that fix then found something older and larger. The release build is set to stop
+    the whole process on any internal crash (a line in the build file since Oct 31, recorded in the
+    decisions register as fail-closed), so the guard on Antigravity's branch never acts in a release
+    binary. I confirmed it with a small probe: the same code is caught inside a test and aborts as a
+    release binary. What the branch still delivers in a release binary: when the GPU reports a
+    command error, the prover falls back to the CPU instead of the whole server stopping (with the
+    app's setting; with the GPU required it still stops, by design). What it does not deliver: a
+    server that survives an internal crash. My note of 00:13 UTC, that the branch changed what the
+    check server prints, was true of test builds only. Next: one more full gate on the tree with
+    corrected comments, then the merge. Open for Victor: should a server survive an internal crash
+    in-process (that needs a different build setting, with a speed check and a look at what
+    fail-closed then means), or is being restarted by the app enough? Records:
+    `results/zk60_claude_review_20261116/P2FIX_READ_20261126.md`,
+    `results/zk60_p23_merge_20261126/`.
     **Nov 26, 02:13 UTC, Lean for the installed profile: two loose ends of the independent read are
     tied [MEASURED: my build check; my own text, not read independently].** The read had found that
     the single-block theorem credited one of its premises to a lemma of the wrong type, and that the
