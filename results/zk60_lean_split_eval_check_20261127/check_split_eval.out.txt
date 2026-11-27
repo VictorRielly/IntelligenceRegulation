@@ -1,0 +1,26 @@
+ok   Rust eq_table: a buffer of 2^n ones, then for each r_i the low half times (1 - r_i) and a copy times r_i (mle.rs:17-47)
+ok   Rust eq_table_msb is eq_table of the reversed point (mle.rs:56-58)
+ok   Lean eqTable: the same buffer and the same doubling step, in the order of r (ExecMle.lean:399-409)
+ok   Lean eqTableMsb is eqTable of the reversed point (ExecMle.lean:412)
+ok   Lean proves the order: entry idx of eqTableMsb is the eq polynomial with variable j at bit n-1-j of idx (ExecMle.lean:419, 563-565)
+ok   a Rust test compares the same order on a table of five variables (mle.rs:362-369)
+ok   Lean evalMleExt: the sum of v against the full eq table of the point (ExecMle.lean:639-640)
+ok   the Lean model of a block's verifier arm evaluates a public table with evalMleExt (ExecBlockVerify.lean:243-251)
+ok   the Rust switch HL_A26_MLE is on unless set to 0 (argument.rs:1840-1842)
+ok   with the switch on, the block's verifier arm evaluates a public table through the split form; eval_mle_ext is the branch taken only with the switch off (argument.rs:2249-2268)
+ok   the split form: two half eq tables, one product an entry, one product a row; its length assertion is the same condition as the full form (mle.rs:103-114)
+ok   the full forms assert the table length 2^n (mle.rs:75, 81)
+ok   the two forms are compared by a Rust test at nine sizes and three kinds of table (mle.rs:440-449): a test, not a proof
+ok   Rust field words: one reduced u64 a base element, compared as words; the extension has u^2 = 7 (field.rs:15-28, 137, 168)
+ok   the stage slots' verifier arm uses the full form (token_io.rs:1106)
+ok   and its Lean model uses evalMleExt: the same form there (StageCheckDefs.lean:149-156)
+ok   that Lean comment cites token_io.rs:1074-1087; the lines are at 1101-1110 today (a stale citation)
+ok   the split form is called from one place in the prover source in use: [('private_block/argument.rs', 2268)]
+ok   none of the 688 Lean files under formal/ZK60Formal names the split form or its switch
+ok   the fourth reading's report left this row, B21, not determined: 'A26 path not read' (its line 188)
+ok   the switch is named in one tracked file of the app, the prover source in use and the scripts: its definition
+ok   the Lean model of the verifier arm was first committed on 2026-11-06, with evalMleExt for a public table
+ok   the switch entered the Rust file in a commit of 2026-11-07; the commit before it has the full form only
+ok   transliterated eq_table_msb, sizes 0 to 8 variables, 511 entries: each is the product with variable j at bit n-1-j, as the Lean theorem states
+ok   transliterated split form against the full form, sizes 0 to 12 variables, three kinds of table, 39 cases: the same pair of words every time
+checks: 25, failed: 0

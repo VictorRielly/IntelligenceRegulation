@@ -57,8 +57,9 @@ entry there, where its limits are stated.
     and the verifier, on Lean's three standard axioms. Every module has been opened by a reader who did not write
     it; parts remain unread.
   - Limits: three of the code's header checks are taken as values the prover writes down, one boundary check
-    differs from the Rust verifier's, nothing in Lean speaks about the Rust binary itself, and there is no compiled
-    Lean verifier.
+    differs from the Rust verifier's, the model evaluates a block's public tables in a full form where the code
+    uses a split form by default (equal by a test, not by a Lean theorem; this holds for both profiles), nothing in
+    Lean speaks about the Rust binary itself, and there is no compiled Lean verifier.
   - For the profile the app runs (W16R2), the port has begun: the shape of the 26 layers and single-block soundness
     are merged. The run level, zero knowledge and the final statement are open, so by our own rule this profile is
     not production.

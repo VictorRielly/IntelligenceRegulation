@@ -46,8 +46,10 @@ Mac. A request counts as 128 tokens, padding included.
   axioms, and every module has been opened by a reader who did not write it; parts of several remain
   unread [Nov 25, 19:18 UTC; Nov 26, 00:13 and 03:21 UTC]. Limits: three of the code's header
   checks, among them the security-level floor of D27, are taken as values the prover writes down;
-  one boundary check differs from the Rust verifier's; nothing in Lean speaks about the Rust binary;
-  and, by the author's list, the compiled Lean verifier that the approved statements ask for does
+  one boundary check differs from the Rust verifier's; the model evaluates a block's public tables in
+  the full form, where the code since Nov 7 uses a split form by default, equal by a test and a
+  short argument, not by a Lean theorem [Nov 27, 10:52 UTC]; nothing in Lean speaks about the Rust
+  binary; and, by the author's list, the compiled Lean verifier that the approved statements ask for does
   not exist.
 - **Lean proofs, the profile the app runs (W16R2):** two of the author's nine items are merged, the
   shape of the 26 layers and single-block soundness, at the level "builds, read in part" [Nov 26,
@@ -56,7 +58,9 @@ Mac. A request counts as 128 tokens, padding included.
   profile family, on the numbering and placement of the planes, on the way a slot definition is
   used, and on the laws it assumes of the public tables; the statement leaves the opening
   dimensions, the path depths and the opening check free, and the run level has to pin them to the
-  code's [Nov 27, 00:24, 00:35, 00:47, 03:03 and 04:14 UTC]. The run level, the honest
+  code's [Nov 27, 00:24, 00:35, 00:47, 03:03 and 04:14 UTC]. One row the fourth reading had left
+  open is now read: at the value of a public table the model follows the full form, the limit
+  named above for R13 [Nov 27, 10:52 UTC]. The run level, the honest
   prover, zero knowledge and the final statement are open, and their owner, Antigravity, is out of
   usage quota until about Nov 30 [Nov 27, 03:03 UTC]. The author's estimate for the whole list was five to eight weeks of agent work, made on Nov
   25 before those two items landed; Claude has not revised it [Nov 25, 19:28 and 22:47 UTC]. The 8B
@@ -885,6 +889,29 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 10:52 UTC, Lean [my own reading with a check script, 25 checks; nothing proved,
+    nothing of the prover run]: two of the open comparisons are read. The selector table has the
+    same order in Lean and in Rust. And at the one row the fourth reading had left as "path not
+    read", the Lean model and the checker reach the same number by different routes.** When a
+    checker (verifier) finishes a step of a block, it evaluates each public table at one point. The
+    Lean model does this with the full table of selector weights (`evalMleExt`,
+    `ExecBlockVerify.lean:251`). The Rust checker did the same until a speed-up of Nov 7 (A26);
+    since then it uses a split form by default, two half tables and one product an entry
+    (`argument.rs:2262-2268`), and the full form only when the switch `HL_A26_MLE` is set to 0. The
+    Lean file is of Nov 6 and was not changed. The fourth reading (03:03 UTC today) had noted the
+    second route and not read it (its row B21); it did not say that this route is the default. The
+    two forms give the same value: the weight of an index is the product of the weights of its two
+    halves; a Rust test compares the forms at nine sizes, and my re-computation in plain integers
+    agrees at thirteen. But that equality is not a Lean theorem. So what Lean proves about a block's
+    checker describes the checker with the switch off, and for the default path one link rests on a
+    test and a short argument. Both profiles (R13 and W16R2) are concerned, because their Lean
+    models share this definition. It is not a known weakness of the system; it is one more item for
+    the list of limits. The steps outside the blocks are not affected: code and Lean both use the
+    full form there. Closing it takes one small Lean lemma and a model that follows the default
+    branch; I will give it to a Lean agent from Nov 28 unless Antigravity, who owns the Lean work,
+    wants it. Not yet compared with Lean: a second switch of the same change, in the opening check,
+    and the other switches the checker reads. The short answer at the top of this page and the
+    README now list this limit. Record: `results/zk60_lean_split_eval_check_20261127/`.
     **Nov 27, 08:03 UTC, efficiency research [tick 70, reading and arithmetic; checked by me against
     the code and the records, 38 checks; nothing run]: a checker rebuilds about 8 million public
     table entries for every block it checks, and three of our estimates of where a block's checking
