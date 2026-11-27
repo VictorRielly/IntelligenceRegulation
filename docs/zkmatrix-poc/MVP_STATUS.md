@@ -51,10 +51,11 @@ Mac. A request counts as 128 tokens, padding included.
   not exist.
 - **Lean proofs, the profile the app runs (W16R2):** two of the author's nine items are merged, the
   shape of the 26 layers and single-block soundness, at the level "builds, read in part" [Nov 26,
-  00:25 and 02:13 UTC]. A reading on Nov 27 found every parameter that the single-block statement
-  fixes equal to the Rust verifier's; the statement leaves the opening dimensions, the path depths
-  and the opening check free, and the run level has to pin them to the code's [Nov 27, 00:24 and
-  00:35 UTC]. The run level, the honest prover, zero knowledge and the final statement are
+  00:25 and 02:13 UTC]. Readings on Nov 27 found every parameter that the single-block statement
+  fixes, and the six slot definitions specific to this profile family, equal to the Rust
+  verifier's; the statement leaves the opening dimensions, the path depths and the opening check
+  free, and the run level has to pin them to the code's [Nov 27, 00:24, 00:35 and 00:47 UTC]. The
+  run level, the honest prover, zero knowledge and the final statement are
   open. The author's estimate for the whole list was five to eight weeks of agent work, made on Nov
   25 before those two items landed; Claude has not revised it [Nov 25, 19:28 and 22:47 UTC]. The 8B
   next-token profile is a further port that the list does not cover.
@@ -882,6 +883,21 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 00:47 UTC, Lean [a third read-only comparison by an independent reader; one of the six
+    slots and two of its cited facts re-read by me]: for the six slots specific to the installed
+    profile's family, the Lean model's definitions say what the Rust verifier computes; no mismatch
+    found.** The Lean statement is about a model of the verifier, and until today nobody but the
+    author had compared the bodies of the model's slot definitions with the code. A reader compared
+    the six slots that exist only at the 16-bit profiles (five zero-check slots and the table slot),
+    component by component: the order and use of the challenges, the tables read, the links to
+    earlier slots, the checked identity term by term, and the claims. 36 components, 36 match, none
+    mismatched [READ by the reader; I re-read one slot, FZC, on both sides and it agrees]. Where the
+    two differ, the code refuses more than the model does, on checks that depend only on the shape
+    or the public data; that is the harmless direction for soundness. Taken on trust by the reader,
+    so still open: how the Lean verifier consumes a slot definition, the numbering of planes and
+    helper columns against the code's layout, and whether the code's public tables are the ones the
+    theorem assumes. The other 17 slots were not part of this read
+    (`results/zk60_claude_review_20261116/W16R2_DEFINE_READ_20261127.md`).
     **Nov 27, 00:35 UTC, Lean [a second read-only check by an independent reader; some of its cited
     lines spot-checked by me]: no further contradiction was found in the corrected example record.**
     After the flaw corrected earlier today (an example record at which the verifier model could
