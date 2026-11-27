@@ -879,6 +879,19 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 00:35 UTC, Lean [a second read-only check by an independent reader; some of its cited
+    lines spot-checked by me]: no further contradiction was found in the corrected example record.**
+    After the flaw corrected earlier today (an example record at which the verifier model could
+    accept nothing), a second reader went through every place where two parts of the acceptance
+    condition constrain the same quantity of a proof at that record: 31 pairs, 29 consistent, none
+    contradictory, 2 not determined (the lengths of some public tables, which it did not read, and
+    the opening check, which the example leaves as a free parameter) [READ by the reader]. This is a
+    reading of definitions, not a proof: it still does not show that an accepting proof exists at
+    the record. The read also lists 16 equalities that any verifier record must satisfy for
+    acceptance to be possible and marks which of them the current statement already implies; most of
+    the geometry is not implied. That list is an input for the run-level item, which is
+    Antigravity's and is not started
+    (`results/zk60_claude_review_20261116/W16R2_COVER_CONSISTENCY_READ_20261127.md`).
     **Nov 27, 00:24 UTC, Lean [a read-only comparison by an independent reader, its main finding
     confirmed by my own reading of the definitions; one build check run by me]: the Lean statement
     for the installed profile agrees with the Rust verifier on every parameter it fixes, and a flaw

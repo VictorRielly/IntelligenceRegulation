@@ -41,3 +41,13 @@ leaves `geom.blk`, `aPath`, `hPath`, `aRows`, `hRows` and `checkOpening` free, s
 records and the run-level record has to pin them to the code's; the Lean tree had no W16R2 block `Dim` before this file.
 
 Files: `run_cover2.py`, `raw/cover2.*` (log, guard record, done marker, runner output).
+
+## Consistency read of the corrected record (same day)
+
+A second independent reader (Opus, read-only) checked every place where two parts of `BlockAcc` constrain the same
+quantity of a core at the corrected `covParamsW16`: 31 pairs, 29 consistent, 0 contradictory, 2 not determined (the
+lengths of the public tables at 14 slots, not read; `checkOpening`, which the cover leaves free). Report:
+`results/zk60_claude_review_20261116/W16R2_COVER_CONSISTENCY_READ_20261127.md`. It is a reading of definitions, not a
+proof: it does not show that an accepting core exists. Its section 2 lists 16 equalities a record must satisfy for
+`BlockAcc` to be satisfiable, for whoever writes the run-level record. With it, the corrected file has been read by
+someone who did not write it, for consistency of counts and shapes only.
