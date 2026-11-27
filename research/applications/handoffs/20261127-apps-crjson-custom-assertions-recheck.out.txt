@@ -1,0 +1,69 @@
+ok   tree listing: the pinned commit, not truncated, 778 entries
+ok   each of the eight files has the size the tree listing gives
+ok   the six files the handoff lists have the sizes it gives
+ok   the tree lists six files under sdk/tests/crjson/ (five test files, as the handoff says, and mod.rs), crjson_tests.rs and the schema
+ok   one crjson.rs under sdk/src
+ok   src/reader.rs:595 contains 'pub fn to_crjson_value(&self) -> Result<Value> {'
+ok   src/reader.rs:596 contains 'crate::crjson::from_reader(self)'
+ok   src/reader.rs:603 contains 'pub fn crjson(&self) -> String {'
+ok   src/reader.rs:604 contains 'self.crjson_checked().unwrap_or_else(|_| "{}".to_string())'
+ok   src/reader.rs:610 contains 'pub fn crjson_checked(&self) -> Result<String> {'
+ok   src/crjson.rs:213 contains 'pub fn from_reader'
+ok   src/crjson.rs:357 contains 'ClaimAssertion::label() already encodes the instance suffix as `base__N`'
+ok   src/crjson.rs:358 contains 'for ca in claim.claim_assertion_store() {'
+ok   src/crjson.rs:359 contains 'let key = ca.label();'
+ok   src/crjson.rs:363 contains 'if let Some(value) = self.claim_assertion_to_value(manifest_label, ca)? {'
+ok   src/crjson.rs:364 contains 'assertions_obj.insert(key, value);'
+ok   src/crjson.rs:413 contains 'Everything else is decoded via [`Assertion::as_json_object`] and passed through'
+ok   src/crjson.rs:424 contains 'if ca.label_raw().starts_with(assertion_labels::INGREDIENT) {'
+ok   src/crjson.rs:462 contains '_ => Ok(assertion.as_json_object().ok().map(fix_hash_encoding)),'
+ok   claim_assertion_to_value (crjson.rs:415-464) tests no literal label: only the ingredient prefix and the two thumbnail prefixes, by constant
+ok   src/assertion.rs:335 contains 'AssertionData::Json(x) => serde_json::from_str(x)'
+ok   src/assertion.rs:338 contains 'AssertionData::Cbor(x) => {'
+ok   src/assertion.rs:341 contains 'Ok(cbor_to_json_b64(value))'
+ok   src/utils/json_b64.rs:66 contains 'Cbor::Integer(i) => Value::Number(i.into()),'
+ok   src/utils/json_b64.rs:70 contains 'Cbor::Bytes(b) => Value::String(encode_b64_wrapped(&b)),'
+ok   src/utils/json_b64.rs:71 contains 'Cbor::Text(s) => Value::String(s),'
+ok   src/utils/json_b64.rs:73 contains 'Cbor::Map(m) => {'
+ok   src/utils/json_b64.rs:76 contains 'obj.insert(cbor_key_to_string(k), cbor_to_json_b64(v));'
+ok   src/utils/json_b64.rs:15 contains 'Conversion uses `c2pa_cbor` and inherits its supported integer range.'
+ok   json_b64.rs:55-59 says the mapping is not lossless
+ok   src/crjson.rs:435 contains 'AssertionData::Binary(_) | AssertionData::Uuid(_, _) => {'
+ok   src/crjson.rs:457 contains '"format": assertion.content_type(),'
+ok   src/crjson.rs:458 contains '"identifier": absolute_uri,'
+ok   src/crjson.rs:459 contains '"hash": base64::encode_b64_wrapped(ca.hash())'
+ok   src/store/store_core.rs:711 contains 'CAI_CBOR_ASSERTION_UUID => {'
+ok   store_core.rs: the JSON box arm near 657-663 and the UUID box arm near 743-748
+ok   src/store/store_core.rs:718 contains 'if let Err(e) = c2pa_cbor::from_slice::<c2pa_cbor::Value>(cbor_box.cbor()) {'
+ok   src/store/store_core.rs:724 contains '.validation_status(ASSERTION_CBOR_INVALID)'
+ok   src/store/store_core.rs:725 contains '.failure('
+ok   src/store/store_core.rs:730 contains ')?;'
+ok   src/crjson.rs:690 contains 'fn fix_hash_encoding(value: Value) -> Value {'
+ok   src/crjson.rs:694 contains 'const SCHEMA_ORG_OS_KEY: &str = "schema.org.SoftwareApplication.operatingSystem";'
+ok   src/crjson.rs:701 contains 'for field in &["hash", "pad", "pad2"] {'
+ok   src/crjson.rs:718 contains '// Ensure hash-bearing objects also carry a (possibly empty) pad field.'
+ok   src/crjson.rs:719 contains 'if map.contains_key("hash") && !map.contains_key("pad") {'
+ok   crjson.rs:723-740 rewrites a signature value
+ok   crjson.rs:748-760 cuts an icon object down to url, hash, alg
+ok   the function recurses into nested values
+ok   crjson.rs:393-398 an unresolved gathered assertion is {identifier, hash}
+ok   test file lines 34-58 name the three labels
+ok   test file lines 80-82 check contains_key for them
+ok   src/status_tracker/log_item.rs:256 contains 'pub fn failure<E: Debug>(mut self, tracker: &mut StatusTracker, err: E) -> Result<E, E> {'
+ok   src/status_tracker/log_item.rs:259 contains 'tracker.add_error(self, err)'
+ok   src/status_tracker/mod.rs:93 contains 'pub fn add_error<E>(&mut self, mut log_item: LogItem, err: E) -> Result<E, E> {'
+ok   src/status_tracker/mod.rs:106 contains 'ErrorBehavior::StopOnFirstError => Err(err),'
+ok   src/status_tracker/mod.rs:107 contains 'ErrorBehavior::ContinueWhenPossible => Ok(err),'
+ok   src/status_tracker/mod.rs:21 contains '#[derive(Debug, Default)]'
+ok   src/status_tracker/mod.rs:22 contains 'pub struct StatusTracker {'
+ok   src/status_tracker/mod.rs:189 contains '#[derive(Debug, Default, Eq, PartialEq)]'
+ok   src/status_tracker/mod.rs:196 contains '#[default]'
+ok   src/status_tracker/mod.rs:197 contains 'ContinueWhenPossible,'
+ok   reader.rs builds its validation log in 9 places, each with StatusTracker::default()
+ok   reader.rs never names ErrorBehavior
+ok   src/store/store_core.rs:663 contains 'let assertion = Assertion::from_data_json(&raw_label, json_box.json())?;'
+ok   src/store/store_core.rs:666 contains 'if let Err(e) = serde_json::from_slice::<serde_json::Value>(json_box.json()) {'
+ok   src/store/store_core.rs:672 contains '.validation_status(ASSERTION_JSON_INVALID)'
+ok   src/store/store_core.rs:678 contains ')?;'
+ok   store_core.rs builds a stop-on-first-error log in one place, line 1924 (which call uses it was not read)
+68 checks, 0 failed

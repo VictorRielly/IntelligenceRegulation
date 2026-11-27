@@ -885,6 +885,24 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 04:21 UTC, applications [a research tick's reading of public source text, checked by
+    me on my own downloads, 68 checks; nothing built or run]: the standard's open library writes a
+    custom record with its content in its second JSON output too, provided the record is a CBOR map
+    or a JSON object; a malformed record costs that record, not the whole read.** A receipt can be
+    tied to a media file by a small custom record (an "assertion"). The first item today showed that
+    the library's main JSON route returns such a record's content. This item read the other route,
+    the standardised crJSON output, at the same pinned version: every stored record is written under
+    its own label; CBOR and JSON content is decoded and kept; raw binary content is replaced by a
+    reference with a hash and no content [READ by the tick, quotations confirmed by my script]. The
+    writer renames or rewrites five field names in any record (`hash`, `pad`, `pad2`, `signature`,
+    `icon`) and returns byte strings as marked base64 text, so a producer should avoid those names.
+    Added by my check, from two files the tick did not read: the library's validation log continues
+    after a failure by default, and the reader builds it with the default in all 9 places, so an
+    invalid record is logged and left out while loading goes on [READ and COUNTED by my script;
+    which of those logs reaches the loading call was not traced]. All of this is source text at one
+    version; no file was written or read back
+    (`research/applications/handoffs/20261127-apps-crjson-custom-assertions.md` and the check beside
+    it).
     **Nov 27, 04:14 UTC, Lean [a fifth read-only comparison by an independent reader; the activation
     table's zero row, the causal mask, the rotation sign and the group count re-read by me]: the
     public tables the Rust verifier builds meet every law the single-block statement assumes of
