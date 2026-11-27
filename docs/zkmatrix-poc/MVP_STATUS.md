@@ -879,6 +879,24 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 00:16 UTC, applications [A32: source reading by a research tick; every quotation and
+    line number found again in my own copies of the files; nothing built or run]: a receipt
+    reference placed as a custom entry in a file's content credential would come back to a web page
+    through the standard's open reader library, but nothing in that library would display it.** A
+    content credential is the signed record a media file can carry under the C2PA standard; an
+    assertion is one entry in it. The open web reader library (version 0.17.2) hands back the record
+    as its Rust reader produced it, and that reader returns an entry whose label it does not know,
+    with its label and data, when the data is CBOR or JSON; binary data is left out [COUNTED in the
+    source, not run]. A byte string inside such an entry comes back as base64 text [my reading of
+    one further source file]. The library's repository has no display component (its sample writes
+    the object to the console), the public Verify page carries no documentation text, and the
+    documentation of the vendor's inspection tool lists four sections and is silent on other labels.
+    So a product on this route builds its own display and verifies the receipt itself. Not
+    established: what the public viewers do with such an entry. The test that would settle it (one
+    test file with such an entry, read back) needs the standard's open command-line tool, whose
+    installation waits for the owner's answer. Two follow-up items are queued
+    (`research/applications/handoffs/20261127-apps-web-reader-custom-assertions.md`, with the
+    recheck beside it).
     **Nov 27, 00:06 UTC, research [tick 68: code reading and arithmetic; the code lines and the
     cited records re-read by me, every derived figure recomputed; nothing built or run]: much of
     what the 8B test's checker does per block is re-reading the public weights, not checking the

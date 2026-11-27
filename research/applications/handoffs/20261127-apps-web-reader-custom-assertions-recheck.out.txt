@@ -1,0 +1,45 @@
+== the copies
+ok   the directory holds 19 copies: 9 files of the web library's repository, 3 of the Rust reader (one not read by the handoff), 5 API answers, 2 pages | 19
+== versions
+ok   web library package.json line 3: version 0.17.2
+ok   workspace Cargo.toml line 10 pins the Rust reader at =0.92.2
+ok   web library commit f7c379e9..., committed 2026-11-23T22:30:02Z
+ok   Rust reader tag c2pa-v0.92.2 is an annotated tag (object bf4a48a6...) whose target is commit d8d5e0ff... | d8d5e0ffb0ad
+ok   the newest web library release in the releases list is @contentauth/c2pa-web@0.17.2 | ['0.17.2', '0.17.1']
+ok   handoff says: versions
+ok   handoff says: tag and commit
+== finding 1: the web library passes the Rust reader's output through
+ok   reader.ts 140-145 and 148-152: manifestStore() and activeManifest() return what the worker returns
+ok   reader.ts 166-168: crJson() exists
+ok   wasm_reader.rs 167-171 and 181-187: the reader is serialised as it is
+ok   sanitizeManifestStore.ts 11-12 and 28-43: only the manifests map is rebuilt; the word "assertion" is not in the file
+ok   types README 3 and 25-27: the types are generated from the Rust structs
+== finding 2: an unknown label is returned when its data is CBOR or JSON
+ok   manifest.rs 551 and 554: the loop matches on the assertion's base label
+ok   manifest.rs known arms: actions 555, ingredient 596, thumbnail 609, assertion metadata 614, ".metadata" 622, identity 632; hashes left out at 607
+ok   manifest.rs 669-670: the catch-all arm, "inject assertions for all other assertions"
+ok   manifest.rs 672-678: CBOR data is converted and pushed under the base label
+ok   manifest.rs 680-688: the same for JSON data, with kind Json
+ok   manifest.rs 690-692: binary and UUID data add nothing ("todo: support binary forms")
+ok   manifest.rs 100 and manifest_assertion.rs 37-51: the returned object is label, data, instance, kind, created
+ok   the web library's test fixture 34, 48-52, 61: three labels expected, two outside the standard's own namespace
+ok   handoff says: the catch-all lines
+ok   handoff says: binary and UUID dropped
+== finding 3: no interface component in this repository
+ok   tree listing: five packages and two tools, none a viewer or web-component package | ['c2pa-node', 'c2pa-types', 'c2pa-utilities', 'c2pa-wasm', 'c2pa-web', 'nx-wasm-bindgen', 'testbed']
+ok   package.json 56-61: four dependencies, none an interface library
+ok   root README 17: the old repository is deprecated
+ok   testbed main.ts 16-19, 50-51, 55: the sample reads and logs, it renders nothing
+== finding 4: the two public pages
+ok   the public Verify page is a 3,246-byte shell whose only text asks for JavaScript | Content Credentials Please enable Javascript to use this site.
+ok   the inspection tool's page: "a C2PA conforming validator product that can display and apply Content Credentials for various asset types"
+ok   the inspection tool's page lists four subsections of content details
+ok   the inspection tool's page: the message for an asset with no manifest store
+ok   on that page the word "assertion" occurs only inside addresses of the sample JSON | 3
+ok   that page shows no version; its footer carries the year 2026
+== MINE: the coordinator's remarks
+ok   MINE 1: the ".metadata" arm is at manifest.rs 622-629, not "line 63-70" as the handoff's caveat has it
+ok   MINE 2: a CBOR byte string comes back as base64 text, not as bytes (assertion.rs 338-341; the library's own test 709-730, on the label "test.bytes_and_array")
+ok   MINE 3: CBOR that does not parse is an error at assertion.rs 339-340, and manifest.rs 673 passes it up with "?"; what the caller then does was not read
+ok   MINE 4: the returned entry also says whether the signer created the assertion (manifest.rs 552, 676)
+checks: 37, failed: 0
