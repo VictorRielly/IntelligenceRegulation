@@ -51,7 +51,10 @@ Mac. A request counts as 128 tokens, padding included.
   not exist.
 - **Lean proofs, the profile the app runs (W16R2):** two of the author's nine items are merged, the
   shape of the 26 layers and single-block soundness, at the level "builds, read in part" [Nov 26,
-  00:25 and 02:13 UTC]. The run level, the honest prover, zero knowledge and the final statement are
+  00:25 and 02:13 UTC]. A reading on Nov 27 found every parameter that the single-block statement
+  fixes equal to the Rust verifier's; the statement leaves the opening dimensions, the path depths
+  and the opening check free, and the run level has to pin them to the code's [Nov 27, 00:24 and
+  00:35 UTC]. The run level, the honest prover, zero knowledge and the final statement are
   open. The author's estimate for the whole list was five to eight weeks of agent work, made on Nov
   25 before those two items landed; Claude has not revised it [Nov 25, 19:28 and 22:47 UTC]. The 8B
   next-token profile is a further port that the list does not cover.
