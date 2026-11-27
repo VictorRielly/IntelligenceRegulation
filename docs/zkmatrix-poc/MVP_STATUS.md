@@ -885,6 +885,27 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 08:03 UTC, efficiency research [tick 70, reading and arithmetic; checked by me against
+    the code and the records, 38 checks; nothing run]: a checker rebuilds about 8 million public
+    table entries for every block it checks, and three of our estimates of where a block's checking
+    time goes cannot all be right.** One thread of a checker (verifier) spends about 275 ms on a
+    block of the 8B test with diagonal test weights [MEASURED Nov 25]. Earlier ticks split that time
+    by estimate. This tick counted a part nobody had counted. For each block the checker builds
+    every public table in full (the causal masks, the rotation tables, the activation group column
+    and others: 8,052,736 entries, 129 MB) and evaluates each one, because it refuses the compact
+    descriptions the prover uses. Priced at assumed rates that is 71 to 165 ms a block. Added to the
+    earlier estimate for the weight checks and folds, it is more than the estimate for the
+    commitment checks leaves, so at least one of the three is too high. That is a finding about our
+    estimates, not about the system. I checked the count in the code, and I added two measured
+    records of this machine that the tick had not used. On Nov 7, with an earlier binary and the
+    classifier profile, the per-step rows of a checker block (which hold this table work) were 0.203
+    s of a 0.370 s block, four times the rows for the commitment checks [MEASURED Nov 7, thread pool
+    size not stated]. So the table work is a real share; how large it is in today's code is not
+    measured. The test the tick proposed does not print anything without a code change. The
+    classifier's checker prints these rows as it stands, and the next research item prepares a
+    one-thread run of it. None of this moves proved tokens a second (checking happens after the
+    clock). If a measurement confirms the share, evaluating the structured tables from formulas
+    would shorten checking, and that would need the security owner's reading.
     **Nov 27, 06:53 UTC, applications [a research tick's reading of public source text, checked by
     me on my own downloads, 120 checks; nothing built or run]: in the older, deprecated web library
     too, a custom record carried as JSON or CBOR reaches the application; no shipped component shows

@@ -1,0 +1,44 @@
+== Part A: the code ==
+ok   the verifier refuses the prover's compact table descriptors (argument.rs:1861-1862)
+ok   the descriptors are switched on for the proving side only (argument.rs:4117)
+ok   the verifier arm starts at argument.rs:2249 and evaluates the public tables through one split table (2262)
+ok   the split evaluation is on unless HL_A26_MLE=0 (argument.rs:1840-1842)
+ok   without a descriptor the causal mask is a full table (argument.rs:2382-2387)
+ok   repeat_vals writes one entry a cube position (argument.rs:2459)
+ok   supp returns nothing for a domain that does not pad (argument.rs:2579-2583)
+ok   supp of a padded domain: an indicator table, then one entry a cube position (argument.rs:2609-2611)
+ok   slot 4 takes the causal mask (argument.rs:3162)
+ok   slot 14 takes two repeated gain tables (argument_accuracy.rs:468-469)
+ok   slot 18 takes the group column and the support of F (argument_accuracy.rs:514-515)
+ok   slots 15 and 16 take the two rotation tables (argument_accuracy.rs:544)
+ok   slot 17 takes the causal mask (argument_accuracy.rs:584)
+ok   the group column is a full table of the F domain, written for tokens x hidden entries (accuracy_act.rs:36-38)
+ok   the split evaluation takes one extension product an entry (mle.rs:108-116)
+ok   an extension product is five base products (field.rs:163-169) | 5
+ok   the per-slot work mark the verifier records (argument.rs:4207-4209)
+== Part B: the records ==
+ok   the 8B production log: slots 4, 14 to 19 hold 4, 36, 15, 15, 19, 19, 58 tables on cubes 2^19, 2^19, 2^19, 2^17, 2^19, 2^21, 2^14 | {4: (4, 19), 14: (36, 19), 15: (15, 19), 16: (15, 17), 17: (19, 19), 18: (19, 21), 19: (58, 14)}
+ok   the 125M verifier log of 27 September: one table, wall 0.838 s, slot rows 0.565 s, slots 4 and 14 to 17 0.535 s | 0.565
+ok   in that log slot 18 reads 0.000 s (no public table of the F domain in that profile's slot)
+ok   tick 68: its bottom-up sum covers checks, registry, folds and the M opening, 114.0 to 351.6 ms
+ok   tick 68: capped by the residual, 114.0 to 178.9 ms
+ok   tick 70's output: 8,052,736 public entries a block, replay 71 / 108 / 165 ms
+== Part C: recomputed ==
+ok   public entries a block = 8,052,736 with the handoff's table counts; 128.8 MB at 16 bytes | 8052736
+ok   slot 18's two tables are 4,194,304 entries, 52% of the total
+ok   evaluation at 5 products and an add an entry: 36.2, 49.1, 68.4 ms (rates assumed around one derived rate) | [36.2, 49.1, 68.4]
+ok   the two lower ends, 114.0 + 71, exceed the largest residual 178.9 ms (the assumed rates cannot all hold) | 185.0
+== MINE ==
+ok   the per-step timer is called four times in argument.rs, all before the verifier arm (lines [1933, 2020, 2038, 2195] < 2249)
+ok   the fork verifier starts a phase recorder and hands it to verify_core (run_fork.rs:2787-2788)
+ok   run_fork.rs never prints a phase table (no report call in the file)
+ok   a verifier phase table is printed in two places only: protocol.rs:4498 and token_io/classify_run.rs:1014 | [('protocol.rs', 4498), ('token_io/classify_run.rs', 1014)]
+ok   the app lane's verifier log of 7 November: 26 phase tables, one a block, all of the R13 classifier profile
+     a block, mean (least to most) over the 26 tables: wall 0.370 (0.337 to 0.599) s; the 23 slot rows 0.203 (0.168 to 0.337) s; slots 4 and 14 to 18 0.136 (0.108 to 0.220) s; the opening rows 0.050 (0.045 to 0.079) s
+ok   in every one of the 26 tables the slot rows are the largest group: more than the opening rows
+ok   slot rows as a share of the wall: 55% on average (48% to 60%)
+ok   first table: wall 0.340 s, slot 18 0.042 s, slot 14 0.032 s
+ok   first table: the work marks of slots 4 and 14 to 18 are whole multiples of 2^(n+1) for the 8B cube sizes n = 19, 19, 19, 17, 19, 21 (4, 64, 27, 27, 28, 29 tables with one extension round): consistent with the same cubes | {4: 4.0, 14: 64.0, 15: 27.0, 16: 27.0, 17: 28.0, 18: 29.0}
+ok   the A26 record, sampled verifier CPU of the earlier binary: transform 12%, weight folds 14%, public tables about 10%, block checks 11% (README lines 97-100)
+ok   the same record: the split tables are its change 3 (README line 136)
+checks: 38, failed: 0

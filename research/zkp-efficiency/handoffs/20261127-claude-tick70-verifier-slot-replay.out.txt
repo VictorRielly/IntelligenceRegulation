@@ -1,0 +1,36 @@
+PASS  23 slots read from the log
+PASS  tables x cube divides exactly in every slot
+slot: tabs x 2^n   {0: (2, 19), 1: (2, 19), 2: (25, 7), 3: (5, 14), 4: (4, 19), 5: (2, 12), 6: (2, 12), 7: (2, 12), 8: (3, 10), 9: (3, 10), 10: (2, 12), 11: (2, 12), 12: (2, 12), 13: (2, 14), 14: (36, 19), 15: (15, 19), 16: (15, 17), 17: (19, 19), 18: (19, 21), 19: (58, 14), 20: (2, 14), 21: (3, 19), 22: (3, 19)}
+slot 19: r=12 range sub-planes -> narrow supports 10, pub tables 27
+slot 19: r=13 range sub-planes -> narrow supports 7, pub tables 25
+PASS  slot 19 has 25 pub tables at r = 13
+PASS  slots 0-3, 20-22 carry no pub table (tabs = eq + private)
+pub entries per slot {4: 524288, 5: 4096, 6: 4096, 7: 4096, 10: 4096, 11: 4096, 12: 4096, 13: 16384, 14: 1048576, 15: 1048576, 16: 262144, 17: 524288, 18: 4194304, 19: 409600}
+pub entries a block: 8,052,736   bytes at 16 B: 128.8 MB
+PASS  total pub entries 8,052,736
+sumcheck rounds a block: 370
+PASS  rounds 370
+SplitEq half-table entries a block: 11,264
+SplitEq evaluation, 8,052,736 Fp2 products: 36.2 / 49.1 / 68.4 ms
+build causal mask (slots 4, 17)       1,048,576 entries    4.2 /   8.4 /  15.7 ms   [three runtime div/mod per entry, argument.rs:2828-2832]
+build rope tables (slots 15, 16)        655,360 entries    5.2 /   9.2 /  16.4 ms   [four div/mod, two tables a position, argument.rs:2857-2875]
+build repeat_vals (slot 14, two)      1,048,576 entries    2.1 /   4.2 /   8.4 ms   [one mod a entry, argument.rs:2459]
+build group_col (slot 18)             1,835,008 entries    3.7 /   5.5 /   7.3 ms   [tokens x hidden writes, accuracy_act.rs:36-39]
+build supp(F) indicator (slot 18)     2,097,152 entries    8.4 /  12.6 /  21.0 ms   [i64 table then Fp2 map, argument.rs:2609-2611, pad.rs:354]
+build slot 19 tables and folded weights (flat, ASSUMED)   2.0 / 2.5 / 3.0 ms
+memory first touch, 145.6 MB at 0.06 / 0.10 / 0.15 ms a MB: 8.7 / 14.6 / 21.8 ms
+BUILD total: 34.3 / 56.9 / 93.7 ms
+rounds, claims, functionals, audit (ASSUMED, counts small): 0.5 / 1.5 / 3.0 ms
+REPLAY total (one thread): 71 / 108 / 165 ms   width 94 ms
+PASS  width of the replay range exceeds the 20 ms pass line
+tick 68 residual: 160 to 179 ms; its bottom-up non-PCS 114 to 179 ms
+non-PCS (114 at its low rates) + replay (low rates) = 185 ms against a residual of at most 179 ms
+room left for the replay if non-PCS is at its own lower end and the NTT term at its lower end: 65 ms
+PASS  replay low end exceeds the room left (the assumed rates cannot all hold)
+NTT term the residual can hold if both lower ends are right: at most 69 ms (tick 60 derived 75 to 94)
+125M verifier: wall 0.838 s, the 23 slot phases 0.565 s = 67%
+PASS  125M slot phases are 0.56 to 0.57 s of 0.838 s
+slots 4, 14-17: 535 ms over about 21,495,808 public entries = 25 ns an entry (full eq table then, default pool)
+  slot 14 21 ms / 2,097,152 = 10.0 ns;  slot 15 26 ms = 12.4 ns;  slot 16 5 ms = 9.5 ns
+
+9 checks, 0 failed
