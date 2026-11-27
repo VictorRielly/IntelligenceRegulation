@@ -1,0 +1,93 @@
+ok   shape.rs:705 and :710 are the two Shape::build lines (8B and Shieldstral closures)
+ok   shape.rs:705 gives width 4096, hidden 14336, 32 heads of 128, 8 key-value heads
+ok   shape.rs:710 gives width 3072, hidden 9216, 32 heads of 128, 8 key-value heads
+ok   shape.rs:745 contains 'SHIELDSTRAL_T128_TRAINED_PROFILE => ss('
+ok   shape.rs:301 contains 'name:"W16R2_SHIELD_T128_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24'
+ok   shape.rs:302 contains 'name:"W16R2_8B_T128_H24",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24'
+ok   shape.rs:699 contains 'Shape::build(s.name,s.profile,s.tokens,s.width,s.hidden,s.q_heads,s.head_dim,s.kv_heads,'
+ok   shape.rs: q_pad is h_pad * head_dim (line 2301)
+ok   shape.rs: a head slot is a true head when its index in its key-value group is below q_heads / kv_heads (line 2328)
+ok   both profiles fold 243,269,632 padded entries a block
+ok   installed profile: 126,877,696 pad entries (52.2%)
+ok   8B profile: 25,165,824 pad entries (10.3%)
+ok   installed profile: the three feed-forward matrices hold 91.7% of the pad
+ok   at 32 heads over 8 key-value heads the padded head axis has 32 slots, four a group, all true heads: Wq and Wo have no head pad
+ok   the live width 3072 is twelve whole chunks of 256 columns: in the row form the pad of Wq, Wk, Wv is four whole chunks of sixteen
+ok   argument.rs:3231 contains 'SC_QMM => (ids.at(A_Y), ctx.public.wq.as_slice(), sh.q_pad(), sh.d_pad),'
+ok   argument.rs:3232 contains 'SC_KMM => (ids.at(A_Y), ctx.public.wk.as_slice(), kvw, sh.d_pad),'
+ok   argument.rs:3234 contains '_ => (ids.at(A_O8), ctx.public.wo.as_slice(), sh.d_pad, sh.q_pad()),'
+ok   argument.rs:3249 contains 'fold_checked(w,outer,inner,Axis::Rows,&coefficients(sh,data,site)?,&weights,pts.weights_checked,pts.prove_side)?'
+ok   argument.rs:3375 contains 'SC_GMM => (ids.at(A_YM), ctx.ff.wg_t.as_slice(), sh.d_pad, sh.f_pad),'
+ok   argument.rs:3377 contains '_ => (ids.at(A_H16), ctx.ff.wd_t.as_slice(), sh.f_pad, sh.d_pad),'
+ok   argument.rs:3390 contains 'fold_checked(w,rows,cols,Axis::Columns,&coefficients(sh,data,site)?,&weights,pts.weights_checked,pts.prove_side)?'
+ok   argument.rs:4110 contains 'let prove_side = matches!(side, Side::Prove { .. });'
+ok   accuracy_fold.rs:1149 contains 'if !prove_side {'
+ok   accuracy_fold.rs:1150 contains 'return fold_with_mode(matrix, rows, cols, axis, coefficients, eq, false);'
+ok   accuracy_fold.rs:47 contains 'matrix.par_chunks(1<<20).any(|c|c.contains(&i8::MIN))'
+ok   accuracy_fold.rs:1073 contains 'if has_i8_min(matrix) {'
+ok   accuracy_fold.rs:1082 contains 'Axis::Rows => fold_rows_i8(matrix, rows, cols, &weighted),'
+ok   accuracy_fold.rs:1083 contains 'Axis::Columns => fold_cols_i8(matrix, rows, cols, &weighted),'
+ok   mle.rs:160 contains 'if deferred_rows() {'
+ok   mle.rs:185 contains 'if deferred_cols() {'
+ok   mle.rs:231 contains 'std::env::var("HL_FSP_ROW_FOLD").map(|v| v != "0").unwrap_or(true)'
+ok   mle.rs:286 contains 'std::env::var("HL_FSP_COL_FOLD").map(|v| v != "0").unwrap_or(true)'
+ok   mle.rs:270 contains 'if v == 0 { continue; }'
+ok   mle.rs:313 contains 'if v == 0 { continue; }'
+ok   mle.rs:245-319 (both deferred folds): no test of a zero weight, only of a zero matrix value
+ok   mle.rs:260, 266: the row form walks every row for each chunk of 256 columns
+ok   private_block.rs:510 contains 'fn weights_vanish_off_support(sh: &shape::Shape, w: &[i8], outer: Axis, inner: Axis) -> Result<(), String> {'
+ok   private_block.rs:635 contains 'weights_vanish_off_support(sh, wq, Axis::Q, Axis::D)?;'
+ok   private_block.rs:636 contains 'weights_vanish_off_support(sh, wk, Axis::Full(kv), Axis::D)?;'
+ok   private_block.rs:637 contains 'weights_vanish_off_support(sh, wv, Axis::Full(kv), Axis::D)?;'
+ok   private_block.rs:638 contains 'weights_vanish_off_support(sh, wo, Axis::D, Axis::Q)?;'
+ok   private_block.rs:776 contains 'weights_vanish_off_support(sh, wg_t, Axis::D, Axis::F)?;'
+ok   private_block.rs:777 contains 'weights_vanish_off_support(sh, wu_t, Axis::D, Axis::F)?;'
+ok   private_block.rs:778 contains 'weights_vanish_off_support(sh, wd_t, Axis::F, Axis::D)?;'
+ok   private_block.rs:485 contains 'Axis::D => i < sh.width,'
+ok   private_block.rs:486 contains 'Axis::Q => sh.slot_is_true_head(i / sh.head_dim),'
+ok   private_block.rs:487 contains 'Axis::F => i < sh.hidden,'
+ok   private_block.rs:526 contains 'row.iter().any(|v| *v != 0)'
+ok   private_block.rs:528 contains 'inner_off.iter().any(|&i| row[i] != 0)'
+ok   private_block.rs: the word check is called at four lines, two in the constructors and two in check_for_shape ([602, 661, 759, 797])
+     note: check_for_shape is called at 53 lines of the prover source; which of them the installed checker passes through was not traced
+ok   BlockR13HostBase.lean:664 contains 'structure PubR'
+ok   BlockR13HostBase.lean:673 contains 'wq : '
+ok   BlockR13HostBase.lean:700 contains 'wd : '
+ok   LayoutW16.lean:225 contains 'the padded entries zero.'
+ok   reading_t1a.txt has 'F: slots 5 to 7, 10 to 13 (weight folds) 139.5'
+ok   reading_t1a.txt has 'T: setup + 23 slots + M + A + H 338.9'
+ok   reading_t1a.txt has 'wall of a table 740.0'
+ok   reading_t1a.txt has 'F as ns a padded weight entry (243269632 entries a block): 0.573'
+ok   reading_t1a.txt has 'the other seven slots 1.6'
+ok   raw/t1a.log: 26 tables of 23 slot rows
+ok   the median over the tables of the seven rows together is 139.5 ms
+     per matrix [MEASURED, one run, one thread, the pinned binary, real weights]: median row over 26 tables
+     slot     form        padded   pad %       ms ns a padded entry
+        5 Wq  rows    16,777,216    25.0    12.89        0.768
+        6 Wk  rows     4,194,304    25.0     3.46        0.824
+        7 Wv  rows     4,194,304    25.0     3.34        0.797
+       10 Wo  rows    16,777,216    25.0    12.64        0.753
+       11 Wg  cols    67,108,864    57.8    35.41        0.528
+       12 Wu  cols    67,108,864    57.8    35.94        0.536
+       13 Wd  cols    67,108,864    57.8    36.26        0.540
+     sum of the seven medians 139.9 ms
+ok   the four row-form matrices (25.0% pad) cost 0.771 ns a padded entry, the three column-form ones (57.8% pad) 0.535
+ok   the handoff's ceiling: pad entries at the pooled average rate, 72.8 ms a block
+     the same ceiling taken matrix by matrix (a pad entry costs no more than the average entry of its own matrix): 70.3 ms a block
+ok   the handoff's low figure: 0.2600 ns a pad entry gives 33.0 ms a block
+ok   the handoff's mid figure: 0.3925 ns a pad entry gives 49.8 ms a block
+ok   the handoff's high figure: 0.5250 ns a pad entry gives 66.6 ms a block
+     two equations, three unknowns (cost z of a pad entry, cost of a live entry in each loop form):
+       live entry of the column form 0.0 ns cheaper than of the row form: z = 0.23 ns, live 0.95 and 0.95 ns, saving 29 ms a block
+       live entry of the column form 0.1 ns cheaper than of the row form: z = 0.33 ns, live 0.92 and 0.82 ns, saving 42 ms a block
+       live entry of the column form 0.2 ns cheaper than of the row form: z = 0.42 ns, live 0.89 and 0.69 ns, saving 54 ms a block
+       live entry of the column form 0.3 ns cheaper than of the row form: z = 0.52 ns, live 0.85 and 0.55 ns, saving 66 ms a block
+ok   NOT IDENTIFIED: a difference of 0 to 0.3 ns between the two loop forms moves z from 0.23 to 0.52 ns, across the whole of the handoff's band (0.26 to 0.53)
+ok   tick 68, line [129]: the 0.224 ns is 45 ms of sampled pool CPU a block, prover side, six forks; the text calls it an indication, not a one-thread timing
+ok   45 ms over the 201,326,592 entries of the three feed-forward matrices is 0.2235 ns
+ok   accuracy_fold.rs:1152 contains 'if crate::zk::host_fast_w2_on() {'
+     note: on the prover side fold_checked can take other loops (accuracy_fold.rs:1152-1155); which loop that profile sampled was not read, so the figure is neither a floor nor a ceiling for the checker's loop
+ok   no file under apps/ names HL_FSP_ROW_FOLD or HL_FSP_COL_FOLD (105 files read)
+ok   the binary copy given (3223728 bytes) has the SHA-256 that apps/proven-media/deploy.json pins once: 58e59880780da69dd9fe963ad34fc46073f0e01bc02c82fdd3f732c6793548e7
+ok   that binary holds the names HL_FSP_ROW_FOLD and HL_FSP_COL_FOLD once each: both switches, and so both deferred folds, are compiled in
+74 checks, 0 failed

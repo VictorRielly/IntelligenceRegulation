@@ -1,0 +1,36 @@
+== W16R2_SHIELD_T128_H24 (installed): d=3072 d_pad=4096 f=9216 f_pad=16384 q=4096 q_pad=4096 kv width=1024
+slot matrix   fn            shape (rows x cols)       padded         live          pad  pad %
+   5 QMM  Wq  fold_rows_i8     4096 x 4096      16,777,216   12,582,912    4,194,304   25.0
+   6 KMM  Wk  fold_rows_i8     1024 x 4096       4,194,304    3,145,728    1,048,576   25.0
+   7 VMM  Wv  fold_rows_i8     1024 x 4096       4,194,304    3,145,728    1,048,576   25.0
+  10 WO   Wo  fold_rows_i8     4096 x 4096      16,777,216   12,582,912    4,194,304   25.0
+  11 GMM  Wg  fold_cols_i8     4096 x 16384     67,108,864   28,311,552   38,797,312   57.8
+  12 UMM  Wu  fold_cols_i8     4096 x 16384     67,108,864   28,311,552   38,797,312   57.8
+  13 DMM  Wd  fold_cols_i8    16384 x 4096      67,108,864   28,311,552   38,797,312   57.8
+     total                                    243,269,632  116,391,936  126,877,696   52.2
+  live-only fold saving (loop + scan over the pad entries): low 33.0, mid 49.8, high 66.6 ms a block; hard ceiling at the measured average rate 72.8 ms
+    low        33.0 ms =  23.6% of the 139.5 ms fold rows,  9.7% of the 338.9 ms block proof check,  4.5% of the 740.0 ms table wall, x26 blocks = 0.86 s
+    mid        49.8 ms =  35.7% of the 139.5 ms fold rows, 14.7% of the 338.9 ms block proof check,  6.7% of the 740.0 ms table wall, x26 blocks = 1.29 s
+    high       66.6 ms =  47.7% of the 139.5 ms fold rows, 19.7% of the 338.9 ms block proof check,  9.0% of the 740.0 ms table wall, x26 blocks = 1.73 s
+    ceiling    72.8 ms =  52.2% of the 139.5 ms fold rows, 21.5% of the 338.9 ms block proof check,  9.8% of the 740.0 ms table wall, x26 blocks = 1.89 s
+    if a pad entry costs 0.26 ns, a live entry costs 0.92 ns (average 0.573)
+    if a pad entry costs 0.39 ns, a live entry costs 0.77 ns (average 0.573)
+    if a pad entry costs 0.53 ns, a live entry costs 0.63 ns (average 0.573)
+
+== W16R2_8B_T128_H24: d=4096 d_pad=4096 f=14336 f_pad=16384 q=4096 q_pad=4096 kv width=1024
+slot matrix   fn            shape (rows x cols)       padded         live          pad  pad %
+   5 QMM  Wq  fold_rows_i8     4096 x 4096      16,777,216   16,777,216            0    0.0
+   6 KMM  Wk  fold_rows_i8     1024 x 4096       4,194,304    4,194,304            0    0.0
+   7 VMM  Wv  fold_rows_i8     1024 x 4096       4,194,304    4,194,304            0    0.0
+  10 WO   Wo  fold_rows_i8     4096 x 4096      16,777,216   16,777,216            0    0.0
+  11 GMM  Wg  fold_cols_i8     4096 x 16384     67,108,864   58,720,256    8,388,608   12.5
+  12 UMM  Wu  fold_cols_i8     4096 x 16384     67,108,864   58,720,256    8,388,608   12.5
+  13 DMM  Wd  fold_cols_i8    16384 x 4096      67,108,864   58,720,256    8,388,608   12.5
+     total                                    243,269,632  218,103,808   25,165,824   10.3
+  live-only fold saving (loop + scan over the pad entries): low 6.5, mid 9.9, high 13.2 ms a block; hard ceiling at the measured average rate 14.4 ms
+  at 8B the pad is only the feed-forward's f -> f_pad (25,165,824 entries); the 139.5 ms is not this profile's; the same rates give 6.5 to 13.2 ms a block
+
+installed: where the pad sits (contiguous, whole cache lines; a live-only fold skips whole runs, not scattered bytes):
+  Wq/Wk/Wv: the last 1024 of 4096 bytes of every row; Wo: the last 1024 of 4096 rows, whole;
+  Wg/Wu: the last 1024 rows whole, and the last 7168 of 16384 bytes of every live row;
+  Wd: the last 7168 rows whole, and the last 1024 of 4096 bytes of every live row

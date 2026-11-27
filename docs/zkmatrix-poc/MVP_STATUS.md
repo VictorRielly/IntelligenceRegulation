@@ -889,6 +889,27 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 20:00 UTC, research tick 73 [code reading and arithmetic; one existing run re-read;
+    nothing new run]: half of what the checker's weight folds visit at the installed profile is
+    padding; skipping it would save some checking time and nothing on the speed goal.** To check a
+    block, the checker combines each of the seven public weight matrices with a random vector. The
+    matrices are stored padded to powers of two. At the installed classifier profile (width 3,072
+    stored as 4,096, hidden 9,216 stored as 16,384) 126.9 million of the 243.3 million entries
+    visited a block are padding (52%); at 8B it is 10%. The padding is tested to be zero when a
+    block is loaded, so a fold that skips it returns the same result and no receipt byte changes.
+    The researcher prices the saving at 33 to 67 ms a block at assumed rates, which is 10 to 20% of
+    the 338.9 ms a block's proof check took in this morning's one-thread run, and 0.9 to 1.7 s of
+    that run's 73.8 s. My check (74 checks, none failed) confirms the code reading and the counts,
+    and settles one point the researcher left open: the binary the app pins does contain the faster
+    integer form of both folds. It adds the per-matrix times of this morning's run [MEASURED, one
+    run]: about 35 to 36 ms for each of the three feed-forward matrices and 3 to 13 ms for each of
+    the four attention matrices. Those times do not test the estimate, because the matrices with
+    more padding also use a different loop; they only cap the saving at 70 ms a block. One anchor
+    the researcher called a lower bound is not one, so the 33 to 67 ms stays an assumption at both
+    ends. The test that would measure it needs new test code and is not scheduled; the next research
+    item, the three passes over the model export that take 60.6 s of the 73.8 s, matters more for
+    that check. Record: `research/zkp-efficiency/handoffs/20261127-claude-tick73-weight-fold-pad.md`
+    and the check at its end.
     **Nov 27, 16:55 UTC, applications item A38 [reading of public source at one tagged release;
     nothing run]: one badly formed custom record hides the whole provenance manifest in the
     standard's open reader library.** The question was what the open Rust reader does when a custom
