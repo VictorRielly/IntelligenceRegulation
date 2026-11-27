@@ -889,6 +889,28 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 12:10 UTC, checker time [MEASURED, one run of mine at one thread; the reading rule was
+    pushed before the run]: what one thread of the installed checker spends on a receipt, and one of
+    our estimates is corrected.** I ran the checker binary that the app pins (a copy, never the
+    installed file) on a copy of one retained public receipt of the installed profile, with one
+    thread and the per-block time tables on. The whole check took 73.8 s. Of that, 60.6 s (82%) is
+    three passes over the public model export: a digest pass (37.9 s), a shape check that loads
+    every block once (11.8 s), and a load of each block before it is checked (11.0 s). Checking the
+    26 block proofs themselves took 9.6 s (13%), about 339 ms a block. Inside a block's 339 ms: the
+    seven weight folds 139.5 ms, the two large openings 95 ms, setup 48.6 ms, and the rows that hold
+    the public tables 52.5 ms. That last figure settles the open question of ticks 70 and 71: they
+    had estimated 85 to 197 ms for the public tables alone, and the rule I posted beforehand reads
+    52.5 ms as "the estimate was too high". So rebuilding the public tables is a small part of
+    checking, and computing them from formulas is not worth a ruling now; I withdraw that request.
+    In practice: someone who checks one receipt with a cold command mostly pays for loading and
+    hashing the model, not for the proof; a checker that keeps the model loaded, as the app's own
+    checker does, pays the smaller part. Limits: one run, one receipt of a 14-token post, one
+    thread, the app's pinned binary (older than today's code); eight tables in a row ran about 30%
+    slower for a reason not known, which the median ignores; this is not the app's check latency
+    (its checkers use four threads and keep the model loaded); nothing here changes proved tokens a
+    second. Nothing of the app was touched: the listings of the export are identical before and
+    after. Two research items follow (what the weight folds visit, and what the three passes
+    repeat). Record: `results/zk60_verify_1t_installed_20261127/`.
     **Nov 27, 12:00 UTC, efficiency research [tick 71, reading only; checked by me, 26 checks;
     nothing run]: a one-thread timing of the installed checker needs no code change, and everything
     it needs is on this machine.** Tick 70 found that three of our estimates of where a checker's

@@ -1,0 +1,7 @@
+RAM   195.23 GiB available of 256.0; swap used 0.0 GiB
+BUDGET 0 of 252.5 GiB committed by guarded jobs
+LOCKS heavy free, build free
+GPU   1048 of 196608 MiB used
+DISK  /System/Volumes/VM 82.9 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: False
+

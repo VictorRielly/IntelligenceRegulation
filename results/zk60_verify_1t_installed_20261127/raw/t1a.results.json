@@ -1,0 +1,45 @@
+{
+ "label": "t1a",
+ "arm": "t1",
+ "run": "6a8ff87cb1ec6e17fcdf4e9c04ae1cb3-c0",
+ "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+ "started_utc": "2026-11-27T12:05:02Z",
+ "guard_exit": 0,
+ "seconds_with_guard_wait": 73.9,
+ "binary_sha256": "58e59880780da69dd9fe963ad34fc46073f0e01bc02c82fdd3f732c6793548e7",
+ "profile_sha256": "9464388091d8095f8491f2990fde54e3b1f2b06f2a5c6ad1e72eff09cd4ce20a",
+ "statement_identity": "e2f3ed604de0b3c85b726970f40a1892712ccd69ae9ca365c3f05eab5313dde7",
+ "set": {
+  "HL_PB_TIMING": "1",
+  "HL_PB_ORACLE": "0",
+  "HL_GPU": "0",
+  "HL_GPU_REQUIRED": "0",
+  "HL_A26_VERIFY_ONCE": "0",
+  "OPENBLAS_NUM_THREADS": "1",
+  "OMP_NUM_THREADS": "1",
+  "RAYON_NUM_THREADS": "1"
+ },
+ "also_set": [
+  "ZK60_MODELS",
+  "HL_OWNER_PRIVATE_DIR"
+ ],
+ "max_secs": 1800,
+ "listing_entries": {
+  "export": 609,
+  "models": 1
+ },
+ "listing_sha256_pre": {
+  "export": "57db6a0cfbf0dc02b6f0b871ff671f25c98ba19c5c45581797bb75556ffa7d62",
+  "models": "980b1aa88cc11aa6809c967b280464d849cbaf0e67b34ab263da2df7a92c613c"
+ },
+ "listing_sha256_post": {
+  "export": "57db6a0cfbf0dc02b6f0b871ff671f25c98ba19c5c45581797bb75556ffa7d62",
+  "models": "980b1aa88cc11aa6809c967b280464d849cbaf0e67b34ab263da2df7a92c613c"
+ },
+ "listing_unchanged": {
+  "export": true,
+  "models": true
+ },
+ "files_under_scratch_owner_private": [],
+ "files_in_run_copy_after": 29
+}

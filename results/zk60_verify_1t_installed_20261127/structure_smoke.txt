@@ -1,0 +1,16 @@
+label smoke | arm p | run 6a8ff87cb1ec6e17fcdf4e9c04ae1cb3-c0 | policy shieldstral-1.0-3b-moderate-sexual/1
+ok   guard exit 0, not killed by the guard
+ok   one classified event, no refusal
+ok   26 tables
+ok   every header names the W16R2 development run profile
+ok   every table has 30 rows and says 30 phases
+ok   23 slot rows in every table
+ok   the nine public-table slots print the expected sizes in every table
+ok   median unaccounted share at most 0.5%
+ok   export and models listings unchanged
+ok   nothing written under the scratch owner-private directory
+ok   ns-a-unit times size agrees with the seconds column to 0.51 ms on every row
+sizes printed for slots 0, 1, 4, 14 to 19 in the first table: {0: 3145728, 1: 3145728, 4: 4194304, 14: 38797312, 15: 15728640, 16: 3932160, 17: 19922944, 18: 79691776, 19: 1900544}
+row names of the first table that are not slots: ['run: block load + statement check', 'frame: decode segment + path depths', 'transcript header + the A and H roots', 'verify M (zk::mask_verify, ONE call)', 'verify A (schedule audit + pcs::verify_zk)', 'verify H (schedule audit + pcs::verify_zk)', 'verify boundary B_(k-1) opening (pcs::verify_zk)']
+PB-CLI lines: ['load_export (the digest pass)', 'tied classifier tables (re-derived from the pinned checkpoint)', 'statement door (re-render, byte compare) + segment reads', 'pre-header stage-shape check (every block loaded once)', 'stage IN-C', 'stage OUT-C', 'the run (verify_classify_run_with)']
+STRUCTURE: sound
