@@ -889,6 +889,27 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 16:55 UTC, applications item A38 [reading of public source at one tagged release;
+    nothing run]: one badly formed custom record hides the whole provenance manifest in the
+    standard's open reader library.** The question was what the open Rust reader does when a custom
+    record (the kind that would carry a reference to one of our proofs inside a provenance manifest)
+    does not parse. The researcher read the source and I checked it against my own downloads (the
+    same eight files by hash; 88 checks pass; the main passages read by eye). Three cases. A record
+    whose CBOR is invalid, or whose JSON is text but not JSON: the library records a status and
+    keeps loading, but when it then builds its list of manifests the conversion of that manifest
+    fails, so the whole manifest (signer, edit history, every other record) is missing from the list
+    and the reader reports no active manifest; only the status list says why. A JSON record that is
+    not valid UTF-8: the whole read fails. The library's other output (its JSON report) leaves out
+    only the bad record. This corrects a sentence of my earlier check of item A36, which said a bad
+    record costs only that record; that is true for the JSON report only. For a product: the record
+    we write must be well formed and tested with the pinned reader before release (whether the
+    library's own writer can produce a bad record at all was not read); and a verifier page should
+    read the JSON report together with the status list. Limits: one library at one tag, source text
+    only; no file with a bad record was read by the library; what any service does with such a file
+    is not known from this. Two small follow-up items are queued (the status codes and the hash
+    check; what the open web reader returns when the active manifest is missing). Record:
+    `research/applications/handoffs/20261127-apps-malformed-assertion-load.md` and the check beside
+    it.
     **Nov 27, 15:58 UTC, research tick 72 [reading and arithmetic; no run]: why two records of the
     same block disagree by a few rows, and it changes nothing.** One record of 5 November counts
     2,501 and 2,602 committed rows for the 8B block; the traced runs I checked (5, 17 and 20
