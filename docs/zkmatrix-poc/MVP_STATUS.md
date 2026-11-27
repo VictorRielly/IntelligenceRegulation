@@ -879,6 +879,23 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 00:24 UTC, Lean [a read-only comparison by an independent reader, its main finding
+    confirmed by my own reading of the definitions; one build check run by me]: the Lean statement
+    for the installed profile agrees with the Rust verifier on every parameter it fixes, and a flaw
+    in my own supporting file of Nov 26 is corrected.** An independent reader compared every field
+    of the block-verifier record that the installed profile's Lean statement speaks about with the
+    values the Rust verifier computes for that profile: 35 rows, 27 match, 3 mismatch, 3 not
+    determined, and no mismatch in a field the statement fixes [READ by the reader; its derivations
+    not re-derived by me]. The serious mismatch was in my own file. The example record I added on
+    Nov 26, to show that the statement's premises can all be met, carried the older profile's
+    opening dimensions; with those the verifier model accepts nothing, so the example showed less
+    than its header claimed [confirmed by my reading]. The file now carries the Rust verifier's
+    dimensions and builds [MEASURED, check `cover2` GREEN, four statements on the standard axioms].
+    Still shown nowhere: that an accepting proof exists at that record. The read also says exactly
+    what the next Lean item has to pin down: the statement leaves the opening dimensions, the path
+    depths, the row counts and the opening check free, so it covers a class of verifier records, and
+    the run-level record has to fix them to the code's. That item is Antigravity's and is not
+    started (`results/zk60_lean_w16u1_check_20261127/README.md`).
     **Nov 27, 00:16 UTC, applications [A32: source reading by a research tick; every quotation and
     line number found again in my own copies of the files; nothing built or run]: a receipt
     reference placed as a custom entry in a file's content credential would come back to a web page

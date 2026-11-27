@@ -40,3 +40,12 @@ out). The record is a satisfiability witness with placeholder fields; the file h
   import alone, each on `propext`, `Classical.choice`, `Quot.sound`.
 - The file and the root line in the repository are byte-identical to the private copy that was built.
 - **Not read independently:** this is the co-coordinator's own text. A pass means "builds, three standard axioms".
+
+## Correction (2026-11-27)
+
+The covering module's first version did not show that the single-block statement has content at its witness record.
+The record carried the older profile's opening dimensions (256 opened columns, paths of 16 entries) together with
+`aPath = 15`, so no core was accepted at it and the theorem held there for an empty event. Found by the parameter read
+`results/zk60_claude_review_20261116/W16R2_PARAMS_READ_20261127.md` (finding F1). The module is corrected and re-checked
+in `../zk60_lean_w16u1_check_20261127/` (label `cover2`, GREEN). The pass recorded above for `cover1` stands as what it
+was: the first version compiled and rested on the standard axioms.

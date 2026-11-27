@@ -1,27 +1,43 @@
 /-
 Covering module for two facts of the independent read of the installed-profile single-block step
 (`results/zk60_claude_review_20261116/W16U1_READ_20261126.md`, points M2 and M3; co-coordinator,
-2026-11-26). It adds nothing to `BlockW16U1Done.lean` and changes no file of that family.
+2026-11-26; corrected 2026-11-27 after the parameter read
+`results/zk60_claude_review_20261116/W16R2_PARAMS_READ_20261127.md`). It adds nothing to
+`BlockW16U1Done.lean` and changes no file of that family.
 
 1. `cov_layR_c0`: `LayR` at the U1 configuration `c0` for the bit-cube layout `shdP_bitLay Ly`.
    The header of `BlockW16U1Done.lean` cites `RunShieldBlkInst.shdP_bitLay_layR` for the premise
    `hLay` of `block_knowledge_w16r2_shieldU1`. That lemma is stated at `cfgShieldR13 Ly` and does not
    type-check at `c0`. Its four field proofs carry over; the fifth field (`flip`) is by `rfl`.
 
-2. `covParamsW16`, `cov_isShieldW16`, `cov_block_knowledge_w16r2_shieldU1`: a `BlockParams` record
-   that satisfies `Link.IsShieldW16` and every other verifier-identity premise of
-   `block_knowledge_w16r2_shieldU1` (`hdef`, `hlc`, `hep`, `hk3`, `hk19`, `hk20`, `hls`), with that
-   theorem applied to it and to `cov_layR_c0`. So the premises of the single-block statement are
-   jointly satisfiable for every layer of `export_u1`, and the structure `Link.IsShieldW16` has an
-   instance in the tree: the statement is not vacuous.
+2. `covDimW16`, `covParamsW16`, `cov_isShieldW16`, `cov_paths_agree`,
+   `cov_block_knowledge_w16r2_shieldU1`: a `BlockParams` record that satisfies `Link.IsShieldW16`
+   and every other verifier-identity premise of `block_knowledge_w16r2_shieldU1` (`hdef`, `hlc`,
+   `hep`, `hk3`, `hk19`, `hk20`, `hls`), with that theorem applied to it and to `cov_layR_c0`. So the
+   premises of the single-block statement are jointly satisfiable for every layer of `export_u1`,
+   and the structure `Link.IsShieldW16` has an instance in the tree.
 
-What this file is NOT. The record is a satisfiability witness, modelled field by field on
-`RunShieldBlkInst.shdP_blkParams` (the R13 record). The fields that neither `Link.IsShieldW16` nor
-the theorem's premises fix (`aPath`, `hPath`, `maskPath`, `endpointLogN`, the mask row count in
-`geom`, the row count of the endpoint commitments in `covRowsW16`, `preChecks`) are placeholders:
-none is claimed here to be the value the Rust verifier uses for `W16R2_SHIELD_T128_H24`. Fixing the
-code's own record, and everything else at the run level, is item (6) of the port list; this file
-does not start it. The run-level premises of the theorem (`hcsE`, `hEnd` and the rest) stay premises.
+What this file does NOT show. It does not show that the acceptance event `BlockAcc` is non-empty at
+the record, so it does not show that the statement has content there. The first version of this
+file (2026-11-26) said "the statement is not vacuous"; that was wrong. It took the record's opening
+dimensions from R13 (`R13.blkDim`: 256 opened columns, paths of 16 entries) together with
+`aPath = 15`. `CoreShape` then asked for paths of 16 entries and `blockVerify` refused any path that
+is not 15 entries long, so no core was accepted at that record and the theorem held there for an
+empty event. The parameter read found it (its finding F1). The record now carries the dimensions the
+Rust verifier computes for the W16R2 profiles (`wire.rs`, `Dim::new(14, 2, 280)`: 280 opened
+columns, clear vectors of 2^14 + 280 words, 2^15 encoded columns, paths of 15 entries), and
+`cov_paths_agree` states that the two depths now agree. That removes the one contradiction that was
+found. Whether an accepting core exists at the record is still not proved here or anywhere.
+
+Compared with the Rust code by that read (a reading, not a proof): `aPath`, `hPath`, `maskPath`,
+`endpointLogN`, the mask row count 50, `aRows` and `hRows` agree with the code for
+`W16R2_SHIELD_T128_H24`. Still placeholders: the row count of the endpoint commitments in
+`covRowsW16` (38 is the code's count for an internal boundary; the two external endpoints have 37,
+and the block verifier reads neither), `preChecks`, `name`, and `checkOpening`, which stays a
+parameter. `Link.IsShieldW16` fixes none of `geom.blk`, `aPath`, `hPath`, `aRows`, `hRows`,
+`checkOpening`. Fixing the code's own record, and everything else at the run level, is item (6) of
+the port list; this file does not start it. The run-level premises of the theorem (`hcsE`, `hEnd`
+and the rest) stay premises.
 
 Only standard Lean foundations (`propext`, `Classical.choice`, `Quot.sound`).
 -/
@@ -53,19 +69,27 @@ theorem cov_layR_c0 (Ly : ShieldLayer) :
     grp := (shdP_bitLay_layR Ly).grp, flip := fun _ _ => rfl }
 
 /-- Row counts of the witness record: `A` 2,504 and `H` 2,606 (fixed by `Link.IsShieldW16`); the
-endpoint commitments' 38 is a placeholder taken from `shdP_rowsOf`. -/
+endpoint commitments' 38 is a placeholder taken from `shdP_rowsOf` (the code has 38 rows at an
+internal boundary and 37 at the two external endpoints; the block verifier reads neither). -/
 def covRowsW16 : Cm → ℕ
   | .a => 2504
   | .h => 2606
   | _ => 38
 
+/-- The block `Dim` the Rust verifier computes for the W16R2 profiles (`wire.rs`,
+`Dim::new(14, 2, 280)`): 280 opened columns, clear vectors of `2^14 + 280` words, `2^15` encoded
+columns, paths of depth 15. (R13's `blkDim` is `⟨256, 2^14 + 256, 2^16, 16⟩`.) -/
+def covDimW16 : Dim := ⟨280, 2 ^ 14 + 280, 2 ^ 15, 15⟩
+
 /-- A `BlockParams` record satisfying every verifier-identity premise of
 `block_knowledge_w16r2_shieldU1` for layer `Ly` (a satisfiability witness; see the file header for
-which fields are placeholders). -/
+which fields are placeholders). Its frame geometry is R13's with the block `Dim` replaced by
+`covDimW16`. -/
 def covParamsW16 (tag : MTag) (ioIn ioOut : ℕ)
     (checkOpening : (HIn → Dig) → Cm → List ZClaim → Tr → Except String Unit)
     (Ly : ShieldLayer) (Pb : ZK60.Block.BlockPublic (shieldShape Ly)) : BlockParams where
-  geom := ZK60.Exec.Block.R13.geom ZK60.Exec.Block.W16R2.shieldSlots ZK60.Exec.Block.W16R2.shieldTerms 50 36 2504 9 2606
+  geom := { ZK60.Exec.Block.R13.geom ZK60.Exec.Block.W16R2.shieldSlots ZK60.Exec.Block.W16R2.shieldTerms 50 36 2504 9 2606
+              with blk := covDimW16 }
   logCols := 14
   endpointLogN := 14
   aRows := 2504
@@ -92,6 +116,19 @@ theorem cov_isShieldW16 (tag : MTag) (ioIn ioOut : ℕ)
     (Ly : ShieldLayer) (Pb : ZK60.Block.BlockPublic (shieldShape Ly)) :
     Link.IsShieldW16 (covParamsW16 tag ioIn ioOut checkOpening Ly Pb) tag covRowsW16 :=
   ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
+
+/-- The record's opening dimensions and its path depths agree: the path length `CoreShape` asks of
+every opened `A` and `H` column (`geom.blk.path`) is the depth `blockVerify`'s T-4 check accepts
+(`aPath`, `hPath`). In the first version of this file the two were 16 and 15, and no core was
+accepted at the record. -/
+theorem cov_paths_agree (tag : MTag) (ioIn ioOut : ℕ)
+    (checkOpening : (HIn → Dig) → Cm → List ZClaim → Tr → Except String Unit)
+    (Ly : ShieldLayer) (Pb : ZK60.Block.BlockPublic (shieldShape Ly)) :
+    (covParamsW16 tag ioIn ioOut checkOpening Ly Pb).geom.blk.path
+        = (covParamsW16 tag ioIn ioOut checkOpening Ly Pb).aPath
+      ∧ (covParamsW16 tag ioIn ioOut checkOpening Ly Pb).geom.blk.path
+        = (covParamsW16 tag ioIn ioOut checkOpening Ly Pb).hPath :=
+  ⟨rfl, rfl⟩
 
 variable {K : Type} [Field K] [Algebra GF K] {L : ℕ}
 
