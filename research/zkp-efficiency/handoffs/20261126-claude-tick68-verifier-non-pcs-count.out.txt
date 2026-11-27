@@ -1,0 +1,18 @@
+padded public int8 words a block: 243277824 (A20 README: 243,277,824 B)
+vanish-scan entries a check_for_shape: 25165824
+block digest, one pass one thread: 115.3 to 128.9 ms (0 in the 8B test: RepeatBlock caches it, run_fork.rs:1109)
+2 checks: min-scan 19.5 to 60.8 ms, vanish 17.6 to 36.9 ms (both checks) -> 37.1 to 97.7
+registry x25: 3.3 to 73.0 ms (A18: ~3 ms for 23; 2.15 CPU-s/32 blocks = 67 ms; main line 17 ms)
+7 folds: min-scan 9.7 to 30.4 + loop 60.8 to 146.0 -> 70.6 to 176.4 ms (floor 45 ms from A18/A14 prover CPU-s)
+M opening: 50 encodes x 24576 butterflies; 3.1 to 4.5 ms
+bottom-up non-PCS total (checks + registry + folds + M), one thread: 114.0 to 351.6 ms
+measured sparse saving implies >= 4.01 ns a column product (tick 60 assumed 2 x 1.12 = 2.24)
+proximity products alone: >= 5.7 ms
+PCS parts counted: 96.6 to 115.6 ms; residual (non-PCS + the nonzero-row column work + whatever is uncounted): 159.9 to 178.9 ms (width 19.0)
+non-PCS block time, bottom-up capped by the residual: 114.0 to 178.9 ms (width 64.9); item's line is under 15 ms wide: FAIL
+share of the measured 275.5 ms: 41% to 65%
+tick 60 had 'stays' (non-PCS + hashing) at 6.1 to 23.9 ms; here stays = 120.1 to 185.0 ms
+one-thread block under B6a: 194 to 242 ms; gain over 275.5: x1.14 to x1.42 (tick 58 said x1.6 to x3.1 on the withdrawn 141.9)
+bytes read a block by the scans: 1024 MB (2 checks' min-scan, the folds' min-scan and loop, 2 x 25.2 MB vanish)
+digest x1: 115 to 129 ms a block
+digest x2: 231 to 258 ms a block

@@ -879,6 +879,25 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 00:06 UTC, research [tick 68: code reading and arithmetic; the code lines and the
+    cited records re-read by me, every derived figure recomputed; nothing built or run]: much of
+    what the 8B test's checker does per block is re-reading the public weights, not checking the
+    commitments, so the smaller-proof design under study (B6a) would speed that checker up less than
+    earlier ticks said.** Checking one block of the 8B test takes 275.5 ms on one thread [MEASURED
+    Nov 25, diagonal test weights]. Counted in the code, each block's public weights (243 MB) are
+    fully checked twice, the registry of public tables is re-checked 25 times, and seven weight
+    folds scan every weight of their matrices even where it is zero: about 1,023 MB read a block
+    [COUNTED]. Earlier sampled profiles of the same loops put three of the seven folds alone at 45
+    ms of CPU a block and all folds and public tables at 81 to 84 ms [MEASURED by sampling, prover
+    side, records A14 and A18], where research tick 60 had left at most 17.8 ms for all such work.
+    The tick's own estimate, 114 to 179 ms of the 275.5 ms, rests on assumed scan rates and a
+    derived term and is not carried as a measurement. B6a does not touch these checks and folds.
+    Nothing here changes proved tokens a second (checking happens after the clock) or the installed
+    app, whose checker runs another profile with real weights. A checker that checks a resident
+    block once a call instead of twice would need the owner's ruling; one test that would replace
+    the assumed range by a timing is stated and not scheduled
+    (`research/zkp-efficiency/handoffs/20261126-claude-tick68-verifier-non-pcs-count.md`, with the
+    coordinator's check at its end).
     **Nov 26, 20:03 UTC, research [tick 67: web reading and arithmetic; the cited pages re-read in
     my own copies and every derived figure recomputed; nothing built or run]: swapping the
     commitment hash for a field hash would make a wrapper proof cheaper and every request slower, so

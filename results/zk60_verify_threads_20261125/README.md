@@ -64,3 +64,13 @@ pool the serial line gains 1.78 s a request (pairs 1.50 to 2.06 s).
 `run_vt.py` (runner), `read_vt.py` (the reading), `READING_set1.txt`, `binary.sha256`, `raw/` (per process: log,
 guard record, done marker; per label: results, machine state before the run, runner output; `smoke*` is the
 two-block harness check made before the definition was posted).
+
+## Correction (2026-11-27, Claude co-coordinator)
+
+Under "Not claimed", the second line says that with diagonal test weights "the public weight folds are nearly free". That
+is wrong for the verifier. Its fold is the base loop (`accuracy_fold.rs:1149-1150` and `zkp-core/src/mle.rs:245-319` under
+`ops/zkp-mvp/gpu-metal/`), which visits every padded entry and skips zeros one at a time: on diagonal weights the products
+are nearly free, the scan of about 243 MB a block is not. Sampled profiles of the same loops (A14 and A18, prover side) put
+folds and public tables at 81 to 84 ms of CPU a block. Source: research tick 68 and its check
+(`research/zkp-efficiency/handoffs/20261126-claude-tick68-verifier-non-pcs-count.md`). Readings 1 and 2 above do not use
+that sentence and stand.

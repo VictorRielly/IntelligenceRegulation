@@ -1,0 +1,71 @@
+== Part A: the code the counts rest on (ops/zkp-mvp/gpu-metal/)
+ok   the timed line is the D12a serial verifier over a RepeatBlock (run_fork_tests.rs:2673-2675)
+ok   verify_run_with = start, then one step a segment, then finish (run.rs:1636-1640)
+ok   check 1 of 2: the start checks every block at its stage shape (run.rs:1424, 1131-1133)
+ok   RepeatBlock does not replace fit_the_stages, and its digest is made once (run_fork.rs:1109, 1130-1151)
+ok   check 2 of 2: verify_core checks the block again (protocol.rs:4325, 4332; called at run.rs:1486)
+ok   the fork verifier has the same two (run_fork.rs:2810, 1184, 1178, 2788)
+ok   a check at this profile is the accuracy check: both halves, one registry check, one min-scan of nine words (private_block.rs:952-954, 923-924, 927, 933-935)
+ok   nine off-support scans a check, on padded lengths (private_block.rs:628, 635-639, 772, 775-778) | 9
+ok   the off-support scan reads only off-support entries (private_block.rs:522-529)
+ok   every slot definition re-checks the registry unless a record covers it (argument_accuracy.rs:19-20; argument.rs:2955)
+ok   the verifier passes no record, over twenty-three slots (protocol.rs:4363; argument.rs:4031, 4112, 4023, 4145)
+ok   seven weight folds: Q, K, V, O and Gate, Up, Down (argument.rs:3248-3249, 3389-3390)
+ok   a verifier fold is the base fold: a min-scan, then the plain loop (accuracy_fold.rs:1149-1150, 1073, 1082-1083, 45-47)
+ok   the plain loops visit every entry and skip zeros one by one (zkp-core mle.rs:157-161, 182-186, 268-270, 311-313)
+ok   the profile (shape.rs:302): width 4096, hidden 14336, 32 query heads of 128, 8 key heads
+== Part B: figures borrowed from retained records and earlier ticks
+ok   verifier thread set: one thread, sparse loop, 8.815 s a 32-block receipt = 275.5 ms a block; dense 402.8 | 275.5 402.8
+ok   A18: same profile and diagonal weights, 32 blocks, six forks; the table is main-line seconds per fork per call and pool CPU-s per call
+ok   A18: registry row 0.017 s main line and 2.15 pool CPU-s; "23 per block, about 3 ms"
+ok   A18: folds-and-tables row 0.121 s and 1.97 pool CPU-s; fold_cols_i8 alone 1.44 CPU-s a call in the pools
+ok   A14: folds-and-tables row 0.120 s and 1.87 pool CPU-s
+ok   A20: the nine padded words are 243,277,824 B
+ok   A21: block digest 115.3 ms in one pass on one thread, 5.9 ms by the tree
+ok   A26 (the classifier, another profile): a once-only verifier exists and is off pending a reading
+ok   tick 60: NTT term 75 to 94 ms, derived at rates from other loops; hashing 6.1; absorb 6.1 measured; inner products 3.7 at an assumed 5 ns
+ok   tick 60: 33.20 M dense products, 1.43 M proximity products; its "stays" was 6.1 to 23.9 ms (hashing plus all non-PCS work)
+ok   tick 58: BAT + tower 28.3 ms (rational row, rate 1/8) to 57.2 ms (optimized build, rate 1/2)
+== Part C: the derived figures, recomputed
+ok   padded public bytes a block = 243,277,824 | 243277824
+ok   handoff says: 243,277,824 int8 bytes padded
+ok   off-support entries a check = 25,165,824 (only the hidden axis pads: 2,048 of 16,384) | 25165824
+ok   handoff says: 25.2 M off-support entries
+ok   two checks at the assumed rates = 37.1 to 97.7 ms (min-scan 19.5 to 60.8, off-support 17.6 to 36.9) | 37.1 97.7
+ok   handoff says: two checks 37 to 98
+ok   25 registry checks = 3.3 to 73.0 ms | 3.3 73.0
+ok   handoff says: registry x25 3 to 73
+ok   seven folds at the assumed rates = 70.6 to 176.4 ms | 70.6 176.4
+ok   handoff says: seven folds 71 to 176
+ok   M opening by the handoff's formula = 3.1 to 4.5 ms (formula repeated, its inputs not re-read by me) | 3.1 4.5
+ok   bottom-up sum = 114.0 to 351.6 ms | 114.0 351.6
+ok   handoff says: Sum 114 to 352 ms
+ok   the measured sparse saving over at most 31.77 M products = at least 4.01 ns a product; proximity products at least 5.7 ms | 4.01 5.7
+ok   handoff says: at least 4.0 ns a product
+ok   residual after the counted PCS parts = 159.9 to 178.9 ms | 159.9 178.9
+ok   handoff says: Residual: 160 to 179 ms
+ok   the range = 114.0 to 178.9 ms, 41 to 65% of 275.5, width 64.9: the 15 ms line fails | 114.0 178.9
+ok   handoff says: 114 to 179 ms (41 to 65%), width 65 ms
+ok   handoff says: stays is 120 to 185 ms | 120.1 185.0
+ok   stays = 120.1 to 185.0 ms
+ok   one-thread block under B6a = 194 to 242 ms, x1.14 to x1.42 (conditional on tick 60's NTT term) | 194.3 242.2
+ok   handoff says: 194 to 242 ms a block
+ok   handoff says: x1.14 to x1.42
+ok   a once-only verifier would save one check (19 to 52 ms) and 23 registry checks (3 to 67 ms) = 22 to 119 ms a block | 21.7 119.0
+ok   handoff says: (19 to 52 ms) ... (3 to 67 ms): about 22 to 119 ms
+ok   that is 0.7 to 3.8 s a 32-block request on one thread, 0.1 to 0.6 s at an ideal six-fold
+ok   handoff says: 0.7 to 3.8 s a 32-block request one thread, 0.1 to 0.6 s
+ok   block digest in one pass = 115.3 to 128.9 ms; 115.3 / 243.28 MB = 0.474 ms a MB | 115.3 128.9
+== MINE: the coordinator's remarks
+ok   MINE 1: the seven folds together visit 243,269,632 entries a pass (the two gain vectors are not folded); the queue line's "243.3 M entries each" should read "together" | 243269632
+ok   MINE 2: bytes read a block by the scans = 1,023 MB (two min-scans, the folds' min-scan and loop, two off-support scans) | 1023.4
+ok   handoff says: about 1,024 MB
+ok   MINE 3: a sampled anchor on the same loops, profile and test weights (prover side, six forks): folds and public tables cost 22.5 to 22.7 ms of main line plus 58.4 to 61.6 ms of pool CPU a block, 81 to 84 ms together | 80.9 84.2
+ok   MINE 4: fold_cols_i8 alone, 1.44 pool CPU-s a call = 45.0 ms a block over 201,326,592 entries = 0.224 ns an entry, at the low edge of the assumed 0.25 to 0.6 ns | 0.224
+ok   MINE 5: tick 60 allowed at most 17.8 ms for all non-PCS work (23.9 less 6.1 of hashing); the sampled 45 ms for three folds alone is 2.5 times that
+ok   MINE 6: "low by a factor of 5 to 7" compares with tick 60's upper end only: 120.1 / 23.9 = 5.0 and 185.0 / 23.9 = 7.7
+ok   handoff says: low by a factor of 5 to 7
+ok   MINE 7: registry main line 0.017 s per fork per call = 3.2 ms a block, which is the record's "about 3 ms"; the 67 ms is sampled pool CPU of six forks and is an upper figure only
+ok   MINE 8: the timed line also covers the run's start and finish (run.rs:1431 builds the NTT tables; 1640 finish), which the handoff does not list; they sit in the residual
+ok   MINE 9: the set's own note called the weight folds "nearly free" on diagonal weights; the code and the sampled profile say the products are, the scan is not
+checks: 66, failed: 0
