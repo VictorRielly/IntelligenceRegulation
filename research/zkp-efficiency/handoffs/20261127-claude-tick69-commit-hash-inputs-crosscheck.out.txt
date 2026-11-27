@@ -1,0 +1,57 @@
+== Part A: the code ==
+ok   the two-pass hash is on unless HL_A28_HASH=0 (metal.rs:535-538)
+ok   rows of a commit = data words / n (pcs.rs:788)
+ok   the salted leaves and the tree are made on the host after the device returns (pcs.rs:806-807)
+ok   a block of a chunk of column j reads words (chunk*128 + blk*8 + t) * nn + j (metal_kernels.metal:1140-1143)
+ok   A rows = data rows + two rows a site + a proximity pair (layout.rs:1340-1342)
+ok   H rows by the same rule (layout.rs:1351-1353)
+ok   the bench probe: 16 words a thread, 88 operations a thread (variants.metal:291)
+ok   its third form is the product alone (variants.metal:302-303)
+== Part B: the records ==
+ok   nb3.log:34 hash (tree) 5.469 ms | ('hash (tree)', 5.469)
+ok   nb3.log:35 hash chunk+merge 4.237 ms | ('hash chunk+merge tg 64', 4.237)
+ok   nb3.log:38 hash chunk only 3.951 ms | ('hash chunk only tg 256', 3.951)
+ok   nb3.log:40 butterfly probe 15.723 ms | ('alu: butterfly (mul+add+sub)', 15.723)
+ok   nb3.log:41 add and sub alone 10.355 ms | ('alu: add+sub only', 10.355)
+ok   nb3.log:42 product alone 13.155 ms | ('alu: mul only', 13.155)
+ok   the bench shape: 4577 rows x 2^14 -> 2^16, each kernel alone, best of 5 (README:126-127)
+ok   the probe is "11 stages' worth" with no memory (README:135)
+ok   the README itself reads 105 G/s for butterflies in registers (README:138)
+ok   the 8B arm of the Nov 17 trace: A 2504 rows, H 2606 rows
+ok   same arm: block GPU 91.462 ms, commits 13.987 and 13.9 ms (5 warm passes)
+ok   census.log:218 the 8B profile on Nov 5: A rows 2501 (data 2279), H rows 2602 (data 2514)
+ok   census.log:227 and 235: Tab planes 15 in A and 16 in H
+ok   census.log:236 H helper rows 1257 (two rows each = 2514)
+ok   tick 21: old-form hash 1.660 and 1.727 ms; forward 6.897 and 7.132 ms
+ok   tick 21 names its rows: 2,504 (A) and 2,606 (H) at 8B
+ok   tick 67 used the census rows: 5,103 rows x 2^15 = 167.2 M words
+ok   tick 67: the 478 G/s ceiling was assumed, and gave its 32 ms
+ok   the installed classifier profile, read today: A sites 2280..2501, rows 2504; H sites 2516..2603, rows 2606
+ok   same read: 16 Tab planes in A, 3+13+1 Tab helpers in H
+== Part C: the derived figures ==
+ok   words a block = 167,444,480 = 167.44 M, 1,339.6 MB
+ok   against the census rows: 167,215,104 words, +0.137% | 0.137%
+ok   compressions a column: A 20 chunks, 313 + 19 = 332; H 21 chunks, 326 + 20 = 346
+ok   compressions a block = 22,216,704 (22.22 M)
+ok   rate-8 sponge permutations a block = 20,938,752 (20.94 M)
+ok   736 = 4*8*12 + 4*22 + 12*22 products a permutation (the instance is the handoff's assumption)
+ok   products a block = 15.41 G
+ok   old-form hash at this shape: 3.387 ms = 395 GB/s | 395.5
+ok   bench bytes 2,399.7 MB: old form 439 GB/s, two passes 566 GB/s, ratio 0.775
+ok   two passes at this shape, three ways: 2.62, 2.37, 2.68 ms (derived, not measured)
+ok   probe operations = 4577 x 2^16 / 16 threads x 88 = 1,649,770,496
+ok   product alone 125.4 G/s, butterfly 104.9 G/s, add and sub 159.3 G/s | 125.4 104.9 159.3
+ok   forward head 19.59 ms (README:131) over the same count = 84.2 G/s
+ok   a field hash of the same columns: 123, 147, 183 ms a block | [122.88416628597533, 146.8725006852444, 182.97643855641846]
+ok   extra over the shipped hash, 32 blocks: +3.8 to +5.8 s a request | 3.85 5.78
+ok   share of the 91.46 ms block: 134% to 200%
+ok   tick 67's low end reproduced: 15.41 G / 478 G/s = 32 ms
+ok   forward transform: 5,110 rows, 1,255.8 M butterflies, 14.03 ms = 89.5 G/s
+== MINE ==
+ok   the 7 rows are one range sub-plane: census A 2279 + 2*110 + 2 = 2501, H 2514 + 2*43 + 2 = 2602
+ok   traced: A 2280 + 2*111 + 2 = 2504, H 2516 + 2*44 + 2 = 2606
+ok   so A differs by 1 data row and 1 site pair (3 rows), H by 1 helper and 1 site pair (4 rows)
+ok   and the census has one Tab plane fewer on each side than the profile read today (15 against 16, 16 against 17)
+ok   for the 26-layer classifier request the same per-block price is +3.1 to +4.7 s | 3.13 4.70
+ok   my own remark under tick 67 (94 to 108 ms a block from assumed operation counts) is below the measured-rate figure
+checks: 52, failed: 0

@@ -884,6 +884,23 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 03:59 UTC, efficiency research [tick 69, reading and arithmetic; checked by me against
+    the code and the records, 52 checks; nothing run]: swapping the commitment hash for a field hash
+    would cost about 120 to 180 ms more device time a block, by a multiplication rate this
+    repository had already measured; it is not a speed lever.** Tick 67 priced such a swap (it would
+    make a recursive wrapper for small proofs cheaper) at 32 to 172 ms a block, the low end resting
+    on an assumed hardware ceiling. The kernel bench of Nov 7 had already timed the shipped field
+    multiplication alone, in registers: 125.4 G products a second [time MEASURED, rate DERIVED from
+    the kernel's own count]. A field hash of the same columns needs about 15.4 G products a block [a
+    count for an assumed standard instance], so 123 ms at best and up to 183 ms at the rates of the
+    shipped transform. Today's hash takes 2.4 to 2.7 ms [DERIVED, not measured at this shape], and
+    the whole block 91.46 ms of device time [MEASURED, 8B arm, Nov 17]. If all of the extra lands on
+    the stream, that is +3.8 to +5.8 s a request on the 32-block 8B path and +3.1 to +4.7 s for the
+    26-layer classifier. This is an estimate under stated assumptions; no field-hash kernel was run.
+    The tick also pinned what the kernel reads, 167.44 M words a block, and its one unexplained
+    point, 7 rows between two records, is one extra range table plane [my derivation from the layout
+    rule]. No test is scheduled, and a change of hash would need the owner's ruling in any case
+    (`research/zkp-efficiency/handoffs/20261127-claude-tick69-commit-hash-inputs.md`).
     **Nov 27, 03:03 UTC, Lean [a fourth read-only comparison by an independent reader; the plane
     numbering, sixteen steps of the slot consumer and the calibration values re-read by me]: the
     Lean model numbers and places every plane and helper column as the Rust code does, and uses a

@@ -1,0 +1,41 @@
+== 1. words the kernel hashes a block ==
+  A: rows 2504, column 20032 B = 20 chunks, 313 blocks + 19 parents = 332 compressions a column; words 82,051,072 (656.4 MB); chunk-pass threads 655,360; cvs buffer 20.97 MB; sponge permutations a column 313
+  H: rows 2606, column 20848 B = 21 chunks, 326 blocks + 20 parents = 346 compressions a column; words 85,393,408 (683.1 MB); chunk-pass threads 688,128; cvs buffer 22.02 MB; sponge permutations a column 326
+  total words 167,444,480 = 167.44 M ; bytes 1339.6 MB ; vs 167.22 M: +0.13%
+  BLAKE3 compressions a block (columns only) 22,216,704
+  census rows 2501+2602 -> 167,215,104 words (-0.14% vs traced rows)
+  extra traffic of the two-pass form: cvs written then read: 2 x 43.0 = 86.0 MB (6.4% of the column bytes); leaves 2 x 1.05 MB
+  sponge permutations a block at rate 8 (columns only): 20,938,752
+  multiplications at 736 a permutation (ASSUMED count, structure of width-12 x^7 Poseidon2): 15.41 G
+
+== 2. bytes a second ==
+  diag old form (k_hash_cols), tick 21 W16R2 arm: 3.387 ms -> 395 GB/s; per row A 0.663 us, H 0.663 us (linear in rows)
+    compressions a second: 6.56 G/s
+  bench (nb3.log): 4577 rows x 2^16 cols = 2399.7 MB, 36 chunks a column, 608 compressions a column, 39.85 M compressions
+    old k_hash_cols: 5.469 ms -> 439 GB/s, 7.29 G compressions/s
+    two-pass chunk+merge: 4.237 ms -> 566 GB/s, 9.40 G compressions/s
+    chunk pass only: 3.951 ms -> 607 GB/s, 10.09 G compressions/s
+  two-pass / old ratio at the bench shape 0.775
+  production two-pass at W16R2 (not measured here), three ways:
+    (a) old diag x ratio: 2.62 ms -> 510 GB/s
+    (b) at the bench two-pass byte rate (566 GB/s): 2.37 ms
+    (c) at the README's 'about 500 GB/s': 2.68 ms
+    against the 700 GB/s copy roofline: floor 1.91 ms; old diag at 56% of it, two-pass 73%
+  tick 67's 3.9 ms (scaled share of a trace's 29.15 ms): 343 GB/s
+
+== 3. the forward NTT behind the 14.0 ms ==
+  rows 5110 (2504 + 2606) x 2^15 points: 1255.8 M butterflies unpruned; diag forward 14.03 ms -> 89.5 G/s
+  diag is MODE_PLAIN, the A28 pruned head applies (extent 2^14 <= 2^14): at most 2 of 15 stages skipped -> >= 1088 M butterflies, 77.6 G/s; so 78 to 90 G/s
+  bench: head 11 of 16 stages = 1649.8 M butterflies; head 19.588 ms -> 84.2 G/s; pruned 16.907 -> 97.6
+    probe butterfly mul+add+sub, in registers: 15.723 ms -> 104.9 G/s
+    probe add+sub only: 10.355 ms -> 159.3 G/s
+    probe mul only (gl_mul + one xor): 13.155 ms -> 125.4 G/s
+
+== 4. what the measured rates do to tick 67 section 3 ==
+  478 G/s ASSUMED hardware ceiling (tick 67 low end): 32 ms a block; extra over a 2.4 to 2.7 ms BLAKE3 pass 30 to 30 ms; x32 blocks 0.9 to 1.0 s a request
+  125.4 G/s measured gl_mul alone: 123 ms a block; extra over a 2.4 to 2.7 ms BLAKE3 pass 120 to 120 ms; x32 blocks 3.8 to 3.9 s a request
+  105 G/s measured butterfly in registers: 147 ms a block; extra over a 2.4 to 2.7 ms BLAKE3 pass 144 to 144 ms; x32 blocks 4.6 to 4.6 s a request
+  84 G/s measured forward head: 183 ms a block; extra over a 2.4 to 2.7 ms BLAKE3 pass 180 to 181 ms; x32 blocks 5.8 to 5.8 s a request
+  89.6 G/s diag-implied (tick 67): 172 ms a block; extra over a 2.4 to 2.7 ms BLAKE3 pass 169 to 170 ms; x32 blocks 5.4 to 5.4 s a request
+  share of 91.46 ms block GPU at 123 ms: 134%; at 183 ms: 200%
+  host Merkle build and salted leaves a block (both commits): 131.1 K compressions = 0.59% of the kernel's (host, not in this kernel)

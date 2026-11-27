@@ -2,6 +2,16 @@
 
 **Deferred levers:** read `DEFERRED.md` before proposing a new profile. Coefficient-form rows (H117b) were deferred by Victor on 2026-11-03: not in W16R2; a candidate for a later profile.
 
+## 2026-11-27: Claude researcher tick 69, what the commitment hash kernel reads and the rate it runs at (claude-cycle, queue item 109)
+
+**COMPLETE, code reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-27T03:53Z.
+[Handoff](handoffs/20261127-claude-tick69-commit-hash-inputs.md), script `20261127-claude-tick69-commit-hash-inputs.py`, output `...commit-hash-inputs.out.txt`.
+- **Pass on the volume:** A and H hash 167.44 M words a block (1,339.6 MB), within 0.13% of tick 67's 167.2 M, on the traced rows 2,504 and 2,606 (the census model has 2,501 and 2,602; the 7-row gap is not explained). 332 and 346 BLAKE3 compressions a column, 22.22 M a block (20.94 M sponge permutations at rate 8). No Q appendix; M (50 rows, CPU) and the salted leaves and Merkle tree (host) are not in the kernel.
+- **Rate:** old-form diag hash 3.39 ms = 395 GB/s (56% of the 700 GB/s roofline, MEASURED, tick 21); production two-pass 2.4 to 2.7 ms, 500 to 566 GB/s, DERIVED from the A28 bench (`nb3.log`: 566 GB/s at 4,577 x 2^16); not measured at W16R2. Tick 67's 3.9 ms was a scaled share.
+- **Correction to tick 67 section 3:** its 32 ms low end assumed 478 G mulmod/s; the A28 bench measured `gl_mul` in registers at 125.4 G/s (butterfly 105 G/s). At 736 multiplications a permutation (ASSUMED structure) a Goldilocks hash is 123 to 183 ms a block, +120 to +180 ms over BLAKE3, +3.8 to +5.8 s a request at full pass-through. The diag forward 14.0 ms is 5,110 rows of 2^15 points, pruned head: 78 to 90 G/s.
+- T-P1 is now a confirmation of a kill; cheaper falsifier T-H1 (a `gl_mul` probe with the permutation as loop body) and T-H2 (a row-count pin) in the handoff, neither scheduled. 0 committed words changed; no effect on proved tokens a second.
+- **Coordinator's check (2026-11-27):** 52 checks pass (`handoffs/20261127-claude-tick69-commit-hash-inputs-crosscheck.py`), the tick's script reproduces. The volume and the correction to tick 67 stand: the bench's product-alone probe is 13.155 ms for 1,649,770,496 products, 125.4 G a second, so a field hash of the same columns is 123 ms a block at best under the handoff's assumed count. Added: the 7-row gap between the census and the trace is one range sub-plane (one data row and one site pair in A, one helper and one site pair in H; which input differs is still open, item 112); per request the price is +3.8 to +5.8 s over 32 blocks and +3.1 to +4.7 s over the classifier's 26; my own 94 to 108 ms under tick 67 was low. Not carried: the roofline shares; the 2.4 to 2.7 ms two-pass time is derived, not measured.
+
 ## 2026-11-26: Claude researcher tick 68, how much of a W16R2_8B diagonal-weight verifier block is not PCS (claude-cycle, queue item 104)
 
 **COMPLETE, code reading and arithmetic** (no web); no run, no build, no Git. Triage material (no ruling). Clock at writing 2026-11-26T23:53Z.
