@@ -1,0 +1,61 @@
+ok   repository record: not archived, default branch main
+ok   repository record: last push 2025-11-07T18:34:12Z
+ok   repository record: description as quoted
+ok   commit: the pinned hash, committer date 2025-11-07T18:33:42Z
+ok   commit: message as quoted
+ok   tree listing: the pinned hash, not truncated, 495 entries
+ok   every fetched source file has the size the tree listing gives
+ok   source files fetched: 78 (45 under the web-components package source, 33 under the library source)
+ok   the tree lists no file of another type under those two directories
+ok   component directories in the tree: 16
+ok   the nine files the handoff lists have the sizes it gives
+ok   web-components package: version 0.14.17 at line 3
+ok   library package: version 0.30.17 at line 3
+ok   src/components/ManifestSummary/ManifestSummary.ts:170 contains 'manifestStore: L2ManifestStore | undefined;'
+ok   src/components/ManifestSummary/ManifestSummary.ts:209 contains 'const dataSelectors = {'
+ok   ManifestSummary.ts:209-218 the object has six keys (the handoff says 205-218; 205-207 is the value of one of them): contentSummary,producedBy,producedWith,socialMedia,aiToolUsed,web3
+ok   ManifestSummary.ts:220-291 opens seven child elements, in the order the handoff gives
+ok   src/components/ManifestSummary/ManifestSummary.ts:285 contains '<slot'
+ok   src/components/ManifestSummary/ManifestSummary.ts:288 contains 'name="post"'
+ok   src/components/ManifestSummary/ManifestSummary.ts:289 contains '@slotchange='
+ok   src/components/ManifestSummaryV2/ManifestSummaryV2.ts:213 contains 'manifestStore: ManifestSummaryStore | undefined;'
+ok   ManifestSummaryV2.ts:248-259 reads seven fields of its input: doNotTrain,error,name,nameVerifier,recorder,socialAccounts,unrecordedChanges
+ok   ManifestSummaryV2.ts:264-267 maps four tags to strings (the handoff says 263-268, the enclosing object)
+ok   src/components/ManifestSummaryV2/ManifestSummaryV2.ts:277 contains '<span class="header">Content Credentials</span>'
+ok   getManifestSummaryData.ts:21-30 the store type has eight fields: recorder,name,nameVerifier,socialAccounts,contentSummaryTag,unrecordedChanges,doNotTrain,error
+ok   src/getManifestSummaryData.ts:82 contains "identity.type === 'cawg.social_media'"
+ok   src/getManifestSummaryData.ts:103 contains "identity.type === 'cawg.document_verification'"
+ok   src/getManifestSummaryData.ts:130 contains "return 'ai';"
+ok   src/getManifestSummaryData.ts:133 contains 'if (false) {'
+ok   src/getManifestSummaryData.ts:134 contains '// TODO: add camera-captured'
+ok   src/getManifestSummaryData.ts:139 contains "return 'no-ai';"
+ok   src/getManifestSummaryData.ts:142 contains 'if (false) {'
+ok   src/getManifestSummaryData.ts:143 contains '// TODO: add more-info'
+ok   MinimumViableProvenance.ts:96-119 reads the signature; the file never mentions assertions
+ok   src/manifest.ts:96 contains 'Interface providing access to assertions contained within this manifest'
+ok   src/manifest.ts:98 contains 'assertions: AssertionAccessor;'
+ok   src/manifest.ts:160 contains 'assertions: createAssertionAccessor(manifestData.assertions),'
+ok   src/assertions.ts:12 contains 'export interface ExtendedAssertions {}'
+ok   src/assertions.ts:27 contains 'Raw assertion data as returned by the WASM binary'
+ok   src/assertions.ts:29 contains 'data: Assertion[];'
+ok   src/assertions.ts:32 contains 'Convenience method that returns an array of all assertions matching a given label, sorted by their index value'
+ok   src/assertions.ts:57 contains 'data.label === label'
+ok   src/selectors/selectEditsAndActivity.ts:166 contains "manifest.assertions.get('com.adobe.dictionary')[0] ??"
+ok   src/selectors/selectEditsAndActivity.ts:167 contains "manifest.assertions.get('adobe.dictionary')[0];"
+ok   src/selectors/selectEditsAndActivity.ts:169 contains "const [actionsV2] = manifest.assertions.get('c2pa.actions.v2');"
+ok   src/selectors/selectEditsAndActivity.ts:170 contains "const [actionsV1] = manifest.assertions.get('c2pa.actions');"
+ok   no line of the 45 web-components source files contains the word assertions or reads a .label
+ok   calls of assertions.get with a literal label: in seven library files (the handoff found one of them): createL2ManifestStore.ts adobe.beta; isHandmade.ts c2pa.actions,c2pa.actions.v2; selectDoNotTrain.ts c2pa.training-mining,cawg.training-mining; selectEditsAndActivity.ts adobe.dictionary,c2pa.actions,c2pa.actions.v2,com.adobe.dictionary; selectProducer.ts stds.schema-org.CreativeWork; selectSocialAccounts.ts stds.schema-org.CreativeWork; web3Info.ts adobe.crypto.addresses
+ok   every call of assertions.get in the 78 files passes a literal label (12 calls)
+ok   the raw list assertions.data is used in one place: selectGenerativeInfo.ts:61
+ok   src/selectors/selectGenerativeInfo.ts:61 contains 'const data = manifest.assertions.data.reduce<GenerativeInfo[]>('
+ok   src/selectors/selectGenerativeInfo.ts:64 contains "if (assertion.label === 'com.adobe.generative-ai') {"
+ok   src/selectors/selectGenerativeInfo.ts:80 contains "if (assertion.label === 'c2pa.actions') {"
+ok   src/selectors/selectGenerativeInfo.ts:129 contains "if (assertion.label === 'c2pa.actions.v2') {"
+ok   src/selectors/selectGenerativeInfo.ts:158 contains 'return acc;'
+ok   selectGenerativeInfo.ts:61-161 has three label tests and then returns the accumulator unchanged (line 158): other labels add nothing
+ok   src/createL2ManifestStore.ts:35 contains 'export interface L2ManifestStore {'
+ok   createL2ManifestStore.ts:35-48 the older component's input type has twelve fields, none a list of assertions: format,title,signature,claimGenerator,producer,socialAccounts,thumbnail,generativeInfo,web3,isBeta,error,validationStatus
+ok   src/createL2ManifestStore.ts:133 contains "isBeta: !!activeManifest.assertions.get('adobe.beta')?.[0]?.data.version,"
+ok   src/createL2ManifestStore.ts:134 contains 'generativeInfo: selectGenerativeInfo(activeManifest),'
+60 checks, 0 failed

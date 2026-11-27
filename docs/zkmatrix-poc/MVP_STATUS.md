@@ -883,6 +883,23 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 02:54 UTC, applications [a research tick's reading of public source text, checked by
+    me on my own downloads; nothing built or run]: the standard's older web viewer components would
+    not display a reference to one of our receipts; an integrator has to show it in a panel of its
+    own.** A receipt can be tied to a media file by a small custom record (an "assertion") in the
+    file's provenance data; the question is whether existing viewers show such a record. The item
+    earlier today covered the current open reader library: it hands the record to the application
+    and ships no viewer component. This item read the older, deprecated library, which does ship
+    viewer components. In its source at one pinned commit, none of the 45 source files of the
+    components package reads the list of assertions at all, and the library underneath asks for
+    assertions by fixed labels only: 12 calls, each with a literal label, and one loop that keeps
+    three fixed labels [COUNTED by my script over my own copies of all 78 source files]. The older
+    summary component has a slot where an application can add its own panel [READ]. Not read by
+    anyone: the compiled reader that fills the list, so whether a third-party record reaches the
+    application through this older library is still open. Source text says nothing about what any
+    hosted viewer shows
+    (`research/applications/handoffs/20261127-apps-legacy-components-custom-assertions.md` and the
+    check beside it).
     **Nov 27, 00:47 UTC, Lean [a third read-only comparison by an independent reader; one of the six
     slots and two of its cited facts re-read by me]: for the six slots specific to the installed
     profile's family, the Lean model's definitions say what the Rust verifier computes; no mismatch
