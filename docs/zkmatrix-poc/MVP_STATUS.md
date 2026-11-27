@@ -889,6 +889,22 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 12:00 UTC, efficiency research [tick 71, reading only; checked by me, 26 checks;
+    nothing run]: a one-thread timing of the installed checker needs no code change, and everything
+    it needs is on this machine.** Tick 70 found that three of our estimates of where a checker's
+    time goes cannot all be right. This tick prepared the measurement that can settle it. The
+    classifier's check command prints a time table for every block when a timing variable is set.
+    The checker binary that the app pins, the checker's copy of the model export, and three retained
+    receipts of public test posts are all present, and their hashes match the app's pins [recomputed
+    by me]. Each receipt is 669,561,472 bytes, the size this page states. At the installed profile a
+    block has three more public tables than at the 8B shape, so a checker rebuilds 9,625,600 public
+    entries for every block, and tick 70's estimate for that work becomes 85 to 197 ms at one thread
+    [assumed rates, a range only]. I added precautions for the run: it uses a copy of the receipt
+    and a copy of the binary, never the installed files; it sends the private refusal log to a
+    scratch directory; and it compares listings of the export before and after. The run holds the
+    machine's heavy-job lock for at most half an hour at one core. None of this moves proved tokens
+    a second; it tells us what a check costs and where. Next: I post the reading rule in the
+    coordination file, push it, and then run once.
     **Nov 27, 10:52 UTC, Lean [my own reading with a check script, 25 checks; nothing proved,
     nothing of the prover run]: two of the open comparisons are read. The selector table has the
     same order in Lean and in Rust. And at the one row the fourth reading had left as "path not

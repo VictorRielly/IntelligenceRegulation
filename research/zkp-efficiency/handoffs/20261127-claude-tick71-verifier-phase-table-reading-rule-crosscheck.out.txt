@@ -1,0 +1,27 @@
+ok   the classifier run's verifier reports its phase recorder after a block (classify_run.rs:1014)
+ok   verify takes seven flags and the W16R2 development switch (classify_cli.rs:1283)
+ok   the switch is --dev-w16r2-public-content-only (classify_w16r2.rs:36)
+ok   verify clears stale writing directories of the run directory, and publishes a statement when none is published (classify_cli.rs:1299-1308): a run on a copy leaves the original untouched
+ok   with timing on, verify prints the whole run as one PB-CLI line (classify_cli.rs:1207)
+ok   the app's own verifier call: guard class gpu, 12 GiB asked, 16 GiB cap, 900 s, the same seven flags and the switch (w16r2_public_verifier.py:21, 262-268)
+ok   the app's profile: min bits 95, four threads a check lane, HL_A26_VERIFY_ONCE 0 (deploy.json)
+ok   the profile says: public content only, privacy not claimed, not production (deploy.json)
+ok   thread pools are built in seven places outside the test files: 7 found
+ok   two of the seven are inside test code (trained_block.rs:5987, transcript.rs:403)
+ok   the other five are the sealing pool, the two fork pools, the servers' lanes and another binary's global pool: none is on the path of the verify command, which therefore runs on the default global pool
+ok   a refusal detail is logged under HL_OWNER_PRIVATE_DIR when set, else under the home directory; verifier refusals keep their text (trained_block.rs:5750, 5769, 5776). A run of mine sets the variable to a scratch directory
+ok   the file zk60_classify.a30a31 has the SHA-256 that the app's profile pins for its verifier binary
+ok   the verifier export's profile.json has the pinned SHA-256; the export has a token_io directory and no seq_ entry
+ok   three retained runs, each with 28 segments and a published statement that names the pinned identity and the W16R2 development run profile
+ok   each run's 28 segments total 669,561,472 bytes, the receipt size the status page states: [669561472]
+ok   their policies are the three categories: ['shieldstral-1.0-3b-moderate-hate/1', 'shieldstral-1.0-3b-moderate-sexual/1', 'shieldstral-1.0-3b-moderate-violence/1']
+ok   the models directory the handoff names exists
+ok   prover logs of 20 November: the installed profile has one table more than the 8B profile at slots 0, 1 and 14, each on a cube of 2^19, and the same counts and cubes at the other twenty slots
+ok   the code gives a support table of D only where D pads, and asks for it at three slot definitions (argument.rs:2579-2582, 2989, 3029; argument_accuracy.rs:478)
+ok   public entries a block at the installed profile: 8,052,736 + 3 x 2^19 = 9,625,600, 1.195 times the 8B count
+ok   twice tables times cube at the installed profile gives the sizes the handoff expects a verifier table to print
+ok   the 7 November verifier log: 26 tables of 30 rows, all of the R13 classifier profile
+ok   its means a block: slots 0, 1, 4, 14 to 19 168.9 ms; the seven fold slots 30.4 ms; all 23 slot rows 203.5 ms (R13, default pool, pool size not stated)
+ok   a verifier table prints a size for each slot row; in the first table slot 14 is 2 x 64 x 2^19 and slot 18 is 2 x 29 x 2^21, twice tables times cube at R13
+ok   the ns-a-unit column times the size gives each row's seconds to better than the printed millisecond (largest gap 0.45 ms): sub-millisecond row times can be read that way
+checks: 26, failed: 0
