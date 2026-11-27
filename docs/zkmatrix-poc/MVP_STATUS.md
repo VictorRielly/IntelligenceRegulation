@@ -51,11 +51,12 @@ Mac. A request counts as 128 tokens, padding included.
   not exist.
 - **Lean proofs, the profile the app runs (W16R2):** two of the author's nine items are merged, the
   shape of the 26 layers and single-block soundness, at the level "builds, read in part" [Nov 26,
-  00:25 and 02:13 UTC]. Readings on Nov 27 found every parameter that the single-block statement
-  fixes, the six slot definitions specific to this profile family, the numbering and placement of
-  the planes, and the way a slot definition is used, equal to the Rust verifier's; the statement
-  leaves the opening dimensions, the path depths and the opening check free, and the run level has
-  to pin them to the code's [Nov 27, 00:24, 00:35, 00:47 and 03:03 UTC]. The run level, the honest
+  00:25 and 02:13 UTC]. Five readings on Nov 27 found the Lean model equal to the Rust verifier on
+  every parameter the single-block statement fixes, on the six slot definitions specific to this
+  profile family, on the numbering and placement of the planes, on the way a slot definition is
+  used, and on the laws it assumes of the public tables; the statement leaves the opening
+  dimensions, the path depths and the opening check free, and the run level has to pin them to the
+  code's [Nov 27, 00:24, 00:35, 00:47, 03:03 and 04:14 UTC]. The run level, the honest
   prover, zero knowledge and the final statement are open, and their owner, Antigravity, is out of
   usage quota until about Nov 30 [Nov 27, 03:03 UTC]. The author's estimate for the whole list was five to eight weeks of agent work, made on Nov
   25 before those two items landed; Claude has not revised it [Nov 25, 19:28 and 22:47 UTC]. The 8B
@@ -884,6 +885,26 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 04:14 UTC, Lean [a fifth read-only comparison by an independent reader; the activation
+    table's zero row, the causal mask, the rotation sign and the group count re-read by me]: the
+    public tables the Rust verifier builds meet every law the single-block statement assumes of
+    them; one link, the number of activation groups per layer, is narrowed but not closed.** The
+    statement speaks about a verifier whose public tables (padding indicators, norm gains, rotation
+    tables, the causal mask, the activation group column, the folded weights, the lookup tables)
+    satisfy a list of stated laws. If the code's tables broke one, the theorem would say nothing
+    about the code. A reader compared them. 31 laws, 31 met, six of them trivially because the code
+    builds no table there. The tables reach the slots in the same order and index layout on both
+    sides: 23 rows, 19 read and equal, 3 carried from the third read, 1 open. Of 25 conditions on
+    the model's public data, the verifier refuses data that breaks 24, among them the zero row of
+    the activation table, which the third read had left as a condition [READ by the reader; four
+    rows re-read by me on both sides]. The open one: Lean fixes the number of activation groups of a
+    layer as a constant, and the code takes it from the loaded data. The author's script, run by me
+    earlier today on this machine's model export, finds that constant equal to the export's group
+    list in all 26 layers; that the loader's count is the length of that list is not yet read. Two
+    notes for the later steps: the single-block statement assumes nothing about the public data
+    itself (those conditions are needed when its result is tied to the integer model), and the law
+    for the gate weights holds with the folded gate multipliers
+    (`results/zk60_claude_review_20261116/W16R2_PUBLIC_TABLES_READ_20261127.md`).
     **Nov 27, 03:59 UTC, efficiency research [tick 69, reading and arithmetic; checked by me against
     the code and the records, 52 checks; nothing run]: swapping the commitment hash for a field hash
     would cost about 120 to 180 ms more device time a block, by a multiplication rate this
