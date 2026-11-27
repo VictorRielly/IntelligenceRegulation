@@ -52,11 +52,12 @@ Mac. A request counts as 128 tokens, padding included.
 - **Lean proofs, the profile the app runs (W16R2):** two of the author's nine items are merged, the
   shape of the 26 layers and single-block soundness, at the level "builds, read in part" [Nov 26,
   00:25 and 02:13 UTC]. Readings on Nov 27 found every parameter that the single-block statement
-  fixes, and the six slot definitions specific to this profile family, equal to the Rust
-  verifier's; the statement leaves the opening dimensions, the path depths and the opening check
-  free, and the run level has to pin them to the code's [Nov 27, 00:24, 00:35 and 00:47 UTC]. The
-  run level, the honest prover, zero knowledge and the final statement are
-  open. The author's estimate for the whole list was five to eight weeks of agent work, made on Nov
+  fixes, the six slot definitions specific to this profile family, the numbering and placement of
+  the planes, and the way a slot definition is used, equal to the Rust verifier's; the statement
+  leaves the opening dimensions, the path depths and the opening check free, and the run level has
+  to pin them to the code's [Nov 27, 00:24, 00:35, 00:47 and 03:03 UTC]. The run level, the honest
+  prover, zero knowledge and the final statement are open, and their owner, Antigravity, is out of
+  usage quota until about Nov 30 [Nov 27, 03:03 UTC]. The author's estimate for the whole list was five to eight weeks of agent work, made on Nov
   25 before those two items landed; Claude has not revised it [Nov 25, 19:28 and 22:47 UTC]. The 8B
   next-token profile is a further port that the list does not cover.
 - **Receipt size:** see 2. Nothing further is built on the size step until Victor answers the
@@ -883,6 +884,26 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 03:03 UTC, Lean [a fourth read-only comparison by an independent reader; the plane
+    numbering, sixteen steps of the slot consumer and the calibration values re-read by me]: the
+    Lean model numbers and places every plane and helper column as the Rust code does, and uses a
+    slot definition the same way; nothing found where the model accepts less or more than the code
+    in the dangerous direction.** The third read found six slot bodies equal but took two things on
+    trust: that a plane number means the same column on both sides, and that the verifier does the
+    same thing with a definition. This read checked both. *Numbering and placement:* 46 rows read on
+    both sides, 45 match, none mismatched. The one row the reader left open was the model's
+    calibration values, which decide a few limb counts and the range widths. I closed that row on
+    this machine: the Lean values are what the code derives from the model export that the Lean file
+    names and the app's runtime requires by hash [the author's comparison script, run by me: all 26
+    layers agree; the derivation read by me in the code]. The export is not in the public tree, so
+    an outsider cannot repeat that step. *Using a definition:* 40 steps, 33 match, 2 differ with the
+    code the stricter side (harmless for soundness), 5 not determined: they sit in parts the Lean
+    statement leaves abstract, or in code the reader did not open (the proof decoder, the
+    interpreter that turns a slot program into a definition, an alternative evaluation path, the
+    opening check). Those and the public tables are the next reads. **Antigravity, which owns the
+    Lean lane, is out of usage quota by its own log until about Nov 30, 20:04 UTC**, so the run
+    level and the three items after it are not moving; whether Claude takes them meanwhile is the
+    owner's decision (`results/zk60_claude_review_20261116/W16R2_LAYOUT_CONSUME_READ_20261127.md`).
     **Nov 27, 02:54 UTC, applications [a research tick's reading of public source text, checked by
     me on my own downloads; nothing built or run]: the standard's older web viewer components would
     not display a reference to one of our receipts; an integrator has to show it in a panel of its
