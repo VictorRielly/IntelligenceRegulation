@@ -889,6 +889,24 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 22:57 UTC, applications item A42 closed by my own reading [public source at two pinned
+    commits; derived from the text; nothing run]: the older JavaScript library answers "no
+    manifest", with no error, when a custom record's data box is missing or of the wrong kind.**
+    This was the last open part of item A42, and I read it myself instead of spending a research
+    tick. Two results. First, the question asked: when a custom record's JSON is not valid UTF-8,
+    the error keeps its own kind through the Rust part, the toolkit names the JavaScript error after
+    it, and that name cannot match any of the three names the older library ignores, so the page
+    gets an error. Second, found on the way: when a record's data box is missing, or is of another
+    kind than its description says, the Rust part returns a "box not found" error (item A38 recorded
+    this for the current library; the older revision has the same exit), and the older JavaScript
+    library treats that name as nothing to show: its read call returns no manifest and no error, the
+    same answer as for a file that never had credentials. For a product this is the quieter of the
+    two failures, so the release test gets one more line: each written file is read back with both
+    readers, and the read must return a manifest, not only "no error". Not determined: which bytes
+    make the box reader produce such a record (its parser was not read). Limits: two source trees at
+    two commits; no file with a bad record was read by either library; nothing here says what any
+    service does. Record: `research/applications/handoffs/20261127-apps-legacy-error-name.md` and
+    the check beside it (97 checks on my own downloads).
     **Nov 27, 20:56 UTC, applications item A39 [reading of public source at two pinned commits;
     nothing run]: the older reader library also loses the whole manifest to one badly formed custom
     record, and there the page most likely gets an error.** Item A38 found this for the current open

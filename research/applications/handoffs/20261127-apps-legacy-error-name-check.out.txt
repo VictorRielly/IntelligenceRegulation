@@ -1,0 +1,103 @@
+ok   the six files re-used from item A39 have the byte length and SHA-256 its handoff lists, at the two pinned commits
+ok   the nine further files have the lengths and hashes written in this script
+-- 1. the error of a JSON box that is not UTF-8, from where it is made to the name set on the JavaScript error
+ok   assertion.rs:438 contains 'pub(crate) fn from_data_json('
+ok   assertion.rs:442 contains 'let json = String::from_utf8(binary_data.to_vec()).map_err(|_| AssertionDecodeError {'
+ok   assertion.rs:444 contains 'version: None,'
+ok   assertion.rs:445 contains 'content_type: "json".to_string(),'
+ok   assertion.rs:446 contains 'source: AssertionDecodeErrorCause::BinaryDataNotUtf8,'
+ok   store.rs:760 contains ') -> Result<ClaimAssertion> {'
+ok   store.rs:796 contains 'let assertion = Assertion::from_data_json(&raw_label, json_box.json())?;'
+ok   store.rs:796 is inside get_assertion_from_jumbf_store, which opens at 754
+ok   error.rs:21 contains '#[derive(Debug, Error)]'
+ok   error.rs:23 contains 'pub enum Error {'
+ok   error.rs:42 contains 'AssertionDecoding(#[from] crate::assertion::AssertionDecodeError),'
+ok   error.rs names AssertionDecodeError on line 42 only, so the conversion at store.rs:796 is the derived one into AssertionDecoding
+ok   error.rs has four hand-written impl blocks (369, 390, 410, 417) and none is about an assertion error
+ok   store.rs:1370 contains 'match Store::get_assertion_from_jumbf_store('
+ok   store.rs:1383 contains 'if std::mem::discriminant(&e)'
+ok   store.rs:1384 contains '== std::mem::discriminant(&Error::PrereleaseError)'
+ok   store.rs:1391 contains 'return Err(e);'
+ok   store.rs:1391 is inside from_jumbf, which opens at 1126
+ok   store.rs:3968 contains '.map(|(manifest_bytes, _)| Store::from_jumbf(&manifest_bytes, validation_log))?'
+ok   store.rs:4143 contains 'Self::load_cai_from_memory(asset_type, data, validation_log).inspect_err(|e| {'
+ok   store.rs:4355 contains 'let store = Store::get_store_from_memory(asset_type, data, validation_log)?;'
+ok   store.rs:4355 is inside load_from_memory_async, which opens at 4349
+ok   manifest_store.rs:264 contains 'Store::load_from_memory_async(format, image_bytes, verify, &mut validation_log).await'
+ok   manifest_store.rs:275 contains 'Err(e) => Err(e),'
+ok   manifest_store.rs:454 contains 'let store = Store::from_jumbf(manifest_bytes, &mut validation_log)?;'
+ok   toolkit/src/manifest_store.rs:18 contains 'ManifestStore::from_bytes_async(mime_type, data, true)'
+ok   toolkit/src/manifest_store.rs:20 contains '.map_err(Error::from)'
+ok   toolkit/src/manifest_store.rs:32 contains 'ManifestStore::from_manifest_and_asset_bytes_async(manifest_bytes, format, asset_bytes)'
+ok   toolkit/src/manifest_store.rs:34 contains '.map_err(Error::from)'
+ok   toolkit/src/error.rs:9 contains '#[derive(Error, Debug)]'
+ok   toolkit/src/error.rs:10 contains 'pub enum Error {'
+ok   toolkit/src/error.rs:18 contains 'C2pa(#[from] c2pa::Error),'
+ok   toolkit/src/lib.rs:65 contains 'let js_err = JsSysError::new(&err.to_string());'
+ok   toolkit/src/lib.rs:66 contains 'js_err.set_name(&format!("{:?}", err));'
+ok   toolkit/src/lib.rs:68 contains 'if let Error::C2pa(c2pa::Error::RemoteManifestUrl(url)) = err {'
+ok   toolkit/src/lib.rs:69 contains 'js_err.set_name("Toolkit(RemoteManifestUrl)");'
+ok   toolkit/src/lib.rs:99 contains 'let result = get_manifest_store_data(&asset, &mime_type, settings.as_deref())'
+ok   toolkit/src/lib.rs:101 contains '.map_err(as_js_error)?;'
+ok   toolkit/src/lib.rs:132 contains '.map_err(as_js_error)?;'
+-- 2. the text of that name
+ok   assertion.rs:598 contains 'impl std::fmt::Debug for AssertionDecodeError {'
+ok   assertion.rs:600 contains 'self.fmt_internal(f)'
+ok   assertion.rs:511 contains '"could not decode assertion {} (version {}, content type {}): {}",'
+ok   assertion.rs:514 contains '.map_or("(no version)".to_string(), |v| v.to_string()),'
+ok   assertion.rs:516 contains 'self.source'
+ok   assertion.rs:630 contains '#[error("binary data could not be interpreted as UTF-8")]'
+ok   assertion.rs:631 contains 'BinaryDataNotUtf8,'
+ok   c2pa/src/c2pa.ts:291 contains '/^C2pa\\(ProvenanceMissing\\)$/,'
+ok   c2pa/src/c2pa.ts:293 contains '/^C2pa\\(JumbfParseError\\([^\\)]+\\)\\)$/,'
+ok   c2pa/src/c2pa.ts:295 contains '/^C2pa\\(Jumbf(?:Box)?NotFound\\)$/,'
+ok   the ignore list at c2pa.ts 289-296 has exactly these three patterns
+ok   each ignored pattern requires P or J right after "C2pa(" and the derived name has A there, so no assertion label can make it match
+ok   for six sample labels the derived name matches none of the three patterns and is not the remote-manifest name
+     derived name for the label org.example.proof: C2pa(AssertionDecoding(could not decode assertion org.example.proof (version (no version), content type json): binary data could not be interpreted as UTF-8))
+ok   c2pa/src/c2pa.ts:318 contains "if (error.name === 'Toolkit(RemoteManifestUrl)') {"
+ok   c2pa/src/c2pa.ts:325 contains 'if (ignoreErrors.some((re) => re.test(error.name))) {'
+ok   c2pa/src/c2pa.ts:327 contains 'return null;'
+ok   c2pa/src/c2pa.ts:330 contains 'throw error;'
+-- 3. how the error and its name cross the worker
+ok   c2pa/worker.ts:32 contains 'async getReport('
+ok   c2pa/worker.ts:39 contains 'return getManifestStoreFromArrayBuffer(buffer, type, settings);'
+ok   worker.ts 32-40: getReport has no try or catch of its own
+ok   c2pa/src/lib/pool/worker.ts:35 contains 'const res = await methods[method](...args);'
+ok   c2pa/src/lib/pool/worker.ts:41 contains '} catch (error: unknown) {'
+ok   c2pa/src/lib/pool/worker.ts:44 contains 'error: serializeError(error as Error),'
+ok   c2pa/src/lib/pool/error.ts:16 contains 'return Object.getOwnPropertyNames(error).reduce(function (product, name) {'
+ok   c2pa/src/lib/pool/error.ts:18 contains 'value: error[name],'
+ok   c2pa/src/lib/pool/error.ts:26 contains "var temp = new Error('');"
+ok   c2pa/src/lib/pool/error.ts:31 contains 'temp[props[i]] = serializedError[props[i]];'
+ok   c2pa/src/lib/pool/workerManager.ts:38 contains 'reject(deserializeError(e.data.error));'
+ok   c2pa/src/lib/pool/workerPool.ts:68 contains 'const result = await worker.execute(task.request);'
+ok   c2pa/src/lib/pool/workerPool.ts:71 contains 'task.reject(error);'
+ok   c2pa/src/lib/pool/workerPool.ts:95 contains 'reject(value);'
+ok   c2pa/src/lib/poolWrapper.ts:42 contains "getReport: async (...args) => workerPool.execute('getReport', args),"
+ok   c2pa/src/c2pa.ts:237 contains 'const result = await pool.getReport(wasm, buffer, source.type, settings);'
+ok   c2pa/src/c2pa.ts:246 contains '} catch (err: any) {'
+ok   c2pa/src/c2pa.ts:247 contains 'const manifestStore = await handleErrors('
+-- 4. one more exit: an assertion whose data box is absent or of another kind
+ok   inside get_assertion_from_jumbf_store (754 to 940) the lines that name JumbfBoxNotFound are 794, 827, 830, 847 and 879
+ok   store.rs:794 contains '.ok_or(Error::JumbfBoxNotFound)?;'
+ok   store.rs:827 contains '.ok_or(Error::JumbfBoxNotFound)?;'
+ok   store.rs:830 contains '.ok_or(Error::JumbfBoxNotFound)?;'
+ok   store.rs:847 contains '.ok_or(Error::JumbfBoxNotFound)?;'
+ok   store.rs:879 contains '.ok_or(Error::JumbfBoxNotFound)?;'
+ok   store.rs:791 contains 'CAI_JSON_ASSERTION_UUID => {'
+ok   store.rs:793 contains '.data_box_as_json_box(0)'
+ok   store.rs:844 contains 'CAI_CBOR_ASSERTION_UUID => {'
+ok   jumbf/boxes.rs:295 contains 'pub fn data_box_as_json_box(&self, index: usize) -> Option<&JUMBFJSONContentBox> {'
+ok   jumbf/boxes.rs:296 contains 'self.data_boxes.get(index).and_then(|da_box| {'
+ok   jumbf/boxes.rs:300 contains '.downcast_ref::<JUMBFJSONContentBox>()'
+ok   jumbf/boxes.rs:304 contains 'pub fn data_box_as_cbor_box(&self, index: usize) -> Option<&JUMBFCBORContentBox> {'
+ok   jumbf/boxes.rs:309 contains '.downcast_ref::<JUMBFCBORContentBox>()'
+ok   error.rs:202 contains 'JumbfNotFound,'
+ok   error.rs:205 contains 'JumbfBoxNotFound,'
+ok   error.rs:260 contains 'ProvenanceMissing,'
+ok   error.rs:278 contains 'JumbfParseError(#[from] crate::jumbf::boxes::JumbfParseError),'
+ok   the name C2pa(JumbfBoxNotFound) matches the third ignored pattern (and only that one), so handleErrors returns null at line 327
+ok   c2pa/src/c2pa.ts:256 contains 'return {'
+ok   c2pa/src/c2pa.ts:257 contains 'manifestStore,'
+97 checks, 0 failed
