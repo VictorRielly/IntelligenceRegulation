@@ -885,6 +885,25 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 06:53 UTC, applications [a research tick's reading of public source text, checked by
+    me on my own downloads, 120 checks; nothing built or run]: in the older, deprecated web library
+    too, a custom record carried as JSON or CBOR reaches the application; no shipped component shows
+    it, and a malformed one can cost the whole read.** A receipt can be tied to a media file by a
+    small custom record (an "assertion"). Earlier items today showed that the standard's current
+    library returns such a record's content on both of its JSON routes, and that the deprecated web
+    components never display one. This item read what lies between them. The deprecated toolkit
+    hands the whole store to the JavaScript library. The Rust reader it pins copies a JSON or CBOR
+    record with any unreserved label into the list and drops raw binary. The library passes the list
+    on unfiltered. The older summary component's input has twelve fixed fields and no place for such
+    a record, so an integrator shows it in a panel of its own. My check adds two things from files
+    the tick did not read. A label ending in `.metadata` is parsed as something else, so the
+    record's label must not end that way. And a record whose JSON or CBOR does not parse is not
+    simply skipped here: either the load stops, or the manifest that carries it is missing from the
+    result and the library's next step fails. Which of the two was not read. On the current
+    library's second route the same fault costs only that record [Nov 27, 04:21 UTC]. For a product:
+    carry the reference as a JSON object or a CBOR map, keep the label clear of that ending, and
+    parse the record back before embedding it. This is a reading of a deprecated repository; it says
+    nothing about any hosted viewer.
     **Nov 27, 06:47 UTC, Lean [my own read-only reading of the Rust loader; nothing run in this
     step, the author's export check was run earlier today]: the one link the fifth read left open is
     closed: the number of activation groups the Rust verifier uses for a layer is the number the
