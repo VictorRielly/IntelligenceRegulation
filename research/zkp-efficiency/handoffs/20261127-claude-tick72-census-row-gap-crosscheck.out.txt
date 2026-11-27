@@ -1,0 +1,36 @@
+ok    1 range16_tests.rs:14 the calibration: tn 9 at width >= 3072, sh_ao 7, sh_qkv 8, sh_s 6, sh_o 9, sh_g 8, sh_h 14, sh_z 6
+ok    2 range16_tests.rs:20 built(): the shape is made with a common gate shift of 20
+ok    3 range16_tests.rs:37 case(): groups with e_in -4, -3, -2, -1, the first ng of them
+ok    4 range16_tests.rs:39-40 case(): base member (-3, -11); the shape takes the gate shift of the group data
+ok    5 slot_ir_accuracy.rs:1814, 1819 the harness test: built at 20, then case(original, 3)
+ok    6 w16r2_tests.rs:2694, 2704, 2716 the A8 census test: case(original, 3), then prints the layout rows
+ok    7 accuracy_groups.rs:48, 50 gate shift = max over channels of (base_sh_g + 10 + e_in - base_e_in), at least 17
+ok    8 range16.rs:164-195 widths(): starts from 16, the ten rem calls in the order transliterated here, byte width dropped, sorted, de-duplicated | [176, 177, 178, 180, 184, 185, 186, 188, 189, 190]
+ok    9 range16.rs:208 families(): sub-planes of a width = max(1, 2^width >> log_cols)
+ok   10 accuracy_precision.rs:73-83, 91 the derived shifts: q +7, k +7, v +8, score +12, pv +3, ao +14, gate +10, up +12, down +6 +8 (LowH24), f_p 12
+ok   11 shape.rs:875 range_families(): widths(stack, precision, the shape's gate shift, wrho_s) at the shape's log_cols
+ok   12 shape.rs:2482, 2587 Tab planes: 3 + sub-planes in A, 4 + sub-planes in H
+ok   13 shape.rs:2628-2630 claim sites of the table slot: 3 + sub-planes on each side (so one more sub-plane is one more site in A and in H)
+ok   14 layout.rs:67 SH_ROPE = 7
+ok   15 layout.rs:1341-1342, 1348, 1352-1353 rows = data rows + 2 a site + 2; an H plane counts twice in the data rows
+ok   16 test calibration: gate shift 20 gives 12 sub-planes (width 4 is also the down projection's), 19 gives 13 (width 3 is new) | ([2, 4, 5, 7, 12, 13, 15, 16], [2, 3, 4, 5, 7, 12, 13, 15, 16])
+ok   17 test calibration, by gate shift 17..24: 13 sub-planes at 17, 19, 22 and 12 at 18, 20, 21, 23, 24 (the handoff's table)
+ok   18 gate shift of case(shape, ng): 17, 18, 19, 20 for ng = 1, 2, 3, 4 | {1: 17, 2: 18, 3: 19, 4: 20}
+ok   19 census.log:218, 227, 235, 236 the census: A rows 2501 (data 2279), H rows 2602 (data 2514); Tab planes 15 in A, 16 in H; H data rows by domain 1257
+ok   20 sites from the census's own figures: 110 in A, 43 in H; 15 = 3 + 12 and 16 = 4 + 12
+ok   21 one more sub-plane: A (2279 + 1) + 2 x 111 + 2 = 2504; H (2514 + 2) + 2 x 44 + 2 = 2606
+ok   22 a8/s1_bench.log:224-226 the A8 census of the same directory: A rows 2504, H rows 2606; commits of 2504 and 2606 rows
+ok   23 breakdown record of 17 November, the 8B arm, line 4: a commit of 2504 rows (the file of the R13 arm beside it has 4577 on that line)
+ok   24 block test of 20 November at the Shieldstral geometry (the same test, so the same fixture: test calibration, three groups), line 4: a commit of 2504 rows
+ok   25 installed export, profile file: uniform values gate 20, sh_ao 7, sh_s 7, sh_z 8; constants sh_qkv 8, sh_o 9, sh_g 8, f_e 9, f_p 12, sh_rope 7; 26 layers
+ok   26 the export's builder: target gate 20 is the common gate shift of group_folds_for, required of every layer
+ok   27 installed calibration at gate shift 20: widths 3, 4, 5, 6, 7, 12, 13, 15, 16, so 13 sub-planes, 16 Tab planes in A and 17 in H | [3, 4, 5, 6, 7, 12, 13, 15, 16]
+ok   28 the builder's own mirror of the width list (a29lib.py:150-162) gives the same nine widths for (7, 7, 8, 20) | [3, 4, 5, 6, 7, 12, 13, 15, 16]
+ok   29 installed calibration, by gate shift: 13 sub-planes at 17, 18, 20 and 12 at 19, 21, 22, 23, 24; so the handoff's list (17, 19, 22) is the test calibration's only | [17, 18, 20]
+ok   30 Lean record of the installed profile: rows 2504 and 2606, claim counts 111 and 45 (BlockInstW16Shield.lean:117; fields rA, rH, nA, nH)
+ok   31 the H claim count is the H sites plus one in both Lean records: 44 + 1 = 45 here; R13 Shield (4390 - 2 - 4282) / 2 + 1 = 54
+ok   32 b6/model.py:35-36 names the census as its source and holds 2501, 2602; in b4b5/model.py the pair is at line 72 under another name
+
+32 checks, 0 failed
+test calibration,      sub-planes by gate shift: {17: 13, 18: 12, 19: 13, 20: 12, 21: 12, 22: 13, 23: 12, 24: 12}
+installed calibration, sub-planes by gate shift: {17: 13, 18: 13, 19: 12, 20: 13, 21: 12, 22: 12, 23: 12, 24: 12}

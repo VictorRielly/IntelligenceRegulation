@@ -889,6 +889,21 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 15:58 UTC, research tick 72 [reading and arithmetic; no run]: why two records of the
+    same block disagree by a few rows, and it changes nothing.** One record of 5 November counts
+    2,501 and 2,602 committed rows for the 8B block; the traced runs I checked (5, 17 and 20
+    November) show 2,504 and 2,606. The researcher found the cause and I checked it line by line (32
+    checks): the two were built from test data that differ in one number, a rounding shift of the
+    feed-forward gate. One value of it coincides with a width the block already looks up; the other
+    adds one small lookup table, and one more table is three more rows on one side and four on the
+    other. It is not a change in the code. I corrected one remark: the researcher's list of which
+    shift values give the larger count holds for the test data only. The installed classifier has
+    its own calibration, read from its export; by the same rule it has the larger count, 2,504 and
+    2,606, which is the pair the Lean record of that profile carries. The effect is 7 rows of 5,110
+    (0.14%) and nothing on proved tokens a second. The size studies of 5 November that used the
+    smaller pair keep their conclusions, and I left those dated files unchanged. Record:
+    `research/zkp-efficiency/handoffs/20261127-claude-tick72-census-row-gap.md`, with my check at
+    its end.
     **Nov 27, 12:10 UTC, checker time [MEASURED, one run of mine at one thread; the reading rule was
     pushed before the run]: what one thread of the installed checker spends on a receipt, and one of
     our estimates is corrected.** I ran the checker binary that the app pins (a copy, never the

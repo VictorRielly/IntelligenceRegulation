@@ -1,0 +1,24 @@
+precision (LowH24): {'q': 15, 'k': 15, 'v': 16, 'score': 18, 'pv': 12, 'ao': 21, 'gate': 18, 'up': 12, 'product': 6, 'down': 20, 'f_p': 12}
+
+range widths and Tab planes by common gate shift (A planes = 3 + subs, H planes = 4 + subs):
+ gate_shift  widths                              subs  A_tab  H_tab
+   17        [1, 2, 4, 5, 7, 12, 13, 15, 16]       13     16     17
+   18        [2, 4, 5, 7, 12, 13, 15, 16]          12     15     16
+   19        [2, 3, 4, 5, 7, 12, 13, 15, 16]       13     16     17
+   20        [2, 4, 5, 7, 12, 13, 15, 16]          12     15     16
+   21        [2, 4, 5, 7, 12, 13, 15, 16]          12     15     16
+   22        [2, 4, 5, 6, 7, 12, 13, 15, 16]       13     16     17
+   23        [2, 4, 5, 7, 12, 13, 15, 16]          12     15     16
+   24        [2, 4, 5, 7, 12, 13, 15, 16]          12     15     16
+
+harness gate shift = max(17, 8 + 10 + e_in - (-3)) over the first ng groups:
+  ng = 1: gate shift 17, Tab sub-planes 13
+  ng = 2: gate shift 18, Tab sub-planes 12
+  ng = 3: gate shift 19, Tab sub-planes 13
+  ng = 4: gate shift 20, Tab sub-planes 12
+
+census rows (gate shift 20, 15 A Tab planes): A 2501, H 2602
+harness (gate shift 19): 1 more Tab sub-plane -> A 2504, H 2606
+
+All asserts hold: census = gate shift 20 (width 20-16 = 4 equals the down projection's 20-16 = 4, one width
+less after dedup), harness = gate shift 19 from three groups (width 3, a new family).
