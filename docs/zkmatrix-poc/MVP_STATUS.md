@@ -889,6 +889,27 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 20:56 UTC, applications item A39 [reading of public source at two pinned commits;
+    nothing run]: the older reader library also loses the whole manifest to one badly formed custom
+    record, and there the page most likely gets an error.** Item A38 found this for the current open
+    reader library. This item asked the same of the older, legacy library. The researcher read the
+    Rust source at the revision the older toolkit pins, and I checked it against my own downloads
+    (the same ten files by hash; 106 checks pass; the main passages read by eye). The result is the
+    same in the Rust part: a record whose CBOR is invalid, or whose JSON is text but not JSON, is
+    noted and loading goes on, but the manifest that holds it is then left out of the list of
+    manifests; a JSON record that is not valid UTF-8 fails the whole load. My check adds the next
+    step, from three files of the older JavaScript library the researcher did not read: when the
+    manifest that is left out is the active one, the library reads a field of a missing value, which
+    is an error by the language's rule, and its read call passes that error on to the page [derived
+    from the text; not run]. When it is the manifest of an ingredient, the ingredient is shown
+    without it. Not determined: whether the Rust part returns a result at all for a signed file with
+    such a record (its verification step was not read). For a product the rule is unchanged: a
+    record that carries a proof reference must be well formed and read back with both readers before
+    release. Limits: two source trees at two commits; no file with a bad record was read by either
+    library; nothing here says what any service does. One follow-up item is narrowed and one added
+    by the tick stays open. Record:
+    `research/applications/handoffs/20261127-apps-legacy-malformed-assertion.md` and the check
+    beside it.
     **Nov 27, 20:00 UTC, research tick 73 [code reading and arithmetic; one existing run re-read;
     nothing new run]: half of what the checker's weight folds visit at the installed profile is
     padding; skipping it would save some checking time and nothing on the speed goal.** To check a

@@ -1,0 +1,60 @@
+# A39: does a malformed custom assertion remove the whole manifest in the legacy reader?
+
+Applications researcher, 2026-11-27 (UTC; clock read 20:49Z during the tick). Triage material, not a work order.
+
+## Question
+
+In the toolkit's pin of the Rust reader (c2pa-rs `0a29852b0546596972c7105a7a510b12e050dc67`, the full hash the coordinator's check resolved) and the JavaScript repository's commit `c8c2912e2855c857277c0e1a6535a6db18e13c8e`: when a custom assertion's CBOR or JSON box does not parse, does the load stop or is the manifest left out; does the library's outer read call catch the exception; what are the toolkit's types? The check of A37 already answered `decode_data`, `as_json_object` and the box test in `store.rs`; this tick re-quotes those and does the rest.
+
+## What was read, and how
+
+Unauthenticated Python `urllib`, User-Agent `Mozilla/5.0 (research reader)`, raw text from raw.githubusercontent.com at the two commits. Paths were taken from the recursive tree listing at each commit (neither listing truncated; every file's byte length equals the listing's `size`). Each download went into its own new empty directory; the reader script is in another directory and ran with `python3 -I`. Nothing executed. 12 page reads (the budget), no web search, no guessed path. [COUNTED] means a line of the fetched file.
+
+| File at the commit | Bytes | SHA-256 |
+|---|---|---|
+| c2pa-rs tree listing (api, recursive) | 178218 | b5921382ba443fb47efd78352c8e726a6cfbdd088174194106292647d9ed5f2c |
+| c2pa-js-legacy tree listing (api, recursive) | 124773 | d910e40d785aead925a78bc295abdf03c66486e6602fda1f0bfd188f5770eb81 |
+| `sdk/src/status_tracker/mod.rs` | 9633 | d209e8422c95cf9ba18083d1245a335083aefc348966268efd88de3321cb61e6 |
+| `sdk/src/status_tracker/log_item.rs` | 15738 | 8830a579a3ebcaaabef8dab36460b70de83788426ebed5e1135e8e5ec9b79a3a |
+| `sdk/src/manifest_store.rs` | 26007 | 2cf341276efaaa844e902d0c0b4bd6a3e78912bc53539c241eab8bb0a8c58635 |
+| `sdk/src/store.rs` | 348123 | e32987fba55b3f3d91429f3009239a622b9d202240a9de1c7084bac6ce832e69 |
+| `sdk/src/assertion.rs` | 24431 | be3b347e5453829d534c7675807d4f6ba8561bace0405a431d395eacf81eae30 |
+| `sdk/src/manifest.rs` | 114787 | 3bdf21d819e42a4f37135a854978af9ebd748cb46987b7a6e0b464a24fceca60 |
+| `packages/toolkit/types/index.ts` | 6176 | 64f3a21ccb8f96b6f9b17c434889c51aa6a60e26186f4213b0b3c4edd3ccd68d |
+| `packages/c2pa/src/c2pa.ts` | 10110 | 4c7dcedcae8a631d4652376b4abb54da98988d3ee59cdf492cb17a24b5e3080a |
+| `packages/toolkit/src/lib.rs` | 4986 | 2ad7145643fedadeed8a1bd6ffd6f644fc607e996120988d085c673956efbb9c |
+| `packages/toolkit/src/manifest_store.rs` | 1544 | 08d37b6273565aa3f238202685c176a564a1dd32206347126b7850a1e3c4568d |
+
+107 line-and-text checks of every quotation below (script `/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/39cab447-559b-4f13-981d-d0346f20681a/scratchpad/apps_a39_scripts/check.py`, `python3 -I`): 107 pass, 0 fail. The script is outside the repository.
+
+## Findings
+
+**1. The validation log's default at this pin is "continue" [COUNTED].** `sdk/src/status_tracker/mod.rs` 23 `#[derive(Debug, Default)]` on `StatusTracker`; 190-192 `impl Default for ErrorBehavior { fn default() -> Self { Self::ContinueWhenPossible`; 96-98 in `add_error`: `ErrorBehavior::StopOnFirstError => Err(err),` / `ErrorBehavior::ContinueWhenPossible => Ok(err),`. `log_item.rs` 235 `pub fn failure<E: Debug>(...)` ends `tracker.add_error(self, err)` (238). So `.failure(log, e)?` records the item and goes on when the log is the default.
+
+**2. The log that reaches the loader is the default one [COUNTED].** The toolkit calls `ManifestStore::from_bytes_async(mime_type, data, true)` (`packages/toolkit/src/manifest_store.rs` 18) and, for the other entry, `ManifestStore::from_manifest_and_asset_bytes_async(` (32). In the reader: `manifest_store.rs` 259 `let mut validation_log = StatusTracker::default();` (in `from_bytes`, whose async form is generated; 264 `Store::load_from_memory_async(format, image_bytes, verify, &mut validation_log).await`); 453-454 for the second entry: `let mut validation_log = StatusTracker::default();` / `Store::from_jumbf(manifest_bytes, &mut validation_log)?;`. Down the first route the same log is passed on: `store.rs` 4355 `Store::get_store_from_memory(asset_type, data, validation_log)?;`, 4143 `Self::load_cai_from_memory(asset_type, data, validation_log)`, 3968 `Store::from_jumbf(&manifest_bytes, validation_log)`.
+`StopOnFirstError` is built in `store.rs` at 514, 580, 2688, 2870 and 4674 (before the test module at 4960), and at `manifest_store.rs` 246 (`from_manifest`, writer side). Their functions, by the nearest `fn` line: `get_ocsp_status` (505), `sign_claim` (542), `save_to_bmff_fragmented` (2668), `save_to_stream` (2775), `load_ingredient_to_claim` (4663), none on the toolkit's two routes. Whether anything outside `store.rs` reaches those: **not determined** (a text search of the whole crate would settle it).
+
+**3. So the load does not stop for a box that is UTF-8 JSON that does not parse, or CBOR that does not parse; it goes on [COUNTED, DERIVED].** `store.rs` 799 `serde_json::from_slice::<serde_json::Value>(json_box.json())`, 805 `.validation_status(ASSERTION_JSON_INVALID)`, `.failure(` (806) ... `)?;` (811); CBOR: 851 `serde_cbor::from_slice::<serde_cbor::Value>(cbor_box.cbor())`, 857 `.validation_status(ASSERTION_CBOR_INVALID)`, 858 `.failure(` ... 863 `)?;`. With the default log (finding 1) the `?` returns the recorded error value and the loop continues; the claim assertion is built and added (1377-1378 `Ok(assertion) => { claim.put_assertion_store(assertion);`). The only exits at 1381-1391 are `Err(e) => {` ... `return Err(e);` for errors that come back as `Err`.
+**The exception is a JSON box whose bytes are not UTF-8**: `store.rs` 796 `Assertion::from_data_json(&raw_label, json_box.json())?;` runs first, and `assertion.rs` 442 `String::from_utf8(binary_data.to_vec())` ... 446 `AssertionDecodeErrorCause::BinaryDataNotUtf8` returns `Err` with no log involved. That error reaches 1391 `return Err(e);`: the whole load fails. The CBOR arm has no such step (848 `Assertion::from_data_cbor(...)` returns `Assertion`, `assertion.rs` 430).
+
+**4. Then the manifest is left out, not the load [COUNTED].** `assertion.rs` 282-283 `decode_data` returns `&self.data`; 331 `as_json_object(&self) -> AssertionDecodeResult<Value>`: JSON 333-334 `serde_json::from_str(x)` `.map_err(...)`; CBOR 341-342 `serde_transcode::transcode(&mut from, &mut to)` `.map_err(...)?;`, 345-346 `serde_json::from_slice(&buf2)` `.map_err(...)`. `manifest.rs` 762-763 `AssertionData::Cbor(_) => { let value = assertion.as_json_object()?;` and 769-770 the same for `Json(_)`; `from_store` returns `Result<Self>` (570-574). In `manifest_store.rs` the async builder (the toolkit's route: `from_bytes` async calls `from_store_async`, 272): `let result = Manifest::from_store_async(...)` (213), `Ok(manifest) => {` ... `.insert(manifest_label.to_owned(), manifest);` (221), `Err(e) => {` ... `validation_results.add_status(ValidationStatus::from_error(&e));` (224). `active_manifest` was set before the loop (206 `manifest_store.active_manifest = store.provenance_label();`). Consequence: the manifest holding the bad box is absent from `manifests` (a status is added; whether `from_error` yields a status string for this error: **not determined**, `validation_status.rs` not read), and `active_manifest` still names it if it is the active one. Same code in the sync builder (176-187).
+Not determined: whether `verify_store_async` (`store.rs` 4358-4365, `.await?`) returns a hard error for a validly signed claim whose box does not parse. A38 left the same question for the newer tag (queue item A40).
+
+**5. The outer read call catches, and mostly rethrows [COUNTED].** `packages/c2pa/src/c2pa.ts` 236 `try {`, 237 `const result = await pool.getReport(wasm, buffer, source.type, settings);`, 243 `manifestStore: createManifestStore(result.manifest_store, cawg),`, 246-247 `} catch (err: any) { const manifestStore = await handleErrors(`. `handleErrors` returns a value only for the name `Toolkit(RemoteManifestUrl)` (318) and for names matching `ignoreErrors` (325, 327 `return null;`): 291 `/^C2pa\(ProvenanceMissing\)$/`, 293 `/^C2pa\(JumbfParseError\([^\)]+\)\)$/`, 295 `/^C2pa\(Jumbf(?:Box)?NotFound\)$/`; otherwise 330 `throw error;`. So `read` rejects for any other error name. The name a non-UTF-8 JSON box produces is **not determined** (the toolkit's `error.rs` and `From` for the error were not read); it is a decoding error, not one of the three ignored kinds, as far as their names go.
+For the manifest-left-out case (finding 4) the earlier check records that the library reads a field of a missing value (`manifestStore.ts` 127, 158; `manifest.ts` 133). Those files were **not re-read this tick** (budget); if a `TypeError` is thrown at 243 it is inside the `try` (236-246), its name matches none of the three patterns, so 330 rethrows it (DERIVED, not run). Which manifests the library reads (only the active one, or every one) is **not determined** here: if the bad assertion is in an ingredient's manifest the library might not touch it.
+
+**6. The toolkit's types [COUNTED].** `packages/toolkit/types/index.ts`: `Manifest` has `assertions: Assertion[];` (107); `Assertion<T = string, U = unknown>` has `label: T;` `data: AssertionData<U>;` `instance?: number;` `kind?: ManifestAssertionKind;` (119-123); `AssertionData<U = unknown> = { metadata?: Metadata; } & U` (115-117); `type ManifestAssertionKind = 'Cbor' | 'Json' | 'Binary' | 'Uri';` (113). `ManifestAssertion` (171-176) is a union of five typed forms (actions, actions v2, hash data, the schema.org CreativeWork, the web3 addresses); it is not the type of `Manifest.assertions`. So a custom label fits `Assertion<string, unknown>`: the data's shape is `unknown`, a reader casts. `ManifestStore` has `active_manifest: string;` (27, not optional), `manifests: Record<string, Manifest>;` (28), `validation_status: ValidationStatus[];` (29); `ValidationStatus` is `code: string;` plus optional `url`, `explanation` (49-53). `ToolkitError extends Error { url?: string; }` (312-313): no code field. The types do not allow for an absent active manifest: a lookup of a missing key in a `Record` is typed as a `Manifest`. (The kind `'Binary'` is in the type, while the pinned Rust reader pushes nothing for binary boxes (`manifest.rs` 779); `'Uri'`: not determined.)
+
+## What a product would have to build
+
+- Parse every custom record back (UTF-8, then JSON or CBOR) before embedding it. At this pin a record that is not UTF-8 JSON kills the read; one that does not parse costs its whole manifest, and with it the signer and the other assertions of that manifest, when the legacy library shows the result.
+- An integrator on this library should read `validation_status` as well as `manifests`, and treat a missing active manifest as "present but unreadable", not as "no credentials".
+- A custom record is typed `unknown` here: validate it in the integrator's own code.
+
+## A test that would confirm or kill this
+
+Three tiny signed files differing only in one custom box in the active manifest: invalid CBOR; UTF-8 text that is not JSON; JSON bytes that are not UTF-8. Read each once with the legacy library on a fixed page. Prediction: the first two make `read` either reject or return a store whose `manifests` lacks the active manifest, with the invalid-box status in the store's validation status; the third rejects. Any result that holds the manifest for the first two, or a store for the third, kills finding 3 or 4.
+
+## Not verified
+
+Nothing was run. Not read this tick: `manifestStore.ts` and `manifest.ts` (the missing-value step, relied on from the coordinator's check), toolkit `error.rs`, `validation_status.rs`, `validation_results` (whether the box-invalid status reaches the result), `store.rs` verification for a malformed but signed box, every caller of `load_ingredient_to_claim` outside `store.rs`. This is the deprecated repository; it says nothing about the hosted viewer.
