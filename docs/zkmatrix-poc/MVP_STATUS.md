@@ -885,6 +885,29 @@ item was re-checked against the source by the coordinator.
     handed over and its start: 12 ms a block with one lane, 52 ms with six. That wait is about the size
     of the gap between replay and measurement, so it is a second thing to cut besides GPU work itself;
     where it comes from is not known. The next tick fits it from the traces.
+    **Nov 27, 06:47 UTC, Lean [my own read-only reading of the Rust loader; nothing run in this
+    step, the author's export check was run earlier today]: the one link the fifth read left open is
+    closed: the number of activation groups the Rust verifier uses for a layer is the number the
+    Lean model lists for that layer.** The Lean model fixes a group count per layer (3 or 4). The
+    Rust code sizes the activation table from the length of the group list its loader returns
+    (`accuracy_act.rs:14`), and nobody had read that the list has that length. I read it. The loader
+    takes the list from the layer's `silu_groups` array, which must have shape n by 2 with n from 1
+    to 4, and makes n groups from it (`trained_accuracy.rs:102-124`). It then accepts the activation
+    array only with shape n by 4096 (`:125-130`), and the public-data constructor refuses unless
+    there are as many tables as groups (`accuracy_public.rs:142`). The array reader refuses a
+    declared shape outside the expected list before reading, and a file whose length differs from
+    what the shape gives (`trained_block.rs:400-411`). The array descriptions come from the layer's
+    manifest file (`trained_block.rs:1287`), whose hash the loader compares with the profile's entry
+    for that layer when the profile lists one (`:1142-1146`); the installed profile lists one for
+    each of its 26 layers. The author's export check (`formal/ZK60Formal/verify_export_u1.py`) opens
+    the same manifest files, checks the same hashes, asserts that the activation array's first
+    dimension equals the number of listed group members, and compares that number with the Lean
+    list; it passed for all 26 layers of the installed export [Nov 27, 03:03 UTC]. This loader has
+    one caller outside tests (`trained_block.rs:1297`). So for the installed export the Lean
+    constant and the code's table length are the same number. Nothing new is proved by this; one
+    item on the list of things the Lean statement takes on trust is gone. Still unread from today's
+    five reads: the interpreter from a slot program to a slot definition, the Rust wire decoder, the
+    public tables of slots 21 and 22, and the index order of the two equality tables.
     **Nov 27, 04:21 UTC, applications [a research tick's reading of public source text, checked by
     me on my own downloads, 68 checks; nothing built or run]: the standard's open library writes a
     custom record with its content in its second JSON output too, provided the record is a CBOR map
